@@ -1260,8 +1260,6 @@ static int dlfb_setup_modes(struct dlfb_data *dev,
 			if (dlfb_is_valid_mode(&info->monspecs.modedb[i], info))
 				fb_add_videomode(&info->monspecs.modedb[i],
 					&info->modelist);
-
-
 			else {
 				if (i == 0)
 					/* if we've removed top/best mode */
