@@ -106,7 +106,7 @@ EOF
     cat <<EOF
 Requires(post):   /sbin/depmod
 Requires(postun): /sbin/depmod
-Requires:   lm_sensors >= 2.10.8
+Requires:   lm_sensors >= 2.10.8-2
 EOF
 
 if [ "no" != "$kmp_nobuildreqs" ]
