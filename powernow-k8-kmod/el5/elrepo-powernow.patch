@@ -1,0 +1,22 @@
+--- a/powernow-k8-0.0/powernow-k8.c	2010-04-02 14:09:39.000000000 -0700
++++ b/powernow-k8-0.0/powernow-k8.c	2010-04-18 17:35:52.000000000 -0700
+@@ -866,19 +866,11 @@
+ 	acpi_processor_notify_smm(THIS_MODULE);
+ 
+ 	/* determine affinity, from ACPI if available */
+-	if (preregister_valid) {
+-		if ((data->acpi_data->shared_type == CPUFREQ_SHARED_TYPE_ALL) ||
+-		    (data->acpi_data->shared_type == CPUFREQ_SHARED_TYPE_ANY))
+-			data->starting_core_affinity = data->acpi_data->shared_cpu_map;
+-		else
+-			data->starting_core_affinity = cpumask_of_cpu(data->cpu);
+-	} else {
+ 		/* best guess from family if not */
+ 		if (cpu_family == CPU_HW_PSTATE)
+ 			data->starting_core_affinity = cpumask_of_cpu(data->cpu);
+ 		else
+ 			data->starting_core_affinity = cpu_core_map[data->cpu];
+-	}
+ 
+ 	return 0;
+ 

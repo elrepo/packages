@@ -1,0 +1,91 @@
+# Define the kmod package name here.
+%define	 kmod_name powernow-k8
+
+Name:	 %{kmod_name}-kmod
+Version: 0.0
+Release: 4.el5.elrepo
+Group:	 System Environment/Kernel
+License: GPL v2
+Summary: powernow-k8 driver module
+URL:	 http://www.kernel.org/
+
+BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
+ExclusiveArch: i686 x86_64
+
+# Sources.
+Source0:  %{kmod_name}-%{version}.tar.bz2
+Source10: kmodtool-%{kmod_name}
+Patch1: elrepo-powernow.patch
+
+# If kversion isn't defined on the rpmbuild line, build for the current kernel.
+# %{!?kversion: %define kversion %(uname -r)}
+%define kversion 2.6.18-238.el5
+
+# Define the variants for each architecture.
+%define basevar ""
+%ifarch i686
+%define paevar PAE
+%endif
+%ifarch i686 x86_64
+%define xenvar xen
+%endif
+
+# If kvariants isn't defined on the rpmbuild line, build all variants for this architecture.
+%{!?kvariants: %define kvariants %{?basevar} %{?xenvar} %{?paevar}}
+
+# Magic hidden here.
+%define kmodtool sh %{SOURCE10}
+%{expand:%(%{kmodtool} rpmtemplate_kmp %{kmod_name} %{kversion} %{kvariants} 2>/dev/null)}
+
+%description
+This package provides the powernow-k8 driver module.
+It is built to depend upon the specific ABI provided by a range of releases
+of the same variant of the Linux kernel and not on any one specific build.
+
+%prep
+%setup -q -c -T -a 0
+%patch1 -p1
+
+for kvariant in %{kvariants} ; do
+    %{__cp} -a %{kmod_name}-%{version} _kmod_build_$kvariant
+    %{__cat} <<-EOF >_kmod_build_$kvariant/%{kmod_name}.conf
+	override %{kmod_name} 2.6.18-8.* weak-updates/%{kmod_name}
+	override %{kmod_name} 2.6.18-53.* weak-updates/%{kmod_name}
+	override %{kmod_name} 2.6.18-92.* weak-updates/%{kmod_name}
+	override %{kmod_name} 2.6.18-128.* weak-updates/%{kmod_name}
+	override %{kmod_name} 2.6.18-164.* weak-updates/%{kmod_name}
+	override %{kmod_name} 2.6.18-194.* weak-updates/%{kmod_name}
+	EOF
+done
+
+%build
+for kvariant in %{kvariants} ; do
+    ksrc=%{_usrsrc}/kernels/%{kversion}${kvariant:+-$kvariant}-%{_target_cpu}
+    pushd _kmod_build_$kvariant
+    %{__make} -C "${ksrc}" modules M=$PWD
+    popd
+done
+
+%install
+export INSTALL_MOD_PATH=$RPM_BUILD_ROOT
+export INSTALL_MOD_DIR=extra/%{kmod_name}
+for kvariant in %{kvariants} ; do
+    ksrc=%{_usrsrc}/kernels/%{kversion}${kvariant:+-$kvariant}-%{_target_cpu}
+    pushd _kmod_build_$kvariant
+    %{__make} -C "${ksrc}" modules_install M=$PWD
+    %{__install} -d ${INSTALL_MOD_PATH}/etc/depmod.d/
+    %{__install} %{kmod_name}.conf ${INSTALL_MOD_PATH}/etc/depmod.d/
+    popd
+done
+# Strip the module(s).
+find ${INSTALL_MOD_PATH} -type f -name \*.ko -exec strip --strip-debug \{\} \;
+
+%clean
+%{__rm} -rf $RPM_BUILD_ROOT
+
+%changelog
+* Sun Jul 26 2009 Akemi Yagi <toracat@elrepo.org>
+- Initial build of the kmod package. 
+- Based on the template by Alan Bartlett <ajb@elrepo.org>
+- Patch provided by AlexAT <alex@net13.info> [bugzilla 502397]
+
