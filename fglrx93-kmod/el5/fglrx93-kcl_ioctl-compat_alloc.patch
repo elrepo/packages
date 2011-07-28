@@ -1,0 +1,17 @@
+--- lib/modules/fglrx/build_mod/kcl_ioctl.c.orig	2009-03-18 15:07:22.000000000 +0000
++++ lib/modules/fglrx/build_mod/kcl_ioctl.c	2010-12-21 16:12:25.000000000 +0000
+@@ -193,7 +193,13 @@
+  */
+ void* ATI_API_CALL KCL_IOCTL_AllocUserSpace32(long size)
+ {
+-    return compat_alloc_user_space(size);
++    void __user *ret = arch_compat_alloc_user_space(size);
++
++    /* prevent stack overflow */
++    if (!access_ok(VERIFY_WRITE, ret, size))
++        return NULL;
++
++    return (void *)ret;
+ }
+ 
+ #endif // __x86_64__
