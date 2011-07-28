@@ -263,7 +263,8 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %{_mandir}/man1/nvidia*.*
 %{_datadir}/pixmaps/nvidia-settings.png
 %{_datadir}/applications/*nvidia-settings.desktop
-%{_sysconfdir}/profile.d/nvidia.*
+%config(noreplace) %{_sysconfdir}/profile.d/nvidia.csh
+%config(noreplace) %{_sysconfdir}/profile.d/nvidia.sh 
 %{_bindir}/nvidia*
 %{_sbindir}/nvidia-config-display
 %config %{_sysconfdir}/modprobe.d/nvidia
