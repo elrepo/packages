@@ -1,0 +1,196 @@
+#!/usr/bin/python
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Library General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+# Copyright 2003, 2004 Peter Backlund
+
+import ixf86config
+import string
+import os
+import sys
+
+ati_xorg_drv = [ "ati", "r128", "r500", "radeon"]
+ld_so_conf = "/etc/ld.so.conf.d/ati.conf"
+
+if os.uname()[4] == "x86_64" :
+    TOP_MOD_DIR = "/usr/lib64/xorg/modules"
+else:
+    TOP_MOD_DIR = "/usr/lib/xorg/modules"
+
+# This will add an entry to ModulePath section,
+# with previous entries untouched.
+def addModulePath(files, newPathEntry):
+    prevModPath = []
+    # Check for existing ModulePath
+    if (files.module != None):
+        prevModPath = string.split(files.module, ",")
+    # First, add the default module dirs. We add the dirs in
+    # reversed order, and reverse the list at the end.
+    newModPath = [TOP_MOD_DIR]
+    #newModPath.append(TOP_MOD_DIR + "/extensions")
+    for i in range(len(prevModPath)):
+        mp = prevModPath[i]
+        # Remove trailing "/", in case the config file
+        # has been hand-edited
+        if mp[len(mp) - 1] == "/":
+            mp = mp[:(len(mp) - 1)]
+        # Add to new module path
+        if not mp in newModPath and mp != (TOP_MOD_DIR + "/extensions"):
+            newModPath.append(mp)
+    # Add new path entry
+    if not (TOP_MOD_DIR + newPathEntry) in newModPath:
+        newModPath.append(TOP_MOD_DIR + newPathEntry)
+    # Reverse list
+    newModPath.reverse()
+    files.module = string.join(newModPath, ",")
+
+#
+# Removes an entry in the ModulePath list.
+#
+def removeModulePath(files, modulePath):
+    prevModPath = []
+    # Check for existing ModulePath
+    if (files.module != None):
+        prevModPath = string.split(files.module, ",")
+    if (len(prevModPath) < 1):
+        # ModulePath empty, do nothing.
+        return
+    newModPath = []
+    for i in range(len(prevModPath)):
+        mp = prevModPath[i]
+        # Remove trailing "/", in case the config file
+        # has been hand-edited
+        if mp[len(mp) - 1] == "/":
+            mp = mp[:(len(mp) - 1)]
+        if mp != (TOP_MOD_DIR + modulePath) and mp != (TOP_MOD_DIR + "/extensions"):
+            newModPath.append(mp)
+    files.module = string.join(newModPath, ",")
+
+#
+# Set driver to newDriver
+#
+def togglenewDriver(device, newDriver):
+    for dev in device:
+        for drv in ati_xorg_drv:
+            if (dev.driver.lower() == drv):
+                dev.comment = "\t# X.org Original Driver " + drv + '\n'
+                dev.driver = newDriver
+
+#
+# Set driver to oldDriver
+#
+def toggleoldDriver(device):
+    for dev in device:
+        if dev.driver == "fglrx":
+            if dev.comment:
+                oldDriver = dev.comment.split()
+                dev.driver = oldDriver[-1]
+            else:
+                printError('Old driver section not found !!! Use generic "ati" driver')
+                dev.driver = "ati"
+            dev.comment = ""
+
+#
+# enable/disable fglrx shared libraries
+#
+def toggleLdConf():
+    try:
+        if arg == "enable": 
+            os.rename(ld_so_conf + ".disable", ld_so_conf)
+        else:
+            os.rename(ld_so_conf, ld_so_conf + ".disable")
+        os.system("/sbin/ldconfig")
+    except:
+        printError("Problem trying to enable fglrx shared libraries")
+
+def printError(err):
+    print "Error:", err
+
+def printUsage():
+    print "Usage: ati-config-display [enable|disable]"
+
+# ------------
+# Main section
+# ------------
+
+try:
+    # Read config file
+    (xconfig, xconfigpath) = ixf86config.readConfigFile()
+except:
+    printError("Could not read X config file")
+    sys.exit(1)
+
+# Check number of arguments
+if (len(sys.argv) == 2):
+    arg = sys.argv[1]
+else:
+    printError("Wrong number of arguments")
+    printUsage()
+    sys.exit(1)
+
+# Check value of argument
+if arg != "enable" and arg != "disable":
+    printError("Invalid command")
+    printUsage()
+    sys.exit(1)
+
+# Check ld.so.conf file
+ld_so_conf_file = ld_so_conf
+if arg == "enable":
+    ld_so_conf_file = ld_so_conf_file + ".disable"
+if not os.access(ld_so_conf_file, os.F_OK):
+    printError("Cannot access " + ld_so_conf_file)
+    sys.exit(1)
+
+# Backup original X config file to .backup-fglrx
+backup_file = None
+output_file = xconfigpath
+if output_file != None and os.access(output_file, os.F_OK):
+    backup_file = output_file + ".backup-fglrx"
+    try:
+        os.rename(output_file, backup_file)
+    except:
+        printError("Cannot write backup file")
+        sys.exit(1)
+else:
+    printError("Cannot open X config file (missing or malformed)")
+    sys.exit(1)
+try:
+    if (arg == "enable"):
+        # Check for existing Files Section
+        if (xconfig.files == None):
+            xconfig.files = ixf86config.XF86ConfFiles()
+        # Enable fglrx driver:
+        # Add fglrx module path and change driver to 'fglrx'
+        addModulePath(xconfig.files, "/extensions/fglrx")
+        togglenewDriver(xconfig.device, "fglrx")
+    elif (arg == "disable"):
+        # Disable fglrx driver:
+        # Remove fglrx module path and change driver to old one
+        removeModulePath(xconfig.files, "/extensions/fglrx")
+        toggleoldDriver(xconfig.device)
+    else:
+        # This shouldn't happen, but we handle it anyway
+        raise
+    # Write new X config file
+    xconfig.write(output_file)
+    toggleLdConf()
+except:
+    printError("Editing failed, restoring backup")
+    try:
+        # Something went wrong, restore backup
+        os.rename(backup_file, output_file)
+    except:
+        printError("Failed to restore backup")
