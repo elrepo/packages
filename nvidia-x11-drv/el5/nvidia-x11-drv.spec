@@ -239,8 +239,6 @@ popd
 %{__rm} -rf $RPM_BUILD_ROOT
 
 %post
-/sbin/ldconfig
-
 if [ "$1" -eq "1" ]; then
     # If xorg.conf doesn't exist, create it
     [ ! -f %{_sysconfdir}/X11/xorg.conf ] && %{_bindir}/nvidia-xconfig &>/dev/null
@@ -251,6 +249,8 @@ if [ "$1" -eq "1" ]; then
     # Enable the proprietary nvidia driver
     %{_sbindir}/nvidia-config-display enable &>/dev/null
 fi || :
+
+/sbin/ldconfig
 
 %post 32bit
 /sbin/ldconfig

@@ -222,13 +222,13 @@ echo %{atilibdir} > %{buildroot}%{_sysconfdir}/ld.so.conf.d/ati.conf.disable
 %{__rm} -rf %{buildroot}
 
 %post
-/sbin/ldconfig
 # Enable the proprietary driver
 %{_sbindir}/ati-config-display enable &>/dev/null
 if [ "${1}" -eq 1 ]; then
   %{_sbindir}/chkconfig --add atieventsd
   %{_sbindir}/service atieventsd start
 fi || :
+/sbin/ldconfig
 
 %post 32bit
 /sbin/ldconfig

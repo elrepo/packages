@@ -231,8 +231,6 @@ popd
 %{__rm} -rf $RPM_BUILD_ROOT
 
 %post
-/sbin/ldconfig
-
 if [ "$1" -eq "1" ]; then
     # Check if xorg.conf exists, if it does, backup and remove [BugID # 0000127]
     [ -f %{_sysconfdir}/X11/xorg.conf ] && \
@@ -251,6 +249,8 @@ if [ "$1" -eq "1" ]; then
         /sbin/grubby --update-kernel=${GRUBBYLASTKERNEL} --args='nouveau.modeset=0 rdblacklist=nouveau' &>/dev/null
     fi
 fi || :
+
+/sbin/ldconfig
 
 %post 32bit
 /sbin/ldconfig

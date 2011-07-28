@@ -217,13 +217,13 @@ popd
 %{__rm} -rf $RPM_BUILD_ROOT
 
 %post
-/sbin/ldconfig
 # Make sure we have a Files section in xorg.conf, otherwise create an empty one
 XORGCONF=/etc/X11/xorg.conf
 [ -w ${XORGCONF} ] && ! grep -q 'Section "Files"' ${XORGCONF} && \
     echo -e 'Section "Files"\nEndSection' >> ${XORGCONF}
 # Enable the proprietary nvidia driver
 %{_sbindir}/nvidia-config-display enable &>/dev/null || :
+/sbin/ldconfig
 
 %post 32bit
 /sbin/ldconfig
