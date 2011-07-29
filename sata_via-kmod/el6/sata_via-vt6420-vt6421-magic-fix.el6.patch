@@ -1,0 +1,61 @@
+Wed May 04 2011, Philip J Perry <phil@elrepo.org>
+RHEL-6.0 sata_via fix FIFO issue on vt6420/vt6421
+2010-11-19     Tejun Heo    sata_via: apply magic FIFO fix to vt6420 too
+2010-06-02     Tejun Heo    sata_via: magic vt6421 fix for transmission problems...
+2010-06-07     Tejun Heo    sata_via: explain the magic fix 
+
+--- sata_via.c.rhel	2011-05-04 15:26:20.000000000 +0100
++++ sata_via.c	2011-05-04 15:41:33.000000000 +0100
+@@ -521,7 +521,7 @@
+ 	return 0;
+ }
+ 
+-static void svia_configure(struct pci_dev *pdev)
++static void svia_configure(struct pci_dev *pdev, int board_id)
+ {
+ 	u8 tmp8;
+ 
+@@ -558,6 +558,34 @@
+ 		tmp8 |= NATIVE_MODE_ALL;
+ 		pci_write_config_byte(pdev, SATA_NATIVE_MODE, tmp8);
+ 	}
++
++        /*
++         * vt6420/1 has problems talking to some drives.  The following
++         * is the fix from Joseph Chan <JosephChan@via.com.tw>.
++         *
++         * When host issues HOLD, device may send up to 20DW of data
++         * before acknowledging it with HOLDA and the host should be
++         * able to buffer them in FIFO.  Unfortunately, some WD drives
++         * send upto 40DW before acknowledging HOLD and, in the
++         * default configuration, this ends up overflowing vt6421's
++         * FIFO, making the controller abort the transaction with
++         * R_ERR.
++         *
++         * Rx52[2] is the internal 128DW FIFO Flow control watermark
++         * adjusting mechanism enable bit and the default value 0
++         * means host will issue HOLD to device when the left FIFO
++         * size goes below 32DW.  Setting it to 1 makes the watermark
++         * 64DW.
++         *
++         * https://bugzilla.kernel.org/show_bug.cgi?id=15173
++         * http://article.gmane.org/gmane.linux.ide/46352
++         * http://thread.gmane.org/gmane.linux.kernel/1062139
++         */
++        if (board_id == vt6420 || board_id == vt6421) {
++                pci_read_config_byte(pdev, 0x52, &tmp8);
++                tmp8 |= 1 << 2;
++                pci_write_config_byte(pdev, 0x52, tmp8);
++        }
+ }
+ 
+ static int svia_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+@@ -608,7 +636,7 @@
+ 	if (rc)
+ 		return rc;
+ 
+-	svia_configure(pdev);
++	svia_configure(pdev, board_id);
+ 
+ 	pci_set_master(pdev);
+ 	return ata_host_activate(host, pdev->irq, ata_sff_interrupt,
