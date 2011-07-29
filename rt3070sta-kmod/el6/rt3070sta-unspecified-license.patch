@@ -1,0 +1,13 @@
+rt3070sta fix module license 'unspecified' taints kernel.
+Sat Mar 19 2011, Philip J Perry <phil@elrepo.org>
+
+--- 2011_0107_RT3070_RT3370_Linux_STA_v2.5.0.1_DPO/os/linux/usb_main_dev.c.orig	2011-03-19 23:58:27.000000000 +0000
++++ 2011_0107_RT3070_RT3370_Linux_STA_v2.5.0.1_DPO/os/linux/usb_main_dev.c	2011-03-19 23:58:27.000000000 +0000
+@@ -37,6 +37,7 @@
+ /* Otherwise post to forum in ralinktech's web site(www.ralinktech.com) and let all users help you. *** */
+ MODULE_AUTHOR("Paul Lin <paul_lin@ralinktech.com>");
+ MODULE_DESCRIPTION("RT2870 Wireless Lan Linux Driver");
++MODULE_LICENSE("GPL");
+ #ifdef CONFIG_STA_SUPPORT
+ #ifdef MODULE_VERSION
+ MODULE_VERSION(STA_DRIVER_VERSION);

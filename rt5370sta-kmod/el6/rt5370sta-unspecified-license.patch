@@ -1,0 +1,13 @@
+rt5370sta fix module license 'unspecified' taints kernel.
+Tue May 03 2011, Philip J Perry <phil@elrepo.org>
+
+--- 2011_0225_RT5370_RT5372_Linux_STA_V2.5.0.1_DPO/os/linux/usb_main_dev.c.orig	2004-01-03 15:39:42.000000000 +0000
++++ 2011_0225_RT5370_RT5372_Linux_STA_V2.5.0.1_DPO/os/linux/usb_main_dev.c	2011-05-03 21:34:40.000000000 +0100
+@@ -38,6 +38,7 @@
+ /* Otherwise post to forum in ralinktech's web site(www.ralinktech.com) and let all users help you. *** */
+ MODULE_AUTHOR("Paul Lin <paul_lin@ralinktech.com>");
+ MODULE_DESCRIPTION("RT2870 Wireless Lan Linux Driver");
++MODULE_LICENSE("GPL");
+ #ifdef CONFIG_STA_SUPPORT
+ #ifdef MODULE_VERSION
+ MODULE_VERSION(STA_DRIVER_VERSION);
