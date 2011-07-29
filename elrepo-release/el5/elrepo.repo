@@ -1,0 +1,38 @@
+### Name: ELRepo.org Community Enterprise Linux Repository for el5
+### URL: http://elrepo.org/
+
+[elrepo]
+name=ELRepo.org Community Enterprise Linux Repository - el5
+baseurl=http://elrepo.org/linux/elrepo/el5/$basearch/
+mirrorlist=http://elrepo.org/mirrors-elrepo.el5
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
+protect=0
+
+[elrepo-testing]
+name=ELRepo.org Community Enterprise Linux Testing Repository - el5
+baseurl=http://elrepo.org/linux/testing/el5/$basearch/
+mirrorlist=http://elrepo.org/mirrors-elrepo-testing.el5
+enabled=0
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
+protect=0
+
+[elrepo-kernel]
+name=ELRepo.org Community Enterprise Linux Kernel Repository - el5
+baseurl=http://elrepo.org/linux/kernel/el5/$basearch/
+mirrorlist=http://elrepo.org/mirrors-elrepo-kernel.el5
+enabled=0
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
+protect=0
+
+[elrepo-extras]
+name=ELRepo.org Community Enterprise Linux Repository - el5
+baseurl=http://elrepo.org/linux/extras/el5/$basearch/
+mirrorlist=http://elrepo.org/mirrors-elrepo-extras.el5
+enabled=0
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
+protect=0
