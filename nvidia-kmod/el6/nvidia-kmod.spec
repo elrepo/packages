@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 2.6.32-71.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 275.21
+Version: 280.13
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -72,6 +72,9 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Aug 02 2011 Philip J Perry <phil@elrepo.org> - 280.13-1.el6.elrepo
+- Updated to version 280.13
+
 * Fri Jul 22 2011 Philip J Perry <phil@elrepo.org> - 275.21-1.el6.elrepo
 - Updated to version 275.21
 

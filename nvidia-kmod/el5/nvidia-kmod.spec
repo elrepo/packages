@@ -6,7 +6,7 @@
 %{!?kversion: %define kversion 2.6.18-164.el5}
 
 Name:    %{kmod_name}-kmod
-Version: 275.21
+Version: 280.13
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -90,6 +90,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Aug 02 2011 Philip J Perry <phil@elrepo.org> - 280.13-1.el5.elrepo
+- Updated to version 280.13
+
 * Fri Jul 22 2011 Philip J Perry <phil@elrepo.org> - 275.21-1.el5.elrepo
 - Updated to version 275.21
 
