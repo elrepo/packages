@@ -11,9 +11,11 @@ The ELRepo Project Welcomes Contributions. To contribute a new package or submit
 3. Make changes and commit them to your fork.
 4. Submit a [pull request](http://help.github.com/pull-requests/) when your contribution is ready.
 
+If you wish to maintain a package or set of packages, and would like access to our build systems then please ask on the [elrepo-devel](http://lists.elrepo.org/mailman/listinfo/elrepo-devel) mailing list.
+
 ## Getting Help
 
 When creating new packages, please use the templates provided in our [templates repository](https://github.com/elrepo/templates).
 
-If you need help, please post to the [elrepo-devel](http://lists.elrepo.org/mailman/listinfo/elrepo-devel) mailing list or drop by #elrepo on Freenode.
+If you need help or want to discuss your contribution, please post to the [elrepo-devel](http://lists.elrepo.org/mailman/listinfo/elrepo-devel) mailing list or drop by #elrepo on Freenode.
 
