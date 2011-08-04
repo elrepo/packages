@@ -1,0 +1,19 @@
+# Welcome to The ELRepo Project
+
+The ELRepo Project (http://elrepo.org) is a community repository dedicated to providing improved hardware support to Red Hat Enterprise Linux and its derivatives.
+
+## The ELRepo Project Welcomes Contributors
+
+The ELRepo Project Welcomes Contributions. To contribute a new package, or a fix to an existing package, use the following procedure:
+
+1. Create an account on [GitHub](https://github.com/).
+2. [Fork](http://help.github.com/fork-a-repo/) our [git repository](https://github.com/elrepo/packages).
+3. Make changes and commit them to your fork.
+4. Submit a [pull request](http://help.github.com/pull-requests/) when your contribution is ready.
+
+## Getting Help
+
+When creating new packages, please use the templates provided in our [templates repository](https://github.com/elrepo/templates).
+
+If you need help, please post to the [elrepo-devel](http://lists.elrepo.org/mailman/listinfo/elrepo-devel) mailing list or drop by #elrepo on Freenode.
+
