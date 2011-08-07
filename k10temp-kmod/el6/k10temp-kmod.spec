@@ -6,7 +6,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 1%{?dist}
+Release: 4%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: AMD K10 core temperature monitor driver module
@@ -28,7 +28,7 @@ Source10: kmodtool-%{kmod_name}-el6.sh
 %define debug_package %{nil}
 
 %description
-This package provides the %{kmod_name} kernel module(s).
+This package provides the AMD K10 core temperature monitor driver module.
 It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
@@ -61,6 +61,13 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Aug 08 2011 Philip J Perry <phil@elrepo.org> - 0.0-4.el6.elrepo
+- Bump version to be in sync with el5 release.
+- Update the docs.
+- Rebase to kernel-3.0.1
+- Add support for AMD Family 15h (Bulldozer) CPUs [2011-05-25]
+- Use helper functions to set and get driver data [2011-05-25]
+
 * Sat Apr 30 2011 Philip J Perry <phil@elrepo.org> - 0.0-1
 - Initial el6 build of the kmod package.
 - Backported from kernel-2.6.38.4.
