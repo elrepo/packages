@@ -6,7 +6,7 @@
 
 Name:	 %{kmod_name}-kmod
 Version: 0.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 Group:	 System Environment/Kernel
 License: GPLv2
 Summary: AMD K10 core temperature monitor driver module
@@ -84,6 +84,12 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Aug 08 2011 Philip J Perry <phil@elrepo.org> - 0.0-4.el5.elrepo
+- Add the docs.
+- Rebase to kernel-3.0.1
+- Add support for AMD Family 15h (Bulldozer) CPUs [2011-05-25]
+- Use helper functions to set and get driver data [2011-05-25]
+
 * Sun Apr 24 2011 Philip J Perry <phil@elrepo.org> - 0.0-3.el5.elrepo
 - Rebased to kernel-2.6.38.4
 - Add support for AMD Family 12h/14h CPUs [2011-02-18]
