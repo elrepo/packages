@@ -28,6 +28,7 @@
 /* from latest linux/pci_ids.h */
 /* required to build on RHEL-6.0 */
 #define PCI_DEVICE_ID_AMD_CNB17H_F3	0x1703
+#define PCI_DEVICE_ID_AMD_15H_NB_F3	0x1603
 
 MODULE_DESCRIPTION("AMD Family 10h+ CPU core temperature monitor");
 MODULE_AUTHOR("Clemens Ladisch <clemens@ladisch.de>");
