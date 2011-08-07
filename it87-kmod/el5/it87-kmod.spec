@@ -7,7 +7,7 @@
 
 Name:	 %{kmod_name}-kmod
 Version: 1.1
-Release: 8%{?dist}
+Release: 9%{?dist}
 Group:	 System Environment/Kernel
 License: GPLv2
 Summary: IT87 Super I/O Sensor module
@@ -89,6 +89,12 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Aug 07 2011 Philip J Perry <phil@elrepo.org> - 1.1-9.el5.elrepo
+- add the docs.
+- Rebase to kernel-2.6.39.4
+- Fix label group removal [2011-08-03]
+- Use pr_fmt and pr_<level> [2011-01-12]
+
 * Sun Feb 06 2011 Philip J Perry <phil@elrepo.org> - 1.1-8.el5.elrepo
 - Rebase to kernel-2.6.37
 - Fix implicit declaration of function 'acpi_check_resource_conflict' on RHEL5
