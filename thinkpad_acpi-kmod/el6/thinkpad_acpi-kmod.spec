@@ -6,7 +6,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 0.24
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -61,6 +61,13 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Aug 07 2011 Philip J Perry <phil@elrepo.org> - 0.24-2.el6.elrepo
+- Rebase driver to kernel-3.0.1
+- handle HKEY 0x4010, 0x4011 events [2011-07-07]
+- handle some new HKEY 0x60xx events [2011-07-07]
+- Convert printks to pr_<level> [2011-05-27]
+- Correct !CONFIG_THINKPAD_ACPI_VIDEO warning [2011-05-27]
+
 * Fri Jul 15 2011 Philip J Perry <phil@elrepo.org> - 0.24-1
 - Rebase driver to kernel-2.6.39.3 [includes patches to 2011-05-09]
   [http://elrepo.org/bugs/view.php?id=157]
