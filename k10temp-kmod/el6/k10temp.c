@@ -25,10 +25,20 @@
 #include <linux/pci.h>
 #include <asm/processor.h>
 
-/* from latest linux/pci_ids.h */
-/* required to build on RHEL-6.0 */
+/* 
+ * The following patches are required to build on RHEL6 - <phil@elrepo.org>
+ *
+ * Backported from latest linux/pci_ids.h, required to build on RHEL-6.0
+ */
+
+#ifndef PCI_DEVICE_ID_AMD_CNB17H_F3
 #define PCI_DEVICE_ID_AMD_CNB17H_F3	0x1703
+#endif
+#ifndef PCI_DEVICE_ID_AMD_15H_NB_F3
 #define PCI_DEVICE_ID_AMD_15H_NB_F3	0x1603
+#endif
+
+/* end elrepo patches */
 
 MODULE_DESCRIPTION("AMD Family 10h+ CPU core temperature monitor");
 MODULE_AUTHOR("Clemens Ladisch <clemens@ladisch.de>");
