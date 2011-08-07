@@ -88,6 +88,25 @@
 
 #include <linux/pci_ids.h>
 
+/* 
+ * The following patches are required to build on RHEL6 - <phil@elrepo.org>
+ *
+ * Required for patch 'Convert printks to pr_<level>' [2011-05-27]
+ * no_printk is not defined in linux/printk.h on the RHEL6
+ * 2.6.32-71 kernel so lets define it here - <phil@elrepo.org>
+ */
+
+/*
+ * Dummy printk for disabled debugging statements to use whilst maintaining
+ * gcc's format and side-effect checking.
+ */
+static inline __attribute__ ((format (printf, 1, 2)))
+int no_printk(const char *fmt, ...)
+{
+	return 0;
+}
+
+/* end elrepo patch */
 
 /* ThinkPad CMOS commands */
 #define TP_CMOS_VOLUME_DOWN	0
