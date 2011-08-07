@@ -19,6 +19,7 @@ ExclusiveArch: i686 x86_64
 # Sources.
 Source0:  %{kmod_name}-%{version}.tar.bz2
 Source5:  GPL-v2.0.txt
+Source6:  %{kmod_name}.txt
 Source10: kmodtool-%{kmod_name}-el5.sh
 
 # Define the variants for each architecture.
@@ -53,6 +54,7 @@ for kvariant in %{kvariants} ; do
     %{__cp} -a %{kmod_name}-%{version} _kmod_build_$kvariant
 done
 %{__cp} -a %{SOURCE5} .
+%{__cp} -a %{SOURCE6} .
 echo "/usr/lib/rpm/redhat/find-requires | %{__sed} -e '/^ksym.*/d'" > filter-requires.sh
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
@@ -74,6 +76,7 @@ done
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} GPL-v2.0.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
+%{__install} %{kmod_name}.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 # Set the module(s) to be executable, so that they will be stripped when packaged.
 find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 
