@@ -3,12 +3,12 @@
 
 %define real_name drbd
 
-Summary: Management utilities for DRBD %{version}
 Name: drbd84-utils
 Version: 8.4.0
 Release: 1%{?dist}
 License: GPLv2+
 Group: System Environment/Kernel
+Summary: Management utilities for DRBD %{version}
 URL: http://www.drbd.org/
 
 Source: http://oss.linbit.com/drbd/8.4/drbd-%{version}.tar.gz
