@@ -5,7 +5,7 @@
 
 Summary: Management utilities for DRBD %{version}
 Name: drbd83-utils
-Version: 8.3.10
+Version: 8.3.11
 Release: 1%{?dist}
 License: GPLv2+
 Group: System Environment/Kernel
@@ -149,6 +149,9 @@ fi
 %{_sysconfdir}/xen/scripts/block-drbd
 
 %changelog
+* Mon Aug 08 2011 Dag Wieers <dag@elrepo.org> - 8.3.11-1
+- Updated to release 8.3.11.
+
 * Fri Jan 28 2011 Dag Wieers <dag@elrepo.org> - 8.3.10-1
 - Updated to release 8.3.10.
 
