@@ -4,7 +4,7 @@ The [ELRepo Project](http://elrepo.org) is a community repository dedicated to p
 
 ## The ELRepo Project Welcomes Contributors
 
-The ELRepo Project Welcomes Contributions. To contribute a new package or submit a fix to an existing package, please use the following procedure:
+To contribute a new package or submit a fix to an existing package, please use the following procedure:
 
 1. Create an account on [GitHub](https://github.com/).
 2. [Fork](http://help.github.com/fork-a-repo/) our [git repository](https://github.com/elrepo/packages).
@@ -18,4 +18,3 @@ If you wish to maintain a package or set of packages, and would like access to o
 When creating new packages, please use the templates provided in our [templates repository](https://github.com/elrepo/templates).
 
 If you need help or want to discuss your contribution, please post to the [elrepo-devel](http://lists.elrepo.org/mailman/listinfo/elrepo-devel) mailing list or drop by #elrepo on Freenode.
-
