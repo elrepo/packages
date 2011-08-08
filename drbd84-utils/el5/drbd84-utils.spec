@@ -116,6 +116,8 @@ fi
 %dir %{_sysconfdir}/drbd.d/
 %config(noreplace) %{_sysconfdir}/drbd.d/global_common.conf
 %dir %{_localstatedir}/lib/drbd/
+/lib/drbd/drbdadm-83
+/lib/drbd/drbdsetup-83
 /sbin/drbdsetup
 /sbin/drbdadm
 /sbin/drbdmeta
