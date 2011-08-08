@@ -10,15 +10,15 @@
 
 Summary: Distributed Redundant Block Device driver for Linux
 Name: %{kmod_name}-kmod
-Version: 8.3.10
-Release: 2%{?dist}
+Version: 8.3.11
+Release: 1%{?dist}
 License: GPL
 Group: System Environment/Kernel
 URL: http://www.drbd.org/
 
 # Sources.
 Source0: http://oss.linbit.com/drbd/8.3/drbd-%{version}.tar.gz
-Source10: kmodtool-%{kmod_name}-el5.sh
+Source10: kmodtool-%{kmod_name}.sh
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 
 ExclusiveArch: i686 x86_64
@@ -99,6 +99,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Mon Aug 08 2011 Dag Wieers <dag@wieers.com> - 8.3.11-1
+- Updated to release 8.3.11.
+
 * Sat Feb 19 2011 Philip J Perry <phil@elrepo.org> - 8.3.10-2
 - Fixed module install.
 
