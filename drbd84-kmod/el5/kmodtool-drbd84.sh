@@ -110,7 +110,7 @@ Requires(postun): /sbin/depmod
 Requires: drbd84-utils >= %{?epoch:%{epoch}:}%{version}
 
 ### We cannot obsolete all Linbit drbd-km-%{kversion} variants
-Conflicts: kmod-drbd < 8.2
+Conflicts: kmod-drbd < 8.4
 Conflicts: kmod-drbd82 <= %{version}-%{release}
 Conflicts: kmod-drbd83 <= %{version}-%{release}
 EOF
