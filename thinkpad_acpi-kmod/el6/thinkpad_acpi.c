@@ -96,6 +96,59 @@
  * 2.6.32-71 kernel so lets define it here - <phil@elrepo.org>
  */
 
+#ifndef pr_fmt
+#define pr_fmt(fmt) fmt
+#endif
+
+#ifndef pr_emerg
+#define pr_emerg(fmt, ...) \
+        printk(KERN_EMERG pr_fmt(fmt), ##__VA_ARGS__)
+#endif
+#ifndef pr_alert
+#define pr_alert(fmt, ...) \
+        printk(KERN_ALERT pr_fmt(fmt), ##__VA_ARGS__)
+#endif
+#ifndef pr_crit
+#define pr_crit(fmt, ...) \
+        printk(KERN_CRIT pr_fmt(fmt), ##__VA_ARGS__)
+#endif
+#ifndef pr_err
+#define pr_err(fmt, ...) \
+        printk(KERN_ERR pr_fmt(fmt), ##__VA_ARGS__)
+#endif
+#ifndef pr_warning
+#define pr_warning(fmt, ...) \
+        printk(KERN_WARNING pr_fmt(fmt), ##__VA_ARGS__)
+#endif
+#ifndef pr_warn
+#define pr_warn pr_warning
+#endif
+#ifndef pr_notice
+#define pr_notice(fmt, ...) \
+        printk(KERN_NOTICE pr_fmt(fmt), ##__VA_ARGS__)
+#endif
+#ifndef pr_info
+#define pr_info(fmt, ...) \
+        printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
+#endif
+#ifndef pr_cont
+#define pr_cont(fmt, ...) \
+        printk(KERN_CONT fmt, ##__VA_ARGS__)
+#endif
+
+/* pr_devel() should produce zero code unless DEBUG is defined */
+#ifdef DEBUG
+#ifndef pr_devel
+#define pr_devel(fmt, ...) \
+        printk(KERN_DEBUG pr_fmt(fmt), ##__VA_ARGS__)
+#endif
+#else
+#ifndef pr_devel
+#define pr_devel(fmt, ...) \
+        ({ if (0) printk(KERN_DEBUG pr_fmt(fmt), ##__VA_ARGS__); 0; })
+#endif
+#endif
+
 /*
  * Dummy printk for disabled debugging statements to use whilst maintaining
  * gcc's format and side-effect checking.
