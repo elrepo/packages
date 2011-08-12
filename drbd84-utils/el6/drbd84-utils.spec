@@ -6,7 +6,7 @@
 Summary: Management utilities for DRBD
 Name: drbd84-utils
 Version: 8.4.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPLv2+
 Group: System Environment/Kernel
 URL: http://www.drbd.org/
@@ -21,35 +21,17 @@ Requires: udev
 
 ### Virtual provides that people may use
 Provides: drbd = %{version}-%{release}
-Provides: drbd83 = %{version}-%{release}
 Provides: drbd84 = %{version}-%{release}
 
-### Package drbd from CentOS is drbd 8.0, but from Linbit is 8.2 or 8.3
-Conflicts: drbd < 8.2
-Conflicts: drbd-utils < 8.2
+### Conflict with older Linbit packages
+Conflicts: drbd < 8.4
+Conflicts: drbd-utils < 8.4
 
-### Obsolete packages from Linbit (included in this package)
-Obsoletes: drbd <= %{version}-%{release}
-Obsoletes: drbd-bash-completion <= %{version}-%{release}
-Obsoletes: drbd-heartbeat <= %{version}-%{release}
-Obsoletes: drbd-pacemaker <= %{version}-%{release}
-Obsoletes: drbd-rgmanager <= %{version}-%{release}
-Obsoletes: drbd-udev <= %{version}-%{release}
-Obsoletes: drbd-utils <= %{version}-%{release}
-Obsoletes: drbd-xen <= %{version}-%{release}
-
-### Upgrade path from CentOS drbd82 to drbd83 is guaranteed
-Obsoletes: drbd82 <= %{version}-%{release}
-Obsoletes: drbd82-bash-completion <= %{version}-%{release}
-Obsoletes: drbd82-heartbeat <= %{version}-%{release}
-Obsoletes: drbd82-pacemaker <= %{version}-%{release}
-Obsoletes: drbd82-rgmanager <= %{version}-%{release}
-Obsoletes: drbd82-udev <= %{version}-%{release}
-Obsoletes: drbd82-utils <= %{version}-%{release}
-Obsoletes: drbd82-xen <= %{version}-%{release}
-
-### Obsolete older CentOS packages
-Obsoletes: drbd83 <= %{version}-%{release}
+### Conflict with older CentOS packages
+Conflicts: drbd82 <= %{version}-%{release}
+Conflicts: drbd82-utils <= %{version}-%{release}
+Conflicts: drbd83 <= %{version}-%{release}
+Conflicts: drbd83-utils <= %{version}-%{release}
 Obsoletes: drbd84 <= %{version}-%{release}
 
 %description
@@ -88,10 +70,10 @@ for i in $(seq 0 15); do
 done
 
 if /usr/bin/getent group | grep -q ^haclient; then
-   chgrp haclient /sbin/drbdsetup
-   chmod o-x,u+s /sbin/drbdsetup
-   chgrp haclient /sbin/drbdmeta
-   chmod o-x,u+s /sbin/drbdmeta
+    chgrp haclient /sbin/drbdsetup
+    chmod o-x,u+s /sbin/drbdsetup
+    chgrp haclient /sbin/drbdmeta
+    chmod o-x,u+s /sbin/drbdmeta
 fi
 
 %preun
@@ -153,5 +135,8 @@ fi
 %{_sysconfdir}/xen/scripts/block-drbd
 
 %changelog
+* Fri Aug 12 2011 Dag Wieers <dag@elrepo.org> - 8.4.0-2
+- Conflicts with older drbd, drbd82 and drbd83 packages.
+
 * Mon Aug 08 2011 Dag Wieers <dag@elrepo.org> - 8.4.0-1
 - Initial package for RHEL6.
