@@ -133,12 +133,12 @@ Provides:         ${kmod_name}-kmod = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires(post):   /sbin/depmod
 Requires(postun): /sbin/depmod
 
-Requires: drbd83-utils >= %{?epoch:%{epoch}:}%{version}
+Requires: drbd84-utils >= %{?epoch:%{epoch}:}%{version}
 
 ### We cannot obsolete all Linbit drbd-km-%{kversion} variants
-Conflicts: kmod-drbd < 8.2
-Obsoletes: kmod-drbd82 <= %{version}-%{release}
-Obsoletes: kmod-drbd83 <= %{version}-%{release}
+Conflicts: kmod-drbd < 8.4
+Conflicts: kmod-drbd82 <= %{version}-%{release}
+Conflicts: kmod-drbd83 <= %{version}-%{release}
 EOF
 
     if [ "no" != "$nobuildreqs" ]
