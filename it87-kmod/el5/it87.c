@@ -79,6 +79,14 @@ static inline int acpi_check_resource_conflict(struct resource *res)
 #ifndef pr_fmt
 #define pr_fmt(fmt) fmt
 #endif
+#ifndef pr_err
+#define pr_err(fmt, ...) \
+        printk(KERN_ERR pr_fmt(fmt), ##__VA_ARGS__)
+#endif
+#ifndef pr_info
+#define pr_info(fmt, ...) \
+        printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
+#endif
 #ifndef pr_notice
 #define pr_notice(fmt, ...) \
         printk(KERN_NOTICE pr_fmt(fmt), ##__VA_ARGS__)
@@ -89,12 +97,14 @@ static inline int acpi_check_resource_conflict(struct resource *res)
  * DIV_ROUND_CLOSEST is not defined in linux/kernel.h on the RHEL5 2.6.18
  * kernel so lets define it here - <phil@elrepo.org>
  */
+#ifndef DIV_ROUND_CLOSEST
 #define DIV_ROUND_CLOSEST(x, divisor)(			\
 {							\
 	typeof(divisor) __divisor = divisor;		\
 	(((x) + ((__divisor) / 2)) / (__divisor));	\
 }							\
 )
+#endif
 
 /* end elrepo patches */
 
