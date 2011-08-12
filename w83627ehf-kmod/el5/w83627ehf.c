@@ -79,12 +79,14 @@ static inline int acpi_check_resource_conflict(struct resource *res)
  * DIV_ROUND_CLOSEST is not defined in linux/kernel.h on the RHEL5 2.6.18
  * kernel so lets define it here - <phil@elrepo.org>
  */
+#ifndef DIV_ROUND_CLOSEST
 #define DIV_ROUND_CLOSEST(x, divisor)(			\
 {							\
 	typeof(divisor) __divisor = divisor;		\
 	(((x) + ((__divisor) / 2)) / (__divisor));	\
 }							\
 )
+#endif
 
 /* end elrepo patches */
 
