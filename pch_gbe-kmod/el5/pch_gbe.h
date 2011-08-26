@@ -34,6 +34,10 @@
 #include <net/tcp.h>
 #include <net/udp.h>
 
+/* elrepo patches */
+int ethtool_op_set_tx_ipv6_csum(struct net_device *dev, u32 data);
+/* end elrepo patches */
+
 /**
  * pch_gbe_regs_mac_adr - Structure holding values of mac address registers
  * @high	Denotes the 1st to 4th byte from the initial of MAC address

@@ -20,6 +20,10 @@
 #include "pch_gbe.h"
 #include "pch_gbe_api.h"
 
+/* elrepo patches */
+#define USHRT_MAX	((u16)(~0U))
+/* end elrepo patches */
+
 /**
  * pch_gbe_stats - Stats item information
  */

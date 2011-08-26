@@ -1,0 +1,12 @@
+NOTE: This module is not functioning yet !!!
+
+This is a backport attempt for kernel module pch_gbe from kernel 2.6.39.3
+to RHEL-5.7 (kernel-2.6.18-274.el5).
+
+For compilation, additionally the file include/linux/ethtool.h of
+the RHEL-5.7 kernel sources was modified. So before calling make, the
+modified ethtool.h in the subdir of this tree should be copied in
+place.
+
+To date, all modules apart from pch_gbe_main.c build cleanly.
+
