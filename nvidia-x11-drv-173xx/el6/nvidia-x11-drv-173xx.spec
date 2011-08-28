@@ -217,9 +217,18 @@ if [ "$1" -eq "1" ]; then
     # Enable nvidia driver when installing
     %{_sbindir}/nvidia-config-display enable &>/dev/null
     # Disable the nouveau driver
-    if [ -x /sbin/grubby ]; then
-        GRUBBYLASTKERNEL=`/sbin/grubby --default-kernel`
-        /sbin/grubby --update-kernel=${GRUBBYLASTKERNEL} --args='nouveau.modeset=0 rdblacklist=nouveau' &>/dev/null
+    if [[ -x /sbin/grubby && -e /boot/grub/grub.conf ]]; then
+      # get installed kernels
+      for KERNEL in $(rpm -q --qf '%{version}-%{release}.%{arch}\n' kernel); do
+      VMLINUZ="/boot/vmlinuz-"$KERNEL
+      # Check kABI compatibility
+        for KABI in $(find /lib/modules -name nvidia.ko | cut -d / -f 4); do
+          if [[ "$KERNEL" == "$KABI" && -e "$VMLINUZ" ]]; then
+            /sbin/grubby --update-kernel="$VMLINUZ" \
+              --args='nouveau.modeset=0 rdblacklist=nouveau' &>/dev/null
+          fi
+        done
+      done
     fi
 fi || :
 
@@ -233,11 +242,14 @@ if [ "$1" -eq "0" ]; then
     # Disable proprietary nvidia driver on uninstall
     [ -f %{_sbindir}/nvidia-config-display ] && %{_sbindir}/nvidia-config-display disable &>/dev/null
     # Clear grub option to disable nouveau for all RHEL6 kernels
-    if [ -x /sbin/grubby ]; then
-      KERNELS=`ls /boot/vmlinuz-2.6.32-*.el6.$(uname -m)`
-      for kernel in ${KERNELS} ; do
-      /sbin/grubby --update-kernel=${kernel} \
-        --remove-args='nouveau.modeset=0 rdblacklist=nouveau nomodeset' &>/dev/null
+    if [[ -x /sbin/grubby && -e /boot/grub/grub.conf ]]; then
+      # get installed kernels
+      for KERNEL in $(rpm -q --qf '%{version}-%{release}.%{arch}\n' kernel); do
+        VMLINUZ="/boot/vmlinuz-"$KERNEL
+        if [[ -e "$VMLINUZ" ]]; then
+          /sbin/grubby --update-kernel="$VMLINUZ" \
+            --remove-args='nouveau.modeset=0 rdblacklist=nouveau nomodeset' &>/dev/null
+        fi
       done
     fi
     # Backup and remove xorg.conf
@@ -283,6 +295,10 @@ fi ||:
 %endif
 
 %changelog
+* Sun Aug 28 2011 Philip J Perry <phil@elrepo.org>
+- Update script to disable the nouveau driver
+  [http://elrepo.org/bugs/view.php?id=176]
+
 * Fri Feb 04 2011 Philip J Perry <phil@elrepo.org> - 173.14.28-1.el6.elrepo
 - Fork to el6.
 - Update to version 173.14.28.
