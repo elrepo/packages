@@ -485,7 +485,8 @@ static int pch_gbe_set_tx_csum(struct net_device *netdev, u32 data)
 	struct pch_gbe_adapter *adapter = netdev_priv(netdev);
 
 	adapter->tx_csum = data;
-	return ethtool_op_set_tx_ipv6_csum(netdev, data);
+	/* elrepo fix: RHEL5 doesn't support IPv6 checksumming */
+	return ethtool_op_set_tx_csum(netdev, data);
 }
 
 /**
