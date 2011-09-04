@@ -542,7 +542,7 @@ static int __init coretemp_init(void)
 		goto exit;
 
 	for_each_online_cpu(i) {
-		struct cpuinfo_x86 *c = &cpu_data[i];
+		struct cpuinfo_x86 *c = &cpu_data(i);
 		/*
 		 * CPUID.06H.EAX[0] indicates whether the CPU has thermal
 		 * sensors. We check this bit only, all the early CPUs
