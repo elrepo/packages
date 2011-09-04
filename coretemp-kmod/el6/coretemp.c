@@ -51,6 +51,11 @@ typedef enum { SHOW_TEMP, SHOW_TJMAX, SHOW_TTARGET, SHOW_LABEL,
 #define X86_FEATURE_DTS         (7*32+ 7) /* Digital Thermal Sensor */
 #endif
 
+/* from arch/x86/include/asm/msr-index.h */
+#ifndef MSR_IA32_TEMPERATURE_TARGET
+#define MSR_IA32_TEMPERATURE_TARGET     0x000001a2
+#endif
+
 /* end elrepo patches */
 
 /*
