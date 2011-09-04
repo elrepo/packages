@@ -46,11 +46,6 @@ typedef enum { SHOW_TEMP, SHOW_TJMAX, SHOW_TTARGET, SHOW_LABEL,
 
 /* elrepo patches */
 
-/* from arch/x86/include/asm/cpufeature.h */
-#ifndef X86_FEATURE_DTS
-#define X86_FEATURE_DTS         (7*32+ 7) /* Digital Thermal Sensor */
-#endif
-
 /* from arch/x86/include/asm/msr-index.h */
 #ifndef MSR_IA32_TEMPERATURE_TARGET
 #define MSR_IA32_TEMPERATURE_TARGET     0x000001a2
@@ -439,18 +434,6 @@ static int __cpuinit coretemp_device_add(unsigned int cpu)
 	struct platform_device *pdev;
 	struct pdev_entry *pdev_entry;
 	struct cpuinfo_x86 *c = &cpu_data(cpu);
-
-	/*
-	 * CPUID.06H.EAX[0] indicates whether the CPU has thermal
-	 * sensors. We check this bit only, all the early CPUs
-	 * without thermal sensors will be filtered out.
-	 */
-	if (!cpu_has(c, X86_FEATURE_DTS)) {
-		pr_info("CPU (model=0x%x) has no thermal sensor\n",
-			c->x86_model);
-		return 0;
-	}
-
 	mutex_lock(&pdev_list_mutex);
 
 #ifdef CONFIG_SMP
@@ -558,8 +541,20 @@ static int __init coretemp_init(void)
 	if (err)
 		goto exit;
 
-	for_each_online_cpu(i)
-		coretemp_device_add(i);
+	for_each_online_cpu(i) {
+		struct cpuinfo_x86 *c = &cpu_data[i];
+		/*
+		 * CPUID.06H.EAX[0] indicates whether the CPU has thermal
+		 * sensors. We check this bit only, all the early CPUs
+		 * without thermal sensors will be filtered out.
+		 */
+		if (c->cpuid_level >= 6 && (cpuid_eax(0x06) & 0x01))
+			coretemp_device_add(i);
+		else {
+			printk(KERN_INFO DRVNAME ": CPU (model=0x%x)"
+				" has no thermal sensor.\n", c->x86_model);
+		}
+	}
 
 #ifndef CONFIG_HOTPLUG_CPU
 	if (list_empty(&pdev_list)) {
