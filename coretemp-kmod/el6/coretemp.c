@@ -47,7 +47,9 @@ typedef enum { SHOW_TEMP, SHOW_TJMAX, SHOW_TTARGET, SHOW_LABEL,
 /* elrepo patches */
 
 /* from arch/x86/include/asm/cpufeature.h */
+#ifndef X86_FEATURE_DTS
 #define X86_FEATURE_DTS         (7*32+ 7) /* Digital Thermal Sensor */
+#endif
 
 /* end elrepo patches */
 
