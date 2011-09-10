@@ -14,7 +14,7 @@
 %endif
 
 Name:		fglrx-x11-drv
-Version:	11.7
+Version:	11.8
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Proprietary 
@@ -25,7 +25,7 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 ExclusiveArch:	i386 x86_64
 
 # Sources
-Source0:	http://www2.ati.com/drivers/linux/ati-driver-installer-11-7-x86.x86_64.run
+Source0:	http://www2.ati.com/drivers/linux/ati-driver-installer-11-8-x86.x86_64.run
 
 # taken from the rpmforge dkms package
 Source2:	ati.sh
@@ -157,6 +157,9 @@ pushd %{buildroot}%{atilibdir}/
 popd
 pushd %{buildroot}%{_libdir}/xorg/modules/extensions/fglrx/
   %{__ln_s} fglrx-libglx.so %{buildroot}%{_libdir}/xorg/modules/extensions/fglrx/libglx.so
+popd
+pushd %{buildroot}%{_bindir}/
+  %{__ln_s} aticonfig %{buildroot}%{_bindir}/amdconfig
 popd
 %ifarch x86_64
   pushd %{buildroot}%{atilib32dir}/
@@ -327,6 +330,9 @@ fi || :
 %{_includedir}/ATI/GL/*.h
 
 %changelog
+* Sat Sep 10 2011 Philip J Perry <phil@elrepo.org> - 11.8-1.el5.elrepo
+- Update to version 11.8.
+
 * Thu Jul 28 2011 Philip J Perry <phil@elrepo.org> - 11.7-1.el5.elrepo
 - Update to version 11.7.
 
