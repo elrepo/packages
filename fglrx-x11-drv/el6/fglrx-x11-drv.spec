@@ -14,7 +14,7 @@
 %endif
 
 Name:		fglrx-x11-drv
-Version:	11.7
+Version:	11.8
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Proprietary 
@@ -25,7 +25,7 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 ExclusiveArch:	i686 x86_64
 
 # Sources
-Source0:	http://www2.ati.com/drivers/linux/ati-driver-installer-11-7-x86.x86_64.run
+Source0:	http://www2.ati.com/drivers/linux/ati-driver-installer-11-8-x86.x86_64.run
 
 # taken from the rpmforge dkms package
 Source2:	ati.sh
@@ -159,6 +159,9 @@ popd
 pushd %{buildroot}%{_libdir}/xorg/modules/extensions/fglrx/
   %{__ln_s} fglrx-libglx.so %{buildroot}%{_libdir}/xorg/modules/extensions/fglrx/libglx.so
 popd
+pushd %{buildroot}%{_bindir}/
+  %{__ln_s} aticonfig %{buildroot}%{_bindir}/amdconfig
+popd
 %ifarch x86_64
   pushd %{buildroot}%{atilib32dir}/
     %{__ln_s} libAMDXvBA.so.1.0 %{buildroot}%{atilib32dir}/libAMDXvBA.so.1
@@ -253,9 +256,18 @@ if [ "${1}" -eq 1 ]; then
     ln -s /etc/pam.d/su /etc/pam.d/amdcccle-su
   fi
   # Disable the radeon driver
-  if [ -x /sbin/grubby ]; then
-    GRUBBYLASTKERNEL=`/sbin/grubby --default-kernel`
-    /sbin/grubby --update-kernel=${GRUBBYLASTKERNEL} --args='radeon.modeset=0' &>/dev/null
+  if [[ -x /sbin/grubby && -e /boot/grub/grub.conf ]]; then
+    # get installed kernels
+    for KERNEL in $(rpm -q --qf '%{version}-%{release}.%{arch}\n' kernel); do
+    VMLINUZ="/boot/vmlinuz-"$KERNEL
+    # Check kABI compatibility
+      for KABI in $(find /lib/modules -name fglrx.ko | cut -d / -f 4); do
+        if [[ "$KERNEL" == "$KABI" && -e "$VMLINUZ" ]]; then
+          /sbin/grubby --update-kernel="$VMLINUZ" \
+            --args='radeon.modeset=0' &>/dev/null
+        fi
+      done
+    done
   fi
 fi || :
 # Reset driver version in database
@@ -280,10 +292,15 @@ if [ "${1}" -eq 0 ]; then
   if [ -e /etc/pam.d/amdcccle-su ]; then
     rm -f /etc/pam.d/amdcccle-su &>/dev/null
   fi
-  if [ -x /sbin/grubby ]; then
-    KERNELS=`ls /boot/vmlinuz-2.6.32-*.el6.$(uname -m)`
-    for kernel in ${KERNELS} ; do
-    /sbin/grubby --update-kernel=${kernel} --remove-args='radeon.modeset=0' &>/dev/null
+  # Clear grub option to disable radeon for all RHEL6 kernels
+  if [[ -x /sbin/grubby && -e /boot/grub/grub.conf ]]; then
+    # get installed kernels
+    for KERNEL in $(rpm -q --qf '%{version}-%{release}.%{arch}\n' kernel); do
+      VMLINUZ="/boot/vmlinuz-"$KERNEL
+      if [[ -e "$VMLINUZ" ]]; then
+        /sbin/grubby --update-kernel="$VMLINUZ" \
+          --remove-args='radeon.modeset=0' &>/dev/null
+      fi
     done
   fi
   # Backup and remove xorg.conf
@@ -351,6 +368,11 @@ fi || :
 %{_includedir}/ATI/GL/*.h
 
 %changelog
+* Sat Sep 10 2011 Philip J Perry <phil@elrepo.org> - 11.8-1.el6.elrepo
+- Update to version 11.8.
+- Update script to disable the radeon driver
+  [http://elrepo.org/bugs/view.php?id=176]
+
 * Thu Jul 28 2011 Philip J Perry <phil@elrepo.org> - 11.7-1.el6.elrepo
 - Update to version 11.7.
 
