@@ -14,7 +14,7 @@
 %endif
 
 Name:		fglrx-x11-drv
-Version:	11.8
+Version:	11.9
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Proprietary 
@@ -25,7 +25,7 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 ExclusiveArch:	i686 x86_64
 
 # Sources
-Source0:	http://www2.ati.com/drivers/linux/ati-driver-installer-11-8-x86.x86_64.run
+Source0:	http://www2.ati.com/drivers/linux/ati-driver-installer-11-9-x86.x86_64.run
 
 # taken from the rpmforge dkms package
 Source2:	ati.sh
@@ -54,8 +54,8 @@ Requires(post):	 grubby
 Requires(preun): grubby
 
 # ATI RPM
-Conflicts:       fglrx_7_5_0
-Conflicts:       fglrx64_7_5_0
+Conflicts:	fglrx_p_i_c
+Conflicts:	fglrx64_p_i_c
 
 # elrepo
 Conflicts:	fglrx93-kmod
@@ -368,6 +368,9 @@ fi || :
 %{_includedir}/ATI/GL/*.h
 
 %changelog
+* Sat Oct 01 2011 Philip J Perry <phil@elrepo.org> - 11.9-1.el6.elrepo
+- Update to version 11.9.
+
 * Sat Sep 10 2011 Philip J Perry <phil@elrepo.org> - 11.8-1.el6.elrepo
 - Update to version 11.8.
 - Update script to disable the radeon driver
