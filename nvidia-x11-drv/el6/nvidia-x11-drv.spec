@@ -246,7 +246,7 @@ if [ "$1" -eq "1" ]; then
     # Disable the nouveau driver
     if [[ -x /sbin/grubby && -e /boot/grub/grub.conf ]]; then
       # get installed kernels
-      for KERNEL in $(rpm -q --qf '%{version}-%{release}.%{arch}\n' kernel); do
+      for KERNEL in $(rpm -q --qf '%{v}-%{r}.%{arch}\n' kernel); do
       VMLINUZ="/boot/vmlinuz-"$KERNEL
       # Check kABI compatibility
         for KABI in $(find /lib/modules -name nvidia.ko | cut -d / -f 4); do
@@ -269,7 +269,7 @@ if [ "$1" -eq "0" ]; then
     # Clear grub option to disable nouveau for all RHEL6 kernels
     if [[ -x /sbin/grubby && -e /boot/grub/grub.conf ]]; then
       # get installed kernels
-      for KERNEL in $(rpm -q --qf '%{version}-%{release}.%{arch}\n' kernel); do
+      for KERNEL in $(rpm -q --qf '%{v}-%{r}.%{arch}\n' kernel); do
         VMLINUZ="/boot/vmlinuz-"$KERNEL
         if [[ -e "$VMLINUZ" ]]; then
           /sbin/grubby --update-kernel="$VMLINUZ" \
