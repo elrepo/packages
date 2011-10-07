@@ -4,7 +4,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	280.13
+Version:	285.05.09
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -15,8 +15,10 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 ExclusiveArch:	i386 x86_64
 
 # Sources.
-Source0: ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}.run
-Source1: ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+# Source0: ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}.run
+# Source1: ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+Source0: http://us.download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}.run
+Source1: http://us.download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 
 # taken from the rpmforge dkms package
 Source2:	nvidia.sh
@@ -96,6 +98,7 @@ pushd nvidiapkg
 # Install nvidia tools
 %{__mkdir_p} $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-bug-report.sh $RPM_BUILD_ROOT%{_bindir}/
+%{__install} -p -m 0755 nvidia-debugdump $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-settings $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-smi $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-xconfig $RPM_BUILD_ROOT%{_bindir}/
@@ -311,6 +314,10 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %endif
 
 %changelog
+* Fri Oct 07 2011 Philip J Perry <phil@elrepo.org> - 285.05.09-1.el5.elrepo
+- Updated to version 285.05.09
+- Adds nvidia-debugdump
+
 * Tue Aug 02 2011 Philip J Perry <phil@elrepo.org> - 280.13-1.el5.elrepo
 - Updated to version 280.13
 
@@ -365,7 +372,8 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 
 * Fri Apr 23 2010 Philip J Perry <phil@elrepo.org> - 195.36.24-1.el5.elrepo
 - Updated to version 195.36.24.
-- Run ldconfig on 32bit subpackages [BugID: 0000058]
+- Run ldconfig on 32bit subpackages
+  [http://elrepo.org/bugs/view.php?id=58]
 
 * Sat Mar 20 2010 Philip J Perry <phil@elrepo.org> - 195.36.15-1.el5.elrepo
 - Updated to version 195.36.15.
