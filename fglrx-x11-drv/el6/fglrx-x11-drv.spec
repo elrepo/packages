@@ -15,7 +15,7 @@
 
 Name:		fglrx-x11-drv
 Version:	11.9
-Release:	1%{?dist}
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Proprietary 
 Summary:	AMD's proprietary driver for ATI graphic cards
@@ -258,7 +258,7 @@ if [ "${1}" -eq 1 ]; then
   # Disable the radeon driver
   if [[ -x /sbin/grubby && -e /boot/grub/grub.conf ]]; then
     # get installed kernels
-    for KERNEL in $(rpm -q --qf '%{version}-%{release}.%{arch}\n' kernel); do
+    for KERNEL in $(rpm -q --qf '%{v}-%{r}.%{arch}\n' kernel); do
     VMLINUZ="/boot/vmlinuz-"$KERNEL
     # Check kABI compatibility
       for KABI in $(find /lib/modules -name fglrx.ko | cut -d / -f 4); do
@@ -295,7 +295,7 @@ if [ "${1}" -eq 0 ]; then
   # Clear grub option to disable radeon for all RHEL6 kernels
   if [[ -x /sbin/grubby && -e /boot/grub/grub.conf ]]; then
     # get installed kernels
-    for KERNEL in $(rpm -q --qf '%{version}-%{release}.%{arch}\n' kernel); do
+    for KERNEL in $(rpm -q --qf '%{v}-%{r}.%{arch}\n' kernel); do
       VMLINUZ="/boot/vmlinuz-"$KERNEL
       if [[ -e "$VMLINUZ" ]]; then
         /sbin/grubby --update-kernel="$VMLINUZ" \
@@ -368,6 +368,10 @@ fi || :
 %{_includedir}/ATI/GL/*.h
 
 %changelog
+* Fri Oct 07 2011 Philip J Perry <phil@elrepo.org> - 11.9-2.el6.elrepo
+- Fix script to disable the radeon driver
+  [http://elrepo.org/bugs/view.php?id=179]
+
 * Sat Oct 01 2011 Philip J Perry <phil@elrepo.org> - 11.9-1.el6.elrepo
 - Update to version 11.9.
 

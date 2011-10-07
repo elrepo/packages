@@ -7,7 +7,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 11.9
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: AMD %{kmod_name} kernel module(s)
@@ -80,6 +80,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Oct 07 2011 Philip J Perry <phil@elrepo.org> - 11.9-2.el6.elrepo
+- Rebuilt for fglrx-x11-drv update.
+
 * Sat Oct 01 2011 Philip J Perry <phil@elrepo.org> - 11.9-1.el6.elrepo
 - Update to version 11.9.
 
