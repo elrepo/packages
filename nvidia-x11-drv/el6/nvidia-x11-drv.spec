@@ -4,7 +4,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	280.13
+Version:	285.05.09
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -96,6 +96,7 @@ pushd nvidiapkg
 # Install nvidia tools
 %{__mkdir_p} $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-bug-report.sh $RPM_BUILD_ROOT%{_bindir}/
+%{__install} -p -m 0755 nvidia-debugdump $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-settings $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-smi $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-xconfig $RPM_BUILD_ROOT%{_bindir}/
@@ -323,6 +324,11 @@ fi ||:
 %endif
 
 %changelog
+* Fri Oct 07 2011 Philip J Perry <phil@elrepo.org> - 285.05.09-1.el6.elrepo
+- Updated to version 285.05.09
+- Fix script to disable the nouveau driver
+- Adds nvidia-debugdump
+
 * Sun Aug 28 2011 Philip J Perry <phil@elrepo.org>
 - Update script to disable the nouveau driver
   [http://elrepo.org/bugs/view.php?id=176]
