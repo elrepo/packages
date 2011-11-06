@@ -6,8 +6,8 @@
 %{!?kversion: %define kversion 2.6.32-131.0.15.el6.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 11.9
-Release: 2%{?dist}
+Version: 11.10
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: AMD %{kmod_name} kernel module(s)
@@ -17,7 +17,7 @@ BuildRequires: redhat-rpm-config
 ExclusiveArch: i686 x86_64
 
 # Sources.
-Source0:  http://www2.ati.com/drivers/linux/ati-driver-installer-11-9-x86.x86_64.run
+Source0:  http://www2.ati.com/drivers/linux/ati-driver-installer-11-10-x86.x86_64.run
 Source10: kmodtool-%{kmod_name}-el6.sh
 NoSource: 0
 
@@ -80,6 +80,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Nov 05 2011 Philip J Perry <phil@elrepo.org> - 11.10-1.el6.elrepo
+- Update to version 11.10.
+
 * Fri Oct 07 2011 Philip J Perry <phil@elrepo.org> - 11.9-2.el6.elrepo
 - Rebuilt for fglrx-x11-drv update.
 

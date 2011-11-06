@@ -14,8 +14,8 @@
 %endif
 
 Name:		fglrx-x11-drv
-Version:	11.9
-Release:	2%{?dist}
+Version:	11.10
+Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Proprietary 
 Summary:	AMD's proprietary driver for ATI graphic cards
@@ -25,7 +25,7 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 ExclusiveArch:	i686 x86_64
 
 # Sources
-Source0:	http://www2.ati.com/drivers/linux/ati-driver-installer-11-9-x86.x86_64.run
+Source0:	http://www2.ati.com/drivers/linux/ati-driver-installer-11-10-x86.x86_64.run
 
 # taken from the rpmforge dkms package
 Source2:	ati.sh
@@ -368,6 +368,9 @@ fi || :
 %{_includedir}/ATI/GL/*.h
 
 %changelog
+* Sat Nov 05 2011 Philip J Perry <phil@elrepo.org> - 11.10-1.el6.elrepo
+- Update to version 11.10.
+
 * Fri Oct 07 2011 Philip J Perry <phil@elrepo.org> - 11.9-2.el6.elrepo
 - Fix script to disable the radeon driver
   [http://elrepo.org/bugs/view.php?id=179]
