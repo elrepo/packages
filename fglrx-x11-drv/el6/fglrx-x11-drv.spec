@@ -376,6 +376,7 @@ fi || :
 %changelog
 * Fri Nov 18 2011 Philip J Perry <phil@elrepo.org> - 11.11-1.el6.elrepo
 - Update to version 11.11.
+- Add OpenCL libs and utils.
 
 * Sat Nov 05 2011 Philip J Perry <phil@elrepo.org> - 11.10-1.el6.elrepo
 - Update to version 11.10.
