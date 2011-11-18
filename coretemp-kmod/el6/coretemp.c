@@ -551,8 +551,8 @@ static int __init coretemp_init(void)
 		if (c->cpuid_level >= 6 && (cpuid_eax(0x06) & 0x01))
 			coretemp_device_add(i);
 		else {
-			printk(KERN_INFO DRVNAME ": CPU (model=0x%x)"
-				" has no thermal sensor.\n", c->x86_model);
+			pr_info("CPU (model=0x%x) has no thermal sensor\n",
+				c->x86_model);
 		}
 	}
 
