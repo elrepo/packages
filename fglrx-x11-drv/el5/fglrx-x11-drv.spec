@@ -105,6 +105,7 @@ find common/usr/share/doc -type f -exec chmod 0644 {} \;
 
 # Install utilities, atieventsd program with its init script and man pages
 %{__mkdir_p} %{buildroot}{%{_bindir},%{_sbindir},%{_sysconfdir}/ati}
+%{__install} -p -m 0755 arch/%{atiarch}/usr/bin/* %{buildroot}%{_bindir}/
 %{__install} -p -m 0755 arch/%{atiarch}/usr/X11R6/bin/* %{buildroot}%{_bindir}/
 %{__install} -p -m 0755 common/usr/X11R6/bin/* %{buildroot}%{_bindir}/
 %{__install} -p -m 0755 arch/%{atiarch}/usr/sbin/* %{buildroot}%{_sbindir}/
@@ -116,6 +117,10 @@ find common/usr/share/doc -type f -exec chmod 0644 {} \;
 %{__install} -D -p -m 0644 common/etc/security/console.apps/amdcccle-su %{buildroot}%{_sysconfdir}/security/console.apps/amdcccle-su
 %{__install} -D -p -m 0644 common/usr/share/man/man8/atieventsd.8 %{buildroot}%{_mandir}/man8/atieventsd.8
 %{__install} -D -p -m 0755 %{SOURCE4} %{buildroot}%{_sbindir}/
+
+# Install OpenCL Vendor file
+%{__mkdir_p} %{buildroot}%{_sysconfdir}/OpenCL/vendors/
+%{__install} -p -m 0644 arch/%{atiarch}/etc/OpenCL/vendors/amdocl*.icd %{buildroot}%{_sysconfdir}/OpenCL/vendors/
 
 # Install libraries
 %{__mkdir_p} %{buildroot}%{atilibdir}
@@ -284,6 +289,7 @@ fi || :
 %{_sysconfdir}/ati/*
 %{_sysconfdir}/acpi/actions/ati-powermode.sh
 %{_sysconfdir}/acpi/events/*aticonfig
+%{_sysconfdir}/OpenCL/vendors/*
 %{_sysconfdir}/profile.d/ati.*
 %{_sysconfdir}/security/console.apps/amdcccle-su
 %{_initrddir}/atieventsd
