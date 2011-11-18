@@ -20,6 +20,8 @@
  * 02110-1301 USA.
  */
 
+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/slab.h>
@@ -261,7 +263,7 @@ static int __devinit get_tjmax(struct cpuinfo_x86 *c, u32 id,
 		 * If the TjMax is not plausible, an assumption
 		 * will be used
 		 */
-		if ((val > 80) && (val < 120)) {
+		if (val >= 70 && val <= 125) {
 			dev_info(dev, "TjMax is %d C.\n", val);
 			return val * 1000;
 		}
@@ -269,24 +271,9 @@ static int __devinit get_tjmax(struct cpuinfo_x86 *c, u32 id,
 
 	/*
 	 * An assumption is made for early CPUs and unreadable MSR.
-	 * NOTE: the given value may not be correct.
+	 * NOTE: the calculated value may not be correct.
 	 */
-
-	switch (c->x86_model) {
-	case 0xe:
-	case 0xf:
-	case 0x16:
-	case 0x1a:
-		dev_warn(dev, "TjMax is assumed as 100 C!\n");
-		return 100000;
-	case 0x17:
-	case 0x1c:		/* Atom CPUs */
-		return adjust_tjmax(c, id, dev);
-	default:
-		dev_warn(dev, "CPU (model=0x%x) is not supported yet,"
-			" using default TjMax of 100C.\n", c->x86_model);
-		return 100000;
-	}
+	return adjust_tjmax(c, id, dev);
 }
 
 static void __devinit get_ucode_rev_on_cpu(void *edx)
@@ -454,7 +441,7 @@ static int __cpuinit coretemp_device_add(unsigned int cpu)
 	pdev = platform_device_alloc(DRVNAME, cpu);
 	if (!pdev) {
 		err = -ENOMEM;
-		printk(KERN_ERR DRVNAME ": Device allocation failed\n");
+		pr_err("Device allocation failed\n");
 		goto exit;
 	}
 
@@ -466,8 +453,7 @@ static int __cpuinit coretemp_device_add(unsigned int cpu)
 
 	err = platform_device_add(pdev);
 	if (err) {
-		printk(KERN_ERR DRVNAME ": Device addition failed (%d)\n",
-		       err);
+		pr_err("Device addition failed (%d)\n", err);
 		goto exit_device_free;
 	}
 
@@ -548,8 +534,8 @@ static int __init coretemp_init(void)
 		if (c->cpuid_level >= 6 && (cpuid_eax(0x06) & 0x01))
 			coretemp_device_add(i);
 		else {
-			printk(KERN_INFO DRVNAME ": CPU (model=0x%x)"
-				" has no thermal sensor.\n", c->x86_model);
+			pr_info("CPU (model=0x%x) has no thermal sensor\n",
+				c->x86_model);
 		}
 	}
 
