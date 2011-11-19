@@ -6,7 +6,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -61,6 +61,12 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Nov 18 2011 Philip J Perry <phil@elrepo.org> - 0.0-2
+- Backported from kernel-3.1.1
+- Add support for F71808A [2011-05-25]
+- Add support for the F71869A [2011-07-03]
+- Update the docs
+
 * Wed May 11 2011 Philip J Perry <phil@elrepo.org> - 0.0-1
 - Initial el6 build of the kmod package, adds additional hardware support
 - Backported from kernel-2.6.39-rc7
