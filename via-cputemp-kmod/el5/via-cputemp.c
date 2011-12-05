@@ -123,7 +123,7 @@ static DEVICE_ATTR(cpu0_vid, S_IRUGO, show_cpu_vid, NULL);
 static int __devinit via_cputemp_probe(struct platform_device *pdev)
 {
 	struct via_cputemp_data *data;
-	struct cpuinfo_x86 *c = &cpu_data(pdev->id);
+	struct cpuinfo_x86 *c = &(cpu_data)[pdev->id];
 	int err;
 	u32 eax, edx;
 
@@ -304,7 +304,7 @@ static int __cpuinit via_cputemp_cpu_callback(struct notifier_block *nfb,
 	return NOTIFY_OK;
 }
 
-static struct notifier_block via_cputemp_cpu_notifier __refdata = {
+static struct notifier_block via_cputemp_cpu_notifier = {
 	.notifier_call = via_cputemp_cpu_callback,
 };
 
@@ -312,7 +312,7 @@ static int __init via_cputemp_init(void)
 {
 	int i, err;
 
-	if (cpu_data(0).x86_vendor != X86_VENDOR_CENTAUR) {
+	if (cpu_data[0].x86_vendor != X86_VENDOR_CENTAUR) {
 		printk(KERN_DEBUG DRVNAME ": Not a VIA CPU\n");
 		err = -ENODEV;
 		goto exit;
@@ -323,7 +323,7 @@ static int __init via_cputemp_init(void)
 		goto exit;
 
 	for_each_online_cpu(i) {
-		struct cpuinfo_x86 *c = &cpu_data(i);
+		struct cpuinfo_x86 *c = &cpu_data[i];
 
 		if (c->x86 != 6)
 			continue;
