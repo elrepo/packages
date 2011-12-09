@@ -4,7 +4,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	285.05.09
+Version:	290.10
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -324,6 +324,9 @@ fi ||:
 %endif
 
 %changelog
+* Wed Nov 23 2011 Philip J Perry <phil@elrepo.org> - 290.10-1.el6.elrepo
+- Updated to version 290.10
+
 * Fri Oct 07 2011 Philip J Perry <phil@elrepo.org> - 285.05.09-1.el6.elrepo
 - Updated to version 285.05.09
 - Fix script to disable the nouveau driver
