@@ -6,7 +6,7 @@
 %{!?kversion: %define kversion 2.6.18-164.el5}
 
 Name:    %{kmod_name}-kmod
-Version: 285.05.09
+Version: 290.10
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -20,6 +20,7 @@ ExclusiveArch: i686 x86_64
 # Sources.
 Source0:  ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}.run
 Source1:  ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+
 Source10: kmodtool-%{kmod_name}-el5.sh
 
 NoSource: 0
@@ -90,6 +91,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Nov 23 2011 Philip J Perry <phil@elrepo.org> - 290.10-1.el5.elrepo
+- Updated to version 290.10
+
 * Fri Oct 07 2011 Philip J Perry <phil@elrepo.org> - 285.05.09-1.el5.elrepo
 - Updated to version 285.05.09
 
