@@ -5,7 +5,8 @@
 %define kmod_name ndiswrapper
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion:%define kversion 2.6.32-71.el6.%{_target_cpu}}
+# RHEL-6.2 kernel breaks kABI cpmpatibility.
+%{!?kversion:%define kversion 2.6.32-220.el6.%{_target_cpu}}
 
 Summary: %{kmod_name} kernel module(s)
 Name: %{kmod_name}-kmod
