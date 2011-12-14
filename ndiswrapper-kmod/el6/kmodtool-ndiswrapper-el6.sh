@@ -130,6 +130,7 @@ get_rpmtemplate ()
     cat <<EOF
 Provides:         kabi-modules = ${verrel}${dotvariant}
 Provides:         ${kmod_name}-kmod = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:         ndiswrapper-utils >= %{?epoch:%{epoch}:}%{version}
 Requires:         kernel >= 2.6.32-220.el6
 Requires(post):   /sbin/depmod
 Requires(postun): /sbin/depmod
