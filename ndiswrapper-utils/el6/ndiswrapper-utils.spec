@@ -5,13 +5,14 @@
 
 Summary: Ndiswrapper utilities
 Name: ndiswrapper-utils
-Version: 1.56
-Release: 1%{?dist}
-License: GPL v2
+Version: 1.57
+Release: 0.1.rc1%{?dist}
+License: GPLv2
 Group: System Environment/Kernel
 URL: http://ndiswrapper.sourceforge.net/
 
-Source: http://heanet.dl.sourceforge.net/project/ndiswrapper/stable/%{version}/ndiswrapper-%{version}.tar.gz
+#Source: http://heanet.dl.sourceforge.net/project/ndiswrapper/stable/%{version}/ndiswrapper-%{version}.tar.gz
+Source: http://heanet.dl.sourceforge.net/project/ndiswrapper/testing/1.57-rc1/ndiswrapper-1.57rc1.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 %description
@@ -43,6 +44,9 @@ echo "install:" >driver/Makefile
 %{_sbindir}/ndiswrapper-buginfo
 
 %changelog
+* Wed Dec 14 2011 Philip J Perry <phil@elrepo.org> - 1.57-0.1.rc1.el6.elrepo
+- Update to 1.57rc1.
+
 * Wed Jun 16 2010 Dag Wieers <dag@elrepo.org> - 1.56-1
 - Updated to release 1.56.
 
