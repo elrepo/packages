@@ -5,8 +5,8 @@
 
 Summary: Management utilities for DRBD
 Name: drbd84-utils
-Version: 8.4.0
-Release: 2%{?dist}
+Version: 8.4.1
+Release: 1%{?dist}
 License: GPLv2+
 Group: System Environment/Kernel
 URL: http://www.drbd.org/
@@ -135,6 +135,9 @@ fi
 %{_sysconfdir}/xen/scripts/block-drbd
 
 %changelog
+* Wed Dec 21 2011 Dag Wieers <dag@elrepo.org> - 8.4.1-1
+- Updated to release 8.4.1.
+
 * Fri Aug 12 2011 Dag Wieers <dag@elrepo.org> - 8.4.0-2
 - Conflicts with older drbd, drbd82 and drbd83 packages.
 
