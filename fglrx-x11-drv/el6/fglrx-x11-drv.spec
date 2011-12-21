@@ -14,8 +14,8 @@
 %endif
 
 Name:		fglrx-x11-drv
-Version:	11.11
-Release:	1%{?dist}
+Version:	11.12
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Proprietary 
 Summary:	AMD's proprietary driver for ATI graphic cards
@@ -25,7 +25,7 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 ExclusiveArch:	i686 x86_64
 
 # Sources
-Source0:	http://www2.ati.com/drivers/linux/ati-driver-installer-11-11-x86.x86_64.run
+Source0:	http://www2.ati.com/drivers/linux/ati-driver-installer-11-12-x86.x86_64.run
 
 # taken from the rpmforge dkms package
 Source2:	ati.sh
@@ -374,6 +374,12 @@ fi || :
 %{_includedir}/ATI/GL/*.h
 
 %changelog
+* Wed Dec 14 2011 Philip J Perry <phil@elrepo.org> - 11.12-2.el6.elrepo
+- Rebuild to fix http://elrepo.org/bugs/view.php?id=211
+
+* Wed Dec 14 2011 Philip J Perry <phil@elrepo.org> - 11.12-1.el6.elrepo
+- Update to version 11.12.
+
 * Fri Nov 18 2011 Philip J Perry <phil@elrepo.org> - 11.11-1.el6.elrepo
 - Update to version 11.11.
 - Add OpenCL libs and utils.
