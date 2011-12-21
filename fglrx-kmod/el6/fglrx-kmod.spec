@@ -6,8 +6,8 @@
 %{!?kversion: %define kversion 2.6.32-131.0.15.el6.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 11.11
-Release: 1%{?dist}
+Version: 11.12
+Release: 2%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: AMD %{kmod_name} kernel module(s)
@@ -17,7 +17,7 @@ BuildRequires: redhat-rpm-config
 ExclusiveArch: i686 x86_64
 
 # Sources.
-Source0:  http://www2.ati.com/drivers/linux/ati-driver-installer-11-11-x86.x86_64.run
+Source0:  http://www2.ati.com/drivers/linux/ati-driver-installer-11-12-x86.x86_64.run
 Source10: kmodtool-%{kmod_name}-el6.sh
 NoSource: 0
 
@@ -80,6 +80,12 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Dec 14 2011 Philip J Perry <phil@elrepo.org> - 11.12-2.el6.elrepo
+- Rebuild to fix http://elrepo.org/bugs/view.php?id=211
+
+* Wed Dec 14 2011 Philip J Perry <phil@elrepo.org> - 11.12-1.el6.elrepo
+- Update to version 11.12.
+
 * Fri Nov 18 2011 Philip J Perry <phil@elrepo.org> - 11.11-1.el6.elrepo
 - Update to version 11.11.
 
