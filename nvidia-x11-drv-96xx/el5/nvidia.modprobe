@@ -1,2 +1,1 @@
 alias char-major-195* nvidia
-options nvidia NVreg_ModifyDeviceFiles=0
