@@ -66,6 +66,16 @@
 #define DRV_NAME "pata_via"
 #define DRV_VERSION "0.3.4"
 
+/* elrepo patch */
+
+#define PCI_DEVICE_ID_VIA_8261         0x3402
+#define PCI_DEVICE_ID_VIA_VX855        0x8409
+#define PCI_DEVICE_ID_VIA_VX855_IDE    0xC409
+#define PCI_DEVICE_ID_VIA_6415         0x0415
+#define PCI_DEVICE_ID_VIA_ANON         0xFFFF
+
+/* end elrepo patch */
+
 enum {
 	VIA_BAD_PREQ	= 0x01, /* Crashes if PREQ# till DDACK# set */
 	VIA_BAD_CLK66	= 0x02, /* 66 MHz clock doesn't work correctly */
@@ -444,7 +454,7 @@ static int via_port_start(struct ata_port *ap)
 	struct via_port *vp;
 	struct pci_dev *pdev = to_pci_dev(ap->host->dev);
 
-	int ret = ata_bmdma_port_start(ap);
+	int ret = ata_sff_port_start(ap);
 	if (ret < 0)
 		return ret;
 
@@ -647,7 +657,7 @@ static int via_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
 	}
 
 	/* We have established the device type, now fire it up */
-	return ata_pci_bmdma_init_one(pdev, ppi, &via_sht, (void *)config, 0);
+	return ata_pci_sff_init_one(pdev, ppi, &via_sht, (void *)config);
 }
 
 #ifdef CONFIG_PM
