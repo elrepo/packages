@@ -146,8 +146,12 @@ EOF
 
 cat <<EOF
 %description   -n kmod-${kmod_name}${dashvariant}
-This package provides the ${kmod_name} kernel module(s) built
-for the Linux kernel using the %{_target_cpu} family of processors.
+This package provides the %{kmod_name} kernel module(s).
+Flashcache is a write back block cache Linux kernel module and was built
+primarily as a block cache for InnoDB but is general purpose and can be
+used by other applications as well.
+It is built to depend upon the specific ABI provided by a range of releases
+of the same variant of the Linux kernel and not on any one specific build.
 EOF
 
 ##############################################################################

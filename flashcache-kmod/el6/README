@@ -1,0 +1,27 @@
+License : Everything in flashcache components released under GPL v2.
+
+Update : Added the flashcache-wt directory, which contains a
+(separate) module for a write through flashcache. For more 
+details, look at flashcache-wt/README.
+
+Building Flashcache :
+-------------------
+Update : Vadim Tkachenko (with help from Mohan), ported 
+Flashcache to later Linux releases. We now have built 
+Flashcache on 2.6.18, 2.6.20 and 2.6.27-32. We have tested 
+Flashcache on 2.6.18, 2.6.20, 2.6.27 and 2.6.32.
+
+You'll need the entire kernel source tree in order to build
+flashcache.
+
+At the top directory, run
+
+make KERNEL_TREE=<root of the kernel source tree>
+
+This builds both the flashcache.ko and 3 utilities.
+
+flascache-sa-guide.txt has details on how to create and load
+flashcache volumes.
+
+Mohan Srinivasan
+Paul Saab
