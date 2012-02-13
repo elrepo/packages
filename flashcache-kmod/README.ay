@@ -1,7 +1,9 @@
+Command to build the package:
+
 For EL5:
 
-rpmbuild -bb --target `uname -m` --define 'kversion 2.6.18-274.17.1.el5' --define 'dist .el5.elrepo' flashcache-kmod.spec
+rpmbuild -bb --target `uname -m` --define 'kversion 2.6.18-274.el5' --define 'dist .el5.elrepo' flashcache-kmod.spec
 
 For EL6:
 
-rpmbuild -bb --target x86_64 --define 'kversion 2.6.32-220.4.1.el6.x86_64' --define 'dist .el6.elrepo' flashcache-kmod.spec
+rpmbuild -bb --target `uname -m` --define 'kversion 2.6.32-220.el6.x86_64' --define 'dist .el6.elrepo' flashcache-kmod.spec
