@@ -4,7 +4,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	290.10
+Version:	295.20
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -17,6 +17,9 @@ ExclusiveArch:	i686 x86_64
 # Sources.
 Source0:	ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}.run
 Source1:	ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+
+NoSource: 0
+NoSource: 1
 
 Source2:	nvidia-config-display
 Source3:	blacklist-nouveau.conf
@@ -324,6 +327,9 @@ fi ||:
 %endif
 
 %changelog
+* Mon Feb 13 2012 Philip J Perry <phil@elrepo.org> - 295.20-1.el6.elrepo
+- Updated to version 295.20
+
 * Wed Nov 23 2011 Philip J Perry <phil@elrepo.org> - 290.10-1.el6.elrepo
 - Updated to version 290.10
 

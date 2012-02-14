@@ -4,7 +4,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	290.10
+Version:	295.20
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -19,6 +19,9 @@ Source0:  ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x8
 Source1:  ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 # Source0: http://us.download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}.run
 # Source1: http://us.download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+
+NoSource: 0
+NoSource: 1
 
 # taken from the rpmforge dkms package
 Source2:	nvidia.sh
@@ -314,6 +317,10 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %endif
 
 %changelog
+* Mon Feb 13 2012 Philip J Perry <phil@elrepo.org> - 295.20-1.el5.elrepo
+- Updated to version 295.20
+- Fix permissions on device file(s)
+
 * Wed Nov 23 2011 Philip J Perry <phil@elrepo.org> - 290.10-1.el5.elrepo
 - Updated to version 290.10
 
