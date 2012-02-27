@@ -1,16 +1,30 @@
-Name: bbswitch
+# Define the kmod package name here.
+%define kmod_name bbswitch
+
+# If kversion isn't defined on the rpmbuild line, define it here.
+%{!?kversion: %define kversion 2.6.32-220.4.2.el6.%{_target_cpu}}
+
+Name: %{kmod_name}-kmod
 Version: 0.4.1
-Release:	1%{?dist}
-Summary: bbswitch is a kernel module which automatically detects the required ACPI calls for two kinds of Optimus laptops. 
+Release: 1%{?dist}
+Group: System Environment/Kernel
+License: GPLv2
+Summary: %{kmod_name} kernel module(s)
+URL: https://github.com/Bumblebee-Project/bbswitch
 
-Group: System Environment/Daemons		
-License: GPL	
-URL:https://github.com/Bumblebee-Project/bbswitch 
-Source0: bbswitch-%{version}.tar.gz	
-BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
+BuildRequires: redhat-rpm-config
+ExclusiveArch: i686 x86_64
 
-BuildRequires: dkms
-Requires: kernel-headers
+# Sources.
+Source0: %{kmod_name}-%{version}.tar.gz
+Source5: GPL-v2.0.txt
+Source10: kmodtool-%{kmod_name}-el6.sh
+
+# Magic hidden here.
+%{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
+
+# Disable the building of the debug package(s).
+%define debug_package %{nil}
 
 %description
 bbswitch is a kernel module which automatically detects the required ACPI calls for two kinds of Optimus laptops. It has been verified to work with "real" Optimus and "legacy" Optimus laptops (at least, that is how I call them). The machines on which these tests has performed are:
@@ -23,38 +37,33 @@ It's preferred over manually hacking with the acpi_call module because it can de
 You're not allowed to disable a card if a driver (nouveau, nvidia) is loaded.
 Before suspend, the card is automatically enabled. When resuming, it's disabled again if that was the case before suspending. Hibernation should work, but it not tested.
 
-
 %prep
-%setup -q -n bbswitch-%{version}
-
+%setup -q -n %{kmod_name}-%{version}
+%{__cp} -a %{SOURCE5} .
+echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
-make %{?_smp_mflags}
-
+KSRC=%{_usrsrc}/kernels/%{kversion}
+%{__make} -C "${KSRC}" %{?_smp_mflags} modules M=$PWD
 
 %install
-rm -rf %{buildroot}
+export INSTALL_MOD_PATH=%{buildroot}
+export INSTALL_MOD_DIR=extra/%{kmod_name}
+KSRC=%{_usrsrc}/kernels/%{kversion}
 make load
-mkdir -p %{buildroot}/usr/src/bbswitch-%{version}
-cp * %{buildroot}/usr/src/bbswitch-%{version}/
+%{__make} -C "${KSRC}" modules_install M=$PWD
+%{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
+%{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
+%{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
+%{__install} GPL-v2.0.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
+# Set the module(s) to be executable, so that they will be stripped when packaged.
+find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
+# Remove the unrequired files.
+%{__rm} -f %{buildroot}/lib/modules/%{kversion}/modules.*
 
 %clean
-rm -rf %{buildroot}
-
-
-%files
-%defattr(-,root,root,-)
-%dir /usr/src/bbswitch-%{version}
-%attr (644, root, root) /usr/src/bbswitch-%{version}/
-
-%post
-/usr/sbin/dkms add -m bbswitch -v 0.4.1
-/usr/sbin/dkms build -m bbswitch -v 0.4.1
-/usr/sbin/dkms install -m bbswitch -v 0.4.1
-
-%preun
-/usr/sbin/dkms remove -m bbswitch -v 0.4.1 --all
+%{__rm} -rf %{buildroot}
 
 %changelog
-* Sun Feb 26 2012 Rob Mokkink rob@mokkinksystems.com
-- initial version
+* Mon Dec 29 2010 Philip J Perry <phil@elrepo.org> - 0.0-1
+- Initial el6 build of the kmod package.
