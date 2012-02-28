@@ -2,7 +2,7 @@
 %define kmod_name bbswitch
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-220.4.2.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-71.el6.%{_target_cpu}}
 
 Name: %{kmod_name}-kmod
 Version: 0.4.1
@@ -17,6 +17,7 @@ ExclusiveArch: i686 x86_64
 
 # Sources.
 Source0: %{kmod_name}-%{version}.tar.gz
+Source1: bbswitch.conf
 Source5: GPL-v2.0.txt
 Source10: kmodtool-%{kmod_name}-el6.sh
 
@@ -40,6 +41,7 @@ Before suspend, the card is automatically enabled. When resuming, it's disabled 
 %prep
 %setup -q -n %{kmod_name}-%{version}
 %{__cp} -a %{SOURCE5} .
+%{__cp} -a %{SOURCE1} .
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
@@ -50,12 +52,13 @@ KSRC=%{_usrsrc}/kernels/%{kversion}
 export INSTALL_MOD_PATH=%{buildroot}
 export INSTALL_MOD_DIR=extra/%{kmod_name}
 KSRC=%{_usrsrc}/kernels/%{kversion}
-make load
 %{__make} -C "${KSRC}" modules_install M=$PWD
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} GPL-v2.0.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
+mkdir -p %{buildroot}/etc/modprobe.d
+%{__install} bbswitch.conf %{buildroot}/etc/modprobe.d/
 # Set the module(s) to be executable, so that they will be stripped when packaged.
 find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 # Remove the unrequired files.
@@ -65,5 +68,10 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
-* Mon Dec 29 2010 Philip J Perry <phil@elrepo.org> - 0.0-1
+* Thu Feb 28 2012 Rob Mokkink <rob@mokkinksystems.com> - 0.4-1
+- Removed make load from install section
+- Added bbswitch.conf to install section
+- Added bbswitch.conf to the files section in kmodtool-bbswitch-el6.sh
+
+* Sun Feb 26 2012 Rob Mokkink <rob@mokkinksystems.com> - 0.4-1
 - Initial el6 build of the kmod package.
