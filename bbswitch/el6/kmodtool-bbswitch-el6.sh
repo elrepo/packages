@@ -194,6 +194,7 @@ echo "%defattr(644,root,root,755)"
     echo "/lib/modules/${verrel}${dotvariant}/"
     echo "%config /etc/depmod.d/kmod-${kmod_name}.conf"
     echo "%doc /usr/share/doc/kmod-${kmod_name}-%{version}/"
+    echo "%attr (644, root, root) /etc/modprobe.d/bbswitch.conf"
 else
 cat "$override_filelist" | get_filelist
 fi
