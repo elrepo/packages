@@ -17,7 +17,6 @@ ExclusiveArch: i686 x86_64
 
 # Sources.
 Source0: %{kmod_name}-%{version}.tar.gz
-Source1: bbswitch.conf
 Source5: GPL-v2.0.txt
 Source10: kmodtool-%{kmod_name}-el6.sh
 
@@ -46,9 +45,9 @@ if that was the case before suspending. Hibernation should work, but it not test
 
 %prep
 %setup -q -n %{kmod_name}-%{version}
-%{__cp} -a %{SOURCE1} .
 %{__cp} -a %{SOURCE5} .
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "options %{kmod_name} load_state=0 unload_state=1" > %{kmod_name}.conf
 
 %build
 KSRC=%{_usrsrc}/kernels/%{kversion}
@@ -61,10 +60,12 @@ KSRC=%{_usrsrc}/kernels/%{kversion}
 %{__make} -C "${KSRC}" modules_install M=$PWD
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
+%{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d/
+%{__install} %{kmod_name}.conf %{buildroot}/%{_sysconfdir}/modprobe.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} GPL-v2.0.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
-%{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d/
-%{__install} bbswitch.conf %{buildroot}/%{_sysconfdir}/modprobe.d/
+%{__install} NEWS %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
+%{__install} README.md %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/README
 # Set the module(s) to be executable, so that they will be stripped when packaged.
 find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 # Remove the unrequired files.
