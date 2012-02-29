@@ -6,7 +6,7 @@
 
 Name: %{kmod_name}-kmod
 Version: 0.4.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group: System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -28,20 +28,26 @@ Source10: kmodtool-%{kmod_name}-el6.sh
 %define debug_package %{nil}
 
 %description
-bbswitch is a kernel module which automatically detects the required ACPI calls for two kinds of Optimus laptops. It has been verified to work with "real" Optimus and "legacy" Optimus laptops (at least, that is how I call them). The machines on which these tests has performed are:
+bbswitch is a kernel module which automatically detects the required ACPI calls 
+for two kinds of Optimus laptops. It has been verified to work with "real" Optimus 
+and "legacy" Optimus laptops (at least, that is how I call them). The machines 
+on which these tests has performed are:
     Clevo B7130 - GT 425M ("real" Optimus, Lekensteyns laptop)
     Dell Vostro 3500 - GT 310M ("legacy" Optimus, Samsagax' laptop)
-(note: there is no need to add more supported laptops here as the universal calls should work for every laptop model supporting either Optimus calls)
+(note: there is no need to add more supported laptops here as the universal calls 
+should work for every laptop model supporting either Optimus calls)
 
-It's preferred over manually hacking with the acpi_call module because it can detect the correct handle preceding _DSM and has some built-in safeguards:
+It is preferred over manually hacking with the acpi_call module because it can detect 
+the correct handle preceding _DSM and has some built-in safeguards:
 
-You're not allowed to disable a card if a driver (nouveau, nvidia) is loaded.
-Before suspend, the card is automatically enabled. When resuming, it's disabled again if that was the case before suspending. Hibernation should work, but it not tested.
+You are not allowed to disable a card if a driver (nouveau, nvidia) is loaded.
+Before suspend, the card is automatically enabled. When resuming, it is disabled again
+if that was the case before suspending. Hibernation should work, but it not tested.
 
 %prep
 %setup -q -n %{kmod_name}-%{version}
-%{__cp} -a %{SOURCE5} .
 %{__cp} -a %{SOURCE1} .
+%{__cp} -a %{SOURCE5} .
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
@@ -57,8 +63,8 @@ KSRC=%{_usrsrc}/kernels/%{kversion}
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} GPL-v2.0.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
-mkdir -p %{buildroot}/etc/modprobe.d
-%{__install} bbswitch.conf %{buildroot}/etc/modprobe.d/
+%{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d/
+%{__install} bbswitch.conf %{buildroot}/%{_sysconfdir}/modprobe.d/
 # Set the module(s) to be executable, so that they will be stripped when packaged.
 find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 # Remove the unrequired files.
@@ -68,9 +74,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
-* Thu Feb 28 2012 Rob Mokkink <rob@mokkinksystems.com> - 0.4-1
+* Thu Feb 28 2012 Rob Mokkink <rob@mokkinksystems.com> - 0.4.1-2
 - Removed make load from install section
 - Added bbswitch.conf to install section
 
-* Sun Feb 26 2012 Rob Mokkink <rob@mokkinksystems.com> - 0.4-1
+* Sun Feb 26 2012 Rob Mokkink <rob@mokkinksystems.com> - 0.4.1-1
 - Initial el6 build of the kmod package.
