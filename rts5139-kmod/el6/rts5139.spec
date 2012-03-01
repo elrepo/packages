@@ -16,7 +16,7 @@ BuildRequires: redhat-rpm-config
 ExclusiveArch: i686 x86_64
 
 # Sources.
-Source0: %{kmod_name}-%{version}.tar.bz2
+Source0: %{kmod_name}.tar.bz2
 Source5: GPL-v2.0.txt
 Source10: kmodtool-%{kmod_name}-el6.sh
 
@@ -35,7 +35,7 @@ This kernel module makes it possible to use the 0139 Realtek Semiconductor Corp 
 See the output of lsusb to see if your card reader is listed.
 
 %prep
-%setup -q -n %{kmod_name}-%{version}
+%setup -q -n %{kmod_name}
 %{__cp} -a %{SOURCE5} .
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
