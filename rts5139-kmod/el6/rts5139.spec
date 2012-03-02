@@ -6,7 +6,7 @@
 
 Name: %{kmod_name}-kmod
 Version: 1.04
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group: System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -16,11 +16,9 @@ BuildRequires: redhat-rpm-config
 ExclusiveArch: i686 x86_64
 
 # Sources.
-Source0: %{kmod_name}-%{version}.tar.bz2
+Source0: %{kmod_name}-%{version}.tar.gz
 Source5: GPL-v2.0.txt
 Source10: kmodtool-%{kmod_name}-el6.sh
-
-# Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
 
 # Disable the building of the debug package(s).
@@ -41,7 +39,6 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 
 %build
 KSRC=%{_usrsrc}/kernels/%{kversion}
-#%{__make} -C "${KSRC}" %{?_smp_mflags} modules M=$PWD
 %{__make}
 
 %install
