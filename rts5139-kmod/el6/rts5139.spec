@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 2.6.32-71.el6.%{_target_cpu}}
 
 Name: %{kmod_name}-kmod
-Version: 1.0
+Version: 1.04
 Release: 1%{?dist}
 Group: System Environment/Kernel
 License: GPLv2
@@ -16,7 +16,7 @@ BuildRequires: redhat-rpm-config
 ExclusiveArch: i686 x86_64
 
 # Sources.
-Source0: %{kmod_name}.tar.bz2
+Source0: %{kmod_name}-%{version}.tar.bz2
 Source5: GPL-v2.0.txt
 Source10: kmodtool-%{kmod_name}-el6.sh
 
@@ -35,13 +35,14 @@ This kernel module makes it possible to use the 0139 Realtek Semiconductor Corp 
 See the output of lsusb to see if your card reader is listed.
 
 %prep
-%setup -q -n %{kmod_name}
+%setup -q -n %{kmod_name}-%{version}
 %{__cp} -a %{SOURCE5} .
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
 KSRC=%{_usrsrc}/kernels/%{kversion}
-%{__make} -C "${KSRC}" %{?_smp_mflags} modules M=$PWD
+#%{__make} -C "${KSRC}" %{?_smp_mflags} modules M=$PWD
+%{__make}
 
 %install
 export INSTALL_MOD_PATH=%{buildroot}
@@ -61,5 +62,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
-* Thu Mar 1 2012 Rob Mokkink <Rob Mokkink> - 1.0 
+* Fri Mar 2 2012 Rob Mokkink <rob@mokkinksystems.com> - 1.0.2
+- renamed the source file according to modinfo -F version rts5139
+- added the %{version} back into the spec file
+
+* Thu Mar 1 2012 Rob Mokkink <rob@mokkinksystems.com> - 1.0.1 
 - Initial el6 build of the kmod package.
