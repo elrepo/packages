@@ -1,6 +1,6 @@
 Name: bumblebee		
 Version: 3.0	
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary: Bumblebee is a project that enables Linux to utilize the Nvidia Optimus Hybrid cards.
 
 Group: System Environment/Daemons		
@@ -10,7 +10,7 @@ Source0: bumblebee-%{version}.tar.gz
 Source1: bumblebeed
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
-BuildRequires: libbsd pkgconfig autoconf
+BuildRequires: libbsd pkgconfig autoconf help2man glib2-devel libX11-devel
 Requires: libbsd 	
 
 %description
@@ -30,7 +30,7 @@ make %{?_smp_mflags}
 %install
 rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}
-%{__install} -D -m0755 %{SOURCE1} %{buildroot}%{_initrddir}/bumlebeed
+%{__install} -D -m 0755 %{S:1} $RPM_BUILD_ROOT/etc/init.d/bumblebeed
 %clean
 rm -rf %{buildroot}
 
@@ -42,7 +42,6 @@ rm -rf %{buildroot}
 %dir /usr/share/doc/bumblebee
 %{_sbindir}/bumblebeed
 %{_bindir}/bumblebee-bugreport
-%{_initrddir}/bumlebeed
 %attr (644, root, root) /etc/bash_completion.d/bumblebee
 %attr (644, root, root) /etc/bumblebee/bumblebee.conf
 %attr (644, root, root) /etc/bumblebee/xorg.conf.nouveau
@@ -52,11 +51,17 @@ rm -rf %{buildroot}
 %attr (644, root, root) /usr/share/doc/bumblebee/RELEASE_NOTES_3_0
 %attr (644, root, root) /usr/share/man/man1/bumblebeed.1.gz
 %attr (644, root, root) /usr/share/man/man1/optirun.1.gz
+%attr (755, root, root) /etc/init.d/bumblebeed
 
 %post
 chkconfig --add bumblebeed
 chkconfig bumblebeed on
 
 %changelog
-* Sun Feb 26 2012 Rob Mokkink rob@mokkinksystems.com
+* Sat Mar 03 2012 Rob Mokkink <rob@mokkinksystems.com> - 3.0.2
+- modified the spec file, so that help2man, glib2-devel and libX11-devel ar needed
+- modified the install section in the spec file, so the sysvinit script get's included and included the file in the files section
+- modified the sysvinit script
+
+* Sun Feb 26 2012 Rob Mokkink rob@mokkinksystems.com - 3.0.1
 - initial version
