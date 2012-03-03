@@ -1,0 +1,12 @@
+diff -up libbsd-0.2.0/Makefile.makefile libbsd-0.2.0/Makefile
+--- libbsd-0.2.0/Makefile.makefile	2010-01-28 19:41:22.000000000 -0800
++++ libbsd-0.2.0/Makefile	2010-01-28 19:42:59.000000000 -0800
+@@ -149,7 +149,7 @@ $(LIB_SONAME): $(LIB_SHARED)
+ 	ln -fs $^ $@
+ 
+ $(LIB_SHARED): $(LIB_SHARED_OBJS)
+-	gcc -shared \
++	gcc $(CFLAGS) -shared \
+ 	  -Wl,-soname -Wl,$(LIB_SONAME) \
+ 	  -Wl,--version-script=Versions \
+ 	  -o $@ $^
