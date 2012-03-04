@@ -1,0 +1,32 @@
+--- alsa-driver-1.0.25/include/adriver.h.orig	2012-01-25 09:56:49.000000000 +0200
++++ alsa-driver-1.0.25/include/adriver.h	2012-02-18 19:22:35.000000000 +0200
+@@ -1594,10 +1594,11 @@
+ 
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 26) && \
+     LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0)
+-static inline const char *dev_name(struct device *dev)
++static inline const char *snd_static_inline_dev_name(struct device *dev)
+ {
+ 	return dev->bus_id;
+ }
++#define dev_name snd_static_inline_dev_name
+ 
+ /* FIXME: return value is invalid */
+ #define dev_set_name(dev, fmt, args...) \
+@@ -2023,6 +2024,8 @@
+ #undef CONFIG_SND_HDA_INPUT_JACK
+ #endif
+ 
++/* disable krealloc() wrapper: RHEL kernel provides symbol krealloc and NOT provides symbol ksize */
++#if 0
+ /* krealloc() wrapper */
+ #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0) && LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 22)) || \
+ 	(defined(CONFIG_SND_DEBUG_MEMORY) && !defined(SKIP_HIDDEN_MALLOCS))
+@@ -2045,6 +2048,7 @@
+ }
+ #define krealloc(p, s, f)	snd_compat_krealloc(p, s, f)
+ #endif
++#endif
+ 
+ /* Workaround for IRQF_DISABLED removal in the upstream code */
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(3, 1, 0)
