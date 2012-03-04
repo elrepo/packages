@@ -1,0 +1,28 @@
+alias pcivideo:v00008086d00001132sv*sd*bc*sc*i* intel	# i815
+alias pcivideo:v00008086d00002562sv*sd*bc*sc*i* intel	# 845G
+alias pcivideo:v00008086d00002572sv*sd*bc*sc*i* intel	# 865G
+alias pcivideo:v00008086d00002582sv*sd*bc*sc*i* intel	# 915G
+alias pcivideo:v00008086d0000258Asv*sd*bc*sc*i* intel	# E7221G ("915G")
+alias pcivideo:v00008086d00002592sv*sd*bc*sc*i* intel	# 915GM
+alias pcivideo:v00008086d00002772sv*sd*bc*sc*i* intel	# 945G
+alias pcivideo:v00008086d000027A2sv*sd*bc*sc*i* intel	# 945GM
+alias pcivideo:v00008086d000027AEsv*sd*bc*sc*i* intel	# 945GME
+alias pcivideo:v00008086d00002972sv*sd*bc*sc*i* intel	# 946GZ, really a 965
+alias pcivideo:v00008086d00002982sv*sd*bc*sc*i* intel	# 965G1
+alias pcivideo:v00008086d00002992sv*sd*bc*sc*i* intel	# 965Q
+alias pcivideo:v00008086d000029A2sv*sd*bc*sc*i* intel	# 965G
+alias pcivideo:v00008086d000029B2sv*sd*bc*sc*i* intel	# Q35
+alias pcivideo:v00008086d000029C2sv*sd*bc*sc*i* intel	# G33
+alias pcivideo:v00008086d000029D2sv*sd*bc*sc*i* intel	# Q33
+alias pcivideo:v00008086d00002A02sv*sd*bc*sc*i* intel	# 965GM
+alias pcivideo:v00008086d00002A12sv*sd*bc*sc*i* intel	# 965GME
+alias pcivideo:v00008086d00002A42sv*sd*bc*sc*i* intel	# GM45
+alias pcivideo:v00008086d00002e02sv*sd*bc*sc*i* intel	# IGD_E_G
+alias pcivideo:v00008086d00002e12sv*sd*bc*sc*i* intel	# Q45
+alias pcivideo:v00008086d00002e22sv*sd*bc*sc*i* intel	# G45
+alias pcivideo:v00008086d00002e32sv*sd*bc*sc*i* intel	# G41
+alias pcivideo:v00008086d00003577sv*sd*bc*sc*i* intel	# i830
+alias pcivideo:v00008086d00003582sv*sd*bc*sc*i* intel	# 855GM
+alias pcivideo:v00008086d00007121sv*sd*bc*sc*i* intel	# i810
+alias pcivideo:v00008086d00007123sv*sd*bc*sc*i* intel	# i810 DC100
+alias pcivideo:v00008086d00007125sv*sd*bc*sc*i* intel	# i810E
