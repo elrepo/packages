@@ -1,0 +1,12 @@
+diff -up mesa-20120105/configure.ac.jx mesa-20120105/configure.ac
+--- mesa-20120105/configure.ac.jx	2012-01-05 14:03:26.000000000 -0500
++++ mesa-20120105/configure.ac	2012-01-05 14:35:14.559990582 -0500
+@@ -1775,7 +1775,7 @@ if test "x$enable_gallium_llvm" = xyes;
+     if test "x$LLVM_CONFIG" != xno; then
+ 	LLVM_VERSION=`$LLVM_CONFIG --version`
+ 	LLVM_CFLAGS=`$LLVM_CONFIG --cppflags|sed -e 's/-DNDEBUG\>//g' -e 's/-pedantic//g'`
+-	LLVM_LIBS="`$LLVM_CONFIG --libs`"
++	LLVM_LIBS="-lLLVM-`llvm-config --version` -lstdc++"
+ 
+ 	LLVM_LDFLAGS=`$LLVM_CONFIG --ldflags`
+ 	DEFINES="$DEFINES -D__STDC_CONSTANT_MACROS"
