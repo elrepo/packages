@@ -1,0 +1,21 @@
+--- alsa-driver-1.0.25/alsa-kernel/usb/Makefile.orig	2012-02-17 19:56:07.000000000 +0200
++++ alsa-driver-1.0.25/alsa-kernel/usb/Makefile	2012-02-17 19:56:46.000000000 +0200
+@@ -14,13 +14,13 @@
+ 			quirks.o \
+ 			stream.o
+ 
+-snd-usbmidi-lib-objs := midi.o
++snd-usb-lib-objs := midi.o
+ 
+ # Toplevel Module Dependency
+-obj-$(CONFIG_SND_USB_AUDIO) += snd-usb-audio.o snd-usbmidi-lib.o
++obj-$(CONFIG_SND_USB_AUDIO) += snd-usb-audio.o snd-usb-lib.o
+ 
+-obj-$(CONFIG_SND_USB_UA101) += snd-usbmidi-lib.o
+-obj-$(CONFIG_SND_USB_USX2Y) += snd-usbmidi-lib.o
+-obj-$(CONFIG_SND_USB_US122L) += snd-usbmidi-lib.o
++obj-$(CONFIG_SND_USB_UA101) += snd-usb-lib.o
++obj-$(CONFIG_SND_USB_USX2Y) += snd-usb-lib.o
++obj-$(CONFIG_SND_USB_US122L) += snd-usb-lib.o
+ 
+ obj-$(CONFIG_SND) += misc/ usx2y/ caiaq/ 6fire/
