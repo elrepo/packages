@@ -6,7 +6,7 @@ Group: System Environment/Daemons
 License: GPLv3	
 URL: https://github.com/Bumblebee-Project		
 
-BuildRequires: libbsd pkgconfig autoconf
+BuildRequires: libbsd pkgconfig autoconf help2man
 Requires: libbsd 	
 
 # Sources
@@ -20,49 +20,50 @@ the Nvidia Optimus Hybrid cards.
 
 %prep
 %setup -q -n %{name}-%{version}
-%{__cp} -a %{SOURCE5} .
 
 %build
 %configure \
-	--prefix=/usr \
-	--sysconfdir=/etc
+	--prefix=%{_usr} \
+	--sysconfdir=%{_sysconfdir}
 %{__make} -s %{?_smp_mflags}
 
 %install
 %{__make} -s install DESTDIR="%{buildroot}"
 %{__install} -D -m0755 %{SOURCE1} %{buildroot}%{_initrddir}/bumlebeed
 %{__install} -d %{buildroot}%{_defaultdocdir}/%{name}-%{version}/
-%{__install} GPL-v3.0.txt %{buildroot}%{_defaultdocdir}/%{name}-%{version}/
+%{__install} %{SOURCE5} %{buildroot}%{_defaultdocdir}/%{name}-%{version}/
+%{__mv} %{buildroot}%{_defaultdocdir}/%{name}/* %{buildroot}%{_defaultdocdir}/%{name}-%{version}/
+%{__rm} -rf %{buildroot}%{_defaultdocdir}/%{name}
 
 %clean
-rm -rf %{buildroot}
+%{__rm} -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%doc /usr/share/doc/%{name}-%{version}/GPL-v3.0.txt
-%dir /etc/bumblebee
-%dir /usr/share/doc/bumblebee
+%dir %{_sysconfdir}/%{name}
+%dir %{_defaultdocdir}/%{name}-%{version}
 %{_sbindir}/bumblebeed
-%{_bindir}/bumblebee-bugreport
+%{_bindir}/%{name}-bugreport
 %{_initrddir}/bumlebeed
-%attr (644, root, root) /etc/bash_completion.d/bumblebee
-%attr (644, root, root) /etc/bumblebee/bumblebee.conf
-%attr (644, root, root) /etc/bumblebee/xorg.conf.nouveau
-%attr (644, root, root) /etc/bumblebee/xorg.conf.nvidia
-%attr (755, root, root) /usr/bin/optirun
-%attr (644, root, root) /usr/share/doc/bumblebee/README.markdown
-%attr (644, root, root) /usr/share/doc/bumblebee/RELEASE_NOTES_3_0
-%attr (644, root, root) /usr/share/man/man1/bumblebeed.1.gz
-%attr (644, root, root) /usr/share/man/man1/optirun.1.gz
+%attr (644, root, root) %{_sysconfdir}/bash_completion.d/%{name}
+%attr (644, root, root) %{_sysconfdir}/%{name}/%{name}.conf
+%attr (644, root, root) %{_sysconfdir}/%{name}/xorg.conf.nouveau
+%attr (644, root, root) %{_sysconfdir}/%{name}/xorg.conf.nvidia
+%attr (755, root, root) %{_usr}/bin/optirun
+%attr (644, root, root) %{_defaultdocdir}/%{name}-%{version}/GPL-v3.0.txt
+%attr (644, root, root) %{_defaultdocdir}/%{name}-%{version}/README.markdown
+%attr (644, root, root) %{_defaultdocdir}/%{name}-%{version}/RELEASE_NOTES_3_0
+%attr (644, root, root) %{_mandir}/man1/bumblebeed.1.gz
+%attr (644, root, root) %{_mandir}/man1/optirun.1.gz
 
 %post
 chkconfig --add bumblebeed
 chkconfig bumblebeed on
 
 %changelog
-* Tue Mar 06 2012 Rob Mokkink <rob@mokkinksystems.com> - 3.0-2
-- ELRepo standards [Akemi Yagi]
-- Add GPLv3 license file
+* Wed Mar 07 2012 Rob Mokkink <rob@mokkinksystems.com> - 3.0-2
+- ELRepo Project standards [Akemi Yagi, Alan Bartlett]
+- Added GPLv3 license file
 
 * Sun Feb 26 2012 Rob Mokkink <rob@mokkinksystems.com> - 3.0-1
-- initial version
+- Initial version
