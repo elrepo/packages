@@ -61,9 +61,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
-* Fri Mar 2 2012 Rob Mokkink <rob@mokkinksystems.com> - 1.04-2
-- renamed the source file according to modinfo -F version rts5139
-- added the %{version} back into the spec file
+* Wed Mar 07 2012 Rob Mokkink <rob@mokkinksystems.com> - 1.04-2
+- Renamed the source file according to modinfo -F version rts5139
+- Added the %{version} back into the spec file
 
-* Thu Mar 1 2012 Rob Mokkink <rob@mokkinksystems.com> - 1.0.1 
+* Thu Mar 01 2012 Rob Mokkink <rob@mokkinksystems.com> - 1.04-1
 - Initial el6 build of the kmod package.
