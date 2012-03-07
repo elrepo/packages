@@ -61,7 +61,7 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
-* Fri Mar 2 2012 Rob Mokkink <rob@mokkinksystems.com> - 1.0.2
+* Fri Mar 2 2012 Rob Mokkink <rob@mokkinksystems.com> - 1.04-2
 - renamed the source file according to modinfo -F version rts5139
 - added the %{version} back into the spec file
 
