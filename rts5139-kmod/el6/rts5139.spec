@@ -19,6 +19,8 @@ ExclusiveArch: i686 x86_64
 Source0: %{kmod_name}-%{version}.tar.gz
 Source5: GPL-v2.0.txt
 Source10: kmodtool-%{kmod_name}-el6.sh
+
+# Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
 
 # Disable the building of the debug package(s).
