@@ -6,7 +6,7 @@ Group: System Environment/Daemons
 License: GPLv3	
 URL: https://github.com/Bumblebee-Project		
 
-BuildRequires: libbsd pkgconfig autoconf help2man
+BuildRequires: libbsd pkgconfig autoconf help2man glib2-devel libX11-devel
 Requires: libbsd 	
 
 # Sources
