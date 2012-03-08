@@ -62,8 +62,11 @@ chkconfig bumblebeed on
 
 %changelog
 * Wed Mar 07 2012 Rob Mokkink <rob@mokkinksystems.com> - 3.0-2
+- Added help2man, glib2-devel and libX11-devel to the spec file
+- Added the sysvinit script to the spec file
+- Modified the sysvinit script
 - ELRepo Project standards [Akemi Yagi, Alan Bartlett]
-- Added GPLv3 license file
+- Added GPLv3 license file [Akemi Yagi]
 
 * Sun Feb 26 2012 Rob Mokkink <rob@mokkinksystems.com> - 3.0-1
 - Initial version
