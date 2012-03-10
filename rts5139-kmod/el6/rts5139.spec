@@ -6,7 +6,7 @@
 
 Name: %{kmod_name}-kmod
 Version: 1.04
-Release: 2%{?dist}
+Release: 3%{?dist}
 Group: System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -41,7 +41,7 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 
 %build
 KSRC=%{_usrsrc}/kernels/%{kversion}
-%{__make}
+%{__make} KVERSION=%{kversion}
 
 %install
 export INSTALL_MOD_PATH=%{buildroot}
@@ -61,6 +61,10 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Mar 10 2012 Rob Mokkink <rob@mokkinksystems.com> - 1.04-3
+- Adjusted the makefile to take parameter KVERSION
+- Adjusted the spec file to pass a parameter to the make file
+
 * Wed Mar 07 2012 Rob Mokkink <rob@mokkinksystems.com> - 1.04-2
 - Renamed the source file according to modinfo -F version rts5139
 - Added the %{version} back into the spec file
