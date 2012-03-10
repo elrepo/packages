@@ -3,11 +3,11 @@
 %define  src_name alsa-driver
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-71.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-220.el6.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 1.0.25
-Release: 3%{?dist}
+Release: 4%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: ALSA driver kernel modules
@@ -76,6 +76,10 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Mar 10 2012 Phil Schaffner <pschaff2@verizon.net> - 1.0.25-4.el6.elrepo
+- Build agaist latest kernel due to upstream changes
+- per http://elrepo.org/bugs/view.php?id=244
+
 * Fri Mar 02 2012 Phil Schaffner <pschaff2@verizon.net> - 1.0.25-3.el6.elrepo
 - Include alsa-1.0.25-adriver.patch and alsa-1.0.25-usb-makefile.patch
 - Generate overrides automatically.
