@@ -19,6 +19,7 @@ ExclusiveArch: i686 x86_64
 Source0: %{kmod_name}-%{version}.tar.gz
 Source5: GPL-v2.0.txt
 Source10: kmodtool-%{kmod_name}-el6.sh
+Source20: ELRepo-Makefile-%{kmod_name}
 
 # Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
@@ -37,6 +38,8 @@ See the output of lsusb to see if your card reader is listed.
 %prep
 %setup -q -n %{kmod_name}-%{version}
 %{__cp} -a %{SOURCE5} .
+%{__rm} -f Makefile*
+%{__cp} -a %{SOURCE20} Makefile
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
@@ -64,6 +67,7 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 * Sat Mar 10 2012 Rob Mokkink <rob@mokkinksystems.com> - 1.04-3
 - Adjusted the makefile to take parameter KVERSION
 - Adjusted the spec file to pass a parameter to the make file
+- Added source20, so we can replace the original Makefile
 
 * Wed Mar 07 2012 Rob Mokkink <rob@mokkinksystems.com> - 1.04-2
 - Renamed the source file according to modinfo -F version rts5139
