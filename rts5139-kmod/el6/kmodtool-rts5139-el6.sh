@@ -148,6 +148,10 @@ cat <<EOF
 %description   -n kmod-${kmod_name}${dashvariant}
 This package provides the ${kmod_name} kernel module(s) built
 for the Linux kernel using the %{_target_cpu} family of processors.
+
+The module makes it possible to use a Realtek Semiconductor Corp card
+reader with Vendor:Device ID Pairings of 0BDA:0129 and 0BDA:0139
+Check the output of lsusb to see if your card reader is listed.
 EOF
 
 ##############################################################################
