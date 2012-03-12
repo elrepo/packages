@@ -32,19 +32,18 @@ This package provides the %{kmod_name} kernel module(s).
 It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
-This kernel module makes it possible to use the 0139 Realtek Semiconductor Corp Card Reader.
-See the output of lsusb to see if your card reader is listed.
+The module makes it possible to use a Realtek Semiconductor Corp card
+reader with Vendor:Device ID Pairings of 0BDA:0129 and 0BDA:0139
+Check the output of lsusb to see if your card reader is listed.
 
 %prep
 %setup -q -n %{kmod_name}-%{version}
-%{__cp} -a %{SOURCE5} .
 %{__rm} -f Makefile*
 %{__cp} -a %{SOURCE20} Makefile
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
-KSRC=%{_usrsrc}/kernels/%{kversion}
-%{__make} KVERSION=%{kversion}
+%{__make} KSRC=%{_usrsrc}/kernels/%{kversion}
 
 %install
 export INSTALL_MOD_PATH=%{buildroot}
@@ -54,7 +53,8 @@ KSRC=%{_usrsrc}/kernels/%{kversion}
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
-%{__install} GPL-v2.0.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
+%{__install} %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
+%{__install} README.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 # Set the module(s) to be executable, so that they will be stripped when packaged.
 find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 # Remove the unrequired files.
@@ -64,10 +64,11 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
-* Sat Mar 10 2012 Rob Mokkink <rob@mokkinksystems.com> - 1.04-3
+* Mon Mar 12 2012 Rob Mokkink <rob@mokkinksystems.com> - 1.04-3
 - Adjusted the makefile to take parameter KVERSION
 - Adjusted the spec file to pass a parameter to the make file
 - Added source20, so we can replace the original Makefile
+- ELRepo standards [Alan Bartlett]
 
 * Wed Mar 07 2012 Rob Mokkink <rob@mokkinksystems.com> - 1.04-2
 - Renamed the source file according to modinfo -F version rts5139
