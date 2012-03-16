@@ -1,0 +1,30 @@
+From: John W. Linville <linville@tuxdriver.com>
+Date: Wed, 15 Feb 2012 16:20:48 -0500
+Subject: [PATCH] compat-wireless: remove olpc_ec_wakeup_* calls for pre-3.1
+ kernels
+
+This section of the libertas driver calls functions that simply don't
+exist before the release of 3.1.  This code in question was an addition,
+not a change from any existing code.  It is safe to simply remove it for
+older kernels.
+
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+
+--- drivers/net/wireless/libertas/if_usb.c.orig	2012-03-10 00:39:03.000000000 +0000
++++ drivers/net/wireless/libertas/if_usb.c	2012-03-16 17:08:22.000000000 +0000
+@@ -1133,6 +1133,7 @@
+ 	if (priv->psstate != PS_STATE_FULL_POWER)
+ 		return -1;
+ 
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,1,0))
+ #ifdef CONFIG_OLPC
+ 	if (machine_is_olpc()) {
+ 		if (priv->wol_criteria == EHS_REMOVE_WAKEUP)
+@@ -1141,6 +1142,7 @@
+ 			olpc_ec_wakeup_set(EC_SCI_SRC_WLAN);
+ 	}
+ #endif
++#endif
+ 
+ 	ret = lbs_suspend(priv);
+ 	if (ret)
