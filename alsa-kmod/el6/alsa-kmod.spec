@@ -55,12 +55,12 @@ popd
 %install
 %{__install} -d %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 %{__install} _kmod_build_/modules/*.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
-modules_dir=%{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
-:>kmod-alsa.conf
-for filename in $modules_dir*.ko
+MODULES_DIR=%{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}
+:>kmod-%{kmod_name}.conf
+for FILENAME in $MODULES_DIR/*.ko
 do
-    module="$( echo $filename | sed 's/.*\/\(.*\)\.ko/\1/' )"
-    echo "override $module * weak-updates/alsa" >> kmod-%{kmod_name}.conf
+    MODULE="$( echo $FILENAME | sed 's/.*\/\(.*\)\.ko/\1/' )"
+    echo "override $MODULE * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 done
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
