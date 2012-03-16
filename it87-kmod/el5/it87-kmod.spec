@@ -7,7 +7,7 @@
 
 Name:	 %{kmod_name}-kmod
 Version: 1.1
-Release: 9%{?dist}
+Release: 10%{?dist}
 Group:	 System Environment/Kernel
 License: GPLv2
 Summary: IT87 Super I/O Sensor module
@@ -89,6 +89,12 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Mar 15 2012 Philip J Perry <phil@elrepo.org> - 1.1-10.el5.elrepo
+- Rebase to kernel-3.0.24.
+- Fix label group removal [2011-07-17]
+- Backport support for IT8728F from kernel-3.3-rc7
+  http://elrepo.org/bugs/view.php?id=246
+
 * Sun Aug 07 2011 Philip J Perry <phil@elrepo.org> - 1.1-9.el5.elrepo
 - add the docs.
 - Rebase to kernel-2.6.39.4
