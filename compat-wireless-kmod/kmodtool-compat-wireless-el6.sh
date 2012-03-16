@@ -193,6 +193,7 @@ then
     echo "%defattr(644,root,root,755)"
     echo "/lib/modules/${verrel}${dotvariant}/"
     echo "%config /etc/depmod.d/kmod-${kmod_name}.conf"
+    echo "%config /etc/modprobe.d/blacklist-compat-wireless.conf"
     echo "%doc /usr/share/doc/kmod-${kmod_name}-%{version}/"
 else
     cat "$override_filelist" | get_filelist
