@@ -2,7 +2,7 @@
 %define	 kmod_name nvidia
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-71.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-220.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
 Version: 295.33
@@ -74,6 +74,8 @@ popd
 %changelog
 * Fri Mar 23 2012 Philip J Perry <phil@elrepo.org> - 295.33-1.el6.elrepo
 - Updated to version 295.33
+- Build against RHEL-6.2 kernel to avoid alt_instr fixups.
+  [http://elrepo.org/bugs/view.php?id=244]
 
 * Mon Feb 13 2012 Philip J Perry <phil@elrepo.org> - 295.20-1.el6.elrepo
 - Updated to version 295.20
