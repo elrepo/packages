@@ -71,7 +71,7 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
-* Fri Apr 6 2012 Michael Lampe <mlampe0@googlemail.com> - 3.3-1.0.2.n
+* Fri Apr 6 2012 Michael Lampe <mlampe0@googlemail.com> - 3.3-2.n
 - update to 3.3-2-n
 
 * Thu Mar 16 2012 Philip J Perry <phil@elrepo.org> - 3.3-0.2.rc6.1
