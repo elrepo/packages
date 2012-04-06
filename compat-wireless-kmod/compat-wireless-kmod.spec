@@ -6,7 +6,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 3.3
-Release: 0.2.rc6.1%{?dist}
+Release: 2.n%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -16,7 +16,7 @@ BuildRequires: redhat-rpm-config
 ExclusiveArch: i686 x86_64
 
 # Sources.
-Source0:  http://www.orbit-lab.org/kernel/compat-wireless-3-stable/v3.3/compat-wireless-3.3-rc6-1.tar.bz2
+Source0: http://www.orbit-lab.org/kernel/compat-wireless-3-stable/v3.3/compat-wireless-3.3-2-n.tar.bz2
 Source10: kmodtool-%{kmod_name}-el6.sh
 
 # Patches.
@@ -34,7 +34,7 @@ It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
-%setup -q -n %{kmod_name}-%{version}-rc6-1
+%setup -q -n %{kmod_name}-%{version}-2-n
 %patch0 -p0
 echo "blacklist iwlagn" > blacklist-compat-wireless.conf
 echo "blacklist ar9170usb" >> blacklist-compat-wireless.conf
@@ -71,6 +71,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Apr 6 2012 Michael Lampe <mlampe0@googlemail.com> - 3.3-1.0.2.n
+- update to 3.3-2-n
+
 * Thu Mar 16 2012 Philip J Perry <phil@elrepo.org> - 3.3-0.2.rc6.1
 - Fix build issue on i686 [compat-wireless-remove-olpc_ec_wakeup_calls.patch]
 - Add iwlagn and ar9170usb to the blacklist.
