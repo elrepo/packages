@@ -61,6 +61,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Apr 08 2012 Philip J Perry <phil@elrepo.org>
+- Rebase to LTS kernel-3.0.27
+
 * Sat Nov 18 2011 Philip J Perry <phil@elrepo.org> - 0.0-2
 - Backported from kernel-3.1.1
 - Add support for F71808A [2011-05-25]
