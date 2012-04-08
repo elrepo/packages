@@ -18,7 +18,7 @@ URL: http://wwww.drbd.org/
 
 # Sources.
 Source0: http://oss.linbit.com/drbd/8.3/drbd-%{version}.tar.gz
-Source10: kmodtool-%{kmod_name}.sh
+Source10: kmodtool-%{kmod_name}-el6.sh
 
 ExclusiveArch: i686 x86_64
 BuildRequires: redhat-rpm-config
