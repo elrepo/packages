@@ -79,6 +79,10 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Apr 08 2012 Philip J Perry <phil@elrepo.org>
+- Rebase to LTS kernel-3.0.27
+- Backport patch 'Add VID reporting support' from kernel-3.1.10 [2011-07-25]
+
 * Sat Dec 03 2011 Philip J Perry <phil@elrepo.org> - 0.0-1
 - Initial el5 build of the kmod package.
 - Backported from kernel-3.1.4
