@@ -1,4 +1,4 @@
-Summary: Package CentOS 'getinfo.sh' script as an rpm
+Summary: Packaged 'getinfo.sh' script for RPM based distros
 Name: getinfo
 Version: 1.0
 Release: 1%{?dist}
