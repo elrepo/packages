@@ -10,7 +10,7 @@ To aid in the process a script getinfo.sh has been developed to
 collect system information for a variety of classes of questions.  The
 script will save the information to a temporary file which can be
 posted in-line, or for longer files saved to a site such as
-http://pastebin.org/.  The script should work on RHEL, Fedora,
+http://dpaste.org/.  The script should work on RHEL, Fedora,
 and closely related distributions.
 
 All options can be run as a normal user but fdisk information can only
