@@ -2,7 +2,7 @@ Summary: Packaged 'getinfo.sh' script for RPM based distros
 Name: getinfo
 Version: 1.0
 Release: 1%{?dist}
-License: GPL
+License: GPLv2
 Group: Applications/System
 URL: http://www.centos.org/
 
