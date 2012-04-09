@@ -4,7 +4,7 @@ Version: 1.0
 Release: 1%{?dist}
 License: GPLv2
 Group: Applications/System
-URL: http://www.centos.org/
+URL: https://github.com/elrepo/packages/tree/master/getinfo/el5
 
 Source0: http://github.com/elrepo/packages/tree/master/getinfo/el5/getinfo.sh
 Source1: http://github.com/elrepo/packages/tree/master/getinfo/el5/GPL-v2.0.txt
