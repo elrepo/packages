@@ -3,8 +3,8 @@
 # This script collects system hardware and software information.
 # Exact information collected depends on how it is called.
 # It was developed by CentOS Forum members and is released under
-#   the GNU General Public License, version 2 or later (GPL).
-# It should work on most EL or Fedora distributions.
+# the GNU General Public License, version 2 or later (GPL).
+# It should work on most Enterprise Linux or Fedora distributions.
 # Version 1.0 4/5/2011
 
 # Set locale to English
@@ -101,7 +101,7 @@ echo -e "########################\n"
 
 echo    "To provide this information in support of a question on fora,"
 echo -e "mailing list, or IRC channel please post its contents to\n"
-echo    "      http://pastebin.centos.org/"
+echo    "      http://pastebin.org/"
 echo -e "\nor another similar public site of your choice."
 echo    "Select a retention time longer than the default of 'a day'"
 echo -e "and provide a link to the information in your post.\n"
