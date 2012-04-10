@@ -4,11 +4,11 @@ Version: 1.0
 Release: 1%{?dist}
 License: GPLv2
 Group: Applications/System
-URL: https://github.com/elrepo/packages/tree/master/getinfo/el5
+URL: https://raw.github.com/elrepo/packages/tree/master/getinfo/el5
 
-Source0: http://github.com/elrepo/packages/tree/master/getinfo/el5/getinfo.sh
-Source1: http://github.com/elrepo/packages/tree/master/getinfo/el5/GPL-v2.0.txt
-Source2: http://github.com/elrepo/packages/tree/master/getinfo/el5/ReadMe.txt
+Source0: http://raw.github.com/elrepo/packages/tree/master/getinfo/el5/getinfo.sh
+Source1: http://raw.github.com/elrepo/packages/tree/master/getinfo/el5/GPL-v2.0.txt
+Source2: http://raw.github.com/elrepo/packages/tree/master/getinfo/el5/ReadMe.txt
 
 BuildArch: noarch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
