@@ -1,14 +1,14 @@
 Summary: Packaged 'getinfo.sh' script for RPM based distros
 Name: getinfo
 Version: 1.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPLv2
 Group: Applications/System
-URL: https://raw.github.com/elrepo/packages/tree/master/getinfo/el6
+URL: https://github.com/elrepo/packages/tree/master/getinfo/el6
 
-Source0: http://raw.github.com/elrepo/packages/tree/master/getinfo/el6/getinfo.sh
-Source1: http://raw.github.com/elrepo/packages/tree/master/getinfo/el6/GPL-v2.0.txt
-Source2: http://raw.github.com/elrepo/packages/tree/master/getinfo/el6/ReadMe.txt
+Source0: https://raw.github.com/elrepo/packages/master/getinfo/el6/getinfo.sh
+Source1: https://raw.github.com/elrepo/packages/master/getinfo/el6/GPL-v2.0.txt
+Source2: https://raw.github.com/elrepo/packages/master/getinfo/el6/ReadMe.txt
 
 BuildArch: noarch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
