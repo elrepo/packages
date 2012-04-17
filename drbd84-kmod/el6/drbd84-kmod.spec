@@ -6,12 +6,12 @@
 %define real_name drbd
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion:%define kversion 2.6.32-71.el6.%{_target_cpu}}
+%{!?kversion:%define kversion 2.6.32-220.el6.%{_target_cpu}}
 
 Summary: Distributed Redundant Block Device driver for Linux
 Name: %{kmod_name}-kmod
 Version: 8.4.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPL
 Group: System Environment/Kernel
 URL: http://www.drbd.org/
@@ -72,6 +72,10 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Apr 17 2012 Philip J Perry <phil@elrepo.org> - 8.4.1-2
+- Rebuilt against RHEL-6.2.
+  [http://elrepo.org/bugs/view.php?id=210] and [http://elrepo.org/bugs/view.php?id=252]
+
 * Wed Dec 21 2011 Dag Wieers <dag@wieers.com> - 8.4.1-1
 - Updated to release 8.4.1.
 
