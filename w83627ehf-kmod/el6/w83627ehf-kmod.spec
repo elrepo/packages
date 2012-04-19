@@ -2,11 +2,11 @@
 %define kmod_name w83627ehf
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-71.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-220.el6.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 7%{?dist}
+Release: 8%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -61,6 +61,17 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Apr 19 2012 Philip J Perry <phil@elrepo.org> - 0.0-8.el6.elrepo
+- Rebase to LTS kernel-3.0.28
+- Fix memory leak in probe function [2012-03-19]
+- Fix writing into fan_stop_time for... [2012-03-19]
+- Fix number of fans for NCT6776F [2012-02-13]
+- Disable setting DC mode for pwm2... [2012-02-03]
+- Fix broken driver init [2011-11-11]
+- Properly report PECI and AMD-SI... [2011-11-11]
+- Fix negative 8-bit temperature values [2011-10-25]
+- Properly report thermal diode sensors [2011-10-25]
+
 * Fri Jun 16 2011 Philip J Perry <phil@elrepo.org> - 0.0-7.el6.elrepo
 - Port to RHEL6. http://elrepo.org/bugs/view.php?id=146
 

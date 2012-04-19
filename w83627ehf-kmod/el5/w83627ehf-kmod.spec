@@ -3,11 +3,11 @@
 
 # If kversion isn't defined on the rpmbuild line, define it here.
 # Only compatible with kernels >= 2.6.18-194.el5
-%{!?kversion: %define kversion 2.6.18-238.el5}
+%{!?kversion: %define kversion 2.6.18-308.el5}
 
 Name:	 %{kmod_name}-kmod
 Version: 0.0
-Release: 7%{?dist}
+Release: 8%{?dist}
 Group:	 System Environment/Kernel
 License: GPLv2
 Summary: w83627ehf kernel module
@@ -89,6 +89,17 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Apr 19 2012 Philip J Perry <phil@elrepo.org> - 0.0-8.el5.elrepo
+- Rebase to LTS kernel-3.0.28
+- Fix memory leak in probe function [2012-03-19]
+- Fix writing into fan_stop_time for... [2012-03-19]
+- Fix number of fans for NCT6776F [2012-02-13]
+- Disable setting DC mode for pwm2... [2012-02-03]
+- Fix broken driver init [2011-11-11]
+- Properly report PECI and AMD-SI... [2011-11-11]
+- Fix negative 8-bit temperature values [2011-10-25]
+- Properly report thermal diode sensors [2011-10-25]
+
 * Sun Jun 05 2011 Philip J Perry <phil@elrepo.org> - 0.0-7.el5.elrepo
 - Rebase to kernel-2.6.39.1
 - Install the docs.

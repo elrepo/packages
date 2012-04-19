@@ -419,7 +419,7 @@ temp_from_reg(u16 reg, s16 regval)
 {
 	if (is_word_sized(reg))
 		return LM75_TEMP_FROM_REG(regval);
-	return regval * 1000;
+	return ((s8)regval) * 1000;
 }
 
 static inline u16
@@ -427,7 +427,8 @@ temp_to_reg(u16 reg, long temp)
 {
 	if (is_word_sized(reg))
 		return LM75_TEMP_TO_REG(temp);
-	return DIV_ROUND_CLOSEST(SENSORS_LIMIT(temp, -127000, 128000), 1000);
+	return (s8)DIV_ROUND_CLOSEST(SENSORS_LIMIT(temp, -127000, 128000),
+				     1000);
 }
 
 /* Some of analog inputs have internal scaling (2x), 8mV is ADC LSB */
@@ -1323,6 +1324,7 @@ store_pwm_mode(struct device *dev, struct device_attribute *attr,
 {
 	struct w83627ehf_data *data = dev_get_drvdata(dev);
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
+	struct w83627ehf_sio_data *sio_data = dev->platform_data;
 	int nr = sensor_attr->index;
 	unsigned long val;
 	int err;
@@ -1334,6 +1336,11 @@ store_pwm_mode(struct device *dev, struct device_attribute *attr,
 
 	if (val > 1)
 		return -EINVAL;
+
+	/* On NCT67766F, DC mode is only supported for pwm1 */
+	if (sio_data->kind == nct6776 && nr && val != 1)
+		return -EINVAL;
+
 	mutex_lock(&data->update_lock);
 	reg = w83627ehf_read_value(data, W83627EHF_REG_PWM_ENABLE[nr]);
 	data->pwm_mode[nr] = val;
@@ -1605,7 +1612,7 @@ store_##reg(struct device *dev, struct device_attribute *attr, \
 	val = step_time_to_reg(val, data->pwm_mode[nr]); \
 	mutex_lock(&data->update_lock); \
 	data->reg[nr] = val; \
-	w83627ehf_write_value(data, W83627EHF_REG_##REG[nr], val); \
+	w83627ehf_write_value(data, data->REG_##REG[nr], val); \
 	mutex_unlock(&data->update_lock); \
 	return count; \
 } \
@@ -1744,7 +1751,8 @@ static void w83627ehf_device_remove_files(struct device *dev)
 }
 
 /* Get the monitoring functions started */
-static inline void __devinit w83627ehf_init_device(struct w83627ehf_data *data)
+static inline void __devinit w83627ehf_init_device(struct w83627ehf_data *data,
+						   enum kinds kind)
 {
 	int i;
 	u8 tmp, diode;
@@ -1775,10 +1783,26 @@ static inline void __devinit w83627ehf_init_device(struct w83627ehf_data *data)
 		w83627ehf_write_value(data, W83627EHF_REG_VBAT, tmp | 0x01);
 
 	/* Get thermal sensor types */
-	diode = w83627ehf_read_value(data, W83627EHF_REG_DIODE);
+	switch (kind) {
+	case w83627ehf:
+		diode = w83627ehf_read_value(data, W83627EHF_REG_DIODE);
+		break;
+	default:
+		diode = 0x70;
+	}
 	for (i = 0; i < 3; i++) {
-		if ((tmp & (0x02 << i)))
-			data->temp_type[i] = (diode & (0x10 << i)) ? 1 : 2;
+		const char *label = NULL;
+
+		if (data->temp_label)
+			label = data->temp_label[data->temp_src[i]];
+
+		/* Digital source overrides analog type */
+		if (label && strncmp(label, "PECI", 4) == 0)
+			data->temp_type[i] = 6;
+		else if (label && strncmp(label, "AMD", 3) == 0)
+			data->temp_type[i] = 5;
+		else if ((tmp & (0x02 << i)))
+			data->temp_type[i] = (diode & (0x10 << i)) ? 1 : 3;
 		else
 			data->temp_type[i] = 4; /* thermistor */
 	}
@@ -1828,7 +1852,8 @@ static int __devinit w83627ehf_probe(struct platform_device *pdev)
 		goto exit;
 	}
 
-	data = kzalloc(sizeof(struct w83627ehf_data), GFP_KERNEL);
+	data = devm_kzalloc(&pdev->dev, sizeof(struct w83627ehf_data),
+			    GFP_KERNEL);
 	if (!data) {
 		err = -ENOMEM;
 		goto exit_release;
@@ -2045,7 +2070,7 @@ static int __devinit w83627ehf_probe(struct platform_device *pdev)
 	}
 
 	/* Initialize the chip */
-	w83627ehf_init_device(data);
+	w83627ehf_init_device(data, sio_data->kind);
 
 	data->vrm = vid_which_vrm();
 	superio_enter(sio_data->sioreg);
@@ -2109,9 +2134,29 @@ static int __devinit w83627ehf_probe(struct platform_device *pdev)
 		fan4min = 0;
 		fan5pin = 0;
 	} else if (sio_data->kind == nct6776) {
-		fan3pin = !(superio_inb(sio_data->sioreg, 0x24) & 0x40);
-		fan4pin = !!(superio_inb(sio_data->sioreg, 0x1C) & 0x01);
-		fan5pin = !!(superio_inb(sio_data->sioreg, 0x1C) & 0x02);
+		bool gpok = superio_inb(sio_data->sioreg, 0x27) & 0x80;
+		u8 regval;
+
+		superio_select(sio_data->sioreg, W83627EHF_LD_HWM);
+		regval = superio_inb(sio_data->sioreg, SIO_REG_ENABLE);
+
+		if (regval & 0x80)
+			fan3pin = gpok;
+		else
+			fan3pin = !(superio_inb(sio_data->sioreg, 0x24) & 0x40);
+
+		if (regval & 0x40)
+			fan4pin = gpok;
+		else
+			fan4pin = !!(superio_inb(sio_data->sioreg, 0x1C)
+				     & 0x01);
+
+		if (regval & 0x20)
+			fan5pin = gpok;
+		else
+			fan5pin = !!(superio_inb(sio_data->sioreg, 0x1C)
+				     & 0x02);
+
 		fan4min = fan4pin;
 	} else if (sio_data->kind == w83667hg || sio_data->kind == w83667hg_b) {
 		fan3pin = 1;
@@ -2304,9 +2349,8 @@ static int __devinit w83627ehf_probe(struct platform_device *pdev)
 
 exit_remove:
 	w83627ehf_device_remove_files(dev);
-	kfree(data);
-	platform_set_drvdata(pdev, NULL);
 exit_release:
+	platform_set_drvdata(pdev, NULL);
 	release_region(res->start, IOREGION_LENGTH);
 exit:
 	return err;
@@ -2320,7 +2364,6 @@ static int __devexit w83627ehf_remove(struct platform_device *pdev)
 	w83627ehf_device_remove_files(&pdev->dev);
 	release_region(data->addr, IOREGION_LENGTH);
 	platform_set_drvdata(pdev, NULL);
-	kfree(data);
 
 	return 0;
 }
