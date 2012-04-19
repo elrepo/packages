@@ -58,6 +58,25 @@
 #define usb_free_coherent(dev, size, addr, dma) usb_buffer_free(dev, size, addr, dma)
 #endif
 
+#ifndef FB_MAJOR
+#define FB_MAJOR                29   /* /dev/fb* framebuffers */
+#endif
+
+static int unlink_framebuffer(struct fb_info *fb_info)
+{
+	int i;
+
+	i = fb_info->node;
+	if (i < 0 || i >= FB_MAX || registered_fb[i] != fb_info)
+		return -EINVAL;
+
+	if (fb_info->dev) {
+		device_destroy(fb_class, MKDEV(FB_MAJOR, i));
+		fb_info->dev = NULL;
+	}
+	return 0;
+}
+
 /* End elrepo patches */
 
 static struct fb_fix_screeninfo dlfb_fix = {
