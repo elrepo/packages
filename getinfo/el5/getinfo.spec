@@ -1,7 +1,7 @@
 Summary: Packaged 'getinfo.sh' script for RPM based distros
 Name: getinfo
-Version: 1.0
-Release: 2%{?dist}
+Version: 1.1
+Release: 1%{?dist}
 License: GPLv2
 Group: Applications/System
 URL: https://github.com/elrepo/packages/tree/master/getinfo/el5
@@ -35,8 +35,14 @@ Bash script to supply system information for use on support fora.
 %doc %{_usr}/local/share/doc/%{name}-%{version}/ReadMe.txt
 
 %changelog
+* Mon Apr 23 2012 Phil Schaffner <pschaff2@verizon.net> - 1.1-1
+- Enhancements to network information
+- Add error checking for missing commands
+- Arguments now require only 3 characters and are case-insensitive
+
 * Sat Apr 7 2012 Phil Schaffner <pschaff2@verizon.net> - 1.0-1
 - Package for ELRepo for el5
 
 * Thu Apr 05 2012 Trevor Hemsley <trevor.hemsley@ntlworld.com> - 1.0-0
 - Initial spec.
+
