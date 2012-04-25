@@ -3,11 +3,11 @@
 
 # If kversion isn't defined on the rpmbuild line, define it here.
 # Due to CVE-2010-3081 patch, won't build against x86_64 kernels prior to 2.6.32-71.7.1.el6
-%{!?kversion: %define kversion 2.6.32-131.0.15.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-220.el6.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 11.12
-Release: 2%{?dist}
+Version: 12.3
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: AMD %{kmod_name} kernel module(s)
@@ -17,7 +17,7 @@ BuildRequires: redhat-rpm-config
 ExclusiveArch: i686 x86_64
 
 # Sources.
-Source0:  http://www2.ati.com/drivers/linux/ati-driver-installer-11-12-x86.x86_64.run
+Source0:  http://www2.ati.com/drivers/linux/amd-driver-installer-12-3-x86.x86_64.run
 Source10: kmodtool-%{kmod_name}-el6.sh
 NoSource: 0
 
@@ -80,8 +80,15 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Apr 25 2012 Philip J Perry <phil@elrepo.org> - 12.3-1.el6.elrepo
+- Update to version 12.3.
+- Rebuild against kernel-2.6.32-220.el6
+
+* Thu Jan 26 2012 Philip J Perry <phil@elrepo.org> - 12.1-1.el6.elrepo
+- Update to version 12.1.
+
 * Wed Dec 14 2011 Philip J Perry <phil@elrepo.org> - 11.12-2.el6.elrepo
-- Rebuild to fix http://elrepo.org/bugs/view.php?id=211
+- Rebuilt to fix http://elrepo.org/bugs/view.php?id=211
 
 * Wed Dec 14 2011 Philip J Perry <phil@elrepo.org> - 11.12-1.el6.elrepo
 - Update to version 11.12.
