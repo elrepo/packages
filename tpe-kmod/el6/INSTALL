@@ -1,0 +1,41 @@
+
+If you use an rpm distribution, simply run:
+
+	$ make rpm
+
+And a .rpm file will be made for you; "rpm -i" it and you're done. It loads the
+module for you at installation time, and removes it when erased.
+
+To build the module, run "make". Output will look like:
+
+	$ make
+	make -C /lib/modules/2.6.32-131.2.1.el6.x86_64/build M=/home/cormander/git/tpe-lkm modules
+	make[1]: Entering directory `/usr/src/kernels/2.6.32-131.2.1.el6.x86_64'
+	  CC [M]  /home/cormander/git/tpe-lkm/core.o
+	  CC [M]  /home/cormander/git/tpe-lkm/init.o
+	  CC [M]  /home/cormander/git/tpe-lkm/security.o
+	  CC [M]  /home/cormander/git/tpe-lkm/symbols.o
+	  CC [M]  /home/cormander/git/tpe-lkm/malloc.o
+	  CC [M]  /home/cormander/git/tpe-lkm/hijacks.o
+	  CC [M]  /home/cormander/git/tpe-lkm/arch/x86/lib/inat.o
+	  CC [M]  /home/cormander/git/tpe-lkm/arch/x86/lib/insn.o
+	  LD [M]  /home/cormander/git/tpe-lkm/tpe.o
+	  Building modules, stage 2.
+	  MODPOST 1 modules
+	  CC      /home/cormander/git/tpe-lkm/tpe.mod.o
+	  LD [M]  /home/cormander/git/tpe-lkm/tpe.ko.unsigned
+	  NO SIGN [M] /home/cormander/git/tpe-lkm/tpe.ko
+	make[1]: Leaving directory `/usr/src/kernels/2.6.32-131.2.1.el6.x86_64'
+
+After build, run "make install":
+
+	$ make install
+
+Or simply insert the module:
+
+	$ sudo insmod tpe.ko
+
+Note: the "make install" and the .rpm package do some modprobe magic to make
+tpe get inserted at system boot time. If you just inserted it with "insmod",
+then you'll have to re-insert it yourself after a reboot.
+
