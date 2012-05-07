@@ -145,6 +145,10 @@ fi
 %{_datadir}/cluster/drbd.sh
 %{_datadir}/cluster/drbd.metadata
 
+### rhcs
+%{_prefix}/lib/drbd/rhcs_fence
+%{_prefix}/lib/drbd/stonith_admin-fence-peer.sh
+
 ### xen
 %{_sysconfdir}/xen/scripts/block-drbd
 

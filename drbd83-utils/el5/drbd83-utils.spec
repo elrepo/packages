@@ -33,6 +33,7 @@ Obsoletes: drbd-bash-completion <= %{version}-%{release}
 Obsoletes: drbd-heartbeat <= %{version}-%{release}
 Obsoletes: drbd-pacemaker <= %{version}-%{release}
 Obsoletes: drbd-rgmanager <= %{version}-%{release}
+Obsoletes: drbd-rhcs <= %{version}-%{release}
 Obsoletes: drbd-udev <= %{version}-%{release}
 Obsoletes: drbd-utils <= %{version}-%{release}
 Obsoletes: drbd-xen <= %{version}-%{release}
@@ -144,6 +145,10 @@ fi
 ### rgmanager
 %{_datadir}/cluster/drbd.sh
 %{_datadir}/cluster/drbd.metadata
+
+### rhcs
+%{_prefix}/lib/drbd/rhcs_fence
+%{_prefix}/lib/drbd/stonith_admin-fence-peer.sh
 
 ### xen
 %{_sysconfdir}/xen/scripts/block-drbd
