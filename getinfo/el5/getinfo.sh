@@ -7,6 +7,7 @@
 # It should work on most Enterprise Linux or Fedora distributions.
 # Version 1.0 4/5/2011
 # Version 1.1 4/23/2012
+# Version 1.2 5/9/2012
 
 # Set locale to English
 export LC_ALL=en_US.UTF-8
@@ -29,19 +30,24 @@ PRGKRNL="rpm -qa kernel\\* | sort"
 PRGHARD="lspci -nn:lsusb:rpm -qa kmod\* kmdl\*"
 PRGSNET="ifconfig -a:brctl show:route -n"
 PRGSNET=$PRGSNET:"sysctl -a | grep "\.rp_filter":ip rule show:ip route show"
-PRGSNET=$PRGSNET:"cat /etc/resolv.conf:grep net /etc/nsswitch.conf"
+PRGSNET=$PRGSNET:"cat /etc/resolv.conf:egrep 'net|hosts' /etc/nsswitch.conf"
 PRGSNET=$PRGSNET:"chkconfig --list | grep -Ei 'network|wpa'"
 
 if [ $# -lt 1 ]; then
-    echo "No option provided.  Default to all information."
+    echo "No option provided.  Defaulting to all information."
     CASE="all"
 else
     CASE=$(echo "$1" | tr '[:upper:]' '[:lower:]')
 fi
 
 # If not running as root then no fdisk, parted, blkid, or lvdisplay
+# If GPT partition tables exist then add "parted -l"
 if [[ $EUID -eq 0 ]]; then
-    PRGDISK="cat /etc/fstab:df -h:fdisk -l:parted -l:blkid:cat /proc/mdstat:pvs:vgs:lvs"
+    if $(fdisk -l 2>&1 | grep -q GPT) ; then
+	PRGDISK="cat /etc/fstab:df -h:fdisk -lu:parted -l:blkid:cat /proc/mdstat:pvs:vgs:lvs"
+    else
+	PRGDISK="cat /etc/fstab:df -h:fdisk -lu:blkid:cat /proc/mdstat:pvs:vgs:lvs"
+    fi
 else
     PRGDISK="cat /etc/fstab:df -h:cat /proc/mdstat"
     echo ""
@@ -90,7 +96,7 @@ case "$CASE" in
         exit 1
 esac
 
-echo "Collecting system information for $CAS questions."
+echo "Collecting system information for $CAS questions. May take a few minutes."
 
 echo "[code]" >> $TMPFILE 2>&1
 
@@ -98,6 +104,8 @@ for program in $PRGS
 do
    PRG=$(type -p $(echo $program | cut -d ' ' -f 1)  2>/dev/null | cut -d ' ' -f 3)
    if [ -n "$PRG" -a -x "$PRG" ]; then
+       PRGM=$(basename $PRG)
+       echo -n "$PRGM..."
        echo "== BEGIN $program ==" >> $TMPFILE 2>&1
        eval $program >> $TMPFILE 2>&1
        echo "== END   $program ==" >> $TMPFILE 2>&1

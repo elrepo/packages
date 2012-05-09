@@ -1,6 +1,6 @@
 Summary: Packaged 'getinfo.sh' script for RPM based distros
 Name: getinfo
-Version: 1.1
+Version: 1.2
 Release: 1%{?dist}
 License: GPLv2
 Group: Applications/System
@@ -35,6 +35,12 @@ Bash script to supply system information for use on support fora.
 %doc %{_usr}/local/share/doc/%{name}-%{version}/ReadMe.txt
 
 %changelog
+* Wed May 9 2012 Phil Schaffner <pschaff2@verizon.net> - 1.2-1
+- Call parted only for GPT
+- Add -u flag to fdisk
+- Additional nsswitch.conf hosts info
+- Write progress to stdout
+
 * Mon Apr 23 2012 Phil Schaffner <pschaff2@verizon.net> - 1.1-1
 - Enhancements to network information
 - Add error checking for missing commands
