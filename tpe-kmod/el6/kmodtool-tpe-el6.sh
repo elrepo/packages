@@ -196,7 +196,7 @@ then
     echo "%config /etc/depmod.d/kmod-${kmod_name}.conf"
     echo "%config /etc/modprobe.d/${kmod_name}.conf"
     echo "%config /etc/sysconfig/modules/${kmod_name}.modules"
-    echo "%config(noreplace) /etc/sysctl/${kmod_name}.conf"
+    echo "%config(noreplace) /etc/sysctl.d/${kmod_name}.conf"
     echo "%doc /usr/share/doc/kmod-${kmod_name}-%{version}/"
 else
     cat "$override_filelist" | get_filelist
