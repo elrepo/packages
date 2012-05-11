@@ -7,7 +7,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 1.0.3
-Release: 3%{?dist}
+Release: 4%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -96,6 +96,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu May 11 2012 Philip J Perry <phil@elrepo.org> - 1.0.3-4
+- Handle all file permissions in kmodtool rather than the SPEC.
+
 * Thu May 11 2012 Philip J Perry <phil@elrepo.org> - 1.0.3-3
 - Fix file permissions.
 
