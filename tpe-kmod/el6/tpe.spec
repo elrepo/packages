@@ -1,11 +1,12 @@
 # Define the kmod package name here.
 %define kmod_name tpe
+%define src_name tpe-lkm
 
 # If kversion isn't defined on the rpmbuild line, define it here.
 %{!?kversion: %define kversion 2.6.32-220.el6.%{_target_cpu}}
 
 Name: %{kmod_name}-kmod
-Version: 1.0.1
+Version: 1.0.2
 Release: 1%{?dist}
 Group: System Environment/Kernel
 License: GPLv2
@@ -13,12 +14,12 @@ Summary: %{kmod_name} kernel module(s)
 URL: https://github.com/cormander/tpe-lkm
 
 BuildRequires: redhat-rpm-config
+BuildRequires: perl
 ExclusiveArch: i686 x86_64
 
 #Sources.
-Source0: %{kmod_name}-%{version}.tar.gz
-Source5: GPL-v2.0.txt
-Source6: tpe.conf
+# http://sourceforge.net/projects/tpe-lkm/files/latest/download
+Source0: %{src_name}-%{version}.tar.gz
 Source10: kmodtool-%{kmod_name}-el6.sh
 
 # Magic hidden here.
@@ -38,8 +39,10 @@ whole category of exploits where a malicious user tries to execute his or her
 own code to hack the system.
 
 %prep
-%setup -q -n %{kmod_name}-%{version}
+%setup -q -n %{src_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+%{__perl} -pi -e 's|modprobe --set-version generic --ignore-install|modprobe --ignore-install|g' \
+        conf/tpe.modprobe.conf
 
 %build
 KSRC=%{_usrsrc}/kernels/%{kversion}
@@ -52,12 +55,13 @@ KSRC=%{_usrsrc}/kernels/%{kversion}
 %{__make} -C "${KSRC}"  modules_install M=$PWD
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
-%{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
-%{__install} %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d/
-%{__install} %{SOURCE6} %{buildroot}%{_sysconfdir}/modprobe.d/
-# %{__install} -d %{buildroot}%{_sysconfdir}/sysconfig/modules/
-# %{__install} conf/tpe.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/modules/
+%{__install} -m 644 conf/tpe.modprobe.conf %{buildroot}%{_sysconfdir}/modprobe.d/tpe.conf
+%{__install} -d %{buildroot}%{_sysconfdir}/sysconfig/modules/
+%{__install} -m 755 conf/tpe.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/modules/tpe.modules
+%{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
+%{__install} {FAQ,GPL,INSTALL,LICENSE,README} \
+    %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 # Set the module(s) to be executable, so that they will be stripped when packaged.
 find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 # Remove the unrequired files.
@@ -66,18 +70,13 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %clean
 %{__rm} -rf %{buildroot}
 
-# %post
-# [ -x /sbin/rmmod ] && /sbin/rmmod tpe 2> /dev/null
-# [ -x /sbin/modprobe ] && /sbin/modprobe tpe
-# exit 0
-
-# %preun
-# if [ "$1" == "0" ]; then
-# 	[ -x /sbin/rmmod ] && /sbin/rmmod tpe 2> /dev/null
-# fi
-# exit 0
-
 %changelog
+* Wed May 02 2012 Philip J Perry <phil@elrepo.org> - 1.0.2-1
+- Update to version 1.0.2
+- Install /etc/modprobe.d/tpe.conf
+- Install /etc/sysconfig/modules/tpe.modules
+- Install the docs
+
 * Mon Apr 30 2012 Akemi Yagi <toracat@elrepo.org> - 1.0.1-1
 - Initial rebuild for ELRepo.
 
@@ -86,4 +85,3 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 
 * Wed Jul  7 2011 Corey Henderson <corman@cormander.com>
 - Initial build.
-
