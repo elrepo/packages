@@ -7,7 +7,7 @@
 
 Name: %{kmod_name}-kmod
 Version: 1.0.3
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group: System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -56,8 +56,8 @@ KSRC=%{_usrsrc}/kernels/%{kversion}
 %{__install} -m 644 conf/tpe.modprobe.conf %{buildroot}%{_sysconfdir}/modprobe.d/tpe.conf
 %{__install} -d %{buildroot}%{_sysconfdir}/sysconfig/modules/
 %{__install} -m 755 conf/tpe.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/modules/tpe.modules
-%{__install} -d %{buildroot}%{_sysconfdir}/sysctl/
-%{__install} -m 644 conf/tpe.sysctl %{buildroot}%{_sysconfdir}/sysctl/tpe.conf
+%{__install} -d %{buildroot}%{_sysconfdir}/sysctl.d/
+%{__install} -m 644 conf/tpe.sysctl %{buildroot}%{_sysconfdir}/sysctl.d/tpe.conf
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} {FAQ,GPL,INSTALL,LICENSE,README} \
     %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
@@ -70,6 +70,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu May 10 2012 Philip J Perry <phil@elrepo.org> - 1.0.3-2
+- Fix typo: Install /etc/sysctl.d/tpe.conf
+
 * Thu May 10 2012 Philip J Perry <phil@elrepo.org> - 1.0.3-1
 - Update to version 1.0.3
 - Install /etc/sysctl/tpe.conf
