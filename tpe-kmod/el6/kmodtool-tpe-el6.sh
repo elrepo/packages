@@ -166,6 +166,7 @@ if [ -x "/sbin/weak-modules" ]; then
     printf '%s\n' "\${modules[@]}" | /sbin/weak-modules --add-modules
 fi
 echo "Done."
+echo "Please (re)load the module with modprobe or reboot the system"
 EOF
 
 cat <<EOF
@@ -194,6 +195,7 @@ then
     echo "/lib/modules/${verrel}${dotvariant}/"
     echo "%config /etc/depmod.d/kmod-${kmod_name}.conf"
     echo "%config /etc/modprobe.d/${kmod_name}.conf"
+    echo "%config /etc/sysconfig/modules/${kmod_name}.modules"
     echo "%doc /usr/share/doc/kmod-${kmod_name}-%{version}/"
 else
     cat "$override_filelist" | get_filelist
