@@ -165,8 +165,8 @@ modules=( \$(find /lib/modules/${verrel}${dotvariant}/extra/${kmod_name} | grep 
 if [ -x "/sbin/weak-modules" ]; then
     printf '%s\n' "\${modules[@]}" | /sbin/weak-modules --add-modules
 fi
+echo "Please (re)load the 'tpe' module with modprobe or reboot the system"
 echo "Done."
-echo "Please (re)load the module with modprobe or reboot the system"
 EOF
 
 cat <<EOF
@@ -196,6 +196,7 @@ then
     echo "%config /etc/depmod.d/kmod-${kmod_name}.conf"
     echo "%config /etc/modprobe.d/${kmod_name}.conf"
     echo "%config /etc/sysconfig/modules/${kmod_name}.modules"
+    echo "%config(noreplace) /etc/sysctl/${kmod_name}.conf"
     echo "%doc /usr/share/doc/kmod-${kmod_name}-%{version}/"
 else
     cat "$override_filelist" | get_filelist
