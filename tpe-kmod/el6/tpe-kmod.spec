@@ -7,7 +7,7 @@
 
 Name: %{kmod_name}-kmod
 Version: 1.0.3
-Release: 2%{?dist}
+Release: 3%{?dist}
 Group: System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -51,15 +51,15 @@ export INSTALL_MOD_DIR=extra/%{kmod_name}
 KSRC=%{_usrsrc}/kernels/%{kversion}
 %{__make} -C "${KSRC}"  modules_install M=$PWD
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
-%{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
+%{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d/
-%{__install} -m 644 conf/tpe.modprobe.conf %{buildroot}%{_sysconfdir}/modprobe.d/tpe.conf
+%{__install} -p -m 0644 conf/tpe.modprobe.conf %{buildroot}%{_sysconfdir}/modprobe.d/tpe.conf
 %{__install} -d %{buildroot}%{_sysconfdir}/sysconfig/modules/
-%{__install} -m 755 conf/tpe.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/modules/tpe.modules
+%{__install} -p -m 0755 conf/tpe.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/modules/tpe.modules
 %{__install} -d %{buildroot}%{_sysconfdir}/sysctl.d/
-%{__install} -m 644 conf/tpe.sysctl %{buildroot}%{_sysconfdir}/sysctl.d/tpe.conf
+%{__install} -p -m 0644 conf/tpe.sysctl %{buildroot}%{_sysconfdir}/sysctl.d/tpe.conf
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
-%{__install} {FAQ,GPL,INSTALL,LICENSE,README} \
+%{__install} -p -m 0644 {FAQ,GPL,INSTALL,LICENSE,README} \
     %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 # Set the module(s) to be executable, so that they will be stripped when packaged.
 find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
@@ -70,6 +70,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu May 11 2012 Philip J Perry <phil@elrepo.org> - 1.0.3-3
+- Fix file permissions.
+
 * Thu May 10 2012 Philip J Perry <phil@elrepo.org> - 1.0.3-2
 - Fix typo: Install /etc/sysctl.d/tpe.conf
 
