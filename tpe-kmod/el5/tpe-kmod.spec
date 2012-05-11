@@ -76,18 +76,18 @@ for kvariant in %{kvariants} ; do
     %{__make} -C "${KSRC}" modules_install M=$PWD/_kmod_build_$kvariant
 done
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
-%{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
+%{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d/
-%{__install} -p -m 0644 _kmod_build_$kvariant/conf/tpe.modprobe.conf \
+%{__install} -p _kmod_build_$kvariant/conf/tpe.modprobe.conf \
     %{buildroot}%{_sysconfdir}/modprobe.d/tpe.conf
 %{__install} -d %{buildroot}%{_sysconfdir}/sysconfig/modules/
-%{__install} -p -m 0755 _kmod_build_$kvariant/conf/tpe.sysconfig \
+%{__install} -p _kmod_build_$kvariant/conf/tpe.sysconfig \
     %{buildroot}%{_sysconfdir}/sysconfig/modules/tpe.modules
 %{__install} -d %{buildroot}%{_sysconfdir}/sysctl.d/
-%{__install} -p -m 0644 _kmod_build_$kvariant/conf/tpe.sysctl \
+%{__install} -p _kmod_build_$kvariant/conf/tpe.sysctl \
     %{buildroot}%{_sysconfdir}/sysctl.d/tpe.conf
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
-%{__install} -p -m 0644 _kmod_build_$kvariant/{FAQ,GPL,INSTALL,LICENSE,README} \
+%{__install} -p _kmod_build_$kvariant/{FAQ,GPL,INSTALL,LICENSE,README} \
     %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 # Set the module(s) to be executable, so that they will be stripped when packaged.
 find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;

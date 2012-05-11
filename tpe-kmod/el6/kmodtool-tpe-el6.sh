@@ -191,9 +191,9 @@ EOF
 echo "%files         -n kmod-${kmod_name}${dashvariant}"
 if [ "" == "$override_filelist" ];
 then
-    echo "%defattr(-,root,root,755)"
+    echo "%defattr(644,root,root,755)"
     echo "/lib/modules/${verrel}${dotvariant}/"
-    echo "/etc/sysconfig/modules/${kmod_name}.modules"
+    echo "%attr(755,root,root) /etc/sysconfig/modules/${kmod_name}.modules"
     echo "%config /etc/depmod.d/kmod-${kmod_name}.conf"
     echo "%config /etc/modprobe.d/${kmod_name}.conf"
     echo "%config(noreplace) /etc/sysctl.d/${kmod_name}.conf"

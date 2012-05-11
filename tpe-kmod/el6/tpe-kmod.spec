@@ -51,15 +51,15 @@ export INSTALL_MOD_DIR=extra/%{kmod_name}
 KSRC=%{_usrsrc}/kernels/%{kversion}
 %{__make} -C "${KSRC}"  modules_install M=$PWD
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
-%{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
+%{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d/
-%{__install} -p -m 0644 conf/tpe.modprobe.conf %{buildroot}%{_sysconfdir}/modprobe.d/tpe.conf
+%{__install} -p conf/tpe.modprobe.conf %{buildroot}%{_sysconfdir}/modprobe.d/tpe.conf
 %{__install} -d %{buildroot}%{_sysconfdir}/sysconfig/modules/
-%{__install} -p -m 0755 conf/tpe.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/modules/tpe.modules
+%{__install} -p conf/tpe.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/modules/tpe.modules
 %{__install} -d %{buildroot}%{_sysconfdir}/sysctl.d/
-%{__install} -p -m 0644 conf/tpe.sysctl %{buildroot}%{_sysconfdir}/sysctl.d/tpe.conf
+%{__install} -p conf/tpe.sysctl %{buildroot}%{_sysconfdir}/sysctl.d/tpe.conf
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
-%{__install} -p -m 0644 {FAQ,GPL,INSTALL,LICENSE,README} \
+%{__install} -p {FAQ,GPL,INSTALL,LICENSE,README} \
     %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 # Set the module(s) to be executable, so that they will be stripped when packaged.
 find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
