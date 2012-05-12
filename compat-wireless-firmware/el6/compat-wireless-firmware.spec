@@ -34,6 +34,8 @@ Requires: rt61pci-firmware
 Requires: rt73usb-firmware
 Requires: rt2860-firmware
 Requires: rt2870-firmware
+# ZyDAS firmware
+Requires: zd1211-firmware
 
 %description
 This package installs all of the individual firmware packages
