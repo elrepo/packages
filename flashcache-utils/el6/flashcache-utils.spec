@@ -1,6 +1,6 @@
 Name: flashcache-utils	
 Version: 0.0	
-Release: 2%{?dist}
+Release: 3%{?dist}
 Summary: Utility packages for flashcache
 Group: System Environment/Base
 License: GPLv2
@@ -30,8 +30,10 @@ that the majority of users can use these utilities instead of dmsetup.
 %install
 %{__make} -s install DESTDIR="%{buildroot}"
 %{__install} -m 755 flashstat %{buildroot}/sbin/
+%{__install} -d -m 755 %{buildroot}/usr/lib/ocf/resource.d/
+%{__install} -m 755 flashcache %{buildroot}/usr/lib/ocf/resource.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/%{name}-%{version}/
-%{__install} GPL-v2.0.txt %{buildroot}%{_defaultdocdir}/%{name}-%{version}/
+%{__install} %{SOURCE5} %{buildroot}%{_defaultdocdir}/%{name}-%{version}/
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -41,10 +43,15 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/flashcache_create
 /sbin/flashcache_destroy
 /sbin/flashcache_load
+/sbin/flashcache_setioctl
 /sbin/flashstat
+/usr/lib/ocf/resource.d/flashcache
 %doc /usr/share/doc/%{name}-%{version}/GPL-v2.0.txt
 
 %changelog
+* Sat May 12 2012 Akemi Yagi <toracat@elrepo.org> - 0.0-3
+- Added /sbin/flashcache_setioctl and i/sr/lib/ocf/resource.d/flashcache
+
 * Sat Mar 03 2012 Akemi Yagi <toracat@elrepo.org> - 0.0-2
 - Packaging style now conforms to the ELRepo standard. [Alan Bartlett]
 
