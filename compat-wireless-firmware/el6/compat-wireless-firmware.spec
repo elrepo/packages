@@ -4,9 +4,9 @@ Summary:	Firmwares for the compat-wireless package
 Name:		compat-wireless-firmware
 Version:	3.3
 Release:	1%{?dist}
-License:	Redistributable, no modification permitted
+License:	GPLv2
 Group:		System Environment/Kernel
-URL:		http://linuxwireless.org/
+URL:		http://elrepo.org/
 
 BuildArch: noarch
 
