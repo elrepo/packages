@@ -12,6 +12,20 @@ BuildArch: noarch
 
 # Require the individual firmware packages
 Requires: ath9k_htc-firmware
+# Intel firmwares
+# these are version dependant - we might need newer versions of these at some point
+# or we might need to add new firmwares not in the distro
+Requires: iwl100-firmware
+Requires: iwl1000-firmware
+Requires: iwl3945-firmware
+Requires: iwl4965-firmware
+Requires: iwl5000-firmware
+Requires: iwl5150-firmware
+Requires: iwl6000-firmware
+Requires: iwl6050-firmware
+Requires: iwl6000g2a-firmware
+Requires: iwl6000g2b-firmware
+
 # Ralink firmwares
 Requires: rt61pci-firmware
 Requires: rt73usb-firmware
