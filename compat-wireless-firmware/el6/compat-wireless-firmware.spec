@@ -12,7 +12,11 @@ BuildArch: noarch
 
 # Require the individual firmware packages
 Requires: ath9k_htc-firmware
-
+# Ralink firmwares
+Requires: rt61pci-firmware
+Requires: rt73usb-firmware
+Requires: rt2860-firmware
+Requires: rt2870-firmware
 
 %description
 This package installs all of the individual firmware packages
