@@ -15,6 +15,9 @@ URL:     http://linuxwireless.org/en/users/Download/stable
 BuildRequires: redhat-rpm-config
 ExclusiveArch: i686 x86_64
 
+# Pull in the firmware packages
+Requires: compat-wireless-firmware
+
 # Sources.
 Source0: http://www.orbit-lab.org/kernel/compat-wireless-3-stable/v3.3/compat-wireless-3.3-2-n.tar.bz2
 Source10: kmodtool-%{kmod_name}-el6.sh
@@ -71,6 +74,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat May 12 2012 Philip J Perry <phil@elrepo.org>
+- Add requires for compat-wireless-firmware package 
+
 * Fri Apr 6 2012 Michael Lampe <mlampe0@googlemail.com> - 3.3-2.n
 - update to 3.3-2-n
 
