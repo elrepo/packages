@@ -15,6 +15,8 @@ Requires: ath9k_htc-firmware
 # Intel firmwares
 # these are version dependant - we might need newer versions of these at some point
 # or we might need to add new firmwares not in the distro
+Requires: ipw2100-firmware
+Requires: ipw2200-firmware
 Requires: iwl100-firmware
 Requires: iwl1000-firmware
 Requires: iwl3945-firmware
