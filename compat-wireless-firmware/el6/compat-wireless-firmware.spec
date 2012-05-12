@@ -25,7 +25,8 @@ Requires: iwl6000-firmware
 Requires: iwl6050-firmware
 Requires: iwl6000g2a-firmware
 Requires: iwl6000g2b-firmware
-
+# Marvell Libertas firmware
+Requires: libertas-usb8388-firmware
 # Ralink firmwares
 Requires: rt61pci-firmware
 Requires: rt73usb-firmware
