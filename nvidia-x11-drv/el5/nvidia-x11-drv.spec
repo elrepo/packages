@@ -4,7 +4,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	295.40
+Version:	295.49
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -317,6 +317,9 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %endif
 
 %changelog
+* Fri May 04 2012 Philip J Perry <phil@elrepo.org> - 295.49-1.el5.elrepo
+- Updated to version 295.49
+
 * Wed Apr 11 2012 Philip J Perry <phil@elrepo.org> - 295.40-1.el5.elrepo
 - Updated to version 295.40
 - Fixes CVE-2012-0946

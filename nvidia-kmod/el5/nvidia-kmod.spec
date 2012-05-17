@@ -6,7 +6,7 @@
 %{!?kversion: %define kversion 2.6.18-164.el5}
 
 Name:    %{kmod_name}-kmod
-Version: 295.40
+Version: 295.49
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -91,6 +91,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri May 04 2012 Philip J Perry <phil@elrepo.org> - 295.49-1.el5.elrepo
+- Updated to version 295.49
+
 * Wed Apr 11 2012 Philip J Perry <phil@elrepo.org> - 295.40-1.el5.elrepo
 - Updated to version 295.40
 - Fixes CVE-2012-0946
