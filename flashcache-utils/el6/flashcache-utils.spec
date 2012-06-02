@@ -1,6 +1,6 @@
 Name: flashcache-utils	
 Version: 0.0	
-Release: 3%{?dist}
+Release: 3.1%{?dist}
 Summary: Utility packages for flashcache
 Group: System Environment/Base
 License: GPLv2
@@ -49,8 +49,11 @@ rm -rf $RPM_BUILD_ROOT
 %doc /usr/share/doc/%{name}-%{version}/GPL-v2.0.txt
 
 %changelog
+* Sat Jun 02 2012 Akemi Yagi <toracat@elrepo.org> - 0.0-3.1
+- Update to flashcache submitted by mvdlande.
+
 * Sat May 12 2012 Akemi Yagi <toracat@elrepo.org> - 0.0-3
-- Added /sbin/flashcache_setioctl and i/sr/lib/ocf/resource.d/flashcache
+- Added /sbin/flashcache_setioctl and /usr/lib/ocf/resource.d/flashcache
 
 * Sat Mar 03 2012 Akemi Yagi <toracat@elrepo.org> - 0.0-2
 - Packaging style now conforms to the ELRepo standard. [Alan Bartlett]
