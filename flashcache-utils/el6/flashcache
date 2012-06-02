@@ -6,6 +6,8 @@
 #   Requires installed flashcache kernel module and utilities.
 #
 #   (c) 2011 Florian Haas
+#   Change log:
+#   06-05-2012 Maurits van de Lande : added support for write through caching.
 
 # Initialization:
 : ${OCF_FUNCTIONS_DIR=${OCF_ROOT}/resource.d/heartbeat}
@@ -28,7 +30,8 @@ flashcache_meta_data() {
   <longdesc lang="en">
 This resource agent manages a flashcache device, loading any existing
 cache from the flash device on startup and flushing the cache to the
-disk on graceful shutdown.
+disk on graceful shutdown. In write through mode the flashcache device
+will be created.
   </longdesc>
   <shortdesc lang="en">Manages a flashcache device map</shortdesc>
   <parameters>
@@ -60,6 +63,16 @@ disk on graceful shutdown.
       <shortdesc lang="en">Cache device (typically a solid state disk)</shortdesc>
       <content type="string"/>
     </parameter>
+    <parameter name="cache_mode" unique="0" required="0">
+      <longdesc lang="en">
+      Cache mode: 
+        - default : use pre-existing cache device
+        - thru    : use write through mode
+      </longdesc>
+      <shortdesc lang="en">Specify caching mode (default,thru)</shortdesc>
+      <content type="string"/>
+    </parameter>
+
   </parameters>
   <actions>
     <action name="start"        timeout="60" />
@@ -102,9 +115,15 @@ flashcache_start() {
     # actually start up the resource here (make sure to immediately
     # exit with an $OCF_ERR_ error code if anything goes seriously
     # wrong)
+    # 06-05-2012 Added support for write through caching mode
+    
+    if [ "$OCF_RESKEY_cache_mode" = "thru" ] ; then
+    ocf_run flashcache_create -p thru ${OCF_RESKEY_name} ${OCF_RESKEY_cache_device} ${OCF_RESKEY_device} \
+	 || exit $OCF_ERR_GENERIC
+    else
     ocf_run flashcache_load ${OCF_RESKEY_cache_device} \
 	 || exit $OCF_ERR_GENERIC
-
+    fi
     # After the resource has been started, check whether it started up
     # correctly. If the resource starts asynchronously, the agent may
     # spin on the monitor function here -- if the resource does not
@@ -216,6 +235,7 @@ flashcache_validate_all() {
 
     # Test for required binaries
     check_binary flashcache_load
+    check_binary flashcache_create
     check_binary dmsetup
     check_binary stat
     check_binary grep
