@@ -1,5 +1,5 @@
 CFLAGS += -I.
-PROGRAMS += flashcache_create flashcache_destroy flashcache_load
+PROGRAMS += flashcache_create flashcache_destroy flashcache_load flashcache_setioctl
 INSTALL_DIR = $(DESTDIR)/sbin/
 
 .PHONY:all
@@ -19,6 +19,11 @@ flashcache_load: flashcache_load.o
 	$(CC) $^ -o $@
 
 -include flashcache_load.d
+
+flashcache_setioctl: flashcache_setioctl.o
+	$(CC) $^ -o $@
+
+-include flashcache_setioctl.d
 
 %.o: %.c
 	$(CC) -c $(CFLAGS) $*.c -o $*.o
