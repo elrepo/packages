@@ -14,7 +14,7 @@
 %endif
 
 Name:		fglrx-x11-drv
-Version:	12.3
+Version:	12.4
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Proprietary 
@@ -25,7 +25,7 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 ExclusiveArch:	i686 x86_64
 
 # Sources
-Source0:	http://www2.ati.com/drivers/linux/amd-driver-installer-12-3-x86.x86_64.run
+Source0:	http://www2.ati.com/drivers/linux/amd-driver-installer-12-4-x86.x86_64.run
 NoSource:	0
 
 # taken from the rpmforge dkms package
@@ -375,6 +375,9 @@ fi || :
 %{_includedir}/ATI/GL/*.h
 
 %changelog
+* Mon Jun 04 2012 Philip J Perry <phil@elrepo.org> - 12.4-1.el6.elrepo
+- Update to version 12.4.
+
 * Wed Apr 25 2012 Philip J Perry <phil@elrepo.org> - 12.3-1.el6.elrepo
 - Update to version 12.3.
 - fixes bug 000265 [http://elrepo.org/bugs/view.php?id=265]
