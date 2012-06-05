@@ -3,7 +3,7 @@
 Summary:	Firmwares for the compat-wireless package
 Name:		compat-wireless-firmware
 Version:	3.3
-Release:	1%{?dist}
+Release:	2%{?dist}
 License:	GPLv2
 Group:		System Environment/Kernel
 URL:		http://elrepo.org/
@@ -58,6 +58,9 @@ required for the compat-wireless drivers package.
 %defattr(-,root,root,-)
 
 %changelog
+* Tue Jun 05 2012 Philip J Perry <phil@elrepo.org> - 3.3-2
+- Add other firmwares
+
 * Sat May 12 2012 Philip J Perry <phil@elrepo.org> - 3.3-1
 - Initial package for compat-wireless firmwares
   [http://elrepo.org/bugs/view.php?id=273]
