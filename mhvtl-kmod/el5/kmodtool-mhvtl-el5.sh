@@ -106,6 +106,8 @@ EOF
     cat <<EOF
 Requires(post):   /sbin/depmod
 Requires(postun): /sbin/depmod
+
+Requires: ${kmod_name}-utils >= %{?epoch:%{epoch}:}%{version}
 EOF
 
 if [ "no" != "$kmp_nobuildreqs" ]

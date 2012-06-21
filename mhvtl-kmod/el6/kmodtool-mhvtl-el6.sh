@@ -132,6 +132,7 @@ Provides:         kabi-modules = ${verrel}${dotvariant}
 Provides:         ${kmod_name}-kmod = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires(post):   /sbin/depmod
 Requires(postun): /sbin/depmod
+Requires: ${kmod_name}-utils >= %{?epoch:%{epoch}:}%{version}
 EOF
 
     if [ "yes" != "$nobuildreqs" ]
