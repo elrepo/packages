@@ -2,7 +2,7 @@
 %define kmod_name mhvtl
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-71.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-279.el6.%{_target_cpu}}
 
 Summary: Virtual Tape Library device driver
 Name: %{kmod_name}-kmod
