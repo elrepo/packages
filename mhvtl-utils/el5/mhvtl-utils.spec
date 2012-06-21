@@ -81,19 +81,12 @@ fi
 %post
 /sbin/ldconfig
 /sbin/chkconfig --add mhvtl
-### FIXME: Should be defined in sysv script
-if [ -d /opt/mhvtl ]; then
-	chown -R vtl:vtl /opt/mhvtl
-fi
-# Set the 'GID' bit on the directory so all child files get same group ID
-if [ ! -g /opt/mhvtl ]; then
-	chmod 2770 /opt/mhvtl
-fi
 
 %preun
-#if [ -x /etc/init.d/mhvtl ]; then
-# /etc/init.d/mhvtl shutdown
-#fi
+if (( $1 == 0 )); then
+    /sbin/service mhvtl shutdown &>/dev/null || :
+    /sbin/chkconfig --del mhvtl
+fi
 
 %postun -p /sbin/ldconfig
 
