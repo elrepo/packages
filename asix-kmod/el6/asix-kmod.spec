@@ -6,7 +6,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -57,5 +57,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Jun 21 2012 Philip J Perry <phil@elrepo.org> - 0.0-2
+- Update to kernel-3.2.20
+  [http://elrepo.org/bugs/view.php?id=277]
+
 * Fri Jun 07 2012 Philip J Perry <phil@elrepo.org> - 0.0-1
 - Initial el6 build of the kmod package backported from LTS kernel-3.0.33
