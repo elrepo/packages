@@ -5,8 +5,8 @@
 %{!?kversion: %define kversion 2.6.32-71.el6.%{_target_cpu}}
 
 Name: %{kmod_name}-kmod
-Version: 0.4.1
-Release: 2%{?dist}
+Version: 0.4.2
+Release: 1%{?dist}
 Group: System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -75,6 +75,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Jun 23 2012 Rob Mokkink <rob@mokkinksystems.com> - 0.4.2-1
+- Upgraded to version 0.4.2 of bbswitch
+
 * Thu Feb 28 2012 Rob Mokkink <rob@mokkinksystems.com> - 0.4.1-2
 - Removed make load from install section
 - Added bbswitch.conf to install section
