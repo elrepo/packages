@@ -1,6 +1,6 @@
 Name: bumblebee		
 Version: 3.0	
-Release: 2%{?dist}
+Release: 3%{?dist}
 Summary: Bumblebee is a project that enables Linux to utilize the Nvidia Optimus Hybrid cards.
 Group: System Environment/Daemons		
 License: GPLv3	
