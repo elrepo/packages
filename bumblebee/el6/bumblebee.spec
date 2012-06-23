@@ -8,6 +8,7 @@ URL: https://github.com/Bumblebee-Project
 
 BuildRequires: libbsd-devel pkgconfig autoconf help2man glib2-devel libX11-devel
 Requires: libbsd 	
+Requires: VirtualGL
 
 # Sources
 Source0: %{name}-%{version}.tar.gz	
@@ -60,7 +61,26 @@ the Nvidia Optimus Hybrid cards.
 chkconfig --add bumblebeed
 chkconfig bumblebeed on
 
+# Check if the file /etc/X11/xorg.conf is present, if so rename it
+if [[ -f /etc/X11/xorg.conf ]]
+then
+   # Moving the original xorg.conf to xorg.conf.bumblebee.backup
+   mv /etc/X11/xorg.conf
+fi
+
+# Create the bumblebee group on the system if it doesn't exist
+if [[ $(grep -c bumblebee /etc/group) -ne 1 ]]
+then
+   # add the group bumblebee
+   groupadd bumblebee
+fi 
+   
 %changelog
+* Sat Jun 23 2012 Rob Mokkink <rob@mokkinksystems.com> - 3.0-3
+- Add VirtualGL package as required
+- Move /etc/X11/xorg.conf to /etc/X11/xorg.config.bumblebee.backup
+- Check if the group bumblebee exists
+
 * Wed Mar 07 2012 Rob Mokkink <rob@mokkinksystems.com> - 3.0-2
 - Added help2man, glib2-devel and libX11-devel to the spec file
 - Added the sysvinit script to the spec file
