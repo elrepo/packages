@@ -104,7 +104,7 @@ EOF
     fi
 
     cat <<EOF
-Requires:         kernel${dashvariant} >= 2.6.18-128.el5
+Requires:         kernel${dashvariant} >= 2.6.18-194.el5
 Requires:         ${kmod_name}-x11-drv = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires(post):   /sbin/depmod
 Requires(postun): /sbin/depmod

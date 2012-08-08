@@ -2,11 +2,11 @@
 %define	 kmod_name nvidia
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-# kABI compatible with kernel 2.6.18-128.el5 upwards
-%{!?kversion: %define kversion 2.6.18-164.el5}
+# kABI compatible with kernel 2.6.18-194.el5 upwards
+%{!?kversion: %define kversion 2.6.18-308.el5}
 
 Name:    %{kmod_name}-kmod
-Version: 295.59
+Version: 295.71
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -91,6 +91,11 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Aug 08 2012 Philip J Perry <phil@elrepo.org> - 295.71-1.el5.elrepo
+- Updated to version 295.71
+- Fixes http://permalink.gmane.org/gmane.comp.security.full-disclosure/86747
+- Built against kversion-2.6.18-308.el5
+
 * Sat Jun 16 2012 Philip J Perry <phil@elrepo.org> - 295.59-1.el5.elrepo
 - Updated to version 295.59
 

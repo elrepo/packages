@@ -4,7 +4,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	295.59
+Version:	295.71
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -327,6 +327,10 @@ fi ||:
 %endif
 
 %changelog
+* Wed Aug 08 2012 Philip J Perry <phil@elrepo.org> - 295.71-1.el5.elrepo
+- Updated to version 295.71
+- Fixes http://permalink.gmane.org/gmane.comp.security.full-disclosure/86747
+
 * Sat Jun 16 2012 Philip J Perry <phil@elrepo.org> - 295.59-1.el6.elrepo
 - Updated to version 295.59
 

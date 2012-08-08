@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 2.6.32-220.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 295.59
+Version: 295.71
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -72,6 +72,10 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Aug 08 2012 Philip J Perry <phil@elrepo.org> - 295.71-1.el5.elrepo
+- Updated to version 295.71
+- Fixes http://permalink.gmane.org/gmane.comp.security.full-disclosure/86747
+
 * Sat Jun 16 2012 Philip J Perry <phil@elrepo.org> - 295.59-1.el6.elrepo
 - Updated to version 295.59
 
