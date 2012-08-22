@@ -2,16 +2,22 @@
 
 Summary:	Firmwares for the compat-wireless package
 Name:		compat-wireless-firmware
-Version:	3.3
-Release:	2%{?dist}
+Version:	3.5
+Release:	1%{?dist}
 License:	GPLv2
 Group:		System Environment/Kernel
 URL:		http://elrepo.org/
 
 BuildArch: noarch
 
+# Some firmwares are provided by kernel-firmware whereas others are provided by
+# individual firmware packages. Lets pull them all in here plus any of our own
+
+# Require the kernel-firmware package
+Requires: kernel-firmware
 # Require the individual firmware packages
 Requires: ath9k_htc-firmware
+Requires: bcm43xx-firmware
 # Intel firmwares
 # these are version dependant - we might need newer versions of these at some point
 # or we might need to add new firmwares not in the distro
@@ -58,6 +64,10 @@ required for the compat-wireless drivers package.
 %defattr(-,root,root,-)
 
 %changelog
+* Thu Aug 16 2012 Philip J Perry <phil@elrepo.org> - 3.5-1
+- Add kernel-firmware
+- Add bcm43xx-firmware
+
 * Tue Jun 05 2012 Philip J Perry <phil@elrepo.org> - 3.3-2
 - Add other firmwares
 
