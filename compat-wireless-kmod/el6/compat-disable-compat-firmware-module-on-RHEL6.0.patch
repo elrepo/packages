@@ -1,0 +1,31 @@
+From 4f6d36f812665732f78eac92299832b302060938 Mon Sep 17 00:00:00 2001
+From: Andy Gospodarek <andy@greyhouse.net>
+Date: Tue, 14 Aug 2012 14:59:48 -0400
+Subject: [PATCH 4/6] compat: disable compat firmware module on RHEL6.0 and
+ later
+
+Signed-off-by: Andy Gospodarek <andy@greyhouse.net>
+Signed-off-by: Luis R. Rodriguez <mcgrof@do-not-panic.com>
+Signed-off-by: Philip J Perry <phil@elrepo.org>
+---
+ scripts/gen-compat-config.sh | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/compat/scripts/gen-compat-config.sh b/compat/scripts/gen-compat-config.sh
+index c6368f3..810c51b 100755
+--- a/compat/scripts/gen-compat-config.sh
++++ b/compat/scripts/gen-compat-config.sh
+@@ -56,7 +56,9 @@ if [[ ! -z ${RHEL_MAJOR} ]]; then
+ fi
+ 
+ if [[ ${CONFIG_COMPAT_KERNEL_2_6_33} = "y" ]]; then
+-	echo "export CONFIG_COMPAT_FIRMWARE_CLASS=m"
++	if [[ ! ${CONFIG_COMPAT_RHEL_6_0} = "y" ]]; then
++		echo "export CONFIG_COMPAT_FIRMWARE_CLASS=m"
++	fi
+ fi
+ 
+ if [[ ${CONFIG_COMPAT_KERNEL_2_6_36} = "y" ]]; then
+-- 
+1.7.11.1
+
