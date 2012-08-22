@@ -1,0 +1,30 @@
+From f5a828b76a2704930093a568ca36c91ab6826eab Mon Sep 17 00:00:00 2001
+From: Andy Gospodarek <andy@greyhouse.net>
+Date: Tue, 14 Aug 2012 14:59:47 -0400
+Subject: [PATCH 3/6] compat: disable KFIFO on RHEL6.1 and later
+
+Signed-off-by: Andy Gospodarek <andy@greyhouse.net>
+Signed-off-by: Luis R. Rodriguez <mcgrof@do-not-panic.com>
+Signed-off-by: Philip J Perry <phil@elrepo.org>
+---
+ scripts/gen-compat-config.sh | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/compat/scripts/gen-compat-config.sh b/compat/scripts/gen-compat-config.sh
+index 54f053d..c6368f3 100755
+--- a/compat/scripts/gen-compat-config.sh
++++ b/compat/scripts/gen-compat-config.sh
+@@ -60,7 +60,9 @@ if [[ ${CONFIG_COMPAT_KERNEL_2_6_33} = "y" ]]; then
+ fi
+ 
+ if [[ ${CONFIG_COMPAT_KERNEL_2_6_36} = "y" ]]; then
+-	echo "export CONFIG_COMPAT_KFIFO=y"
++	if [[ ! ${CONFIG_COMPAT_RHEL_6_1} = "y" ]]; then
++		echo "export CONFIG_COMPAT_KFIFO=y"
++	fi
+ fi
+ 
+ if [[ ${CONFIG_COMPAT_KERNEL_3_5} = "y" ]]; then
+-- 
+1.7.11.1
+
