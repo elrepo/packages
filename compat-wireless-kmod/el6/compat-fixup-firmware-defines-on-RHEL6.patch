@@ -1,0 +1,42 @@
+From b8cbff4cc53357e9495b09d08238231f29f15ec0 Mon Sep 17 00:00:00 2001
+From: Andy Gospodarek <andy@greyhouse.net>
+Date: Tue, 14 Aug 2012 14:59:49 -0400
+Subject: [PATCH 5/6] compat: fixup firmware defines on RHEL6
+
+Commit 182630e0f686a569aaf9b34781b08f27dc0ab1bb changed the way the
+firmware code was handled to create new definitions based on config
+options, not based on whether or not CONFIG_COMPAT_FIRMWARE_CLASS
+was set.  Both need to be included to make this work properly in
+environments like RHEL6 that do not need CONFIG_COMPAT_FIRMWARE_CLASS to
+be set, but have CONFIG_FW_LOADER or CONFIG_FW_LOADER_MODULE set.
+
+Signed-off-by: Andy Gospodarek <andy@greyhouse.net>
+Signed-off-by: Luis R. Rodriguez <mcgrof@do-not-panic.com>
+Signed-off-by: Philip J Perry <phil@elrepo.org>
+---
+ include/linux/compat-2.6.33.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/include/linux/compat-2.6.33.h b/include/linux/compat-2.6.33.h
+index 381146d..60caab0 100644
+--- a/include/linux/compat-2.6.33.h
++++ b/include/linux/compat-2.6.33.h
+@@ -15,6 +15,7 @@
+ #include <linux/firmware.h>
+ #include <linux/input.h>
+ 
++#if defined(CONFIG_COMPAT_FIRMWARE_CLASS)
+ #if defined(CONFIG_FW_LOADER) || defined(CONFIG_FW_LOADER_MODULE)
+ #define release_firmware compat_release_firmware
+ #define request_firmware compat_request_firmware
+@@ -49,6 +50,7 @@ static inline void compat_release_firmware(const struct firmware *fw)
+ {
+ }
+ #endif
++#endif
+ 
+ /* mask KEY_RFKILL as RHEL6 backports this */
+ #if !defined(KEY_RFKILL)
+-- 
+1.7.11.1
+
