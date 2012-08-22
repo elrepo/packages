@@ -1,0 +1,20 @@
+compat-wireless: only compile optional sdio code on 2.6.37 and later
+
+The pm_runtime routines in wlcore/sdio.c are not included in compat and
+the best alternative is to build them only on kernels 2.6.37 and later.
+
+Signed-off-by: Andy Gospodarek <andy@greyhouse.net>
+Signed-off-by: Philip J Perry <phil@elrepo.org>
+
+--- a/config.mk.orig	2012-08-14 05:50:45.000000000 +0100
++++ b/config.mk	2012-08-22 07:11:32.000000000 +0100
+@@ -581,7 +581,9 @@ ifdef CONFIG_WL12XX_PLATFORM_DATA
+ ifndef CONFIG_COMPAT_KERNEL_2_6_37
+ export CONFIG_COMPAT_WL1251_SDIO=m
+ endif #CONFIG_COMPAT_KERNEL_2_6_37
++ifndef CONFIG_COMPAT_KERNEL_2_6_38
+ export CONFIG_WLCORE_SDIO=m
++endif #CONFIG_COMPAT_KERNEL_2_6_38
+ endif #CONFIG_WL12XX_PLATFORM_DATA
+ endif #CONFIG_CRC7
+ 
