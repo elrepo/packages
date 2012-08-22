@@ -1,0 +1,34 @@
+From 269518f8545d1356fe64441acdf633eac32a2808 Mon Sep 17 00:00:00 2001
+From: Andy Gospodarek <andy@greyhouse.net>
+Date: Tue, 14 Aug 2012 14:59:46 -0400
+Subject: [PATCH 2/6] compat: fix defines for RHEL by adding RHEL to string
+
+The .config file contains 'CONFIG_COMPAT_6_1,' when it should contain,
+'CONFIG_COMPAT_RHEL_6_1.'  This fixes that by adding the 'RHEL' in the
+proper spot.
+
+Signed-off-by: Andy Gospodarek <andy@greyhouse.net>
+Signed-off-by: Luis R. Rodriguez <mcgrof@do-not-panic.com>
+Signed-off-by: Philip J Perry <phil@elrepo.org>
+---
+ scripts/gen-compat-config.sh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/compat/scripts/gen-compat-config.sh b/compat/scripts/gen-compat-config.sh
+index a3ebf08..54f053d 100755
+--- a/compat/scripts/gen-compat-config.sh
++++ b/compat/scripts/gen-compat-config.sh
+@@ -50,8 +50,8 @@ RHEL_MAJOR=$(grep ^RHEL_MAJOR ${KLIB_BUI
+ if [[ ! -z ${RHEL_MAJOR} ]]; then
+ 	RHEL_MINOR=$(grep ^RHEL_MINOR $(KLIB_BUILD)/Makefile | sed -n 's/.*= *\(.*\)/\1/p')
+ 	for i in $(seq 0 ${RHEL_MINOR}); do
+-		eval CONFIG_COMPAT_${RHEL_MAJOR}_${i}=y
+-		echo "export CONFIG_COMPAT_${RHEL_MAJOR}_${i}=y"
++		eval CONFIG_COMPAT_RHEL_${RHEL_MAJOR}_${i}=y
++		echo "export CONFIG_COMPAT_RHEL_${RHEL_MAJOR}_${i}=y"
+ 	done
+ fi
+ 
+-- 
+1.7.11.1
+
