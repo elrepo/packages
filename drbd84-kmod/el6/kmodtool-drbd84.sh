@@ -133,6 +133,7 @@ Provides:         ${kmod_name}-kmod = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires(post):   /sbin/depmod
 Requires(postun): /sbin/depmod
 
+Requires: kernel${dashvariant} >= ${verrel}
 Requires: drbd84-utils >= %{?epoch:%{epoch}:}%{version}
 
 ### We cannot obsolete all Linbit drbd-km-%{kversion} variants
