@@ -5,13 +5,15 @@
 %define kmod_name drbd83
 %define real_name drbd
 
+### BEWARE: The kernel version is also mentioned in kmodtool !
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion:%define kversion 2.6.32-220.el6.%{_target_cpu}}
+%{!?kversion:%define dist .el6_3.elrepo}
+%{!?kversion:%define kversion 2.6.32-279.el6.%{_target_cpu}}
 
 Summary: Distributed Redundant Block Device driver for Linux
 Name: %{kmod_name}-kmod
 Version: 8.3.13
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPL
 Group: System Environment/Kernel
 URL: http://wwww.drbd.org/
@@ -71,6 +73,10 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Sep 04 2012 Dag Wieers <dag@wieers.com> - 8.3.13-2
+- Rebuilt against RHEL-6.3 kernel
+  [http://elrepo.org/bugs/view.php?id=291]
+
 * Mon May 07 2012 Dag Wieers <dag@wieers.com> - 8.3.13-1
 - Updated to release 8.3.13.
 
