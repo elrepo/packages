@@ -4,8 +4,9 @@
 Summary: Virtual tape library. kernel pseudo HBA driver + userspace daemons
 %define real_name mhvtl
 Name: mhvtl-utils
-%define real_version 2012-06-15
-Version: 1.3
+%define real_version 2012-09-13
+%define tar_version 1.4
+Version: 1.4.4
 Release: 1%{?dist}
 License: GPL
 Group: System/Kernel
@@ -35,7 +36,7 @@ The kernel module is based on the scsi_debug driver.
 The SSC/SMC target daemons have been written from scratch.
 
 %prep
-%setup -n %{real_name}-%{version}
+%setup -n %{real_name}-%{tar_version}
 
 %build
 %{__make} RPM_OPT_FLAGS="%{optflags}" VERSION="%{version}.%{release}" usr
