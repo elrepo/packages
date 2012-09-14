@@ -6,8 +6,9 @@
 
 Summary: Virtual Tape Library device driver
 Name: %{kmod_name}-kmod
-%define real_version 2012-06-15
-Version: 1.3
+%define real_version 2012-09-13
+%define tar_version 1.4
+Version: 1.4.4
 Release: 1%{?dist}
 License: GPLv2
 Group: System Environment/Kernel
@@ -34,7 +35,7 @@ of releases of the same variant of the Linux kernel and not on any one
 specific build.
 
 %prep
-%setup -n %{kmod_name}-%{version}/kernel/
+%setup -n %{kmod_name}-%{tar_version}/kernel/
 %{__cp} -a %{SOURCE5} .
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
@@ -60,6 +61,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Sep 14 2012 Dag Wieers <dag@wieers.com> - 1.4.4-1
+- Updated to release 1.4-4 (2012-09-13).
+
 * Thu Jun 21 2012 Dag Wieers <dag@wieers.com> - 1.3-1
 - Updated to release 1.3 (2012-06-15).
 

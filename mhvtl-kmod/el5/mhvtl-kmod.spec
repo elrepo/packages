@@ -6,8 +6,9 @@
 
 Summary: Virtual Tape Library device driver
 Name: %{kmod_name}-kmod
-%define real_version 2012-06-15
-Version: 1.3
+%define real_version 2012-09-13
+%define tar_version 1.4
+Version: 1.4.4
 Release: 1%{?dist}
 Group: System Environment/Kernel
 License: GPLv2
@@ -52,7 +53,7 @@ specific build.
 %prep
 %setup -c -T -a 0
 for kvariant in %{kvariants} ; do
-    %{__cp} -a %{kmod_name}-%{version}/kernel/ _kmod_build_$kvariant
+    %{__cp} -a %{kmod_name}-%{tar_version}/kernel/ _kmod_build_$kvariant
 done
 %{__cp} -a %{SOURCE5} .
 echo "/usr/lib/rpm/redhat/find-requires | %{__sed} -e '/^ksym.*/d'" > filter-requires.sh
@@ -83,6 +84,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Sep 14 2012 Dag Wieers <dag@wieers.com> - 1.4.4-1
+- Updated to release 1.4-4 (2012-09-13).
+
 * Thu Jun 21 2012 Dag Wieers <dag@wieers.com> - 1.3-1
 - Updated to release 1.3 (2012-06-15).
 
