@@ -5,7 +5,7 @@
 
 Summary: Management utilities for DRBD
 Name: drbd84-utils
-Version: 8.4.1
+Version: 8.4.2
 Release: 1%{?dist}
 License: GPLv2+
 Group: System Environment/Kernel
@@ -100,14 +100,11 @@ fi
 %dir %{_localstatedir}/lib/drbd/
 /lib/drbd/drbdadm-83
 /lib/drbd/drbdsetup-83
-/sbin/drbdsetup
 /sbin/drbdadm
 /sbin/drbdmeta
+/sbin/drbdsetup
 %{_sbindir}/drbd-overview
 %dir %{_prefix}/lib/drbd/
-%{_prefix}/lib/drbd/outdate-peer.sh
-%{_prefix}/lib/drbd/snapshot-resync-target-lvm.sh
-%{_prefix}/lib/drbd/unsnapshot-resync-target-lvm.sh
 %{_prefix}/lib/drbd/notify-out-of-sync.sh
 %{_prefix}/lib/drbd/notify-split-brain.sh
 %{_prefix}/lib/drbd/notify-emergency-reboot.sh
@@ -117,6 +114,10 @@ fi
 %{_prefix}/lib/drbd/notify-pri-lost.sh
 %{_prefix}/lib/drbd/notify-pri-on-incon-degr.sh
 %{_prefix}/lib/drbd/notify.sh
+%{_prefix}/lib/drbd/outdate-peer.sh
+%{_prefix}/lib/drbd/snapshot-resync-target-lvm.sh
+%{_prefix}/lib/drbd/stonith_admin-fence-peer.sh
+%{_prefix}/lib/drbd/unsnapshot-resync-target-lvm.sh
 
 ### heartbeat
 %{_sysconfdir}/ha.d/resource.d/drbddisk
@@ -127,14 +128,18 @@ fi
 %{_prefix}/lib/drbd/crm-unfence-peer.sh
 %{_prefix}/lib/ocf/resource.d/linbit/drbd
 
-### rgmanager
+### rgmanager / rhcs
 %{_datadir}/cluster/drbd.sh
 %{_datadir}/cluster/drbd.metadata
+%{_prefix}/lib/drbd/rhcs_fence
 
 ### xen
 %{_sysconfdir}/xen/scripts/block-drbd
 
 %changelog
+* Thu Sep 06 2012 Dag Wieers <dag@elrepo.org> - 8.4.2-1
+- Updated to release 8.4.2.
+
 * Wed Dec 21 2011 Dag Wieers <dag@elrepo.org> - 8.4.1-1
 - Updated to release 8.4.1.
 
