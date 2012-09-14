@@ -12,8 +12,8 @@
 
 Summary: Distributed Redundant Block Device driver for Linux
 Name: %{kmod_name}-kmod
-Version: 8.4.1
-Release: 3%{?dist}
+Version: 8.4.2
+Release: 1%{?dist}
 License: GPL
 Group: System Environment/Kernel
 URL: http://www.drbd.org/
@@ -74,6 +74,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Sep 06 2012 Dag Wieers <dag@wieers.com> - 8.4.2-1
+- Updated to release 8.4.2.
+
 * Tue Sep 04 2012 Dag Wieers <dag@wieers.com> - 8.4.1-3
 - Rebuilt against RHEL-6.3.
   [http://elrepo.org/bugs/view.php?id=291]
