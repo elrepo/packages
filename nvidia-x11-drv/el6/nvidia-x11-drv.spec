@@ -4,7 +4,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	295.71
+Version:	304.43
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -99,6 +99,8 @@ pushd nvidiapkg
 # Install nvidia tools
 %{__mkdir_p} $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-bug-report.sh $RPM_BUILD_ROOT%{_bindir}/
+%{__install} -p -m 0755 nvidia-cuda-proxy-control $RPM_BUILD_ROOT%{_bindir}/
+%{__install} -p -m 0755 nvidia-cuda-proxy-server $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-debugdump $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-settings $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-smi $RPM_BUILD_ROOT%{_bindir}/
@@ -186,7 +188,7 @@ pushd nvidiapkg
 
 # Install man pages
 %{__mkdir_p} $RPM_BUILD_ROOT%{_mandir}/man1/
-%{__install} -p -m 0644 nvidia-{settings,smi,xconfig}.1.gz $RPM_BUILD_ROOT%{_mandir}/man1/
+%{__install} -p -m 0644 nvidia-{cuda-proxy-control,settings,smi,xconfig}.1.gz $RPM_BUILD_ROOT%{_mandir}/man1/
 
 # Install pixmap for the desktop entry
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/pixmaps/
@@ -327,9 +329,19 @@ fi ||:
 %endif
 
 %changelog
+* Tue Aug 28 2012 Philip J Perry <phil@elrepo.org> - 304-43-1.el6.elrepo
+- Updated to version 304.43
+
+* Tue Aug 14 2012 Philip J Perry <phil@elrepo.org> - 304-37-1.el6.elrepo
+- Updated to version 304.37
+- Add nvidia-cuda-proxy-control, nvidia-cuda-proxy-server and associated manpage
+
 * Wed Aug 08 2012 Philip J Perry <phil@elrepo.org> - 295.71-1.el5.elrepo
 - Updated to version 295.71
 - Fixes http://permalink.gmane.org/gmane.comp.security.full-disclosure/86747
+
+* Tue Jun 19 2012 Philip J Perry <phil@elrepo.org> - 302-17-1.el6.elrepo
+- Updated to version 302.17
 
 * Sat Jun 16 2012 Philip J Perry <phil@elrepo.org> - 295.59-1.el6.elrepo
 - Updated to version 295.59
