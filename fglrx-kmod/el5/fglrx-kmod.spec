@@ -4,10 +4,10 @@
 # If kversion isn't defined on the rpmbuild line, define it here.
 # kABI compatible with kernel 2.6.18-128.el5 upwards.
 # Due to CVE-2010-3081 patch, won't build against x86_64 kernels prior to 2.6.18-194.11.4.el5
-%{!?kversion: %define kversion 2.6.18-238.el5}
+%{!?kversion: %define kversion 2.6.18-308.el5}
 
 Name:    %{kmod_name}-kmod
-Version: 12.4
+Version: 12.8
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -19,7 +19,8 @@ BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 ExclusiveArch: i686 x86_64
 
 # Sources.
-Source0:  http://www2.ati.com/drivers/linux/amd-driver-installer-12-4-x86.x86_64.run
+# http://www2.ati.com/drivers/linux/amd-driver-installer-12-8-x86.x86_64.zip
+Source0:  amd-driver-installer-8.982-x86.x86_64.run
 Source10: kmodtool-%{kmod_name}-el5.sh
 NoSource: 0
 
@@ -103,6 +104,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Mon Oct 15 2012 Philip J Perry <phil@elrepo.org> - 12.8-1.el5.elrepo
+- Update to version 12.8.
+
 * Mon Jun 04 2012 Philip J Perry <phil@elrepo.org> - 12.4-1.el5.elrepo
 - Update to version 12.4.
 
