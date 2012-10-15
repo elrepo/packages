@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 2.6.32-279.el6.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 3.5.1
+Version: 3.5.4
 Release: 1.sn%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -16,16 +16,11 @@ BuildRequires: redhat-rpm-config
 ExclusiveArch: i686 x86_64
 
 # Sources.
-Source0: http://www.orbit-lab.org/kernel/compat-wireless-3-stable/v3.5/compat-wireless-3.5.1-1-sn.tar.bz2
+Source0:  http://www.orbit-lab.org/kernel/compat-wireless-3-stable/v3.5/compat-wireless-3.5.4-1-sn.tar.bz2
 Source10: kmodtool-%{kmod_name}-el6.sh
 
 # Patches.
-Patch0: compat-disable-compat-firmware-module-on-RHEL6.0.patch
-Patch1: compat-disable-KFIFO-on-RHEL6.1-and-later.patch
-Patch2: compat-fix-defines-for-RHEL-by-adding-RHEL-to-string.patch
-Patch3: compat-fixup-firmware-defines-on-RHEL6.patch
-Patch4: compat-RHEL-build-script-fixup-from-upstream.patch
-Patch5: compat-wireless-disable_spi_sdio.patch
+
 # Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
 
@@ -39,12 +34,6 @@ of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
 %setup -q -n %{kmod_name}-%{version}-1-sn
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
 echo "blacklist iwlagn" > blacklist-compat-wireless.conf
 echo "blacklist ar9170usb" >> blacklist-compat-wireless.conf
 
@@ -80,6 +69,10 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Mon Oct 15 2012 Philip J Perry <phil@elrepo.org> - 3.5.4-1.sn
+- Update to 3.5.4-1.sn
+- Cleanup and remove old patches, we now build cleanly on RHEL
+
 * Wed Aug 22 2012 Philip J Perry <phil@elrepo.org> - 3.5.1-1.sn
 - Update to 3.5.1-1.sn
 - Apply latest upstream patches for RHEL
