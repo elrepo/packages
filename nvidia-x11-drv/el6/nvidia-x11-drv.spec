@@ -4,7 +4,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	304.43
+Version:	304.51
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -125,6 +125,8 @@ pushd nvidiapkg
 %{__install} -p -m 0755 libnvidia-glcore.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libnvidia-ml.so in 270.xx series driver
 %{__install} -p -m 0755 libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
+# Added libnvidia-opencl.so in 304.xx series driver
+%{__install} -p -m 0755 libnvidia-opencl.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libOpenCL.so.* $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0644 libXvMCNVIDIA.a $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libXvMCNVIDIA.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
@@ -164,6 +166,8 @@ pushd nvidiapkg
 # Added libnvidia-ml.so in 270.xx series driver
 %{__ln_s} libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-ml.so
 %{__ln_s} libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-ml.so.1
+# Added libnvidia-opencl.so in 304.xx series driver
+%{__ln_s} libnvidia-opencl.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-opencl.so.1
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so.1
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so.1.0
@@ -329,6 +333,10 @@ fi ||:
 %endif
 
 %changelog
+* Fri Sep 28 2012 Philip J Perry <phil@elrepo.org> - 304-51-1.el6.elrepo
+- Updated to version 304.51
+- Add missing lib and symlink for OpenCL [http://elrepo.org/bugs/view.php?id=304]
+
 * Tue Aug 28 2012 Philip J Perry <phil@elrepo.org> - 304-43-1.el6.elrepo
 - Updated to version 304.43
 
