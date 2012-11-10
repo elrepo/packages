@@ -323,17 +323,17 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %endif
 
 %changelog
-* Fri Oct 19 2012 Philip J Perry <phil@elrepo.org> - 304-60-1.el5.elrepo
+* Fri Oct 19 2012 Philip J Perry <phil@elrepo.org> - 304.60-1.el5.elrepo
 - Updated to version 304.60
 
-* Fri Sep 28 2012 Philip J Perry <phil@elrepo.org> - 304-51-1.el5.elrepo
+* Fri Sep 28 2012 Philip J Perry <phil@elrepo.org> - 304.51-1.el5.elrepo
 - Updated to version 304.51
 - Add missing lib and symlink for OpenCL [http://elrepo.org/bugs/view.php?id=304]
 
-* Tue Aug 28 2012 Philip J Perry <phil@elrepo.org> - 304-43-1.el5.elrepo
+* Tue Aug 28 2012 Philip J Perry <phil@elrepo.org> - 304.43-1.el5.elrepo
 - Updated to version 304.43
 
-* Tue Aug 14 2012 Philip J Perry <phil@elrepo.org> - 304-37-1.el5.elrepo
+* Tue Aug 14 2012 Philip J Perry <phil@elrepo.org> - 304.37-1.el5.elrepo
 - Updated to version 304.37
 - Add nvidia-cuda-proxy-control, nvidia-cuda-proxy-server and associated manpage
 
@@ -341,7 +341,7 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 - Updated to version 295.71
 - Fixes http://permalink.gmane.org/gmane.comp.security.full-disclosure/86747
 
-* Tue Jun 19 2012 Philip J Perry <phil@elrepo.org> - 302-17-1.el5.elrepo
+* Tue Jun 19 2012 Philip J Perry <phil@elrepo.org> - 302.17-1.el5.elrepo
 - Updated to version 302.17
 
 * Sat Jun 16 2012 Philip J Perry <phil@elrepo.org> - 295.59-1.el5.elrepo
