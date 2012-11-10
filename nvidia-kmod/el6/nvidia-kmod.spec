@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 2.6.32-279.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 304.60
+Version: 304.64
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -72,16 +72,19 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
-* Fri Oct 19 2012 Philip J Perry <phil@elrepo.org> - 304-60-1.el6.elrepo
+* Sat Nov 10 2012 Philip J Perry <phil@elrepo.org> - 304.64-1.el6.elrepo
+- Updated to version 304.64
+
+* Fri Oct 19 2012 Philip J Perry <phil@elrepo.org> - 304.60-1.el6.elrepo
 - Updated to version 304.60
 
-* Fri Sep 28 2012 Philip J Perry <phil@elrepo.org> - 304-51-1.el6.elrepo
+* Fri Sep 28 2012 Philip J Perry <phil@elrepo.org> - 304.51-1.el6.elrepo
 - Updated to version 304.51
 
-* Tue Aug 28 2012 Philip J Perry <phil@elrepo.org> - 304-43-1.el6.elrepo
+* Tue Aug 28 2012 Philip J Perry <phil@elrepo.org> - 304.43-1.el6.elrepo
 - Updated to version 304.43
 
-* Tue Aug 14 2012 Philip J Perry <phil@elrepo.org> - 304-37-1.el6.elrepo
+* Tue Aug 14 2012 Philip J Perry <phil@elrepo.org> - 304.37-1.el6.elrepo
 - Updated to version 304.37
 - Built against kernel-2.6.32-279.el6
 
@@ -89,7 +92,7 @@ popd
 - Updated to version 295.71
 - Fixes http://permalink.gmane.org/gmane.comp.security.full-disclosure/86747
 
-* Tue Jun 19 2012 Philip J Perry <phil@elrepo.org> - 302-17-1.el6.elrepo
+* Tue Jun 19 2012 Philip J Perry <phil@elrepo.org> - 302.17-1.el6.elrepo
 - Updated to version 302.17
 
 * Sat Jun 16 2012 Philip J Perry <phil@elrepo.org> - 295.59-1.el6.elrepo
