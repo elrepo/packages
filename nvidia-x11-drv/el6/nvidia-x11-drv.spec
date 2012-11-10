@@ -4,7 +4,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	304.51
+Version:	304.60
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -333,6 +333,9 @@ fi ||:
 %endif
 
 %changelog
+* Fri Oct 19 2012 Philip J Perry <phil@elrepo.org> - 304-60-1.el6.elrepo
+- Updated to version 304.60
+
 * Fri Sep 28 2012 Philip J Perry <phil@elrepo.org> - 304-51-1.el6.elrepo
 - Updated to version 304.51
 - Add missing lib and symlink for OpenCL [http://elrepo.org/bugs/view.php?id=304]
