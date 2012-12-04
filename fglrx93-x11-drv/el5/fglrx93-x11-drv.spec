@@ -26,6 +26,7 @@ ExclusiveArch:	i386 x86_64
 
 # Sources
 Source0:	http://www2.ati.com/drivers/linux/ati-driver-installer-9-3-x86.x86_64.run
+NoSource:	0
 
 # taken from the rpmforge dkms package
 Source2:	ati.sh

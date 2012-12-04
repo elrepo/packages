@@ -3,7 +3,6 @@
 
 # If kversion isn't defined on the rpmbuild line, define it here.
 # Due to CVE-2010-3081 patch, won't build against x86_64 kernels prior to 2.6.18-194.11.4.el5
-# %{!?kversion: %define kversion 2.6.18-194.26.1.el5}
 %{!?kversion: %define kversion 2.6.18-308.el5}
 
 Name:    %{kmod_name}-kmod
