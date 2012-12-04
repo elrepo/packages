@@ -3,11 +3,12 @@
 
 # If kversion isn't defined on the rpmbuild line, define it here.
 # Due to CVE-2010-3081 patch, won't build against x86_64 kernels prior to 2.6.18-194.11.4.el5
-%{!?kversion: %define kversion 2.6.18-194.26.1.el5}
+# %{!?kversion: %define kversion 2.6.18-194.26.1.el5}
+%{!?kversion: %define kversion 2.6.18-308.el5}
 
 Name:    %{kmod_name}-kmod
 Version: 9.3
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: AMD %{kmod_name} kernel module(s)
@@ -106,6 +107,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__strip} --strip-debug \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Dec 04 2012 Philip J Perry <phil@elrepo.org> - 9.3-2.el5.elrepo
+- Rebuild against rhel5.8 kernel for bug [http://elrepo.org/bugs/view.php?id=330]
+
 * Sun Dec 26 2010 Philip J Perry <phil@elrepo.org> - 9.3-1.el5.elrepo
 - Rename package to fglrx93
 - Suppress warning message during compile.
