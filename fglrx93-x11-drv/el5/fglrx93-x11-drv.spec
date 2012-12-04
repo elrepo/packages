@@ -15,7 +15,7 @@
 
 Name:		fglrx93-x11-drv
 Version:	9.3
-Release:	1%{?dist}
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Proprietary 
 Summary:	AMD's proprietary driver for ATI graphic cards
@@ -222,13 +222,13 @@ echo %{atilibdir} > %{buildroot}%{_sysconfdir}/ld.so.conf.d/ati.conf.disable
 %{__rm} -rf %{buildroot}
 
 %post
+/sbin/ldconfig
 # Enable the proprietary driver
 %{_sbindir}/ati-config-display enable &>/dev/null
 if [ "${1}" -eq 1 ]; then
-  %{_sbindir}/chkconfig --add atieventsd
-  %{_sbindir}/service atieventsd start
+  /sbin/chkconfig --add atieventsd
+  /sbin/service atieventsd start
 fi || :
-/sbin/ldconfig
 
 %post 32bit
 /sbin/ldconfig
@@ -237,7 +237,7 @@ fi || :
 if [ "${1}" -eq 0 ]; then
   # Disable the proprietary driver on final uninstall
   [ -f %{_sbindir}/ati-config-display ] && %{_sbindir}/ati-config-display disable  &>/dev/null
-  $(%{_sbindir}/service atieventsd status &>/dev/null) && %{_sbindir}/service atieventsd stop &>/dev/null
+  $(/sbin/service atieventsd status &>/dev/null) && /sbin/service atieventsd stop &>/dev/null
   # Remove init script
   /sbin/chkconfig --del atieventsd
 fi || :
@@ -299,6 +299,10 @@ fi || :
 %{_includedir}/X11/extensions/*.h
 
 %changelog
+* Tue Dec 04 2012 Philip J Perry <phil@elrepo.org> - 9.3-2.el5.elrepo
+- Fix paths in %%post and %%preun install scripts.
+  [http://elrepo.org/bugs/view.php?id=330]
+
 * Sun Dec 26 2010 Philip J Perry <phil@elrepo.org> - 9.3-1.el5.elrepo
 - Build for release.
 
