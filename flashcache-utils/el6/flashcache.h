@@ -86,10 +86,11 @@
 #define FLASHCACHE_COPY_PAGES (1024)
 
 /* Default cache parameters */
-#define DEFAULT_CACHE_SIZE	65536
-#define DEFAULT_CACHE_ASSOC	512
-#define DEFAULT_BLOCK_SIZE	8	/* 4 KB */
-#define DEFAULT_MD_BLOCK_SIZE	8	/* 4 KB */
+#define DEFAULT_CACHE_SIZE		65536
+#define DEFAULT_CACHE_ASSOC		512
+#define DEFAULT_BLOCK_SIZE		8	/* 4 KB */
+#define DEFAULT_MD_BLOCK_SIZE		8	/* 4 KB */
+#define DEFAULT_MD_BLOCK_SIZE_BYTES	(DEFAULT_MD_BLOCK_SIZE * 512)	/* 4 KB */
 #define FLASHCACHE_MAX_MD_BLOCK_SIZE	128	/* 64 KB */
 
 #define FLASHCACHE_FIFO		0
@@ -269,6 +270,13 @@ struct cache_c {
 	// real device names are now stored as UUIDs
 	char cache_devname[DEV_PATHLEN];
 	char disk_devname[DEV_PATHLEN];
+
+	/* 
+	 * If the SSD returns errors, in WRITETHRU and WRITEAROUND modes, 
+	 * bypass the cache completely. If the SSD dies or is removed, 
+	 * we want to continue sending requests to the device.
+	 */
+	int bypass_cache;
 
 	/* Per device sysctls */
 	int sysctl_io_latency_hist;
@@ -520,9 +528,6 @@ int flashcache_map(struct dm_target *ti, struct bio *bio,
 int flashcache_ctr(struct dm_target *ti, unsigned int argc,
 		   char **argv);
 void flashcache_dtr(struct dm_target *ti);
-
-int flashcache_status(struct dm_target *ti, status_type_t type,
-		      char *result, unsigned int maxlen);
 
 struct kcached_job *flashcache_alloc_cache_job(void);
 void flashcache_free_cache_job(struct kcached_job *job);
