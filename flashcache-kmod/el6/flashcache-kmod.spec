@@ -2,11 +2,11 @@
 %define kmod_name flashcache
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-220.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-279.el6.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -67,6 +67,10 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Mon Dec 24 2012 Akemi Yagi <toracat@elrepo.org> - 0.0-3
+- Updated to flashcache-stable_v2.
+- Built against kernel 2.6.32-279.el6.
+
 * Sat Mar 03 2012 Akemi Yagi <toracat@elrepo.org> - 0.0-2
 - Packaging style now conforms to the ELRepo standard. [Alan Bartlett]
 - Built against kernel 2.6.32-220.el6.
