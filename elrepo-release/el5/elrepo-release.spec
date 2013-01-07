@@ -4,7 +4,7 @@
 Summary: ELRepo.org Community Enterprise Linux Repository release file
 Name: elrepo-release
 Version: 5
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: GPLv2
 Group: System Environment/Base
 URL: http://elrepo.org/
@@ -14,6 +14,9 @@ Source1: RPM-GPG-KEY-elrepo.org
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 BuildArch: noarch
+
+# To prevent users installing on the wrong dist
+Requires: kernel = 2.6.18
 
 %description
 This package contains yum configuration for the ELRepo.org Community Enterprise Linux Repository, as well as the public GPG keys used to sign packages.
@@ -41,6 +44,11 @@ This package contains yum configuration for the ELRepo.org Community Enterprise 
 %{_sysconfdir}/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
 
 %changelog
+* Mon Jan 07 2013 Philip J Perry <phil@elrepo.org> - 5-4
+- Add requires for kernel to prevent installing on wrong dist.
+- Fix name of Extras repository
+  [http://elrepo.org/bugs/view.php?id=339]
+
 * Wed Jun 15 2011 Akemi Yagi <toracat@elrepo.org> - 5-3
 - Added extras repo
 - Enable elrepo repo by default
