@@ -29,7 +29,7 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
 protect=0
 
 [elrepo-extras]
-name=ELRepo.org Community Enterprise Linux Repository - el6
+name=ELRepo.org Community Enterprise Linux Extras Repository - el6
 baseurl=http://elrepo.org/linux/extras/el6/$basearch/
 mirrorlist=http://elrepo.org/mirrors-elrepo-extras.el6
 enabled=0
