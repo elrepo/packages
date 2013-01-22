@@ -130,7 +130,7 @@ get_rpmtemplate ()
     cat <<EOF
 Provides:         kabi-modules = ${verrel}${dotvariant}
 Provides:         ${kmod_name}-kmod = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:         ${kmod_name}-x11-drv = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:         ${kmod_name}-x11-drv = %{?epoch:%{epoch}:}%{version}
 Requires(post):   /sbin/depmod
 Requires(postun): /sbin/depmod
 EOF
