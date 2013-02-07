@@ -24,7 +24,7 @@
 #include "nvidia-detect.h"
 
 #define	PROGRAM_NAME		"nvidia-detect"
-#define	NVIDIA_VERSION		"310.32"
+#define	NVIDIA_VERSION		310.32
 
 /* define the return codes */
 #define	NVIDIA_CURRENT		0x01
