@@ -1,0 +1,29 @@
+nvidia-detect - a utility to detect NVIDIA graphics cards
+
+nvidia-detect is a utility to detect NVIDIA graphics cards. The utility will
+probe the PCI bus for NVIDIA devices and search for matching devices against a
+list of supported device_ids. nvidia-detect will make a recommendation for the
+correct driver to use based on any matches found. For example:
+
+$ nvidia-detect
+Probing for supported NVIDIA devices...
+Found: [10de:0ca3] NVIDIA Corporation GT215 [GeForce GT 240]
+This device requires the current NVIDIA driver (kmod-nvidia).
+
+$ nvidia-detect
+Probing for supported NVIDIA devices...
+Found: [10de:0392] NVIDIA Corporation G73 [GeForce 7600 GS]
+This device requires the NVIDIA legacy 304.xx driver (kmod-nvidia-304xx).
+
+nvidia-detect may be run from within a script and will return the following codes:
+
+0: No supported devices found
+1: Device supported by the current NVIDIA release driver
+2: Device supported by the NVIDIA legacy 96.xx driver
+3: Device supported by the NVIDIA legacy 173.xx driver
+4: Device supported by the NVIDIA legacy 304.xx driver
+
+For a full list of supported devices, see:
+ftp://download.nvidia.com/XFree86/Linux-x86_64/310.32/README/supportedchips.html
+
+Bugs should be reported at http://elrepo.org/bugs
