@@ -4,7 +4,7 @@ Release: 1%{?dist}
 Group:   Applications/System
 License: GPLv2
 Summary: NVIDIA graphics card detection utility
-URL:     https://github.com/elrepo/packages/nvidia-detect
+URL:     https://github.com/elrepo/packages/tree/master/nvidia-detect
 
 BuildRequires: pciutils-devel
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
