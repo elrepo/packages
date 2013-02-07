@@ -113,7 +113,7 @@ int main(void)
 
 	if (ret == 0) {
 		printf("No supported devices were found.\n");
-		printf("Please run 'lspci -nn' and quote the output in a bug report at http://elrepo.org/bugs\n");
+		printf("Please run '/sbin/lspci -nn' and quote the output in a bug report at http://elrepo.org/bugs\n");
 	}
 
 	return ret;
