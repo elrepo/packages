@@ -102,7 +102,7 @@ int main(void)
 						PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
 						dev->vendor_id, dev->device_id);
 					printf("Found: [%04x:%04x] %s\n", dev->vendor_id, dev->device_id, name);
-					printf("This device requires the current NVIDIA driver (kmod-nvidia).\n");
+					printf("This device requires the current %3.2f NVIDIA driver (kmod-nvidia).\n", NVIDIA_VERSION);
 					ret = NVIDIA_CURRENT;
 				}
 
