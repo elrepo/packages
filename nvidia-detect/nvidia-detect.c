@@ -26,22 +26,22 @@
 #define	PROGRAM_NAME		"nvidia-detect"
 #define	NVIDIA_VERSION		310.32
 
+#ifndef PCI_VENDOR_ID_NVIDIA
+#define	PCI_VENDOR_ID_NVIDIA	0x10de
+#endif
+
 /* define the return codes */
 #define	NVIDIA_CURRENT		0x01
 #define	NVIDIA_LEGACY_96XX	0x02
 #define	NVIDIA_LEGACY_173XX	0x03
 #define	NVIDIA_LEGACY_304XX	0x04
 
-#ifndef PCI_VENDOR_ID_NVIDIA
-#define	PCI_VENDOR_ID_NVIDIA	0x10de
-#endif
-
 int main(void)
 {
+	int i, n, ret;
+	char namebuf[1024], *name;
 	struct pci_access *pacc;
 	struct pci_dev *dev;
-	char namebuf[1024], *name;
-	int i, n, ret;
 
 	ret = 0;			/* Return 0 if no devices found */
 	pacc = pci_alloc();		/* Get the pci_access structure */
@@ -52,8 +52,10 @@ int main(void)
 
 	/* Iterate over all devices */
 	for (dev=pacc->devices; dev; dev=dev->next) {
+
 		/* Find NVIDIA devices */
 		if (dev->vendor_id == PCI_VENDOR_ID_NVIDIA) {
+
 		 	/** Find devices supported by the 96xx legacy driver **/
 			n = sizeof(nv_96xx_pci_ids)/sizeof(nv_96xx_pci_ids[0]);
 			for (i = 0; i < n; i++)
@@ -113,7 +115,7 @@ int main(void)
 
 	if (ret == 0) {
 		printf("No supported devices were found.\n");
-		printf("Please run '/sbin/lspci -nn' and quote the output in a bug report at http://elrepo.org/bugs\n");
+		printf("Please report bugs at http://elrepo.org/bugs quoting the output from '/sbin/lspci -nn'\n");
 	}
 
 	return ret;
