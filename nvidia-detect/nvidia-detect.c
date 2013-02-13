@@ -19,6 +19,8 @@
  */
 
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include <pci/pci.h>
 
 #include "nvidia-detect.h"
@@ -36,12 +38,46 @@
 #define	NVIDIA_LEGACY_173XX	0x03
 #define	NVIDIA_LEGACY_304XX	0x04
 
-int main(void)
+#define STREQ(a, b) (strcmp ((a), (b)) == 0)
+
+void PrintUsage(void)
+{
+	printf("Usage: %s [-hV]\n", PROGRAM_NAME);
+	printf("  -h --help         give this help\n");
+	printf("  -V --version      display version number\n\n");
+	printf("Detect NVIDIA graphics cards and determine the correct NVIDIA driver.\n\n");
+	printf("%s will return the following codes:\n", PROGRAM_NAME);
+	printf("0: No supported devices found\n");
+	printf("1: Device supported by the current %3.2f NVIDIA driver\n", NVIDIA_VERSION);
+	printf("2: Device supported by the NVIDIA legacy 96.xx driver\n");
+	printf("3: Device supported by the NVIDIA legacy 173.xx driver\n");
+	printf("4: Device supported by the NVIDIA legacy 304.xx driver\n\n");
+	printf("Please report bugs at http://elrepo.org/bugs\n");
+}
+
+int main(int argc, char *argv[])
 {
 	int i, n, ret;
 	char namebuf[1024], *name;
 	struct pci_access *pacc;
 	struct pci_dev *dev;
+
+	if (argc == 2) {
+		if (STREQ (argv[1], "-V") || STREQ (argv[1], "--version")) {
+			printf("Version: %3.2f\n", NVIDIA_VERSION);
+			printf("Copyright (C) 2013 Philip J Perry <phil@elrepo.org>\n");
+			exit (0);
+		} else {
+			PrintUsage();
+			exit (0);
+		}
+	}
+
+	/* some simple error handling */
+	if (argc != 1) {
+		PrintUsage();
+		exit (0);
+	}
 
 	ret = 0;			/* Return 0 if no devices found */
 	pacc = pci_alloc();		/* Get the pci_access structure */
