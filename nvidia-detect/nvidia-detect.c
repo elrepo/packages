@@ -66,17 +66,17 @@ int main(int argc, char *argv[])
 		if (STREQ (argv[1], "-V") || STREQ (argv[1], "--version")) {
 			printf("Version: %3.2f\n", NVIDIA_VERSION);
 			printf("Copyright (C) 2013 Philip J Perry <phil@elrepo.org>\n");
-			exit (0);
+			exit(0);
 		} else {
 			PrintUsage();
-			exit (0);
+			exit(0);
 		}
 	}
 
 	/* some simple error handling */
 	if (argc != 1) {
 		PrintUsage();
-		exit (0);
+		exit(0);
 	}
 
 	ret = 0;			/* Return 0 if no devices found */
