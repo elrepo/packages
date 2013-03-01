@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 2.6.32-220.el6.%{_target_cpu}}
 
 Name: %{kmod_name}-kmod
-Version: 0.4.2
+Version: 0.5
 Release: 1%{?dist}
 Group: System Environment/Kernel
 License: GPLv2
@@ -75,6 +75,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Mar  1 2013 Akemi Yagi <toracat@elrepo.org> - 0.5-1
+- Upgraded to version 0.5 of bbswitch
+
 * Sat Jun 23 2012 Rob Mokkink <rob@mokkinksystems.com> - 0.4.2-1
 - Upgraded to version 0.4.2 of bbswitch
 
