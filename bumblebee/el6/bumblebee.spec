@@ -1,6 +1,6 @@
 Name: bumblebee		
-Version: 3.0	
-Release: 3%{?dist}
+Version: 3.1
+Release: 1%{?dist}
 Summary: Bumblebee is a project that enables Linux to utilize the Nvidia Optimus Hybrid cards.
 Group: System Environment/Daemons		
 License: GPLv3	
@@ -8,7 +8,7 @@ URL: https://github.com/Bumblebee-Project
 
 BuildRequires: libbsd-devel pkgconfig autoconf help2man glib2-devel libX11-devel
 Requires: libbsd 	
-Requires: VirtualGL
+# Requires: VirtualGL
 
 # Sources
 Source0: %{name}-%{version}.tar.gz	
@@ -53,9 +53,10 @@ the Nvidia Optimus Hybrid cards.
 %attr (755, root, root) %{_usr}/bin/optirun
 %attr (644, root, root) %{_defaultdocdir}/%{name}-%{version}/GPL-v3.0.txt
 %attr (644, root, root) %{_defaultdocdir}/%{name}-%{version}/README.markdown
-%attr (644, root, root) %{_defaultdocdir}/%{name}-%{version}/RELEASE_NOTES_3_0
+%attr (644, root, root) %{_defaultdocdir}/%{name}-%{version}/RELEASE_NOTES_3_1
 %attr (644, root, root) %{_mandir}/man1/bumblebeed.1.gz
 %attr (644, root, root) %{_mandir}/man1/optirun.1.gz
+%attr (644, root, root) /lib/udev/rules.d/99-remove-nvidia-dev.rules
 
 %post
 chkconfig --add bumblebeed
@@ -76,6 +77,10 @@ then
 fi 
    
 %changelog
+* Fri Mar  1 2013 Akemi Yagi <toracat@elrepo.org> - 3.1-1
+- Updated to 3.1
+- Removed VirtualGL requirement (for now).
+
 * Sat Jun 23 2012 Rob Mokkink <rob@mokkinksystems.com> - 3.0-3
 - Add VirtualGL package as required
 - Move /etc/X11/xorg.conf to /etc/X11/xorg.config.bumblebee.backup
