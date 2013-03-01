@@ -138,6 +138,13 @@ int main(int argc, char *argv[])
 					ret = NVIDIA_CURRENT;
 				}
 
+			/** Catch NVIDIA devices that aren't supported **/
+			if (ret == 0) {
+				printf("[%04x:%04x] %s\n", dev->vendor_id, dev->device_id, name);
+				printf("This device does not appear to be supported at present\n");
+				printf("Please report bugs at http://elrepo.org/bugs quoting the output from '/sbin/lspci -nn'\n");
+			}
+
 		}		/* End find NVIDIA device */
 
 		}		/* End of device_class */
@@ -145,11 +152,6 @@ int main(int argc, char *argv[])
 	}			/* End iteration of devices */
 
 	pci_cleanup(pacc);	/* Close everything */
-
-	if (ret == 0) {
-		printf("No supported devices were found.\n");
-		printf("Please report bugs at http://elrepo.org/bugs quoting the output from '/sbin/lspci -nn'\n");
-	}
 
 	return ret;
 }
