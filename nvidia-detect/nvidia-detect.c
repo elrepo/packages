@@ -89,8 +89,11 @@ int main(int argc, char *argv[])
 	/* Iterate over all devices */
 	for (dev=pacc->devices; dev; dev=dev->next) {
 
+		/* Get the device class */
+		pci_fill_info(dev, PCI_FILL_CLASS);
+
 		/* Find NVIDIA devices */
-		if (dev->vendor_id == PCI_VENDOR_ID_NVIDIA) {
+		if (dev->device_class == 0x0300 && dev->vendor_id == PCI_VENDOR_ID_NVIDIA) {
 
 		 	/** Find devices supported by the 96xx legacy driver **/
 			n = sizeof(nv_96xx_pci_ids)/sizeof(nv_96xx_pci_ids[0]);
@@ -145,6 +148,7 @@ int main(int argc, char *argv[])
 				}
 
 		}		/* End find NVIDIA devices */
+
 	}			/* End iteration of devices */
 
 	pci_cleanup(pacc);	/* Close everything */
