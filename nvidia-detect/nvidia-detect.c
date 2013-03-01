@@ -28,6 +28,9 @@
 #define	PROGRAM_NAME		"nvidia-detect"
 #define	NVIDIA_VERSION		310.32
 
+#ifndef PCI_VENDOR_ID_INTEL
+#define	PCI_VENDOR_ID_INTEL	0x8086
+#endif
 #ifndef PCI_VENDOR_ID_NVIDIA
 #define	PCI_VENDOR_ID_NVIDIA	0x10de
 #endif
@@ -57,6 +60,7 @@ void PrintUsage(void)
 
 int main(int argc, char *argv[])
 {
+	int has_intel, has_nvidia;
 	int i, n, ret;
 	char namebuf[128], *name;
 	struct pci_access *pacc;
@@ -79,6 +83,8 @@ int main(int argc, char *argv[])
 		exit(0);
 	}
 
+	has_intel = 0;			/* for detection of Optimus hardware configurations */
+	has_nvidia = 0;			/* for detection of NVIDIA cards */
 	ret = 0;			/* Return 0 if no devices found */
 	pacc = pci_alloc();		/* Get the pci_access structure */
 	pci_init(pacc);			/* Initialize the PCI library */
@@ -101,6 +107,7 @@ int main(int argc, char *argv[])
 
 		/* Find NVIDIA device */
 		if (dev->vendor_id == PCI_VENDOR_ID_NVIDIA) {
+			has_nvidia++;
 
 		 	/** Find devices supported by the 96xx legacy driver **/
 			n = sizeof(nv_96xx_pci_ids)/sizeof(nv_96xx_pci_ids[0]);
@@ -147,9 +154,22 @@ int main(int argc, char *argv[])
 
 		}		/* End find NVIDIA device */
 
+		/* Find Intel device for detection of Optimus hardware configurations */
+		if (dev->vendor_id == PCI_VENDOR_ID_INTEL) {
+			has_intel++;
+			printf("[%04x:%04x] %s\n", dev->vendor_id, dev->device_id, name);
+		}		/* End find Intel device */
+
 		}		/* End of device_class */
 
 	}			/* End iteration of devices */
+
+	/* Optimus hardware configuration found */
+	if (has_intel > 0 && has_nvidia > 0) {
+				printf("Optimus hardware detected: An Intel display controller was detected\n");
+				printf("Either disable the Intel display controller in the BIOS\n");
+				printf("or use the bumblebee driver to support Optimus hardware\n");
+	}
 
 	pci_cleanup(pacc);	/* Close everything */
 
