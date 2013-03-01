@@ -92,18 +92,21 @@ int main(int argc, char *argv[])
 		/* Get the device class */
 		pci_fill_info(dev, PCI_FILL_CLASS);
 
-		/* Find NVIDIA devices */
-		if (dev->device_class == 0x0300 && dev->vendor_id == PCI_VENDOR_ID_NVIDIA) {
+		if (dev->device_class == 0x0300) {
+
+			/* Get the name of the device */
+			name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
+				PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
+				dev->vendor_id, dev->device_id);
+
+		/* Find NVIDIA device */
+		if (dev->vendor_id == PCI_VENDOR_ID_NVIDIA) {
 
 		 	/** Find devices supported by the 96xx legacy driver **/
 			n = sizeof(nv_96xx_pci_ids)/sizeof(nv_96xx_pci_ids[0]);
 			for (i = 0; i < n; i++)
 				if (nv_96xx_pci_ids[i] == dev->device_id) {
-					/* Get the name of the device */
-					name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
-						PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
-						dev->vendor_id, dev->device_id);
-					printf("Found: [%04x:%04x] %s\n", dev->vendor_id, dev->device_id, name);
+					printf("[%04x:%04x] %s\n", dev->vendor_id, dev->device_id, name);
 					printf("This device requires the NVIDIA legacy 96.xx driver (kmod-nvidia-96xx).\n");
 					ret = NVIDIA_LEGACY_96XX;
 				}
@@ -112,11 +115,7 @@ int main(int argc, char *argv[])
 			n = sizeof(nv_173xx_pci_ids)/sizeof(nv_173xx_pci_ids[0]);
 			for (i = 0; i < n; i++)
 				if (nv_173xx_pci_ids[i] == dev->device_id) {
-					/* Get the name of the device */
-					name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
-						PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
-						dev->vendor_id, dev->device_id);
-					printf("Found: [%04x:%04x] %s\n", dev->vendor_id, dev->device_id, name);
+					printf("[%04x:%04x] %s\n", dev->vendor_id, dev->device_id, name);
 					printf("This device requires the NVIDIA legacy 173.xx driver (kmod-nvidia-173xx).\n");
 					ret = NVIDIA_LEGACY_173XX;
 				}
@@ -125,11 +124,7 @@ int main(int argc, char *argv[])
 			n = sizeof(nv_304xx_pci_ids)/sizeof(nv_304xx_pci_ids[0]);
 			for (i = 0; i < n; i++)
 				if (nv_304xx_pci_ids[i] == dev->device_id) {
-					/* Get the name of the device */
-					name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
-						PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
-						dev->vendor_id, dev->device_id);
-					printf("Found: [%04x:%04x] %s\n", dev->vendor_id, dev->device_id, name);
+					printf("[%04x:%04x] %s\n", dev->vendor_id, dev->device_id, name);
 					printf("This device requires the NVIDIA legacy 304.xx driver (kmod-nvidia-304xx).\n");
 					ret = NVIDIA_LEGACY_304XX;
 				}
@@ -138,16 +133,14 @@ int main(int argc, char *argv[])
 			n = sizeof(nv_current_pci_ids)/sizeof(nv_current_pci_ids[0]);
 			for (i = 0; i < n; i++)
 				if (nv_current_pci_ids[i] == dev->device_id) {
-					/* Get the name of the device */
-					name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
-						PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
-						dev->vendor_id, dev->device_id);
-					printf("Found: [%04x:%04x] %s\n", dev->vendor_id, dev->device_id, name);
+					printf("[%04x:%04x] %s\n", dev->vendor_id, dev->device_id, name);
 					printf("This device requires the current %3.2f NVIDIA driver (kmod-nvidia).\n", NVIDIA_VERSION);
 					ret = NVIDIA_CURRENT;
 				}
 
-		}		/* End find NVIDIA devices */
+		}		/* End find NVIDIA device */
+
+		}		/* End of device_class */
 
 	}			/* End iteration of devices */
 
