@@ -58,7 +58,7 @@ void PrintUsage(void)
 int main(int argc, char *argv[])
 {
 	int i, n, ret;
-	char namebuf[1024], *name;
+	char namebuf[128], *name;
 	struct pci_access *pacc;
 	struct pci_dev *dev;
 
