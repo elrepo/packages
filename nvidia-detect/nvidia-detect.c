@@ -166,10 +166,14 @@ int main(int argc, char *argv[])
 
 	/* Optimus hardware configuration found */
 	if (has_intel > 0 && has_nvidia > 0) {
-				printf("Optimus hardware detected: An Intel display controller was detected\n");
-				printf("Either disable the Intel display controller in the BIOS\n");
-				printf("or use the bumblebee driver to support Optimus hardware\n");
+		printf("Optimus hardware detected: An Intel display controller was detected\n");
+		printf("Either disable the Intel display controller in the BIOS\n");
+		printf("or use the bumblebee driver to support Optimus hardware\n");
 	}
+
+	/* Catch cases where no NVIDIA devices are detected */
+	if (has_nvidia == 0)
+		printf("No NVIDIA devices were found.\n");
 
 	pci_cleanup(pacc);	/* Close everything */
 
