@@ -5,7 +5,7 @@
 %define		debug_packages	%{nil}
 
 Name:		nvidia-x11-drv-173xx
-Version:	173.14.27
+Version:	173.14.36
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -21,6 +21,9 @@ Source0:	ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86
 
 # x86_64: only pkg2 contains the lib32 compatibility libs
 Source1:	ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}-pkg2.run
+
+NoSource: 0
+NoSource: 1
 
 # taken from the rpmforge dkms package
 Source2:	nvidia.sh
@@ -47,6 +50,8 @@ Conflicts:	nvidia-x11-drv
 Conflicts:	nvidia-x11-drv-32bit
 Conflicts:	nvidia-x11-drv-96xx
 Conflicts:	nvidia-x11-drv-96xx-32bit
+Conflicts:	nvidia-x11-drv-304xx
+Conflicts:	nvidia-x11-drv-304xx-32bit
 
 # rpmforge
 Conflicts:	dkms-nvidia
@@ -229,15 +234,20 @@ popd
 %{__rm} -rf $RPM_BUILD_ROOT
 
 %post
-# Make sure we have a Files section in xorg.conf, otherwise create an empty one
-XORGCONF=/etc/X11/xorg.conf
-[ -w ${XORGCONF} ] && ! grep -q 'Section "Files"' ${XORGCONF} && \
-    echo -e 'Section "Files"\nEndSection' >> ${XORGCONF}
-# Enable the proprietary nvidia driver
-%{_sbindir}/nvidia-config-display enable &>/dev/null || :
+if [ "$1" -eq "1" ]; then
+    # If xorg.conf doesn't exist, create it
+    [ ! -f %{_sysconfdir}/X11/xorg.conf ] && %{_bindir}/nvidia-xconfig &>/dev/null
+    # Make sure we have a Files section in xorg.conf, otherwise create an empty one
+    XORGCONF=/etc/X11/xorg.conf
+    [ -w ${XORGCONF} ] && ! grep -q 'Section "Files"' ${XORGCONF} && \
+      echo -e 'Section "Files"\nEndSection' >> ${XORGCONF}
+    # Enable the proprietary nvidia driver
+    %{_sbindir}/nvidia-config-display enable &>/dev/null
+fi || :
+
 /sbin/ldconfig
 
-%post 32bit
+%postun
 /sbin/ldconfig
 
 %preun
@@ -246,7 +256,7 @@ if [ "$1" -eq "0" ]; then
     test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display disable &>/dev/null || :
 fi
 
-%postun
+%post 32bit
 /sbin/ldconfig
 
 %postun 32bit
@@ -264,7 +274,7 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %{_datadir}/pixmaps/nvidia-settings.png
 %{_datadir}/applications/*nvidia-settings.desktop
 %config(noreplace) %{_sysconfdir}/profile.d/nvidia.csh
-%config(noreplace) %{_sysconfdir}/profile.d/nvidia.sh 
+%config(noreplace) %{_sysconfdir}/profile.d/nvidia.sh
 %{_bindir}/nvidia*
 %{_sbindir}/nvidia-config-display
 %config %{_sysconfdir}/modprobe.d/nvidia
@@ -293,6 +303,12 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %endif
 
 %changelog
+* Sat Mar 02 2013 Philip J Perry <phil@elrepo.org> - 173.14.36-1.el5.elrepo
+- Update to version 173.14.36.
+- Make package nosrc.
+- Update conflicts for 304xx legacy package.
+- Update post and preun scriptlets.
+
 * Sat Aug 21 2010 Philip J Perry <phil@elrepo.org> - 173.14.27-1.el5.elrepo
 - Update to version 173.14.27.
 

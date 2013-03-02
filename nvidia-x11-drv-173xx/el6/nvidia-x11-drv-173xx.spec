@@ -4,7 +4,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv-173xx
-Version:	173.14.28
+Version:	173.14.36
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -20,6 +20,9 @@ Source0: ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86
 
 # x86_64: only pkg2 contains the lib32 compatibility libs
 Source1: ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}-pkg2.run
+
+NoSource: 0
+NoSource: 1
 
 Source2:	nvidia-config-display
 Source3:	blacklist-nouveau.conf
@@ -46,6 +49,8 @@ Conflicts:	nvidia-x11-drv
 Conflicts:	nvidia-x11-drv-32bit
 Conflicts:	nvidia-x11-drv-96xx
 Conflicts:	nvidia-x11-drv-96xx-32bit
+Conflicts:	nvidia-x11-drv-304xx
+Conflicts:	nvidia-x11-drv-304xx-32bit
 
 # rpmforge
 Conflicts:	dkms-nvidia
@@ -208,7 +213,10 @@ popd
 
 %post
 if [ "$1" -eq "1" ]; then
-    # If xorg.conf doesn't exist, create it
+    # Check if xorg.conf exists, if it does, backup and remove [BugID # 0000127]
+    [ -f %{_sysconfdir}/X11/xorg.conf ] && \
+      mv %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.elreposave &>/dev/null
+    # xorg.conf now shouldn't exist so create it
     [ ! -f %{_sysconfdir}/X11/xorg.conf ] && %{_bindir}/nvidia-xconfig &>/dev/null
     # Make sure we have a Files section in xorg.conf, otherwise create an empty one
     XORGCONF=/etc/X11/xorg.conf
@@ -219,7 +227,7 @@ if [ "$1" -eq "1" ]; then
     # Disable the nouveau driver
     if [[ -x /sbin/grubby && -e /boot/grub/grub.conf ]]; then
       # get installed kernels
-      for KERNEL in $(rpm -q --qf '%{version}-%{release}.%{arch}\n' kernel); do
+      for KERNEL in $(rpm -q --qf '%{v}-%{r}.%{arch}\n' kernel); do
       VMLINUZ="/boot/vmlinuz-"$KERNEL
       # Check kABI compatibility
         for KABI in $(find /lib/modules -name nvidia.ko | cut -d / -f 4); do
@@ -244,7 +252,7 @@ if [ "$1" -eq "0" ]; then
     # Clear grub option to disable nouveau for all RHEL6 kernels
     if [[ -x /sbin/grubby && -e /boot/grub/grub.conf ]]; then
       # get installed kernels
-      for KERNEL in $(rpm -q --qf '%{version}-%{release}.%{arch}\n' kernel); do
+      for KERNEL in $(rpm -q --qf '%{v}-%{r}.%{arch}\n' kernel); do
         VMLINUZ="/boot/vmlinuz-"$KERNEL
         if [[ -e "$VMLINUZ" ]]; then
           /sbin/grubby --update-kernel="$VMLINUZ" \
@@ -295,6 +303,15 @@ fi ||:
 %endif
 
 %changelog
+* Sat Mar 02 2013 Philip J Perry <phil@elrepo.org> - 173.14.36-1.el6.elrepo
+- Update to version 173.14.36.
+- Make package nosrc.
+- Update conflicts for 304xx legacy package.
+
+* Fri Dec 09 2011 Philip J Perry <phil@elrepo.org> - 173.14.31-1.el6.elrepo
+- Update to version 173.14.31.
+- Update post and preun scriptlets.
+
 * Sun Aug 28 2011 Philip J Perry <phil@elrepo.org>
 - Update script to disable the nouveau driver
   [http://elrepo.org/bugs/view.php?id=176]

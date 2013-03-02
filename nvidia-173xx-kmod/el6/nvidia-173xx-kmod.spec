@@ -2,10 +2,10 @@
 %define	 kmod_name nvidia-173xx
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-71.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-358.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 173.14.28
+Version: 173.14.36
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -71,6 +71,12 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Mar 02 2013 Philip J Perry <phil@elrepo.org> - 173.14.36-1.el6.elrepo
+- Update to version 173.14.36.
+
+* Fri Dec 09 2011 Philip J Perry <phil@elrepo.org> - 173.14.31-1.el6.elrepo
+- Update to version 173.14.31.
+
 * Fri Feb 04 2011 Philip J Perry <phil@elrepo.org> - 173.14.28-1.el6.elrepo
 - Fork to el6.
 - Update to version 173.14.28.

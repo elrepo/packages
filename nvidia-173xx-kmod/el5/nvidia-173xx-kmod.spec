@@ -2,10 +2,10 @@
 %define	 kmod_name nvidia-173xx
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.18-164.el5}
+%{!?kversion: %define kversion 2.6.18-348.el5}
 
 Name:	 %{kmod_name}-kmod
-Version: 173.14.27
+Version: 173.14.36
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -89,6 +89,9 @@ done
 %{__rm} -rf $RPM_BUILD_ROOT
 
 %changelog
+* Sat Mar 02 2013 Philip J Perry <phil@elrepo.org> - 173.14.36-1.el5.elrepo
+- Update to version 173.14.36.
+
 * Sat Aug 21 2010 Philip J Perry <phil@elrepo.org> - 173.14.27-1.el5.elrepo
 - Update to version 173.14.27.
 
