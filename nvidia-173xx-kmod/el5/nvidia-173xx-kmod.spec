@@ -17,10 +17,12 @@ BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 ExclusiveArch: i686 x86_64
 
 # Sources.
-Source0:  %{kmod_name}-%{version}.tar.bz2
-Source10: kmodtool-el5-%{kmod_name}.sh
+Source0: ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}-pkg0.run
+Source1: ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}-pkg2.run
+Source10: kmodtool-%{kmod_name}-el5.sh
 
 NoSource: 0
+NoSource: 1
 
 # Define the variants for each architecture.
 %define basevar ""
@@ -47,15 +49,15 @@ It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
-%setup -q -c -T -a 0
+%setup -q -c -T
 echo "/usr/lib/rpm/redhat/find-requires | %{__sed} -e '/^ksym.*/d'" > filter-requires.sh
 
 %ifarch i686
-./%{kmod_name}-%{version}/NVIDIA-Linux-x86-%{version}-pkg0.run --extract-only --target nvidiapkg
+sh %{SOURCE0} --extract-only --target nvidiapkg
 %endif
 
 %ifarch x86_64
-./%{kmod_name}-%{version}/NVIDIA-Linux-x86_64-%{version}-pkg2.run --extract-only --target nvidiapkg
+sh %{SOURCE1} --extract-only --target nvidiapkg
 %endif
 
 for kvariant in %{kvariants} ; do
