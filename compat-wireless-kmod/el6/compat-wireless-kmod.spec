@@ -39,7 +39,7 @@ echo "blacklist ar9170usb" >> blacklist-compat-wireless.conf
 
 %build
 KSRC=%{_usrsrc}/kernels/%{kversion}
-%{__make} KLIB=/lib/modules/%{kversion} KLIB_BUILD=/lib/modules/%{kversion}/build
+%{__make} KLIB=/lib/modules/%{kversion} KLIB_BUILD="${KSRC}"
 
 %install
 %{__install} -d %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/

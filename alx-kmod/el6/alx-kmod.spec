@@ -43,7 +43,7 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 %build
 KSRC=%{_usrsrc}/kernels/%{kversion}
 ./scripts/driver-select alx
-%{__make} KLIB=/lib/modules/%{kversion} KLIB_BUILD=/lib/modules/%{kversion}/build
+%{__make} KLIB=/lib/modules/%{kversion} KLIB_BUILD="${KSRC}"
 
 %install
 %{__install} -d %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
