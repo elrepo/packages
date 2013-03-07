@@ -8,7 +8,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 1.20121003%{?dist}
+Release: 2.20121003%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -39,6 +39,9 @@ http://www.linuxfoundation.org/collaborate/workgroups/networking/alx
 %prep
 %setup -q -n %{src_name}-%{src_version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "override compat * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+echo "override sch_codel * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+echo "override sch_fq_codel * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 
 %build
 KSRC=%{_usrsrc}/kernels/%{kversion}
@@ -49,6 +52,9 @@ KSRC=%{_usrsrc}/kernels/%{kversion}
 %{__install} -d %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 %{__install} drivers/net/ethernet/atheros/alx/alx.ko \
     %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
+%{__install} compat/compat.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
+%{__install} compat/sch_codel.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
+%{__install} compat/sch_fq_codel.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
@@ -62,6 +68,10 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Dec 22 2012 Philip J Perry <phil@elrepo.org> - 0.0-2
+- Add missing modules
+  [http://elrepo.org/bugs/view.php?id=306]
+
 * Mon Oct 15 2012 Philip J Perry <phil@elrepo.org> - 0.0-1
 - Initial el6 build of the kmod package from nightly snapshot 2012-10-03-pc.
   [http://elrepo.org/bugs/view.php?id=306]
