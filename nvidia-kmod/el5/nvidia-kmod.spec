@@ -3,11 +3,11 @@
 
 # If kversion isn't defined on the rpmbuild line, define it here.
 # kABI compatible with kernel 2.6.18-194.el5 upwards
-%{!?kversion: %define kversion 2.6.18-308.el5}
+%{!?kversion: %define kversion 2.6.18-348.el5}
 
 Name:    %{kmod_name}-kmod
-Version: 310.19
-Release: 2%{?dist}
+Version: 310.40
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
@@ -91,6 +91,12 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Mar 09 2013 Philip J Perry <phil@elrepo.org> - 310.40-1.el5.elrepo
+- Updated to version 310.40
+
+* Wed Jan 23 2013 Philip J Perry <phil@elrepo.org> - 310.32-1.el5.elrepo
+- Updated to version 310.32
+
 * Tue Nov 20 2012 Philip J Perry <phil@elrepo.org> - 310.19-2.el5.elrepo
 - Fix broken SONAME dependency chain
 

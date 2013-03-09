@@ -2,11 +2,11 @@
 %define	 kmod_name nvidia
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-279.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-358.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 310.19
-Release: 2%{?dist}
+Version: 310.40
+Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
@@ -72,6 +72,12 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Mar 09 2013 Philip J Perry <phil@elrepo.org> - 310.40-1.el6.elrepo
+- Updated to version 310.40
+
+* Wed Jan 23 2013 Philip J Perry <phil@elrepo.org> - 310.32-1.el6.elrepo
+- Updated to version 310.32
+
 * Tue Nov 20 2012 Philip J Perry <phil@elrepo.org> - 310.19-2.el6.elrepo
 - Fix broken SONAME dependency chain
 

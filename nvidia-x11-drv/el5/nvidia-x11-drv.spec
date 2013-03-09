@@ -4,8 +4,8 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	310.19
-Release:	2%{?dist}
+Version:	310.40
+Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -345,6 +345,12 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %endif
 
 %changelog
+* Sat Mar 09 2013 Philip J Perry <phil@elrepo.org> - 310.40-1.el5.elrepo
+- Updated to version 310.40
+
+* Wed Jan 23 2013 Philip J Perry <phil@elrepo.org> - 310.32-1.el5.elrepo
+- Updated to version 310.32
+
 * Tue Nov 20 2012 Philip J Perry <phil@elrepo.org> - 310.19-2.el5.elrepo
 - Fix broken SONAME dependency chain
 
