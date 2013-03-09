@@ -2,10 +2,10 @@
 %define	 kmod_name nvidia-304xx
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-279.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-358.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 304.64
+Version: 304.84
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -72,6 +72,9 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Mar 09 2013 Philip J Perry <phil@elrepo.org> - 304.84-1.el6.elrepo
+- Updated to version 304.84
+
 * Sun Dec 30 2012 Philip J Perry <phil@elrepo.org> - 304.64-1.el6.elrepo
 - Fork to legacy release nvidia-304xx
 
