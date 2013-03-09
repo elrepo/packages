@@ -1,5 +1,5 @@
 Name:    nvidia-detect
-Version: 310.32
+Version: 310.40
 Release: 1%{?dist}
 Group:   Applications/System
 License: GPLv2
@@ -34,5 +34,9 @@ A utility to detect NVIDIA graphics cards.
 %{_bindir}/nvidia-detect
 
 %changelog
+* Sat Mar 09 2013 Philip J Perry <phil@elrepo.org> - 310.40-1
+- Add support for detection of devices added to 310.40 driver release.
+- Add support for detection of Optimus hardware configurations.
+
 * Wed Feb 06 2013 Philip J Perry <phil@elrepo.org> - 310.32-1
 - Initial build of the package.

@@ -24,6 +24,6 @@ nvidia-detect may be run from within a script and will return the following code
 4: Device supported by the NVIDIA legacy 304.xx driver
 
 For a full list of supported devices, see:
-ftp://download.nvidia.com/XFree86/Linux-x86_64/310.32/README/supportedchips.html
+ftp://download.nvidia.com/XFree86/Linux-x86_64/310.40/README/supportedchips.html
 
 Bugs should be reported at http://elrepo.org/bugs
