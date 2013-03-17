@@ -1,6 +1,6 @@
 Name: bumblebee		
-Version: 3.1
-Release: 1%{?dist}
+Version: 3.1	
+Release: 3%{?dist}
 Summary: Bumblebee is a project that enables Linux to utilize the Nvidia Optimus Hybrid cards.
 Group: System Environment/Daemons		
 License: GPLv3	
@@ -8,7 +8,8 @@ URL: https://github.com/Bumblebee-Project
 
 BuildRequires: libbsd-devel pkgconfig autoconf help2man glib2-devel libX11-devel
 Requires: libbsd 	
-# Requires: VirtualGL
+Requires: VirtualGL
+BuildRequires: wget
 
 # Sources
 Source0: %{name}-%{version}.tar.gz	
@@ -20,7 +21,9 @@ The %{name} package is a project that enables Linux to utilize
 the Nvidia Optimus Hybrid cards.
 
 %prep
-%setup -q -n %{name}-%{version}
+/usr/bin/wget http://bumblebee-project.org/bumblebee-3.1.tar.gz -P %{_sourcedir}
+tar -zxf %{_sourcedir}/%{name}-%{version}.tar.gz -C %{_builddir}
+%setup -D -T
 
 %build
 %configure \
@@ -30,7 +33,7 @@ the Nvidia Optimus Hybrid cards.
 
 %install
 %{__make} -s install DESTDIR="%{buildroot}"
-%{__install} -D -m0755 %{SOURCE1} %{buildroot}%{_initrddir}/bumlebeed
+%{__install} -D -m0755 %{SOURCE1} %{buildroot}%{_initrddir}/bumblebeed
 %{__install} -d %{buildroot}%{_defaultdocdir}/%{name}-%{version}/
 %{__install} %{SOURCE5} %{buildroot}%{_defaultdocdir}/%{name}-%{version}/
 %{__mv} %{buildroot}%{_defaultdocdir}/%{name}/* %{buildroot}%{_defaultdocdir}/%{name}-%{version}/
@@ -45,18 +48,18 @@ the Nvidia Optimus Hybrid cards.
 %dir %{_defaultdocdir}/%{name}-%{version}
 %{_sbindir}/bumblebeed
 %{_bindir}/%{name}-bugreport
-%{_initrddir}/bumlebeed
+%{_initrddir}/bumblebeed
 %attr (644, root, root) %{_sysconfdir}/bash_completion.d/%{name}
-%attr (644, root, root) %{_sysconfdir}/%{name}/%{name}.conf
+%config(noreplace) %attr (644, root, root) %{_sysconfdir}/%{name}/%{name}.conf
 %attr (644, root, root) %{_sysconfdir}/%{name}/xorg.conf.nouveau
 %attr (644, root, root) %{_sysconfdir}/%{name}/xorg.conf.nvidia
+%attr (644, root, root) /lib/udev/rules.d/99-remove-nvidia-dev.rules
 %attr (755, root, root) %{_usr}/bin/optirun
 %attr (644, root, root) %{_defaultdocdir}/%{name}-%{version}/GPL-v3.0.txt
 %attr (644, root, root) %{_defaultdocdir}/%{name}-%{version}/README.markdown
 %attr (644, root, root) %{_defaultdocdir}/%{name}-%{version}/RELEASE_NOTES_3_1
 %attr (644, root, root) %{_mandir}/man1/bumblebeed.1.gz
 %attr (644, root, root) %{_mandir}/man1/optirun.1.gz
-%attr (644, root, root) /lib/udev/rules.d/99-remove-nvidia-dev.rules
 
 %post
 chkconfig --add bumblebeed
@@ -77,8 +80,17 @@ then
 fi 
    
 %changelog
+* Sun Mar 17 2013 Rob Mokkink <rob@mokkinksystems.com> - 3.1.3
+- Changes made to files section for configuration files
+
+* Sun Mar 17 2013 Rob Mokkink <rob@mokkinksystems.com> - 3.1.2
+- Removed the sources, they are downloaded now using wget
+
+* Sat Mar 16 2013 Rob Mokkink <rob@mokkinksystems.com> - 3.1.1
+- Upgrade to bumblebee version 3.1
+
 * Fri Mar  1 2013 Akemi Yagi <toracat@elrepo.org> - 3.1-1
-- Updated to 3.1
+- Updated to 3.1 
 - Removed VirtualGL requirement (for now).
 
 * Sat Jun 23 2012 Rob Mokkink <rob@mokkinksystems.com> - 3.0-3
