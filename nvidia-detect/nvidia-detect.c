@@ -95,9 +95,6 @@ int main(int argc, char *argv[])
 	/* Iterate over all devices */
 	for (dev=pacc->devices; dev; dev=dev->next) {
 
-		/* Get the device class */
-		pci_fill_info(dev, PCI_FILL_CLASS);
-
 		if (dev->device_class == 0x0300) {
 
 			/* Get the name of the device */
