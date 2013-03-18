@@ -95,12 +95,22 @@ int main(int argc, char *argv[])
 	/* Iterate over all devices */
 	for (dev=pacc->devices; dev; dev=dev->next) {
 
+		if (!dev->device_class) {
+			fprintf(stderr, "Error getting device_class\n");
+			exit(0);
+		}
+
 		if (dev->device_class == 0x0300) {
 
 			/* Get the name of the device */
 			name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
 				PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
 				dev->vendor_id, dev->device_id);
+
+			if (!name) {
+				fprintf(stderr, "Error getting name for device [%04x:%04x]\n", dev->vendor_id, dev->device_id);
+				exit(0);
+			}
 
 		/* Find NVIDIA device */
 		if (dev->vendor_id == PCI_VENDOR_ID_NVIDIA) {
