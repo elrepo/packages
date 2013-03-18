@@ -7,21 +7,21 @@ correct driver to use based on any matches found. For example:
 
 $ nvidia-detect
 Probing for supported NVIDIA devices...
-Found: [10de:0ca3] NVIDIA Corporation GT215 [GeForce GT 240]
+[10de:0ca3] NVIDIA Corporation GT215 [GeForce GT 240]
 This device requires the current NVIDIA driver (kmod-nvidia).
 
 $ nvidia-detect
 Probing for supported NVIDIA devices...
-Found: [10de:0392] NVIDIA Corporation G73 [GeForce 7600 GS]
-This device requires the NVIDIA legacy 304.xx driver (kmod-nvidia-304xx).
+[10de:0392] NVIDIA Corporation G73 [GeForce 7600 GS]
+This device requires the legacy 304.xx NVIDIA driver (kmod-nvidia-304xx).
 
 nvidia-detect may be run from within a script and will return the following codes:
 
 0: No supported devices found
-1: Device supported by the current NVIDIA release driver
-2: Device supported by the NVIDIA legacy 96.xx driver
-3: Device supported by the NVIDIA legacy 173.xx driver
-4: Device supported by the NVIDIA legacy 304.xx driver
+1: Device supported by the current 310.40 NVIDIA driver
+2: Device supported by the legacy 96.xx NVIDIA driver
+3: Device supported by the legacy 173.xx NVIDIA driver
+4: Device supported by the legacy 304.xx NVIDIA driver
 
 For a full list of supported devices, see:
 ftp://download.nvidia.com/XFree86/Linux-x86_64/310.40/README/supportedchips.html

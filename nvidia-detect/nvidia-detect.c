@@ -52,9 +52,9 @@ void PrintUsage(void)
 	printf("%s will return the following codes:\n", PROGRAM_NAME);
 	printf("0: No supported devices found\n");
 	printf("1: Device supported by the current %3.2f NVIDIA driver\n", NVIDIA_VERSION);
-	printf("2: Device supported by the NVIDIA legacy 96.xx driver\n");
-	printf("3: Device supported by the NVIDIA legacy 173.xx driver\n");
-	printf("4: Device supported by the NVIDIA legacy 304.xx driver\n\n");
+	printf("2: Device supported by the legacy 96.xx NVIDIA driver\n");
+	printf("3: Device supported by the legacy 173.xx NVIDIA driver\n");
+	printf("4: Device supported by the legacy 304.xx NVIDIA driver\n\n");
 	printf("Please report bugs at http://elrepo.org/bugs\n");
 }
 
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
 			for (i = 0; i < n; i++)
 				if (nv_96xx_pci_ids[i] == dev->device_id) {
 					printf("[%04x:%04x] %s\n", dev->vendor_id, dev->device_id, name);
-					printf("This device requires the NVIDIA legacy 96.xx driver (kmod-nvidia-96xx).\n");
+					printf("This device requires the legacy 96.xx NVIDIA driver (kmod-nvidia-96xx).\n");
 					ret = NVIDIA_LEGACY_96XX;
 				}
 
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
 			for (i = 0; i < n; i++)
 				if (nv_173xx_pci_ids[i] == dev->device_id) {
 					printf("[%04x:%04x] %s\n", dev->vendor_id, dev->device_id, name);
-					printf("This device requires the NVIDIA legacy 173.xx driver (kmod-nvidia-173xx).\n");
+					printf("This device requires the legacy 173.xx NVIDIA driver (kmod-nvidia-173xx).\n");
 					ret = NVIDIA_LEGACY_173XX;
 				}
 
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
 			for (i = 0; i < n; i++)
 				if (nv_304xx_pci_ids[i] == dev->device_id) {
 					printf("[%04x:%04x] %s\n", dev->vendor_id, dev->device_id, name);
-					printf("This device requires the NVIDIA legacy 304.xx driver (kmod-nvidia-304xx).\n");
+					printf("This device requires the legacy 304.xx NVIDIA driver (kmod-nvidia-304xx).\n");
 					ret = NVIDIA_LEGACY_304XX;
 				}
 
