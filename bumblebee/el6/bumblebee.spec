@@ -1,6 +1,6 @@
 Name: bumblebee		
 Version: 3.1	
-Release: 3%{?dist}
+Release: 4%{?dist}
 Summary: Bumblebee is a project that enables Linux to utilize the Nvidia Optimus Hybrid cards.
 Group: System Environment/Daemons		
 License: GPLv3	
@@ -8,8 +8,7 @@ URL: https://github.com/Bumblebee-Project
 
 BuildRequires: libbsd-devel pkgconfig autoconf help2man glib2-devel libX11-devel
 Requires: libbsd 	
-Requires: VirtualGL
-BuildRequires: wget
+# Requires: VirtualGL
 
 # Sources
 Source0: %{name}-%{version}.tar.gz	
@@ -21,8 +20,6 @@ The %{name} package is a project that enables Linux to utilize
 the Nvidia Optimus Hybrid cards.
 
 %prep
-/usr/bin/wget http://bumblebee-project.org/bumblebee-3.1.tar.gz -P %{_sourcedir}
-tar -zxf %{_sourcedir}/%{name}-%{version}.tar.gz -C %{_builddir}
 %setup -D -T
 
 %build
@@ -51,8 +48,8 @@ tar -zxf %{_sourcedir}/%{name}-%{version}.tar.gz -C %{_builddir}
 %{_initrddir}/bumblebeed
 %attr (644, root, root) %{_sysconfdir}/bash_completion.d/%{name}
 %config(noreplace) %attr (644, root, root) %{_sysconfdir}/%{name}/%{name}.conf
-%attr (644, root, root) %{_sysconfdir}/%{name}/xorg.conf.nouveau
-%attr (644, root, root) %{_sysconfdir}/%{name}/xorg.conf.nvidia
+%config(noreplace) %attr (644, root, root) %{_sysconfdir}/%{name}/xorg.conf.nouveau
+%config(noreplace) %attr (644, root, root) %{_sysconfdir}/%{name}/xorg.conf.nvidia
 %attr (644, root, root) /lib/udev/rules.d/99-remove-nvidia-dev.rules
 %attr (755, root, root) %{_usr}/bin/optirun
 %attr (644, root, root) %{_defaultdocdir}/%{name}-%{version}/GPL-v3.0.txt
@@ -80,6 +77,11 @@ then
 fi 
    
 %changelog
+* Sun Mar 24 2013 Akemi Yagi <toracat@elrepo.org> - 3.1-4
+- wget removed.
+- VirtualGL requirement removed (will be added back when it is made available
+  from ELRepo.
+
 * Sun Mar 17 2013 Rob Mokkink <rob@mokkinksystems.com> - 3.1.3
 - Changes made to files section for configuration files
 
