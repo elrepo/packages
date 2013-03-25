@@ -1,17 +1,17 @@
 Name: bumblebee		
 Version: 3.1	
-Release: 4%{?dist}
+Release: 5%{?dist}
 Summary: Bumblebee is a project that enables Linux to utilize the Nvidia Optimus Hybrid cards.
 Group: System Environment/Daemons		
 License: GPLv3	
-URL: https://github.com/Bumblebee-Project		
+URL: http://bumblebee-project.org
 
 BuildRequires: libbsd-devel pkgconfig autoconf help2man glib2-devel libX11-devel
 Requires: libbsd 	
 # Requires: VirtualGL
 
 # Sources
-Source0: %{name}-%{version}.tar.gz	
+Source0: http://bumblebee-project.org/bumblebee-3.1.tar.gz
 Source1: bumblebeed
 Source5: GPL-v3.0.txt
 
@@ -20,7 +20,7 @@ The %{name} package is a project that enables Linux to utilize
 the Nvidia Optimus Hybrid cards.
 
 %prep
-%setup -D -T
+%setup -qn %{name}-%{version}
 
 %build
 %configure \
@@ -77,6 +77,9 @@ then
 fi 
    
 %changelog
+* Mon Mar 25 2013 Rob Mokkink <rob@mokkinksystems.com> - 3.1-5
+- Change Source0 to the url of the source
+
 * Sun Mar 24 2013 Akemi Yagi <toracat@elrepo.org> - 3.1-4
 - wget removed.
 - VirtualGL requirement removed (will be added back when it is made available
