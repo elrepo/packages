@@ -19,8 +19,8 @@ BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 ExclusiveArch: i686 x86_64
 
 # Sources.
-# http://www2.ati.com/drivers/linux/amd-driver-installer-12-8-x86.x86_64.zip
-Source0:  amd-driver-installer-8.982-x86.x86_64.run
+# http://www2.ati.com/drivers/linux/amd-driver-installer-catalyst-13.1-linux-x86.x86_64.zip
+Source0:  amd-driver-installer-catalyst-%{version}-linux-x86.x86_64.run
 Source10: kmodtool-%{kmod_name}-el5.sh
 NoSource: 0
 
