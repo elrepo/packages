@@ -3,10 +3,10 @@
 
 # If kversion isn't defined on the rpmbuild line, define it here.
 # Due to CVE-2010-3081 patch, won't build against x86_64 kernels prior to 2.6.32-71.7.1.el6
-%{!?kversion: %define kversion 2.6.32-279.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-358.el6.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 12.8
+Version: 13.1
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -17,8 +17,8 @@ BuildRequires: redhat-rpm-config
 ExclusiveArch: i686 x86_64
 
 # Sources.
-# http://www2.ati.com/drivers/linux/amd-driver-installer-12-8-x86.x86_64.zip
-Source0:  amd-driver-installer-8.982-x86.x86_64.run
+# http://www2.ati.com/drivers/linux/amd-driver-installer-catalyst-13.1-linux-x86.x86_64.zip
+Source0:  amd-driver-installer-catalyst-%{version}-linux-x86.x86_64.run
 Source10: kmodtool-%{kmod_name}-el6.sh
 NoSource: 0
 
@@ -81,6 +81,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Feb 28 2013 Philip J Perry <phil@elrepo.org> - 13.1-1.el6.elrepo
+- Update to version 13.1.
+
 * Mon Oct 15 2012 Philip J Perry <phil@elrepo.org> - 12.8-1.el6.elrepo
 - Update to version 12.8.
 

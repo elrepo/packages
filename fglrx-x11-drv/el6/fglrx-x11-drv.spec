@@ -14,7 +14,7 @@
 %endif
 
 Name:		fglrx-x11-drv
-Version:	12.8
+Version:	13.1
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Proprietary 
@@ -25,8 +25,8 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 ExclusiveArch:	i686 x86_64
 
 # Sources
-# http://www2.ati.com/drivers/linux/amd-driver-installer-12-8-x86.x86_64.zip
-Source0:	amd-driver-installer-8.982-x86.x86_64.run
+# http://www2.ati.com/drivers/linux/amd-driver-installer-catalyst-13.1-linux-x86.x86_64.zip
+Source0:	amd-driver-installer-catalyst-%{version}-linux-x86.x86_64.run
 NoSource:	0
 
 # taken from the rpmforge dkms package
@@ -381,6 +381,9 @@ fi || :
 %{_includedir}/ATI/GL/*.h
 
 %changelog
+* Thu Feb 28 2013 Philip J Perry <phil@elrepo.org> - 13.1-1.el6.elrepo
+- Update to version 13.1.
+
 * Mon Oct 15 2012 Philip J Perry <phil@elrepo.org> - 12.8-1.el6.elrepo
 - Update to version 12.8.
 

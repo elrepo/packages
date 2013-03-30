@@ -4,10 +4,10 @@
 # If kversion isn't defined on the rpmbuild line, define it here.
 # kABI compatible with kernel 2.6.18-128.el5 upwards.
 # Due to CVE-2010-3081 patch, won't build against x86_64 kernels prior to 2.6.18-194.11.4.el5
-%{!?kversion: %define kversion 2.6.18-308.el5}
+%{!?kversion: %define kversion 2.6.18-348.el5}
 
 Name:    %{kmod_name}-kmod
-Version: 12.8
+Version: 13.1
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -104,6 +104,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Feb 28 2013 Philip J Perry <phil@elrepo.org> - 13.1-1.el5.elrepo
+- Update to version 13.1.
+
 * Mon Oct 15 2012 Philip J Perry <phil@elrepo.org> - 12.8-1.el5.elrepo
 - Update to version 12.8.
 

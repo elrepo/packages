@@ -14,7 +14,7 @@
 %endif
 
 Name:		fglrx-x11-drv
-Version:	12.8
+Version:	13.1
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Proprietary
@@ -343,6 +343,9 @@ fi || :
 %{_includedir}/ATI/GL/*.h
 
 %changelog
+* Thu Feb 28 2013 Philip J Perry <phil@elrepo.org> - 13.1-1.el5.elrepo
+- Update to version 13.1.
+
 * Mon Oct 15 2012 Philip J Perry <phil@elrepo.org> - 12.8-1.el5.elrepo
 - Update to version 12.8.
 
