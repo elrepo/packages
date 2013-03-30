@@ -161,6 +161,7 @@ pushd %{buildroot}%{atilibdir}/
   %{__ln_s} fglrx-libGL.so.1.2 %{buildroot}%{atilibdir}/libGL.so.1.2
   %{__ln_s} libGL.so.1.2 %{buildroot}%{atilibdir}/libGL.so.1
   %{__ln_s} libGL.so.1 %{buildroot}%{atilibdir}/libGL.so
+  %{__ln_s} libOpenCL.so.1 %{buildroot}%{atilibdir}/libOpenCL.so
   %{__ln_s} libXvBAW.so.1.0 %{buildroot}%{atilibdir}/libXvBAW.so.1
 popd
 pushd %{buildroot}%{_libdir}/xorg/modules/extensions/fglrx/
@@ -177,6 +178,7 @@ popd
     %{__ln_s} fglrx-libGL.so.1.2 %{buildroot}%{atilib32dir}/libGL.so.1.2
     %{__ln_s} libGL.so.1.2 %{buildroot}%{atilib32dir}/libGL.so.1
     %{__ln_s} libGL.so.1 %{buildroot}%{atilib32dir}/libGL.so
+    %{__ln_s} libOpenCL.so.1 %{buildroot}%{atilib32dir}/libOpenCL.so
     %{__ln_s} libXvBAW.so.1.0 %{buildroot}%{atilib32dir}/libXvBAW.so.1
   popd
 %endif
@@ -381,6 +383,10 @@ fi || :
 %{_includedir}/ATI/GL/*.h
 
 %changelog
+* Sat Mar 30 2013 Philip J Perry <phil@elrepo.org>
+- Fix missing symlink for libOpenCL.so
+  [http://elrepo.org/bugs/view.php?id=372]
+
 * Thu Feb 28 2013 Philip J Perry <phil@elrepo.org> - 13.1-1.el6.elrepo
 - Update to version 13.1.
 
