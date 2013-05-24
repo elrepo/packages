@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 2.6.32-358.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 304.84
+Version: 304.88
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -72,6 +72,9 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Apr 04 2013 Philip J Perry <phil@elrepo.org> - 304.88-1.el6.elrepo
+- Updated to version 304.88
+
 * Sat Mar 09 2013 Philip J Perry <phil@elrepo.org> - 304.84-1.el6.elrepo
 - Updated to version 304.84
 
