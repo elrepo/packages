@@ -4,7 +4,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	310.44
+Version:	319.17
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -111,8 +111,8 @@ pushd nvidiapkg
 # Install nvidia tools
 %{__mkdir_p} $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-bug-report.sh $RPM_BUILD_ROOT%{_bindir}/
-%{__install} -p -m 0755 nvidia-cuda-proxy-control $RPM_BUILD_ROOT%{_bindir}/
-%{__install} -p -m 0755 nvidia-cuda-proxy-server $RPM_BUILD_ROOT%{_bindir}/
+%{__install} -p -m 0755 nvidia-cuda-mps-control $RPM_BUILD_ROOT%{_bindir}/
+%{__install} -p -m 0755 nvidia-cuda-mps-server $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-debugdump $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-settings $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-smi $RPM_BUILD_ROOT%{_bindir}/
@@ -220,7 +220,7 @@ pushd nvidiapkg
 
 # Install man pages
 %{__mkdir_p} $RPM_BUILD_ROOT%{_mandir}/man1/
-%{__install} -p -m 0644 nvidia-{cuda-proxy-control,settings,smi,xconfig}.1.gz $RPM_BUILD_ROOT%{_mandir}/man1/
+%{__install} -p -m 0644 nvidia-{cuda-mps-control,settings,smi,xconfig}.1.gz $RPM_BUILD_ROOT%{_mandir}/man1/
 
 # Install pixmap for the desktop entry
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/pixmaps/
@@ -240,6 +240,11 @@ desktop-file-install --vendor elrepo \
     --add-category Application \
     --add-category GNOME \
     nvidia-settings.desktop
+
+# Install application profiles
+# added in 319.17
+%{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/nvidia/
+%{__install} -p -m 0644 nvidia-application-profiles-%{version}-rc $RPM_BUILD_ROOT%{_datadir}/nvidia/
 
 # Install profile.d files
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/
@@ -312,6 +317,7 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %{_mandir}/man1/nvidia*.*
 %{_datadir}/pixmaps/nvidia-settings.png
 %{_datadir}/applications/*nvidia-settings.desktop
+%{_datadir}/nvidia/nvidia-application-profiles-*
 %config(noreplace) %{_sysconfdir}/profile.d/nvidia.csh
 %config(noreplace) %{_sysconfdir}/profile.d/nvidia.sh
 %{_bindir}/nvidia*
@@ -345,6 +351,10 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %endif
 
 %changelog
+* Thu May 09 2013 Philip J Perry <phil@elrepo.org> - 319.17-1.el5.elrepo
+- Updated to version 319.17
+- Adds application profiles
+
 * Thu Apr 04 2013 Philip J Perry <phil@elrepo.org> - 310.44-1.el5.elrepo
 - Updated to version 310.44
 
