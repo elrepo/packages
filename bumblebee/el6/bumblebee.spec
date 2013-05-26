@@ -1,6 +1,6 @@
 Name: bumblebee		
-Version: 3.1	
-Release: 5%{?dist}
+Version: 3.2.1	
+Release: 1%{?dist}
 Summary: Bumblebee is a project that enables Linux to utilize the Nvidia Optimus Hybrid cards.
 Group: System Environment/Daemons		
 License: GPLv3	
@@ -11,7 +11,7 @@ Requires: libbsd
 # Requires: VirtualGL
 
 # Sources
-Source0: http://bumblebee-project.org/bumblebee-3.1.tar.gz
+Source0: http://bumblebee-project.org/bumblebee-3.2.1.tar.gz
 Source1: bumblebeed
 Source5: GPL-v3.0.txt
 
@@ -50,11 +50,12 @@ the Nvidia Optimus Hybrid cards.
 %config(noreplace) %attr (644, root, root) %{_sysconfdir}/%{name}/%{name}.conf
 %config(noreplace) %attr (644, root, root) %{_sysconfdir}/%{name}/xorg.conf.nouveau
 %config(noreplace) %attr (644, root, root) %{_sysconfdir}/%{name}/xorg.conf.nvidia
-%attr (644, root, root) /lib/udev/rules.d/99-remove-nvidia-dev.rules
+%config(noreplace) %attr (644, root, root) %{_sysconfdir}/%{name}/xorg.conf.d/10-dummy.conf
+%attr (644, root, root) /lib/udev/rules.d/99-bumblebee-nvidia-dev.rules
 %attr (755, root, root) %{_usr}/bin/optirun
 %attr (644, root, root) %{_defaultdocdir}/%{name}-%{version}/GPL-v3.0.txt
 %attr (644, root, root) %{_defaultdocdir}/%{name}-%{version}/README.markdown
-%attr (644, root, root) %{_defaultdocdir}/%{name}-%{version}/RELEASE_NOTES_3_1
+%attr (644, root, root) %{_defaultdocdir}/%{name}-%{version}/RELEASE_NOTES_3_2_1
 %attr (644, root, root) %{_mandir}/man1/bumblebeed.1.gz
 %attr (644, root, root) %{_mandir}/man1/optirun.1.gz
 
@@ -77,6 +78,9 @@ then
 fi 
    
 %changelog
+* Sun May 26 2013 Rob Mokkink <rob@mokkinksystems.com> - 3.2.1
+- Upgrade to version 3.2.1
+
 * Mon Mar 25 2013 Rob Mokkink <rob@mokkinksystems.com> - 3.1-5
 - Change Source0 to the url of the source
 
