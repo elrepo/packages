@@ -79,6 +79,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 - Fix requires for kernel.
   [http://elrepo.org/bugs/view.php?id=324]
 
+* Sat Oct 27 2012 Dag Wieers <dag@wieers.com> - 8.3.14-1
+- Updated to release 8.3.14.
+
 * Tue Sep 04 2012 Dag Wieers <dag@wieers.com> - 8.3.13-2
 - Rebuilt against RHEL-6.3 kernel
   [http://elrepo.org/bugs/view.php?id=291]

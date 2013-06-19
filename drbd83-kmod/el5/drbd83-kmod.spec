@@ -102,6 +102,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 * Fri Dec 21 2012 Philip J Perry <phil@elrepo.org> - 8.3.15-1
 - Updated to release 8.3.15.
 
+* Sat Oct 27 2012 Dag Wieers <dag@wieers.com> - 8.3.14-1
+- Updated to release 8.3.14.
+
 * Mon May 07 2012 Dag Wieers <dag@wieers.com> - 8.3.13-1
 - Updated to release 8.3.13.
 
