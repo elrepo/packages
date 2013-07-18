@@ -466,9 +466,10 @@ static void __alx_set_rx_mode(struct net_device *netdev)
 	u32 mc_hash[2] = {};
 
 	if (!(netdev->flags & IFF_ALLMULTI)) {
-		netdev_for_each_mc_addr(ha, netdev)
+	#ifndef ALX_RHEL6_4
+	netdev_for_each_mc_addr(ha, netdev)
 			alx_add_mc_addr(hw, ha->addr, mc_hash);
-
+	#endif
 		alx_write_mem32(hw, ALX_HASH_TBL0, mc_hash[0]);
 		alx_write_mem32(hw, ALX_HASH_TBL1, mc_hash[1]);
 	}
@@ -733,7 +734,7 @@ static int alx_init_sw(struct alx_priv *alx)
 	return err;
 }
 
-
+#ifndef ALX_RHEL6_4
 static netdev_features_t alx_fix_features(struct net_device *netdev,
 					  netdev_features_t features)
 {
@@ -742,6 +743,7 @@ static netdev_features_t alx_fix_features(struct net_device *netdev,
 
 	return features;
 }
+#endif
 
 static void alx_netif_stop(struct alx_priv *alx)
 {
@@ -817,7 +819,9 @@ static int alx_change_mtu(struct net_device *netdev, int mtu)
 	alx->hw.mtu = mtu;
 	alx->rxbuf_size = mtu > ALX_DEF_RXBUF_SIZE ?
 			   ALIGN(max_frame, 8) : ALX_DEF_RXBUF_SIZE;
+	#ifndef ALX_RHEL6_4
 	netdev_update_features(netdev);
+	#endif
 	if (netif_running(netdev))
 		alx_reinit(alx);
 	return 0;
@@ -1235,7 +1239,9 @@ static const struct net_device_ops alx_netdev_ops = {
 	.ndo_change_mtu         = alx_change_mtu,
 	.ndo_do_ioctl           = alx_ioctl,
 	.ndo_tx_timeout         = alx_tx_timeout,
+#ifndef ALX_RHEL6_4
 	.ndo_fix_features	= alx_fix_features,
+#endif
 #ifdef CONFIG_NET_POLL_CONTROLLER
 	.ndo_poll_controller    = alx_poll_controller,
 #endif
@@ -1356,7 +1362,8 @@ static int alx_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 		}
 	}
 
-	netdev->hw_features = NETIF_F_SG | NETIF_F_HW_CSUM;
+	/* FIXME - fixed by PJP  */
+	netdev->features = NETIF_F_SG | NETIF_F_HW_CSUM;
 
 	if (alx_get_perm_macaddr(hw, hw->perm_addr)) {
 		dev_warn(&pdev->dev,
