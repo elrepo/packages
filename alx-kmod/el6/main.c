@@ -48,6 +48,7 @@
 #include "alx.h"
 #include "hw.h"
 #include "reg.h"
+#include "alx_rhel6_4.h"
 
 const char alx_drv_name[] = "alx";
 
