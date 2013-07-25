@@ -2,11 +2,11 @@
 %define kmod_name it87
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-220.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-358.el6.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 1.1
-Release: 10%{?dist}
+Release: 11%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -57,6 +57,10 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Jul 25 2013 Philip J Perry <phil@elrepo.org> - 1.1-11
+- Rebase to kernel-3.0.87.
+- Preserve configuration register bits on init [2012-07-19]
+
 * Thu Mar 15 2012 Philip J Perry <phil@elrepo.org> - 1.1-10
 - Initial backport to el6 from kernel-3.0.24.
 - Fix label group removal [2011-07-17]

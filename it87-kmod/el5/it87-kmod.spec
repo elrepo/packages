@@ -7,7 +7,7 @@
 
 Name:	 %{kmod_name}-kmod
 Version: 1.1
-Release: 10%{?dist}
+Release: 11%{?dist}
 Group:	 System Environment/Kernel
 License: GPLv2
 Summary: IT87 Super I/O Sensor module
@@ -89,6 +89,10 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Jul 25 2013 Philip J Perry <phil@elrepo.org> - 1.1-11.el5.elrepo
+- Rebase to kernel-3.0.87.
+- Preserve configuration register bits on init [2012-07-19]
+
 * Thu Mar 15 2012 Philip J Perry <phil@elrepo.org> - 1.1-10.el5.elrepo
 - Rebase to kernel-3.0.24.
 - Fix label group removal [2011-07-17]
