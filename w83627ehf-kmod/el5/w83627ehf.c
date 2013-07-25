@@ -61,6 +61,7 @@
 #include <linux/acpi.h>
 #include <linux/io.h>
 #include "lm75.h"
+#include "w83627ehf_rhel5_9.h"
 
 enum kinds {
 	w83627ehf, w83627dhg, w83627dhg_p, w83627uhg,
