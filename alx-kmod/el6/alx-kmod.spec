@@ -6,7 +6,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 6%{?dist}
+Release: 7%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -57,6 +57,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Mon Jul 29 2013 Philip J Perry <phil@elrepo.org> - 0.0-7
+- Fix lockdep annotation [2013-07-28]
+
 * Wed Jul 17 2013 Philip J Perry <phil@elrepo.org> - 0.0-6
 - Rebase driver to upstream kernel code.
 - Backported from kernel-3.10.1
