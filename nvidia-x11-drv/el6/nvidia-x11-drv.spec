@@ -4,7 +4,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	319.23
+Version:	319.32
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -363,6 +363,9 @@ fi ||:
 %endif
 
 %changelog
+* Sun Jun 30 2013 Philip J Perry <phil@elrepo.org> - 319.32-1.el6.elrepo
+- Updated to version 319.32
+
 * Fri May 24 2013 Philip J Perry <phil@elrepo.org> - 319.23-1.el6.elrepo
 - Updated to version 319.23
 
