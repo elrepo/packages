@@ -2,11 +2,11 @@
 %define kmod_name asix
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-220.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-358.el6.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -57,6 +57,11 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Aug 07 2013 Philip J Perry <phil@elrepo.org> - 0.0-3
+- Update to kernel-3.2.50
+- Revert patch convert multicast list to list_head [2010-04-03]
+- Adds support for DLink DUB-E100 H/W Ver C1 [2001:1a02] [2012-10-10]
+
 * Thu Jun 21 2012 Philip J Perry <phil@elrepo.org> - 0.0-2
 - Update to kernel-3.2.20
   [http://elrepo.org/bugs/view.php?id=277]
