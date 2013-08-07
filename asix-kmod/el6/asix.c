@@ -40,6 +40,14 @@
 #define DRIVER_VERSION "08-Nov-2011"
 #define DRIVER_NAME "asix"
 
+/* elrepo patch */
+
+#ifndef FLAG_LINK_INTR
+#define FLAG_LINK_INTR			0x0800		/* updates link (carrier) status */
+#endif
+
+/* end elrepo patch */
+
 /* ASIX AX8817X based USB 2.0 Ethernet Devices */
 
 #define AX_CMD_SET_SW_MII		0x06
