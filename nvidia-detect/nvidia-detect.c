@@ -83,8 +83,8 @@ int main(int argc, char *argv[])
 		exit(0);
 	}
 
-	has_intel = 0;			/* for detection of Optimus hardware configurations */
-	has_nvidia = 0;			/* for detection of NVIDIA cards */
+	has_intel = 0;			/* For detection of Optimus hardware configurations */
+	has_nvidia = 0;			/* For detection of NVIDIA cards */
 	ret = 0;			/* Return 0 if no devices found */
 	pacc = pci_alloc();		/* Get the pci_access structure */
 	pci_init(pacc);			/* Initialize the PCI library */
@@ -184,5 +184,5 @@ int main(int argc, char *argv[])
 
 	pci_cleanup(pacc);	/* Close everything */
 
-	return ret;
+	exit(ret);
 }
