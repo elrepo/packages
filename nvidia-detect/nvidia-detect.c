@@ -41,6 +41,7 @@
 #define	NVIDIA_LEGACY_173XX	0x03
 #define	NVIDIA_LEGACY_304XX	0x04
 
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #define STREQ(a, b) (strcmp ((a), (b)) == 0)
 
 void PrintUsage(void)
@@ -61,7 +62,7 @@ void PrintUsage(void)
 int main(int argc, char *argv[])
 {
 	int has_intel, has_nvidia;
-	int i, n, ret;
+	int i, ret;
 	char namebuf[128], *name;
 	struct pci_access *pacc;
 	struct pci_dev *dev;
@@ -117,40 +118,40 @@ int main(int argc, char *argv[])
 			has_nvidia++;
 
 		 	/** Find devices supported by the 96xx legacy driver **/
-			n = sizeof(nv_96xx_pci_ids)/sizeof(nv_96xx_pci_ids[0]);
-			for (i = 0; i < n; i++)
+			for (i = 0; i < ARRAY_SIZE(nv_96xx_pci_ids); i++) {
 				if (nv_96xx_pci_ids[i] == dev->device_id) {
 					printf("[%04x:%04x] %s\n", dev->vendor_id, dev->device_id, name);
 					printf("This device requires the legacy 96.xx NVIDIA driver (kmod-nvidia-96xx).\n");
 					ret = NVIDIA_LEGACY_96XX;
 				}
+			}
 
 		 	/** Find devices supported by the 173xx legacy driver **/
-			n = sizeof(nv_173xx_pci_ids)/sizeof(nv_173xx_pci_ids[0]);
-			for (i = 0; i < n; i++)
+			for (i = 0; i < ARRAY_SIZE(nv_173xx_pci_ids); i++) {
 				if (nv_173xx_pci_ids[i] == dev->device_id) {
 					printf("[%04x:%04x] %s\n", dev->vendor_id, dev->device_id, name);
 					printf("This device requires the legacy 173.xx NVIDIA driver (kmod-nvidia-173xx).\n");
 					ret = NVIDIA_LEGACY_173XX;
 				}
+			}
 
 		 	/** Find devices supported by the 304xx legacy driver **/
-			n = sizeof(nv_304xx_pci_ids)/sizeof(nv_304xx_pci_ids[0]);
-			for (i = 0; i < n; i++)
+			for (i = 0; i < ARRAY_SIZE(nv_304xx_pci_ids); i++) {
 				if (nv_304xx_pci_ids[i] == dev->device_id) {
 					printf("[%04x:%04x] %s\n", dev->vendor_id, dev->device_id, name);
 					printf("This device requires the legacy 304.xx NVIDIA driver (kmod-nvidia-304xx).\n");
 					ret = NVIDIA_LEGACY_304XX;
 				}
+			}
 
 		 	/** Find devices supported by the current driver **/
-			n = sizeof(nv_current_pci_ids)/sizeof(nv_current_pci_ids[0]);
-			for (i = 0; i < n; i++)
+			for (i = 0; i < ARRAY_SIZE(nv_current_pci_ids); i++) {
 				if (nv_current_pci_ids[i] == dev->device_id) {
 					printf("[%04x:%04x] %s\n", dev->vendor_id, dev->device_id, name);
 					printf("This device requires the current %3.2f NVIDIA driver (kmod-nvidia).\n", NVIDIA_VERSION);
 					ret = NVIDIA_CURRENT;
 				}
+			}
 
 			/** Catch NVIDIA devices that aren't supported **/
 			if (ret == 0) {
