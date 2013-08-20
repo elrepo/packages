@@ -10,7 +10,9 @@ BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 
 Source0:  %{name}-%{version}.tar.bz2
 
-BuildRequires: pciutils-devel >= 2.2.4
+Requires:	hwdata
+Requires:	pciutils
+BuildRequires:	pciutils-devel >= 2.2.4
 
 %description
 A utility to detect NVIDIA graphics cards.
