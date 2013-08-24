@@ -50,12 +50,12 @@ void usage(void)
 	printf("  -h --help         give this help\n");
 	printf("  -V --version      display version number\n\n");
 	printf("Detect NVIDIA graphics cards and determine the correct NVIDIA driver.\n\n");
-	printf("%s will return the following codes:\n", PROGRAM_NAME);
+	printf("%s will return the following codes:\n\n", PROGRAM_NAME);
 	printf("0: No supported devices found\n");
 	printf("1: Device supported by the current %3.2f NVIDIA driver\n", NVIDIA_VERSION);
-	printf("2: Device supported by the legacy 96.xx NVIDIA driver\n");
-	printf("3: Device supported by the legacy 173.xx NVIDIA driver\n");
-	printf("4: Device supported by the legacy 304.xx NVIDIA driver\n\n");
+	printf("2: Device supported by the legacy   96.xx NVIDIA driver\n");
+	printf("3: Device supported by the legacy  173.xx NVIDIA driver\n");
+	printf("4: Device supported by the legacy  304.xx NVIDIA driver\n\n");
 	printf("Please report bugs at http://elrepo.org/bugs\n");
 }
 
@@ -104,7 +104,7 @@ static int nv_lookup_device_id(int device_id)
 
 	/** Catch NVIDIA devices that aren't supported **/
 	printf("This device does not appear to be supported at present\n");
-	printf("Please report bugs at http://elrepo.org/bugs quoting the output from '/sbin/lspci -nn'\n");
+	printf("Please report at http://elrepo.org/bugs quoting the output from '/sbin/lspci -nn'\n");
 
 	return 0;
 }
