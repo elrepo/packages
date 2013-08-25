@@ -44,10 +44,15 @@
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #define STREQ(a, b) (strcmp ((a), (b)) == 0)
 
+static char namebuf[128], *name;
+static struct pci_access *pacc;
+static struct pci_dev *dev;
+
 void usage(void)
 {
 	printf("Usage: %s [-hV]\n", PROGRAM_NAME);
 	printf("  -h --help         give this help\n");
+	printf("  -l --list         list all supported NVIDIA devices\n");
 	printf("  -V --version      display version number\n\n");
 	printf("Detect NVIDIA graphics cards and determine the correct NVIDIA driver.\n\n");
 	printf("%s will return the following codes:\n\n", PROGRAM_NAME);
@@ -64,6 +69,47 @@ void has_optimus(void)
 	printf("Optimus hardware detected: An Intel display controller was detected\n");
 	printf("Either disable the Intel display controller in the BIOS\n");
 	printf("or use the bumblebee driver to support Optimus hardware\n");
+}
+
+void list_all_nvidia_devices(void)
+{
+	int i;
+
+	printf("\n*** These devices are supported by the current %3.2f NVIDIA driver ***\n\n", NVIDIA_VERSION);
+	for (i = 0; i < ARRAY_SIZE(nv_current_pci_ids); i++) {
+		name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
+			PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
+			PCI_VENDOR_ID_NVIDIA, nv_current_pci_ids[i]);
+
+		printf("[10de:%04x] %s\n", nv_current_pci_ids[i], name);
+	}
+
+	printf("\n*** These devices are supported by the legacy 304.xx NVIDIA driver ***\n\n");
+	for (i = 0; i < ARRAY_SIZE(nv_304xx_pci_ids); i++) {
+		name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
+			PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
+			PCI_VENDOR_ID_NVIDIA, nv_304xx_pci_ids[i]);
+
+		printf("[10de:%04x] %s\n", nv_304xx_pci_ids[i], name);
+	}
+
+	printf("\n*** These devices are supported by the legacy 173.xx NVIDIA driver ***\n\n");
+	for (i = 0; i < ARRAY_SIZE(nv_173xx_pci_ids); i++) {
+		name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
+			PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
+			PCI_VENDOR_ID_NVIDIA, nv_173xx_pci_ids[i]);
+
+		printf("[10de:%04x] %s\n", nv_173xx_pci_ids[i], name);
+	}
+
+	printf("\n*** These devices are supported by the legacy 96.xx NVIDIA driver ***\n\n");
+	for (i = 0; i < ARRAY_SIZE(nv_96xx_pci_ids); i++) {
+		name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
+			PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
+			PCI_VENDOR_ID_NVIDIA, nv_96xx_pci_ids[i]);
+
+		printf("[10de:%04x] %s\n", nv_96xx_pci_ids[i], name);
+	}
 }
 
 static int nv_lookup_device_id(int device_id)
@@ -111,32 +157,29 @@ static int nv_lookup_device_id(int device_id)
 
 int main(int argc, char *argv[])
 {
-	int has_intel, has_nvidia, ret;
-	char namebuf[128], *name;
-	struct pci_access *pacc;
-	struct pci_dev *dev;
+	int has_intel = 0, has_nvidia = 0, ret = 0;
+
+	pacc = pci_alloc();		/* Get the pci_access structure */
+	pci_init(pacc);			/* Initialize the PCI library */
 
 	if (argc == 2) {
 		if (STREQ(argv[1], "-V") || STREQ(argv[1], "--version")) {
 			printf("Version: %3.2f\n", NVIDIA_VERSION);
 			printf("Copyright (C) 2013 Philip J Perry <phil@elrepo.org>\n");
-		} else
+		} else if (STREQ(argv[1], "-l") || STREQ(argv[1], "--list"))
+			list_all_nvidia_devices();
+		else
 			usage();
 
-		exit(0);
+		goto exit;
 	}
 
 	/* some simple error handling */
 	if (argc != 1) {
 		usage();
-		exit(0);
+		goto exit;
 	}
 
-	has_intel = 0;			/* For detection of Optimus hardware configurations */
-	has_nvidia = 0;			/* For detection of NVIDIA cards */
-	ret = 0;			/* Return 0 if no devices found */
-	pacc = pci_alloc();		/* Get the pci_access structure */
-	pci_init(pacc);			/* Initialize the PCI library */
 	pci_scan_bus(pacc);		/* Scan the bus for devices */
 
 	printf("Probing for supported NVIDIA devices...\n");
@@ -146,7 +189,8 @@ int main(int argc, char *argv[])
 
 		if (!dev->device_class) {
 			fprintf(stderr, "Error getting device_class\n");
-			exit(-1);
+			ret = -1;
+			goto exit;
 		}
 
 		if (dev->device_class == 0x0300) {
@@ -155,11 +199,6 @@ int main(int argc, char *argv[])
 			name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
 				PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
 				dev->vendor_id, dev->device_id);
-
-			if (!name) {
-				fprintf(stderr, "Error getting name for device [%04x:%04x]\n", dev->vendor_id, dev->device_id);
-				exit(-1);
-			}
 
 			printf("[%04x:%04x] %s\n", dev->vendor_id, dev->device_id, name);
 
@@ -185,6 +224,7 @@ int main(int argc, char *argv[])
 	if (has_nvidia == 0)
 		printf("No NVIDIA devices were found.\n");
 
+exit:
 	pci_cleanup(pacc);	/* Close everything */
 
 	exit(ret);
