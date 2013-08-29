@@ -6,7 +6,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 1.1
-Release: 11%{?dist}
+Release: 12%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -18,6 +18,7 @@ ExclusiveArch: i686 x86_64
 # Sources.
 Source0:  %{kmod_name}-%{version}.tar.bz2
 Source5:  GPL-v2.0.txt
+Source6:  %{kmod_name}.txt
 Source10: kmodtool-%{kmod_name}-el6.sh
 
 # Magic hidden here.
@@ -48,6 +49,7 @@ KSRC=%{_usrsrc}/kernels/%{kversion}
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
+%{__install} %{SOURCE6} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 # Set the module(s) to be executable, so that they will be stripped when packaged.
 find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 # Remove the unrequired files.
@@ -57,6 +59,11 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Aug 28 2013 Philip J Perry <phil@elrepo.org> - 1.1-12
+- Rebase to kernel-3.10.9.
+- Adds support for IT8782F, IT8783E/F, IT8771E and IT8772E.
+- Backport functions to build on RHEL6_4
+
 * Thu Jul 25 2013 Philip J Perry <phil@elrepo.org> - 1.1-11
 - Rebase to kernel-3.0.87.
 - Preserve configuration register bits on init [2012-07-19]

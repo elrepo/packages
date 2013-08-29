@@ -7,7 +7,7 @@
 
 Name:	 %{kmod_name}-kmod
 Version: 1.1
-Release: 11%{?dist}
+Release: 12%{?dist}
 Group:	 System Environment/Kernel
 License: GPLv2
 Summary: IT87 Super I/O Sensor module
@@ -89,6 +89,11 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Aug 28 2013 Philip J Perry <phil@elrepo.org> - 1.1-12.el5.elrepo
+- Rebase to kernel-3.10.9.
+- Adds support for IT8782F, IT8783E/F, IT8771E and IT8772E.
+- Backport functions to build on RHEL5_9
+
 * Thu Jul 25 2013 Philip J Perry <phil@elrepo.org> - 1.1-11.el5.elrepo
 - Rebase to kernel-3.0.87.
 - Preserve configuration register bits on init [2012-07-19]
