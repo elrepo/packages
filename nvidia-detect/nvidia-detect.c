@@ -50,7 +50,7 @@ static struct pci_dev *dev;
 
 void usage(void)
 {
-	printf("Usage: %s [-hV]\n", PROGRAM_NAME);
+	printf("Usage: %s [-hlV]\n", PROGRAM_NAME);
 	printf("  -h --help         give this help\n");
 	printf("  -l --list         list all supported NVIDIA devices\n");
 	printf("  -V --version      display version number\n\n");
