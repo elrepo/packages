@@ -21,25 +21,39 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <linux/version.h>
 #include <pci/pci.h>
 
 #include "nvidia-detect.h"
 
-#define	PROGRAM_NAME		"nvidia-detect"
-#define	NVIDIA_VERSION		325.15
+#define PROGRAM_NAME		"nvidia-detect"
+#define NVIDIA_VERSION		325.15
 
 #ifndef PCI_VENDOR_ID_INTEL
-#define	PCI_VENDOR_ID_INTEL	0x8086
+#define PCI_VENDOR_ID_INTEL	0x8086
 #endif
 #ifndef PCI_VENDOR_ID_NVIDIA
-#define	PCI_VENDOR_ID_NVIDIA	0x10de
+#define PCI_VENDOR_ID_NVIDIA	0x10de
 #endif
 
 /* define the return codes */
-#define	NVIDIA_CURRENT		0x01
-#define	NVIDIA_LEGACY_96XX	0x02
-#define	NVIDIA_LEGACY_173XX	0x03
-#define	NVIDIA_LEGACY_304XX	0x04
+#define NVIDIA_CURRENT		0x01
+#define NVIDIA_LEGACY_96XX	0x02
+#define NVIDIA_LEGACY_173XX	0x03
+#define NVIDIA_LEGACY_304XX	0x04
+
+/* Only recommend elrepo drivers on RHEL*/
+#if (RHEL_MAJOR == 5 || RHEL_MAJOR == 6)
+#define KMOD_NVIDIA		"kmod-nvidia"
+#define KMOD_NVIDIA_304XX	"kmod-nvidia-304xx"
+#define KMOD_NVIDIA_173XX	"kmod-nvidia-173xx"
+#define KMOD_NVIDIA_96XX	"kmod-nvidia-96xx"
+#else	/* make no specific driver recommendation */
+#define KMOD_NVIDIA		""
+#define KMOD_NVIDIA_304XX	""
+#define KMOD_NVIDIA_173XX	""
+#define KMOD_NVIDIA_96XX	""
+#endif
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #define STREQ(a, b) (strcmp ((a), (b)) == 0)
@@ -119,7 +133,7 @@ static int nv_lookup_device_id(int device_id)
 	/** Find devices supported by the current driver **/
 	for (i = 0; i < ARRAY_SIZE(nv_current_pci_ids); i++) {
 		if (device_id == nv_current_pci_ids[i]) {
-			printf("This device requires the current %3.2f NVIDIA driver (kmod-nvidia).\n", NVIDIA_VERSION);
+			printf("This device requires the current %3.2f NVIDIA driver %s\n", NVIDIA_VERSION, KMOD_NVIDIA);
 			return NVIDIA_CURRENT;
 		}
 	}
@@ -127,7 +141,7 @@ static int nv_lookup_device_id(int device_id)
 	/** Find devices supported by the 304xx legacy driver **/
 	for (i = 0; i < ARRAY_SIZE(nv_304xx_pci_ids); i++) {
 		if (device_id == nv_304xx_pci_ids[i]) {
-			printf("This device requires the legacy 304.xx NVIDIA driver (kmod-nvidia-304xx).\n");
+			printf("This device requires the legacy 304.xx NVIDIA driver %s\n", KMOD_NVIDIA_304XX);
 			return NVIDIA_LEGACY_304XX;
 		}
 	}
@@ -135,7 +149,7 @@ static int nv_lookup_device_id(int device_id)
 	/** Find devices supported by the 173xx legacy driver **/
 	for (i = 0; i < ARRAY_SIZE(nv_173xx_pci_ids); i++) {
 		if (device_id == nv_173xx_pci_ids[i]) {
-			printf("This device requires the legacy 173.xx NVIDIA driver (kmod-nvidia-173xx).\n");
+			printf("This device requires the legacy 173.xx NVIDIA driver %s\n", KMOD_NVIDIA_173XX);
 			return NVIDIA_LEGACY_173XX;
 		}
 	}
@@ -143,7 +157,7 @@ static int nv_lookup_device_id(int device_id)
 	/** Find devices supported by the 96xx legacy driver **/
 	for (i = 0; i < ARRAY_SIZE(nv_96xx_pci_ids); i++) {
 		if (device_id == nv_96xx_pci_ids[i]) {
-			printf("This device requires the legacy 96.xx NVIDIA driver (kmod-nvidia-96xx).\n");
+			printf("This device requires the legacy 96.xx NVIDIA driver %s\n", KMOD_NVIDIA_96XX);
 			return NVIDIA_LEGACY_96XX;
 		}
 	}
