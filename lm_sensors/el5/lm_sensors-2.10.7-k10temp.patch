@@ -1,0 +1,174 @@
+diff -Nur lm_sensors-2.10.8/CHANGES lm_sensors-2.10.8-k10/CHANGES
+--- lm_sensors-2.10.8/CHANGES	2008-12-16 04:49:50.000000000 -0500
++++ lm_sensors-2.10.8-k10/CHANGES	2009-07-11 17:01:06.000000000 -0400
+@@ -325,6 +325,7 @@
+                    Add w83627dhg support (David Holl, #2157)
+                    Add w83627ehf voltage support (Dave Platt)
+                    Add k8temp support (Dave Platt)
++                   Add k10temp support (Wes Wright)
+   Program sensors: Add pc87247 support (fans only)
+                    Hide error on missing f71805f fan
+                    Handle option -c more efficiently
+diff -Nur lm_sensors-2.10.8/etc/sensors.conf.eg lm_sensors-2.10.8-k10/etc/sensors.conf.eg
+--- lm_sensors-2.10.8/etc/sensors.conf.eg	2007-10-24 09:10:05.000000000 -0400
++++ lm_sensors-2.10.8-k10/etc/sensors.conf.eg	2009-07-11 17:18:32.000000000 -0400
+@@ -2820,6 +2820,13 @@
+    label temp3 "Core1 Temp"
+    label temp4 "Core1 Temp"
+ 
++chip "k10temp-*"
++
++   label temp1 "CPU1 Temp"
++   label temp2 "CPU2 Temp"
++   label temp3 "CPU3 Temp"
++   label temp4 "CPU4 Temp"
++
+ 
+ #
+ # Sample configuration for the SMSC DME1737 and ASUS A8000
+diff -Nur lm_sensors-2.10.8/lib/chips.c lm_sensors-2.10.8-k10/lib/chips.c
+--- lm_sensors-2.10.8/lib/chips.c	2008-12-16 04:44:11.000000000 -0500
++++ lm_sensors-2.10.8-k10/lib/chips.c	2009-07-11 17:18:49.000000000 -0400
+@@ -6103,6 +6103,19 @@
+     { { 0 }, 0 }
+   };
+ 
++static sensors_chip_feature k10temp_features[] =
++  {
++    { { SENSORS_K10TEMP_TEMP1, "temp1", NOMAP, NOMAP, R }, 
++                              NOSYSCTL, VALUE(1), 0 },
++    { { SENSORS_K8TEMP_TEMP2, "temp2", NOMAP, NOMAP, R }, 
++                              NOSYSCTL, VALUE(1), 0 },
++    { { SENSORS_K8TEMP_TEMP3, "temp3", NOMAP, NOMAP, R }, 
++                              NOSYSCTL, VALUE(1), 0 },
++    { { SENSORS_K8TEMP_TEMP4, "temp4", NOMAP, NOMAP, R }, 
++                              NOSYSCTL, VALUE(1), 0 },
++    { { 0 }, 0 }
++  };
++
+ static sensors_chip_feature coretemp_features[] =
+   {
+     { { SENSORS_CORETEMP_TEMP1, "temp1", NOMAP, NOMAP, R }, 
+@@ -6498,6 +6511,7 @@
+  { SENSORS_ABITUGURU_PREFIX, abituguru_features },
+  { SENSORS_ABITUGURU3_PREFIX, abituguru3_features },
+  { SENSORS_K8TEMP_PREFIX, k8temp_features },
++ { SENSORS_K10TEMP_PREFIX, k10temp_features },
+  { SENSORS_CORETEMP_PREFIX, coretemp_features },
+  { SENSORS_DME1737_PREFIX, dme1737_features },
+  { SENSORS_SCH311X_PREFIX, dme1737_features },
+diff -Nur lm_sensors-2.10.8/lib/chips.h lm_sensors-2.10.8-k10/lib/chips.h
+--- lm_sensors-2.10.8/lib/chips.h	2008-10-20 04:18:39.000000000 -0400
++++ lm_sensors-2.10.8-k10/lib/chips.h	2009-07-11 17:19:01.000000000 -0400
+@@ -2278,6 +2278,13 @@
+ #define SENSORS_K8TEMP_TEMP3	0x03 /* R */
+ #define SENSORS_K8TEMP_TEMP4	0x04 /* R */
+ 
++/* K10TEMP */
++#define SENSORS_K10TEMP_PREFIX "k10temp"
++#define SENSORS_K10TEMP_TEMP1	0x01 /* R */
++#define SENSORS_K10TEMP_TEMP2	0x02 /* R */
++#define SENSORS_K10TEMP_TEMP3	0x03 /* R */
++#define SENSORS_K10TEMP_TEMP4	0x04 /* R */
++
+ /* coretemp */
+ 
+ #define SENSORS_CORETEMP_PREFIX "coretemp"
+diff -Nur lm_sensors-2.10.8/prog/detect/sensors-detect lm_sensors-2.10.8-k10/prog/detect/sensors-detect
+--- lm_sensors-2.10.8/prog/detect/sensors-detect	2008-12-15 03:36:09.000000000 -0500
++++ lm_sensors-2.10.8-k10/prog/detect/sensors-detect	2009-07-11 17:03:11.000000000 -0400
+@@ -2081,7 +2081,7 @@
+   },
+   {
+     name => "AMD K10 thermal sensors",
+-    driver => "to-be-written",
++    driver => "k10temp",
+     detect => sub { k10temp_pci_detect(); },
+   },
+   {
+diff -Nur lm_sensors-2.10.8/prog/sensord/chips.c lm_sensors-2.10.8-k10/prog/sensord/chips.c
+--- lm_sensors-2.10.8/prog/sensord/chips.c	2008-10-20 04:18:39.000000000 -0400
++++ lm_sensors-2.10.8-k10/prog/sensord/chips.c	2009-07-11 17:04:16.000000000 -0400
+@@ -1352,6 +1352,23 @@
+   k8temp_names, k8temp_features, 0, 0
+ };
+ 
++/** K10 **/
++
++static const char *k10temp_names[] = {
++  SENSORS_K10TEMP_PREFIX, NULL
++};
++
++static const FeatureDescriptor k10temp_features[] = {
++  { fmtTemp_only, rrdF0, DataType_temperature, 0, 0,
++    { SENSORS_K10TEMP_TEMP1, -1 } },
++  { NULL }
++};
++
++static const ChipDescriptor k10temp_chip = {
++  k10temp_names, k10temp_features, 0, 0
++};
++
++
+ /** W83793 **/
+ 
+ static const char *w83793_names[] = {
+@@ -1483,6 +1500,7 @@
+   &f71805f_chip,
+   &vt1211_chip,
+   &k8temp_chip,
++  &k10temp_chip,
+   &w83793_chip,
+   &lm90_chip,
+   NULL
+diff -Nur lm_sensors-2.10.8/prog/sensors/chips.c lm_sensors-2.10.8-k10/prog/sensors/chips.c
+--- lm_sensors-2.10.8/prog/sensors/chips.c	2008-09-27 06:39:41.000000000 -0400
++++ lm_sensors-2.10.8-k10/prog/sensors/chips.c	2009-07-11 17:04:49.000000000 -0400
+@@ -6002,6 +6002,25 @@
+  }
+ }
+ 
++void print_k10temp(const sensors_chip_name *name)
++{
++  char *label;
++  double cur;
++  int valid, i;
++
++  for (i = 0; i < 4; i++) {
++    if (!sensors_get_label_and_valid(*name, SENSORS_K10TEMP_TEMP1+i, &label, &valid)
++	 && !sensors_get_feature(*name, SENSORS_K10TEMP_TEMP1+i, &cur)) {
++    	   if (valid) {
++      	 	print_label(label, 10);
++      	        print_temp_info(cur, 0, 0, SINGLE, 0, 0);
++      		printf("\n");
++    	   }
++   }
++   free(label);
++ }
++}
++
+ void print_coretemp(const sensors_chip_name *name)
+ {
+   char *label;
+diff -Nur lm_sensors-2.10.8/prog/sensors/chips.h lm_sensors-2.10.8-k10/prog/sensors/chips.h
+--- lm_sensors-2.10.8/prog/sensors/chips.h	2007-10-12 04:16:23.000000000 -0400
++++ lm_sensors-2.10.8-k10/prog/sensors/chips.h	2009-07-11 17:05:01.000000000 -0400
+@@ -76,6 +76,7 @@
+ extern void print_abituguru(const sensors_chip_name *name);
+ extern void print_abituguru3(const sensors_chip_name *name);
+ extern void print_k8temp(const sensors_chip_name *name);
++extern void print_k10temp(const sensors_chip_name *name);
+ extern void print_coretemp(const sensors_chip_name *name);
+ extern void print_dme1737(const sensors_chip_name *name);
+ extern void print_applesmc(const sensors_chip_name *name);
+diff -Nur lm_sensors-2.10.8/prog/sensors/main.c lm_sensors-2.10.8-k10/prog/sensors/main.c
+--- lm_sensors-2.10.8/prog/sensors/main.c	2008-10-20 04:18:39.000000000 -0400
++++ lm_sensors-2.10.8-k10/prog/sensors/main.c	2009-07-11 17:00:38.000000000 -0400
+@@ -432,6 +432,7 @@
+  	{ "abituguru", print_abituguru },
+  	{ "abituguru3", print_abituguru3 },
+  	{ "k8temp", print_k8temp },
++ 	{ "k10temp", print_k10temp },
+  	{ "coretemp", print_coretemp },
+  	{ "dme1737", print_dme1737 },
+  	{ "sch311x", print_dme1737 },
