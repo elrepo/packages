@@ -82,3 +82,4 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %changelog
 * Sun Sep 08 2013 Philip J Perry <phil@elrepo.org> - 0.0-1
 - Initial backport of lm85 from kernel-3.2.50
+  [http://elrepo.org/bugs/view.php?id=404]
