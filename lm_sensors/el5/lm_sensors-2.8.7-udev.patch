@@ -1,0 +1,13 @@
+--- lm_sensors-2.8.7/prog/detect/sensors-detect.udev	2004-10-14 15:32:12.486908800 +0200
++++ lm_sensors-2.8.7/prog/detect/sensors-detect	2004-10-14 15:35:32.910911461 +0200
+@@ -1788,8 +1788,8 @@
+     if (-c '/dev/i2c-0') {
+       $dev_i2c = '/dev/i2c-';
+     } else { # default
+-      print "No i2c device files found. Use prog/mkdev/mkdev.sh to create them.\n";
+-      exit -1;
++   	system("/sbin/MAKEDEV i2c");
++	$dev_i2c = '/dev/i2c-';
+     }
+   }
+ }

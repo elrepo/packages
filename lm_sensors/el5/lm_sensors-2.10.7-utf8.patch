@@ -1,0 +1,12 @@
+diff -up lm_sensors-2.10.7/prog/detect/sensors-detect.utf8 lm_sensors-2.10.7/prog/detect/sensors-detect
+--- lm_sensors-2.10.7/prog/detect/sensors-detect.utf8	2008-07-01 20:23:09.000000000 +0200
++++ lm_sensors-2.10.7/prog/detect/sensors-detect	2008-08-11 16:45:53.000000000 +0200
+@@ -2167,7 +2167,7 @@ sub inb
+ # Returns: -1 on failure, 0 on success.
+ sub outb
+ {
+-  my $towrite = pack "C", $_[1];
++  my $towrite = pack "C", ($_[1] & 0xff);
+   sysseek IOPORTS, $_[0], 0 or return -1;
+   my $nrchars = syswrite IOPORTS, $towrite, 1;
+   return -1 if not defined $nrchars or $nrchars != 1;
