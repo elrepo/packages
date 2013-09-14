@@ -68,10 +68,12 @@ void usage(void)
 	printf("  -h --help         give this help\n");
 	printf("  -l --list         list all supported NVIDIA devices\n");
 	printf("  -V --version      display version number\n\n");
-	printf("Detect NVIDIA graphics cards and determine the correct NVIDIA driver.\n\n");
+	printf("Detect NVIDIA graphics cards and determine the correct NVIDIA "
+		"driver.\n\n");
 	printf("%s will return the following codes:\n\n", PROGRAM_NAME);
 	printf("0: No supported devices found\n");
-	printf("1: Device supported by the current %3.2f NVIDIA driver\n", NVIDIA_VERSION);
+	printf("1: Device supported by the current %3.2f NVIDIA driver\n",
+		NVIDIA_VERSION);
 	printf("2: Device supported by the legacy   96.xx NVIDIA driver\n");
 	printf("3: Device supported by the legacy  173.xx NVIDIA driver\n");
 	printf("4: Device supported by the legacy  304.xx NVIDIA driver\n\n");
@@ -80,7 +82,8 @@ void usage(void)
 
 void has_optimus(void)
 {
-	printf("Optimus hardware detected: An Intel display controller was detected\n");
+	printf("Optimus hardware detected: An Intel display controller was "
+		"detected\n");
 	printf("Either disable the Intel display controller in the BIOS\n");
 	printf("or use the bumblebee driver to support Optimus hardware\n");
 }
@@ -89,7 +92,8 @@ void list_all_nvidia_devices(void)
 {
 	int i;
 
-	printf("\n*** These devices are supported by the current %3.2f NVIDIA driver ***\n\n", NVIDIA_VERSION);
+	printf("\n*** These devices are supported by the current %3.2f NVIDIA "
+		"driver ***\n\n", NVIDIA_VERSION);
 	for (i = 0; i < ARRAY_SIZE(nv_current_pci_ids); i++) {
 		name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
 			PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
@@ -98,7 +102,8 @@ void list_all_nvidia_devices(void)
 		printf("[10de:%04x] %s\n", nv_current_pci_ids[i], name);
 	}
 
-	printf("\n*** These devices are supported by the legacy 304.xx NVIDIA driver ***\n\n");
+	printf("\n*** These devices are supported by the legacy 304.xx NVIDIA "
+		"driver ***\n\n");
 	for (i = 0; i < ARRAY_SIZE(nv_304xx_pci_ids); i++) {
 		name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
 			PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
@@ -107,7 +112,8 @@ void list_all_nvidia_devices(void)
 		printf("[10de:%04x] %s\n", nv_304xx_pci_ids[i], name);
 	}
 
-	printf("\n*** These devices are supported by the legacy 173.xx NVIDIA driver ***\n\n");
+	printf("\n*** These devices are supported by the legacy 173.xx NVIDIA "
+		"driver ***\n\n");
 	for (i = 0; i < ARRAY_SIZE(nv_173xx_pci_ids); i++) {
 		name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
 			PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
@@ -116,7 +122,8 @@ void list_all_nvidia_devices(void)
 		printf("[10de:%04x] %s\n", nv_173xx_pci_ids[i], name);
 	}
 
-	printf("\n*** These devices are supported by the legacy 96.xx NVIDIA driver ***\n\n");
+	printf("\n*** These devices are supported by the legacy 96.xx NVIDIA "
+		"driver ***\n\n");
 	for (i = 0; i < ARRAY_SIZE(nv_96xx_pci_ids); i++) {
 		name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
 			PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
@@ -133,7 +140,8 @@ static int nv_lookup_device_id(int device_id)
 	/** Find devices supported by the current driver **/
 	for (i = 0; i < ARRAY_SIZE(nv_current_pci_ids); i++) {
 		if (device_id == nv_current_pci_ids[i]) {
-			printf("This device requires the current %3.2f NVIDIA driver %s\n", NVIDIA_VERSION, KMOD_NVIDIA);
+			printf("This device requires the current %3.2f NVIDIA "
+				"driver %s\n", NVIDIA_VERSION, KMOD_NVIDIA);
 			return NVIDIA_CURRENT;
 		}
 	}
@@ -141,7 +149,8 @@ static int nv_lookup_device_id(int device_id)
 	/** Find devices supported by the 304xx legacy driver **/
 	for (i = 0; i < ARRAY_SIZE(nv_304xx_pci_ids); i++) {
 		if (device_id == nv_304xx_pci_ids[i]) {
-			printf("This device requires the legacy 304.xx NVIDIA driver %s\n", KMOD_NVIDIA_304XX);
+			printf("This device requires the legacy 304.xx NVIDIA "
+				"driver %s\n", KMOD_NVIDIA_304XX);
 			return NVIDIA_LEGACY_304XX;
 		}
 	}
@@ -149,7 +158,8 @@ static int nv_lookup_device_id(int device_id)
 	/** Find devices supported by the 173xx legacy driver **/
 	for (i = 0; i < ARRAY_SIZE(nv_173xx_pci_ids); i++) {
 		if (device_id == nv_173xx_pci_ids[i]) {
-			printf("This device requires the legacy 173.xx NVIDIA driver %s\n", KMOD_NVIDIA_173XX);
+			printf("This device requires the legacy 173.xx NVIDIA "
+				"driver %s\n", KMOD_NVIDIA_173XX);
 			return NVIDIA_LEGACY_173XX;
 		}
 	}
@@ -157,14 +167,16 @@ static int nv_lookup_device_id(int device_id)
 	/** Find devices supported by the 96xx legacy driver **/
 	for (i = 0; i < ARRAY_SIZE(nv_96xx_pci_ids); i++) {
 		if (device_id == nv_96xx_pci_ids[i]) {
-			printf("This device requires the legacy 96.xx NVIDIA driver %s\n", KMOD_NVIDIA_96XX);
+			printf("This device requires the legacy 96.xx NVIDIA "
+				"driver %s\n", KMOD_NVIDIA_96XX);
 			return NVIDIA_LEGACY_96XX;
 		}
 	}
 
 	/** Catch NVIDIA devices that aren't supported **/
 	printf("This device does not appear to be supported at present\n");
-	printf("Please report at http://elrepo.org/bugs quoting the output from '/sbin/lspci -nn'\n");
+	printf("Please report at http://elrepo.org/bugs quoting the output "
+		"from '/sbin/lspci -nn'\n");
 
 	return 0;
 }
@@ -179,7 +191,6 @@ int main(int argc, char *argv[])
 	if (argc == 2) {
 		if (STREQ(argv[1], "-V") || STREQ(argv[1], "--version")) {
 			printf("Version: %3.2f\n", NVIDIA_VERSION);
-			printf("Copyright (C) 2013 Philip J Perry <phil@elrepo.org>\n");
 		} else if (STREQ(argv[1], "-l") || STREQ(argv[1], "--list"))
 			list_all_nvidia_devices();
 		else
@@ -214,7 +225,8 @@ int main(int argc, char *argv[])
 				PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
 				dev->vendor_id, dev->device_id);
 
-			printf("[%04x:%04x] %s\n", dev->vendor_id, dev->device_id, name);
+			printf("[%04x:%04x] %s\n",
+				dev->vendor_id, dev->device_id, name);
 
 			/* Find NVIDIA device */
 			if (dev->vendor_id == PCI_VENDOR_ID_NVIDIA) {
@@ -222,7 +234,10 @@ int main(int argc, char *argv[])
 				ret = nv_lookup_device_id(dev->device_id);
 			}
 
-			/* Find Intel device for simplistic detection of Optimus hardware configurations */
+			/* 
+			 * Find Intel device for simplistic detection
+			 * of Optimus hardware configurations
+			 */
 			if (dev->vendor_id == PCI_VENDOR_ID_INTEL)
 				has_intel++;
 
