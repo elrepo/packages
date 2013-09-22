@@ -133,7 +133,7 @@ static void list_all_nvidia_devices(void)
 	}
 }
 
-static int nv_lookup_device_id(int device_id)
+static int nv_lookup_device_id(u_int16_t device_id)
 {
 	size_t i;
 
