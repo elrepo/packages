@@ -36,12 +36,6 @@
 #define PCI_VENDOR_ID_NVIDIA	0x10de
 #endif
 
-/* define the return codes */
-#define NVIDIA_CURRENT		0x01
-#define NVIDIA_LEGACY_96XX	0x02
-#define NVIDIA_LEGACY_173XX	0x03
-#define NVIDIA_LEGACY_304XX	0x04
-
 /* Only recommend elrepo drivers on RHEL*/
 #if (RHEL_MAJOR == 5 || RHEL_MAJOR == 6)
 #define KMOD_NVIDIA		"kmod-nvidia"
@@ -57,6 +51,15 @@
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #define STREQ(a, b) (strcmp ((a), (b)) == 0)
+
+/* driver return codes */
+enum {
+	NVIDIA_NONE,
+	NVIDIA_CURRENT,
+	NVIDIA_LEGACY_96XX,
+	NVIDIA_LEGACY_173XX,
+	NVIDIA_LEGACY_304XX,
+};
 
 static char namebuf[128], *name;
 static struct pci_access *pacc;
@@ -178,7 +181,7 @@ static int nv_lookup_device_id(u_int16_t device_id)
 	printf("Please report at http://elrepo.org/bugs quoting the output "
 		"from '/sbin/lspci -nn'\n");
 
-	return 0;
+	return NVIDIA_NONE;
 }
 
 int main(int argc, char *argv[])
