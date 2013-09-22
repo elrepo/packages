@@ -90,7 +90,7 @@ static void has_optimus(void)
 
 static void list_all_nvidia_devices(void)
 {
-	int i;
+	size_t i;
 
 	printf("\n*** These devices are supported by the current %3.2f NVIDIA "
 		"driver ***\n\n", NVIDIA_VERSION);
@@ -135,7 +135,7 @@ static void list_all_nvidia_devices(void)
 
 static int nv_lookup_device_id(int device_id)
 {
-	int i;
+	size_t i;
 
 	/** Find devices supported by the current driver **/
 	for (i = 0; i < ARRAY_SIZE(nv_current_pci_ids); i++) {
