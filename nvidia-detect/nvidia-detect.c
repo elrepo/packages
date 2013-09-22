@@ -62,7 +62,7 @@ static char namebuf[128], *name;
 static struct pci_access *pacc;
 static struct pci_dev *dev;
 
-void usage(void)
+static void usage(void)
 {
 	printf("Usage: %s [-hlV]\n", PROGRAM_NAME);
 	printf("  -h --help         give this help\n");
@@ -80,7 +80,7 @@ void usage(void)
 	printf("Please report bugs at http://elrepo.org/bugs\n");
 }
 
-void has_optimus(void)
+static void has_optimus(void)
 {
 	printf("Optimus hardware detected: An Intel display controller was "
 		"detected\n");
@@ -88,7 +88,7 @@ void has_optimus(void)
 	printf("or use the bumblebee driver to support Optimus hardware\n");
 }
 
-void list_all_nvidia_devices(void)
+static void list_all_nvidia_devices(void)
 {
 	int i;
 
