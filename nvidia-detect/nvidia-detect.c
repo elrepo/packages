@@ -42,7 +42,7 @@
 #define KMOD_NVIDIA_304XX	"kmod-nvidia-304xx"
 #define KMOD_NVIDIA_173XX	"kmod-nvidia-173xx"
 #define KMOD_NVIDIA_96XX	"kmod-nvidia-96xx"
-#else	/* make no specific driver recommendation */
+#else	/* make no specific package recommendation */
 #define KMOD_NVIDIA		""
 #define KMOD_NVIDIA_304XX	""
 #define KMOD_NVIDIA_173XX	""

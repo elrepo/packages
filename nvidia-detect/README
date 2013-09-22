@@ -8,12 +8,12 @@ correct driver to use based on any matches found. For example:
 $ nvidia-detect
 Probing for supported NVIDIA devices...
 [10de:0ca3] NVIDIA Corporation GT215 [GeForce GT 240]
-This device requires the current NVIDIA driver (kmod-nvidia).
+This device requires the current 325.15 NVIDIA driver kmod-nvidia
 
 $ nvidia-detect
 Probing for supported NVIDIA devices...
 [10de:0392] NVIDIA Corporation G73 [GeForce 7600 GS]
-This device requires the legacy 304.xx NVIDIA driver (kmod-nvidia-304xx).
+This device requires the legacy 304.xx NVIDIA driver kmod-nvidia-304xx
 
 nvidia-detect may be run from within a script and will return the following codes:
 
