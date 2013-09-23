@@ -6,7 +6,7 @@
 %{!?kversion: %define kversion 2.6.18-348.el5}
 
 Name:    %{kmod_name}-kmod
-Version: 304.88
+Version: 304.108
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -91,6 +91,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Aug 14 2013 Philip J Perry <phil@elrepo.org> - 304.108-1.el5.elrepo
+- Updated to version 304.108
+
 * Thu Apr 04 2013 Philip J Perry <phil@elrepo.org> - 304.88-1.el5.elrepo
 - Updated to version 304.88
 
