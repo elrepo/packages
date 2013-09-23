@@ -1,10 +1,14 @@
+# Define the Max Xorg version (ABI) that this driver release supports
+# See README.txt, Chapter 2. Minimum Software Requirements
+%define		max_xorg_ver	1.14.99
+
 %define		nvidialibdir	%{_libdir}/nvidia
 %define		nvidialib32dir	%{_prefix}/lib/nvidia
 
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv-304xx
-Version:	304.88
+Version:	304.108
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -29,6 +33,7 @@ Source4:	nvidia.nodes
 BuildRequires:	desktop-file-utils
 BuildRequires:	perl
 
+Requires:	xorg-x11-server-Xorg <= %{max_xorg_ver}
 Requires:	nvidia-304xx-kmod = %{?epoch:%{epoch}:}%{version}
 Requires(post):	nvidia-304xx-kmod = %{?epoch:%{epoch}:}%{version}
 
@@ -342,6 +347,11 @@ fi ||:
 %endif
 
 %changelog
+- Add requires for max Xorg version
+
+* Wed Aug 14 2013 Philip J Perry <phil@elrepo.org> - 304.108-1.el6.elrepo
+- Updated to version 304.108
+
 * Thu Apr 04 2013 Philip J Perry <phil@elrepo.org> - 304.88-1.el6.elrepo
 - Updated to version 304.88
 

@@ -1,3 +1,8 @@
+# Define the Max Xorg version (ABI) that this driver release supports
+# See README.txt, Chapter 2. Minimum Software Requirements
+# Version 96.43.23 NOT compatible with Xorg 1.13.0 in RHEL6.4 and above
+%define		max_xorg_ver	1.12.99
+
 %define		nvidialibdir	%{_libdir}/nvidia
 %define		nvidialib32dir	%{_prefix}/lib/nvidia
 
@@ -5,7 +10,7 @@
 
 Name:		nvidia-x11-drv-96xx
 Version:	96.43.23
-Release:	1%{?dist}
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA 96xx OpenGL X11 display driver files
@@ -32,6 +37,7 @@ Source4:	nvidia.nodes
 BuildRequires:	desktop-file-utils
 BuildRequires:	perl
 
+Requires:	xorg-x11-server-Xorg <= %{max_xorg_ver}
 Requires:	nvidia-96xx-kmod = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires(post):	nvidia-96xx-kmod = %{?epoch:%{epoch}:}%{version}-%{release}
 
@@ -301,6 +307,10 @@ fi ||:
 %endif
 
 %changelog
+* Mon Sep 23 2013 Philip J Perry <phil@elrepo.org> - 96.43.23-2.el6.elrepo
+- Add requires for max Xorg version
+- Adds support for Xorg 1.11 and 1.12
+
 * Tue Feb 19 2013 Philip J Perry <phil@elrepo.org> - 96.43.23-1.el6.elrepo
 - Update to version 96.43.23.
 - Make package nosrc.

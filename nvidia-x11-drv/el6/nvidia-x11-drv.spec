@@ -1,3 +1,8 @@
+# Define the Max Xorg version (ABI) that this driver release supports
+# See README.txt, Chapter 2. Minimum Software Requirements or
+# ftp://download.nvidia.com/XFree86/Linux-x86_64/325.15/README/minimumrequirements.html
+%define		max_xorg_ver	1.14.99
+
 %define		nvidialibdir	%{_libdir}/nvidia
 %define		nvidialib32dir	%{_prefix}/lib/nvidia
 
@@ -40,8 +45,9 @@ Provides: libGL.so()(64bit)
 BuildRequires:	desktop-file-utils
 BuildRequires:	perl
 
+Requires:	xorg-x11-server-Xorg <= %{max_xorg_ver}
 Requires:	nvidia-kmod = %{?epoch:%{epoch}:}%{version}
-Requires(post):	nvidia-kmod = %{?epoch:%{epoch}:}%{version}
+Requires(post):	nvidia-kmod >= %{?epoch:%{epoch}:}%{version}
 
 Requires(post):	/sbin/ldconfig
 
@@ -387,6 +393,8 @@ fi ||:
 %endif
 
 %changelog
+- Add requires for max Xorg version
+
 * Mon Aug 05 2013 Philip J Perry <phil@elrepo.org> - 325.15-1.el6.elrepo
 - Updated to version 325.15
 - Added libnvidia-ifr.so and libnvidia-vgxcfg.so
