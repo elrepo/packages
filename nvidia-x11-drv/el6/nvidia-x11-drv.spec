@@ -47,7 +47,7 @@ BuildRequires:	perl
 
 Requires:	xorg-x11-server-Xorg <= %{max_xorg_ver}
 Requires:	nvidia-kmod = %{?epoch:%{epoch}:}%{version}
-Requires(post):	nvidia-kmod >= %{?epoch:%{epoch}:}%{version}
+Requires(post):	nvidia-kmod = %{?epoch:%{epoch}:}%{version}
 
 Requires(post):	/sbin/ldconfig
 
