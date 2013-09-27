@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 2.6.32-358.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 173.14.36
+Version: 173.14.37
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -71,6 +71,9 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Mon Sep 23 2013 Philip J Perry <phil@elrepo.org> - 173.14.37-1.el6.elrepo
+- Update to version 173.14.37.
+
 * Sat Mar 02 2013 Philip J Perry <phil@elrepo.org> - 173.14.36-1.el6.elrepo
 - Update to version 173.14.36.
 
