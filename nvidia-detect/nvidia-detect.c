@@ -49,6 +49,19 @@
 #define KMOD_NVIDIA_96XX	""
 #endif
 
+/* Define the max Xorg ABI supported by each driver */
+#define XORG_ABI_CURRENT	14	/* 325.15 */
+#define XORG_ABI_96XX		12	/* 96.43.23 */
+#define XORG_ABI_173XX		14	/* 173.14.37 */
+#define XORG_ABI_304XX		14	/* 304.108 */
+
+/* Change the default Xorg log file here if it's different */
+#define XORG_LOG_FILE	"/var/log/Xorg.0.log"
+
+/* Define strings to search for in Xorg log file */
+#define ABI_CLASS	"ABI class: X.Org Video Driver"
+#define XORG_VID_DRV	"X.Org Video Driver:"
+
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #define STREQ(a, b) (strcmp ((a), (b)) == 0)
 
@@ -71,12 +84,10 @@ static void usage(void)
 	printf("  -h --help         give this help\n");
 	printf("  -l --list         list all supported NVIDIA devices\n");
 	printf("  -V --version      display version number\n\n");
-	printf("Detect NVIDIA graphics cards and determine the correct NVIDIA "
-		"driver.\n\n");
+	printf("Detect NVIDIA graphics cards and determine the correct NVIDIA driver.\n\n");
 	printf("%s will return the following codes:\n\n", PROGRAM_NAME);
 	printf("0: No supported devices found\n");
-	printf("1: Device supported by the current %3.2f NVIDIA driver\n",
-		NVIDIA_VERSION);
+	printf("1: Device supported by the current %3.2f NVIDIA driver\n", NVIDIA_VERSION);
 	printf("2: Device supported by the legacy   96.xx NVIDIA driver\n");
 	printf("3: Device supported by the legacy  173.xx NVIDIA driver\n");
 	printf("4: Device supported by the legacy  304.xx NVIDIA driver\n\n");
@@ -85,8 +96,7 @@ static void usage(void)
 
 static void has_optimus(void)
 {
-	printf("Optimus hardware detected: An Intel display controller was "
-		"detected\n");
+	printf("Optimus hardware detected: An Intel display controller was detected\n");
 	printf("Either disable the Intel display controller in the BIOS\n");
 	printf("or use the bumblebee driver to support Optimus hardware\n");
 }
@@ -184,9 +194,71 @@ static int nv_lookup_device_id(u_int16_t device_id)
 	return NVIDIA_NONE;
 }
 
+static int get_xorg_abi(void)
+{
+	FILE *fp;
+	char line[128];
+	char *ret;
+	int version = 0;
+
+	if ((fp = fopen(XORG_LOG_FILE, "r")) == NULL) {
+		printf("WARNING: Xorg log file %s does not exist\n", XORG_LOG_FILE);
+		printf("WARNING: Unable to determine Xorg ABI compatibility\n");
+
+		return version;
+	}
+
+	while (( fgets(line, sizeof(line), fp) ) != NULL) {
+		/* 
+		 * Not all strings are present in all Xorg log files so we need to
+		 * look for matches against multiple strings until we find a match.
+		 */
+		if ((ret = strstr(line, XORG_VID_DRV)) != NULL)
+			if ((sscanf(ret, "X.Org Video Driver: %d", &version)) == 1)
+				break;
+
+		if ((ret = strstr(line, XORG_VID_DRV)) != NULL)
+			if ((sscanf(ret, "ABI class: X.Org Video Driver, version %d",
+					&version)) == 1)
+				break;
+	}
+
+	if (version)
+		printf("Xorg Video Driver ABI detected: %d\n", version);
+
+	fclose(fp);
+
+	return version;
+}
+
+static int check_xorg_abi_compat(int driver)
+{
+	int abi = 0;
+
+	abi = get_xorg_abi();
+
+	if (abi > 0) {
+		if (driver == NVIDIA_CURRENT && abi <= XORG_ABI_CURRENT )
+			return 0;
+		else if (driver == NVIDIA_LEGACY_96XX && abi <= XORG_ABI_96XX )
+			return 0;
+		else if (driver == NVIDIA_LEGACY_173XX && abi <= XORG_ABI_173XX )
+			return 0;
+		else if (driver == NVIDIA_LEGACY_304XX && abi <= XORG_ABI_304XX )
+			return 0;
+		else
+			return 1;
+	}
+
+	return 1;
+}
+
 int main(int argc, char *argv[])
 {
-	int has_intel = 0, has_nvidia = 0, ret = 0;
+	int has_intel = 0;
+	int has_nvidia = 0;
+	int abi_compat;
+	int ret = 0;
 
 	pacc = pci_alloc();		/* Get the pci_access structure */
 	pci_init(pacc);			/* Initialize the PCI library */
@@ -247,6 +319,19 @@ int main(int argc, char *argv[])
 		}	/* End of device_class */
 
 	}		/* End iteration of devices */
+
+	/* Check Xorg ABI compatibility */
+	if (ret > 0) {
+		printf("Checking ABI compatibility with Xorg Server...\n");
+		abi_compat = check_xorg_abi_compat(ret);
+			if (abi_compat == 0)
+				printf("ABI compatibility check passed\n"); 
+			else {
+				printf("WARNING: The driver for this device "
+				"does not support the current Xorg version\n");
+				ret = NVIDIA_NONE;
+			}
+	}
 
 	/* Check for Optimus hardware */
 	if (has_intel > 0 && has_nvidia > 0)
