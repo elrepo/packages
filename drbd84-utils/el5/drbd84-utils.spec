@@ -5,7 +5,7 @@
 
 Summary: Management utilities for DRBD
 Name: drbd84-utils
-Version: 8.4.2
+Version: 8.4.4
 Release: 1%{?dist}
 License: GPLv2+
 Group: System Environment/Kernel
@@ -100,9 +100,9 @@ fi
 %dir %{_localstatedir}/lib/drbd/
 /lib/drbd/drbdadm-83
 /lib/drbd/drbdsetup-83
-/sbin/drbdadm
-/sbin/drbdmeta
-/sbin/drbdsetup
+/usr/sbin/drbdadm
+/usr/sbin/drbdmeta
+/usr/sbin/drbdsetup
 %{_sbindir}/drbd-overview
 %dir %{_prefix}/lib/drbd/
 %{_prefix}/lib/drbd/notify-out-of-sync.sh
@@ -137,6 +137,12 @@ fi
 %{_sysconfdir}/xen/scripts/block-drbd
 
 %changelog
+* Sat Oct 12 2013 Philip J Perry <phil@elrepo.org> - 8.4.4-1
+- Updated to release 8.4.4.
+
+* Sat Jul 06 2013 Akemi Yagi <toracat@elrepo.org> - 8.4.3-1
+- Updated to release 8.4.3.
+
 * Thu Sep 06 2012 Dag Wieers <dag@elrepo.org> - 8.4.2-1
 - Updated to release 8.4.2.
 
