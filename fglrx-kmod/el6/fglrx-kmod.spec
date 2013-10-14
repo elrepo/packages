@@ -6,7 +6,7 @@
 %{!?kversion: %define kversion 2.6.32-358.el6.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 13.1
+Version: 13.4
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -18,7 +18,7 @@ ExclusiveArch: i686 x86_64
 
 # Sources.
 # http://www2.ati.com/drivers/linux/amd-driver-installer-catalyst-13.1-linux-x86.x86_64.zip
-Source0:  amd-driver-installer-catalyst-%{version}-linux-x86.x86_64.run
+Source0:  amd-driver-installer-catalyst-%{version}-x86.x86_64.run
 Source10: kmodtool-%{kmod_name}-el6.sh
 NoSource: 0
 
@@ -81,6 +81,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Mon Oct 10 2013 Philip J Perry <phil@elrepo.org> - 13.4-1.el6.elrepo
+- Update to version 13.4.
+
 * Thu Feb 28 2013 Philip J Perry <phil@elrepo.org> - 13.1-1.el6.elrepo
 - Update to version 13.1.
 
