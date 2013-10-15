@@ -4,16 +4,16 @@
 # If kversion isn't defined on the rpmbuild line, define it here.
 %{!?kversion: %define kversion 2.6.18-8.el5}
 
-Name:    %{kmod_name}-kmod
-Version: 2.0.5
-Release: 1%{?dist}
-Group:   System Environment/Kernel
-License: GPLv2
 Summary: %{kmod_name} kernel module(s)
-URL:     http://sourceforge.net/projects/uvfs/
+Name: %{kmod_name}-kmod
+Version: 2.0.6
+Release: 1%{?dist}
+Group: System Environment/Kernel
+License: GPLv2
+URL: http://sourceforge.net/projects/uvfs/
 
 BuildRequires: redhat-rpm-config
-BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 ExclusiveArch: i686 x86_64
 
 # Sources.
@@ -80,5 +80,8 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Oct 15 2013 Dag Wieers <dag@wieers.com> - 2.0.6-1
+- Updated to release 2.0.6.
+
 * Thu Aug 02 2012 Dag Wieers <dag@wieers.com> - 2.0.5-1
 - Initial el5 build of the kmod package.
