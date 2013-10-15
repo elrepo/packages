@@ -2,13 +2,13 @@
 %define kmod_name mhvtl
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-279.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-358.el6.%{_target_cpu}}
 
 Summary: Virtual Tape Library device driver
 Name: %{kmod_name}-kmod
-%define real_version 2013-03-22
+%define real_version 2013-08-29
 %define tar_version 1.4
-Version: 1.4.7
+Version: 1.4.9
 Release: 1%{?dist}
 License: GPLv2
 Group: System Environment/Kernel
@@ -61,6 +61,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Oct 15 2013 Dag Wieers <dag@wieers.com> - 1.4.9-1
+- Updated to release 1.4-9 (2013-08-29).
+
 * Mon May 27 2013 Dag Wieers <dag@wieers.com> - 1.4.7-1
 - Updated to release 1.4-7 (2013-03-22).
 
