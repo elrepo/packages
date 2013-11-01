@@ -18,11 +18,12 @@
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include <stdbool.h>
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
-#include <linux/version.h>
+#include <string.h>
 #include <pci/pci.h>
+#include <linux/version.h>
 
 #include "nvidia-detect.h"
 
@@ -255,8 +256,8 @@ static int check_xorg_abi_compat(int driver)
 
 int main(int argc, char *argv[])
 {
-	int has_intel = 0;
-	int has_nvidia = 0;
+	bool has_intel = 0;
+	bool has_nvidia = 0;
 	int abi_compat;
 	int ret = 0;
 
@@ -305,7 +306,7 @@ int main(int argc, char *argv[])
 
 			/* Find NVIDIA device */
 			if (dev->vendor_id == PCI_VENDOR_ID_NVIDIA) {
-				has_nvidia++;
+				has_nvidia = true;
 				ret = nv_lookup_device_id(dev->device_id);
 			}
 
@@ -314,7 +315,7 @@ int main(int argc, char *argv[])
 			 * of Optimus hardware configurations
 			 */
 			if (dev->vendor_id == PCI_VENDOR_ID_INTEL)
-				has_intel++;
+				has_intel = true;
 
 		}	/* End of device_class */
 
@@ -334,11 +335,11 @@ int main(int argc, char *argv[])
 	}
 
 	/* Check for Optimus hardware */
-	if (has_intel > 0 && has_nvidia > 0)
+	if (has_intel && has_nvidia)
 		has_optimus();
 
 	/* Catch cases where no NVIDIA devices were detected */
-	if (has_nvidia == 0)
+	if (!has_nvidia)
 		printf("No NVIDIA devices were found.\n");
 
 exit:
