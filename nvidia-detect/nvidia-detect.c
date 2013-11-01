@@ -232,7 +232,7 @@ static int get_xorg_abi(void)
 	return version;
 }
 
-static int check_xorg_abi_compat(int driver)
+static bool check_xorg_abi_compat(int driver)
 {
 	int abi = 0;
 
@@ -240,25 +240,25 @@ static int check_xorg_abi_compat(int driver)
 
 	if (abi > 0) {
 		if (driver == NVIDIA_CURRENT && abi <= XORG_ABI_CURRENT )
-			return 0;
-		else if (driver == NVIDIA_LEGACY_96XX && abi <= XORG_ABI_96XX )
-			return 0;
-		else if (driver == NVIDIA_LEGACY_173XX && abi <= XORG_ABI_173XX )
-			return 0;
-		else if (driver == NVIDIA_LEGACY_304XX && abi <= XORG_ABI_304XX )
-			return 0;
-		else
 			return 1;
+		else if (driver == NVIDIA_LEGACY_96XX && abi <= XORG_ABI_96XX )
+			return 1;
+		else if (driver == NVIDIA_LEGACY_173XX && abi <= XORG_ABI_173XX )
+			return 1;
+		else if (driver == NVIDIA_LEGACY_304XX && abi <= XORG_ABI_304XX )
+			return 1;
+		else
+			return 0;
 	}
 
-	return 1;
+	return 0;
 }
 
 int main(int argc, char *argv[])
 {
 	bool has_intel = 0;
 	bool has_nvidia = 0;
-	int abi_compat;
+	bool abi_compat = 0;
 	int ret = 0;
 
 	pacc = pci_alloc();		/* Get the pci_access structure */
@@ -325,7 +325,7 @@ int main(int argc, char *argv[])
 	if (ret > 0) {
 		printf("Checking ABI compatibility with Xorg Server...\n");
 		abi_compat = check_xorg_abi_compat(ret);
-			if (abi_compat == 0)
+			if (abi_compat)
 				printf("ABI compatibility check passed\n"); 
 			else {
 				printf("WARNING: The driver for this device "
