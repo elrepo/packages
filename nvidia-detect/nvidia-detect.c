@@ -265,9 +265,9 @@ int main(int argc, char *argv[])
 	pci_init(pacc);			/* Initialize the PCI library */
 
 	if (argc == 2) {
-		if (STREQ(argv[1], "-V") || STREQ(argv[1], "--version")) {
+		if (STREQ(argv[1], "-V") || STREQ(argv[1], "--version"))
 			printf("Version: %3.2f\n", NVIDIA_VERSION);
-		} else if (STREQ(argv[1], "-l") || STREQ(argv[1], "--list"))
+		else if (STREQ(argv[1], "-l") || STREQ(argv[1], "--list"))
 			list_all_nvidia_devices();
 		else
 			usage();
