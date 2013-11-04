@@ -462,13 +462,19 @@ static void __alx_set_rx_mode(struct net_device *netdev)
 {
 	struct alx_priv *alx = netdev_priv(netdev);
 	struct alx_hw *hw = &alx->hw;
+#ifndef ALX_RHEL6_4
 	struct netdev_hw_addr *ha;
+#else
+	struct dev_addr_list *ha;
+#endif
 	u32 mc_hash[2] = {};
 
 	if (!(netdev->flags & IFF_ALLMULTI)) {
-	#ifndef ALX_RHEL6_4
 	netdev_for_each_mc_addr(ha, netdev)
+	#ifndef ALX_RHEL6_4
 			alx_add_mc_addr(hw, ha->addr, mc_hash);
+	#else
+			alx_add_mc_addr(hw, ha->dmi_addr, mc_hash);
 	#endif
 		alx_write_mem32(hw, ALX_HASH_TBL0, mc_hash[0]);
 		alx_write_mem32(hw, ALX_HASH_TBL1, mc_hash[1]);
