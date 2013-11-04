@@ -6,7 +6,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 7%{?dist}
+Release: 8%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -57,6 +57,10 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Mon Nov 04 2013 Philip J Perry <phil@elrepo.org> - 0.0-8
+- Fix multicast stream (patch submitted by aroguez)
+  [http://elrepo.org/bugs/view.php?id=422]
+
 * Mon Jul 29 2013 Philip J Perry <phil@elrepo.org> - 0.0-7
 - Fix lockdep annotation [2013-07-28]
 
