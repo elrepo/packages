@@ -3,10 +3,10 @@
 
 # If kversion isn't defined on the rpmbuild line, define it here.
 # kABI compatible with kernel 2.6.18-194.el5 upwards
-%{!?kversion: %define kversion 2.6.18-348.el5}
+%{!?kversion: %define kversion 2.6.18-371.el5}
 
 Name:    %{kmod_name}-kmod
-Version: 325.15
+Version: 331.20
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -91,6 +91,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Nov 08 2013 Philip J Perry <phil@elrepo.org> - 331.20-1.el5.elrepo
+- Updated to version 331.20
+
 * Mon Aug 05 2013 Philip J Perry <phil@elrepo.org> - 325.15-1.el5.elrepo
 - Updated to version 325.15
 
