@@ -29,7 +29,7 @@
 #include "nvidia-detect.h"
 
 #define PROGRAM_NAME		"nvidia-detect"
-#define NVIDIA_VERSION		325.15
+#define NVIDIA_VERSION		331.20
 
 #ifndef PCI_VENDOR_ID_INTEL
 #define PCI_VENDOR_ID_INTEL	0x8086
@@ -52,7 +52,7 @@
 #endif
 
 /* Define the max Xorg ABI supported by each driver */
-#define XORG_ABI_CURRENT	14	/* 325.15 */
+#define XORG_ABI_CURRENT	14	/* 331.20 */
 #define XORG_ABI_96XX		12	/* 96.43.23 */
 #define XORG_ABI_173XX		14	/* 173.14.37 */
 #define XORG_ABI_304XX		14	/* 304.108 */

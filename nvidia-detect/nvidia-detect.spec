@@ -1,5 +1,5 @@
 Name:    nvidia-detect
-Version: 325.15
+Version: 331.20
 Release: 1%{?dist}
 Group:   Applications/System
 License: GPLv2
@@ -37,6 +37,14 @@ A utility to detect NVIDIA graphics cards.
 %{_bindir}/nvidia-detect
 
 %changelog
+* Mon Nov 11 2013 Philip J Perry <phil@elrepo.org> - 331.20-1
+- Add support for detection of devices added to 331.20 driver release.
+- Move many features into functions.
+- Fix device ID listing bug [http://elrepo.org/bugs/view.php?id=423]
+- Add --list option to list all supported NVIDIA devices
+- Add checks to see if we are running on RHEL
+- Add --xorg option for Xorg compatibility check
+
 * Mon Aug 05 2013 Philip J Perry <phil@elrepo.org> - 325.15-1
 - Add support for detection of devices added to 325.15 driver release.
 
