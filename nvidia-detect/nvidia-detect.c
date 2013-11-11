@@ -79,6 +79,11 @@ static char namebuf[128], *name;
 static struct pci_access *pacc;
 static struct pci_dev *dev;
 
+static void version(void)
+{
+	printf("Version: %3.2f\n", NVIDIA_VERSION);
+}
+
 static void usage(void)
 {
 	printf("Usage: %s [-hlV]\n", PROGRAM_NAME);
@@ -266,7 +271,7 @@ int main(int argc, char *argv[])
 
 	if (argc == 2) {
 		if (STREQ(argv[1], "-V") || STREQ(argv[1], "--version"))
-			printf("Version: %3.2f\n", NVIDIA_VERSION);
+			version();
 		else if (STREQ(argv[1], "-l") || STREQ(argv[1], "--list"))
 			list_all_nvidia_devices();
 		else
