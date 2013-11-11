@@ -18,6 +18,7 @@
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include <getopt.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -266,23 +267,38 @@ int main(int argc, char *argv[])
 	bool abi_compat = 0;
 	int ret = 0;
 
+	/* command line options */
+	int c = 0;
+	bool opt_list = 0;
+	static struct option longopts[] = {
+		/* { name  has_arg  *flag  val } */
+		{"list",	0, 0, 'l'},
+		{"version",	0, 0, 'V'},
+		{"help",	0, 0, 'h'},
+		{0, 0, 0, 0}
+	};
+
+	while ((c = getopt_long(argc, argv, "lVh", longopts, 0)) != EOF)
+		switch (c) {
+		case 'l':
+			opt_list = true;
+			break;
+		case 'V':
+			version();
+			exit(0);
+		case 'h':
+			usage();
+			exit(0);
+		default:
+			usage();
+			exit(0);
+		}
+
 	pacc = pci_alloc();		/* Get the pci_access structure */
 	pci_init(pacc);			/* Initialize the PCI library */
 
-	if (argc == 2) {
-		if (STREQ(argv[1], "-V") || STREQ(argv[1], "--version"))
-			version();
-		else if (STREQ(argv[1], "-l") || STREQ(argv[1], "--list"))
-			list_all_nvidia_devices();
-		else
-			usage();
-
-		goto exit;
-	}
-
-	/* some simple error handling */
-	if (argc != 1) {
-		usage();
+	if (opt_list) {
+		list_all_nvidia_devices();
 		goto exit;
 	}
 
