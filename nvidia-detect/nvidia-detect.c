@@ -80,6 +80,19 @@ static char namebuf[128], *name;
 static struct pci_access *pacc;
 static struct pci_dev *dev;
 
+/* command line options */
+static bool opt_list = 0;
+static bool opt_xorg = 0;
+
+static struct option longopts[] = {
+	/* { name  has_arg  *flag  val } */
+	{"list",	0, 0, 'l'},
+	{"xorg",	0, 0, 'x'},
+	{"version",	0, 0, 'V'},
+	{"help",	0, 0, 'h'},
+	{0, 0, 0, 0}
+};
+
 static void version(void)
 {
 	printf("Version: %3.2f\n", NVIDIA_VERSION);
@@ -87,10 +100,11 @@ static void version(void)
 
 static void usage(void)
 {
-	printf("Usage: %s [-hlV]\n", PROGRAM_NAME);
-	printf("  -h --help         give this help\n");
-	printf("  -l --list         list all supported NVIDIA devices\n");
-	printf("  -V --version      display version number\n\n");
+	printf("Usage: %s [-lxVh]\n", PROGRAM_NAME);
+	printf("  -l, --list         list all supported NVIDIA devices\n");
+	printf("  -x, --xorg         display xorg compatibility information\n");
+	printf("  -V, --version      display version number and exit\n");
+	printf("  -h, --help         print this help and exit\n\n");
 	printf("Detect NVIDIA graphics cards and determine the correct NVIDIA driver.\n\n");
 	printf("%s will return the following codes:\n\n", PROGRAM_NAME);
 	printf("0: No supported devices found\n");
@@ -230,7 +244,7 @@ static int get_xorg_abi(void)
 				break;
 	}
 
-	if (version)
+	if (version && opt_xorg)
 		printf("Xorg Video Driver ABI detected: %d\n", version);
 
 	fclose(fp);
@@ -266,22 +280,15 @@ int main(int argc, char *argv[])
 	bool has_nvidia = 0;
 	bool abi_compat = 0;
 	int ret = 0;
-
-	/* command line options */
 	int c = 0;
-	bool opt_list = 0;
-	static struct option longopts[] = {
-		/* { name  has_arg  *flag  val } */
-		{"list",	0, 0, 'l'},
-		{"version",	0, 0, 'V'},
-		{"help",	0, 0, 'h'},
-		{0, 0, 0, 0}
-	};
 
-	while ((c = getopt_long(argc, argv, "lVh", longopts, 0)) != EOF)
+	while ((c = getopt_long(argc, argv, "lxVh", longopts, 0)) != EOF)
 		switch (c) {
 		case 'l':
 			opt_list = true;
+			break;
+		case 'x':
+			opt_xorg = true;
 			break;
 		case 'V':
 			version();
@@ -344,10 +351,14 @@ int main(int argc, char *argv[])
 
 	/* Check Xorg ABI compatibility */
 	if (ret > 0) {
-		printf("Checking ABI compatibility with Xorg Server...\n");
+		if (opt_xorg) {
+			printf("\nChecking ABI compatibility with Xorg Server...\n");
+		}
 		abi_compat = check_xorg_abi_compat(ret);
 			if (abi_compat) {
-				printf("ABI compatibility check passed\n"); 
+				if (opt_xorg) {
+					printf("ABI compatibility check passed\n"); 
+				}
 			} else {
 				printf("WARNING: The driver for this device "
 				"does not support the current Xorg version\n");
