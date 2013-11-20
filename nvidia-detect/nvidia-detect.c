@@ -362,7 +362,6 @@ int main(int argc, char *argv[])
 			} else {
 				printf("WARNING: The driver for this device "
 				"does not support the current Xorg version\n");
-				ret = NVIDIA_NONE;
 			}
 	}
 
