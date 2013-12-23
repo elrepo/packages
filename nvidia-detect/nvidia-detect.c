@@ -54,8 +54,8 @@
 /* Define the max Xorg ABI supported by each driver */
 #define XORG_ABI_CURRENT	14	/* 331.20 */
 #define XORG_ABI_96XX		12	/* 96.43.23 */
-#define XORG_ABI_173XX		14	/* 173.14.37 */
-#define XORG_ABI_304XX		14	/* 304.108 */
+#define XORG_ABI_173XX		15	/* 173.14.39 */
+#define XORG_ABI_304XX		15	/* 304.117 */
 
 /* Change the default Xorg log file here if it's different */
 #define XORG_LOG_FILE	"/var/log/Xorg.0.log"
