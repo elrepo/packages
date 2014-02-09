@@ -23,7 +23,7 @@
 
 Name:           %{kmod_name}-kmod
 Version:        1.6.5
-Release:        1%{?pre:%(echo .%{pre})}%{?dist}
+Release:        2%{?pre:%(echo .%{pre})}%{?dist}
 Group:          System Environment/Kernel
 License:        IBM
 Summary:        %{kmod_name} kernel module(s)
@@ -90,6 +90,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} a+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Feb 09 2014 Jack Neely <jjneely@gmail.com> 0:1.6.5-2
+- Build against RHEL 6.5 kernel 2.6.32-431.el6
+
 * Wed Jul 24 2013 Jack Neely <jjneely@ncsu.edu> 0:1.6.5-1
 - Update to 1.6.5
 - CVE-2013-4134
