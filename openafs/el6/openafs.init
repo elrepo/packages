@@ -1,0 +1,202 @@
+#!/bin/bash
+#
+# AFS       Start/Stop AFS services
+#
+# chkconfig: - 25 90
+# description:  AFS is a distributed file system which provides location
+#		transparency, caching and secure authentication.
+#		Additional configuration can be done in the
+#		/etc/sysconfig/openafs file. Read the documentation in that
+#		file for more information.
+# processname:  afsd
+# config:       /etc/sysconfig/openafs
+# pidfile:      (n/a)
+#
+### BEGIN INIT INFO
+# Provides: openafs
+# Required-Start: $network $local_fs
+# Required-Stop: $network $local_fs
+# Default-Start: 
+# Default-Stop: 0 1 6
+# Short-Description: start and stop OpenAFS
+# Description: OpenAFS is a scalable network file system
+### END INIT INFO
+
+# Source function library
+. /etc/init.d/functions
+
+# Source networking configuration
+. /etc/sysconfig/network
+
+# Source AFS configuration
+. /etc/sysconfig/openafs
+
+# This script runs right after PCMCIA starts so if you have a PC card
+# and use DHCP the DHCP process may not be completed.  Wait for it.
+if [ -x /etc/sysconfig/pcmcia ]; then
+	. /etc/sysconfig/pcmcia
+	if [ $PCMCIA != "no" ] ; then
+		sleep 6
+	fi
+fi
+
+if [ "$AFS_MOUNT_POINT" = "" ]; then
+    AFS_MOUNT_POINT="/afs"
+    MOUNTDIR="-mountdir /afs"
+else
+    MOUNTDIR="-mountdir $AFS_MOUNT_POINT"
+fi
+
+if [ "$AFS_CACHE_DIR" = "" ]; then
+    CACHEDIR=""
+else
+    CACHEDIR="-cachedir $AFS_CACHE_DIR"
+fi
+
+if [ "$AFS_CONF_DIR" = "" ]; then
+    CONFDIR=""
+else
+    CONFDIR="-confdir $AFS_CONF_DIR"
+fi
+
+# Check that networking is up.
+[ ${NETWORKING} = "no" ] && exit 0
+
+[ -x /usr/sbin/afsd ] || exit 0
+
+
+RETVAL=0
+prog="afsd"
+
+# is_on returns 1 if value of arg is "on"
+is_on() {
+	if  test "$1" = "on" ; then return 0
+	else return 1
+	fi
+}
+
+start() {
+    # Load kernel module
+    action $"Loading AFS kernel module: " /sbin/modprobe openafs 
+    RETVAL=$?
+
+    if [ $RETVAL -ne 0 ] ; then
+        logger -p daemon.error "OpenAFS Kernel Module didn't load in the init script. Do you have it installed?"
+        return $RETVAL
+    fi
+
+    touch /var/lock/subsys/openafs
+
+    # Start AFS server
+    if is_on $AFS_SERVER && test -x /usr/sbin/bosserver ; then
+	echo -n $"Starting AFS server: "
+	daemon /usr/sbin/bosserver
+	RETVAL=$?
+	echo
+    fi
+
+    # Start AFS client
+    if is_on $AFS_CLIENT && test -x /usr/sbin/afsd ; then
+	echo -n $"Starting AFS client: "
+	daemon /usr/sbin/afsd ${MOUNTDIR} ${CACHEDIR} ${CONFDIR} ${OPTIONS}
+	RETVAL=$?
+	echo
+    fi
+
+    # set the sysname
+    if [ -n "$SYSNAMELIST" ] ; then
+        _FLAG=0
+        _CMD=""
+        for SYSNAME in $SYSNAMELIST ; do
+            if [ $_FLAG == "1" ] ; then
+                _CMD="$_CMD -newsys $SYSNAME"
+            else
+                _FLAG=1
+                _CMD="/usr/bin/fs sysname $SYSNAME"
+            fi
+        done
+    fi
+    echo -n "Setting the sysname:"
+    ($_CMD > /dev/null && success) || failure
+    echo
+
+    # Run the post init script from /etc/sysconfig/openafs
+    if [ ! -z "$AFS_POST_INIT" ] ; then
+    	[ $RETVAL -eq 0 ] && $AFS_POST_INIT
+    fi
+
+    return $RETVAL
+}
+
+stop() {
+    [ -f /var/lock/subsys/openafs ] || return 0
+
+    # Stop afs
+    if is_on $AFS_CLIENT ; then
+	echo -n $"Stopping AFS client: "
+	umount $AFS_MOUNT_POINT
+	/usr/sbin/afsd -shutdown
+        sig=
+        retry=3
+        remaining=`awk '!/^#/ && $3 ~ /^afs/ && $2 != "/" {print $2}' /proc/mounts`
+        while [ -n "$remaining" -a "$retry" -gt 0 ]
+        do
+          if [ "$retry" -lt 3 ]; then
+             action $"Unmounting AFS filesystem (retry): " umount -f $AFS_MOUNT_POINT
+          else
+             action $"Unmounting AFS filesystem: " umount -f $AFS_MOUNT_POINT
+          fi
+          sleep 2
+          remaining=`awk '!/^#/ && $3 ~ /^nfs/ && $2 != "/" {print $2}' /proc/mounts`
+          [ -z "$remaining" ] && break
+          /sbin/fuser -k -m $sig $remaining >/dev/null
+          sleep 5
+          retry=$(($retry - 1))
+          sig=-9
+        done
+	success
+	echo
+    
+	if is_on $AFS_SERVER && test -x /usr/bin/bos ; then
+	    action $"Stopping AFS bosserver: " /usr/bin/bos shutdown localhost -localauth -wait
+	    killall -HUP bosserver
+	    echo
+	fi
+
+	action $"Removing AFS modules: " /sbin/rmmod libafs
+
+	rm -f /var/lock/subsys/openafs
+	return 0
+    fi
+}
+
+# See how we were called
+case "$1" in 
+    start)
+	start
+	;;
+    stop)
+	stop
+	;;
+    restart|reload)
+	stop
+	start
+	RETVAL=$?
+	;;
+    condrestart)
+	if [ -f /var/lock/subsys/openafs ]; then
+	    stop
+	    start
+	    RETVAL=$?
+	fi
+	;;
+    status)
+	status afsd
+	RETVAL=$?
+	;;
+    *)
+	echo $"Usage: $0 {start|stop|restart|reload|condrestart|status}"
+	exit 1
+esac
+
+exit $RETVAL
