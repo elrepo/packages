@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements
-%define		max_xorg_ver	1.14.99
+%define		max_xorg_ver	1.15.99
 
 %define		nvidialibdir	%{_libdir}/nvidia
 %define		nvidialib32dir	%{_prefix}/lib/nvidia
@@ -8,7 +8,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv-173xx
-Version:	173.14.37
+Version:	173.14.39
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -308,6 +308,10 @@ fi ||:
 %endif
 
 %changelog
+* Mon Feb 10 2014 Philip J Perry <phil@elrepo.org> - 173.14.39-1.el6.elrepo
+- Update to version 173.14.39.
+- Adds support for Xorg 1.15
+
 * Mon Sep 23 2013 Philip J Perry <phil@elrepo.org> - 173.14.37-1.el6.elrepo
 - Update to version 173.14.37.
 - Adds support for Xorg 1.14
