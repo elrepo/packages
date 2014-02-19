@@ -334,6 +334,14 @@ popd
 %clean
 %{__rm} -rf $RPM_BUILD_ROOT
 
+%pre
+# Warn on libglamoregl
+if [ -e /usr/share/X11/xorg.conf.d/glamor.conf ]; then
+    echo "WARNING: libglamoregl conflicts with NVIDIA drivers"
+    echo "         Disable glamoregl or uninstall xorg-x11-glamor"
+    echo "         See: http://elrepo.org/tiki/kmod-nvidia (Known Issues) for more information"
+fi
+
 %post
 if [ "$1" -eq "1" ]; then
     # Check if xorg.conf exists, if it does, backup and remove [BugID # 0000127]
