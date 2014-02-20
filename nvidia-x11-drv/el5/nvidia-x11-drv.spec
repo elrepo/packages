@@ -4,7 +4,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	331.38
+Version:	331.49
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -411,6 +411,9 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %endif
 
 %changelog
+* Wed Feb 19 2014 Philip J Perry <phil@elrepo.org> - 331.49-1.el5.elrepo
+- Updated to version 331.49
+
 * Sat Jan 18 2014 Philip J Perry <phil@elrepo.org> - 331.38-1.el5.elrepo
 - Updated to version 331.38
 - Adds support for Xorg 1.15
