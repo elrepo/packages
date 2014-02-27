@@ -7,13 +7,13 @@
 
 Summary: uvfs/pmfs utilities
 Name: uvfs-utils
-Version: 2.0.6
+Version: 2.0.6.1
 Release: 1%{?dist}
 License: GPLv2
 Group: System Environment/Kernel
 URL: http://www.sciencething.org/geekthings/UVFS_README.html
 
-Source: http://dl.sf.net/project/uvfs/uvfs/%{version}/uvfs_%{version}.tar.gz
+Source: http://dl.sf.net/project/uvfs/uvfs/%{version}/uvfs-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 %description
@@ -21,7 +21,7 @@ Utility to signal the filesystem to shutdown the file system or provide
 debugging information.
 
 %prep
-%setup -n %{real_name}_%{version}
+%setup -n %{real_name}-%{version}
 
 %build
 %{__make} uvfs_signal
@@ -39,6 +39,9 @@ debugging information.
 /sbin/uvfs_signal
 
 %changelog
+* Thu Feb 27 2014 Dag Wieers <dag@wieers.com> - 2.0.6.1-1
+- Updated to release 2.0.6.1.
+
 * Tue Oct 15 2013 Dag Wieers <dag@wieers.com> - 2.0.6-1
 - Updated to release 2.0.6.
 
