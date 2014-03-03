@@ -322,7 +322,7 @@ int main(int argc, char *argv[])
 			goto exit;
 		}
 
-		if (dev->device_class == 0x0300) {
+		if ((dev->device_class & 0xff00) == 0x0300) {
 
 			/* Get the name of the device */
 			name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
