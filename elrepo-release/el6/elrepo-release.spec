@@ -15,7 +15,7 @@ Source1: RPM-GPG-KEY-elrepo.org
 BuildArch: noarch
 
 # To prevent users installing on the wrong dist
-Requires: kernel = 2.6.32
+Requires: glibc = 2.12
 
 %description
 This package contains yum configuration for the ELRepo.org Community Enterprise Linux Repository, as well as the public GPG keys used to sign packages.
