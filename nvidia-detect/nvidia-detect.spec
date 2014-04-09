@@ -1,5 +1,5 @@
 Name:    nvidia-detect
-Version: 331.49
+Version: 331.67
 Release: 1%{?dist}
 Group:   Applications/System
 License: GPLv2
@@ -37,6 +37,13 @@ A utility to detect NVIDIA graphics cards.
 %{_bindir}/nvidia-detect
 
 %changelog
+* Wed Apr 09 2014 Philip J Perry <phil@elrepo.org> - 331.67-1
+- Add support for detection of devices added to 331.67 driver release
+
+* Wed Mar 05 2014 Philip J Perry <phil@elrepo.org> - 331.49-2
+- Add mask to device_class to detect all display classes
+  [http://elrepo.org/bugs/view.php?id=462]
+
 * Wed Feb 19 2014 Philip J Perry <phil@elrepo.org> - 331.49-1
 - Add support for detection of devices added to 331.49 driver release
 
