@@ -29,6 +29,7 @@ Source4:	nvidia-config-display
 Source5:	nvidia.modprobe
 Source6:	nvidia.nodes
 Source7:	alternate-install-present
+Source8:	02nvidia-uvm
 
 # Fix broken SONAME dependency chain
 %ifarch i386
@@ -314,9 +315,9 @@ desktop-file-install --vendor elrepo \
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sbindir}/
 %{__install} -p -m 0755 %{SOURCE4} $RPM_BUILD_ROOT%{_sbindir}/nvidia-config-display
 
-# Install modprobe.d file
-%{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/
-%{__install} -p -m 0644 %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/nvidia
+# Install modprobe.d file -- not needed anymore, module registers this automatically
+# %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/
+# %{__install} -p -m 0644 %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/nvidia
 
 # Install udev configuration file
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/udev/makedev.d/
@@ -325,6 +326,10 @@ desktop-file-install --vendor elrepo \
 # Install alternate-install-present file
 # This file tells the NVIDIA installer that a packaged version of the driver is already present on the system
 %{__install} -p -m 0644 %{SOURCE7} $RPM_BUILD_ROOT%{nvidialibdir}/alternate-install-present
+
+# Install device creation rule for nvidia-uvm
+%{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/makedev.d/
+%{__install} -p -m 0644 %{SOURCE8} $RPM_BUILD_ROOT%{_sysconfdir}/makedev.d/
 
 # Install ld.so.conf.d file
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
@@ -385,9 +390,10 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %config(noreplace) %{_sysconfdir}/profile.d/nvidia.sh
 %{_bindir}/nvidia*
 %{_sbindir}/nvidia-config-display
-%config %{_sysconfdir}/modprobe.d/nvidia
+#%config %{_sysconfdir}/modprobe.d/nvidia
 %config %{_sysconfdir}/ld.so.conf.d/nvidia.conf
 %config %{_sysconfdir}/udev/makedev.d/60-nvidia.nodes
+%config %{_sysconfdir}/makedev.d/02nvidia-uvm
 %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 
 # now the libs
