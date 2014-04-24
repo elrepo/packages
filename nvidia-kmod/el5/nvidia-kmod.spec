@@ -54,8 +54,6 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "/usr/lib/rpm/redhat/find-requires | %{__sed} -e '/^ksym.*/d'" > filter-requires.sh
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 echo "override %{kmod_name}-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
-echo "options nvidia NVreg_ModifyDeviceFiles=0" > %{kmod_name}.conf
-echo "alias char-major-242-0 nvidia-uvm" >> %{kmod_name}.conf
 
 %ifarch i686
 sh %{SOURCE0} --extract-only --target nvidiapkg
@@ -93,8 +91,6 @@ for kvariant in %{kvariants} ; do
 done
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -p -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
-%{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d/
-%{__install} -p -m 0644 %{kmod_name}.conf %{buildroot}%{_sysconfdir}/modprobe.d/
 
 %clean
 %{__rm} -rf %{buildroot}
