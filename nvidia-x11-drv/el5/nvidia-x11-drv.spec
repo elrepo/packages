@@ -315,9 +315,9 @@ desktop-file-install --vendor elrepo \
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sbindir}/
 %{__install} -p -m 0755 %{SOURCE4} $RPM_BUILD_ROOT%{_sbindir}/nvidia-config-display
 
-# Install modprobe.d file -- not needed anymore, module registers this automatically
-# %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/
-# %{__install} -p -m 0644 %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/nvidia
+# Install modprobe.d file
+%{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/
+%{__install} -p -m 0644 %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/nvidia
 
 # Install udev configuration file
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/udev/makedev.d/
@@ -390,7 +390,7 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %config(noreplace) %{_sysconfdir}/profile.d/nvidia.sh
 %{_bindir}/nvidia*
 %{_sbindir}/nvidia-config-display
-#%config %{_sysconfdir}/modprobe.d/nvidia
+%config %{_sysconfdir}/modprobe.d/nvidia
 %config %{_sysconfdir}/ld.so.conf.d/nvidia.conf
 %config %{_sysconfdir}/udev/makedev.d/60-nvidia.nodes
 %config %{_sysconfdir}/makedev.d/02nvidia-uvm

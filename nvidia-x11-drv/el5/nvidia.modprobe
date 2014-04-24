@@ -1,1 +1,2 @@
-alias char-major-195* nvidia
+options nvidia NVreg_ModifyDeviceFiles=0
+alias char-major-242-0 nvidia-uvm
