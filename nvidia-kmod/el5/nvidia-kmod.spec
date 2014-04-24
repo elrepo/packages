@@ -53,7 +53,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 %setup -q -c -T
 echo "/usr/lib/rpm/redhat/find-requires | %{__sed} -e '/^ksym.*/d'" > filter-requires.sh
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
-echo "override %{kmod_name}-uvm * weak-updates/%{kmod_name}-uvm" >> kmod-%{kmod_name}.conf
+echo "override %{kmod_name}-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 echo "options nvidia NVreg_ModifyDeviceFiles=0" > %{kmod_name}.conf
 echo "alias char-major-242-0 nvidia-uvm" >> %{kmod_name}.conf
 
