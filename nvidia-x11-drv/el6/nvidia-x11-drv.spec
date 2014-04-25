@@ -418,6 +418,7 @@ fi ||:
 %{_bindir}/nvidia*
 %{_sbindir}/nvidia-config-display
 %config(noreplace) %{_sysconfdir}/modprobe.d/blacklist-nouveau.conf
+%config(noreplace) %{_sysconfdir}/modprobe.d/nvidia.conf
 %config %{_sysconfdir}/ld.so.conf.d/nvidia.conf
 %config %{_sysconfdir}/udev/makedev.d/60-nvidia.nodes
 %{_sysconfdir}/OpenCL/vendors/nvidia.icd
