@@ -39,6 +39,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -q -c -T
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "override %{kmod_name}-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 
 %ifarch i686
 sh %{SOURCE0} --extract-only --target nvidiapkg
@@ -54,6 +55,8 @@ sh %{SOURCE1} --extract-only --target nvidiapkg
 export SYSSRC=%{_usrsrc}/kernels/%{kversion}
 pushd _kmod_build_/kernel
 %{__make} module
+cd uvm
+%{__make}
 popd
 
 %install
@@ -61,6 +64,8 @@ export INSTALL_MOD_PATH=%{buildroot}
 export INSTALL_MOD_DIR=extra/%{kmod_name}
 pushd _kmod_build_/kernel
 ksrc=%{_usrsrc}/kernels/%{kversion}
+%{__make} -C "${ksrc}" modules_install M=$PWD
+cd uvm
 %{__make} -C "${ksrc}" modules_install M=$PWD
 popd
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/

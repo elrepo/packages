@@ -53,6 +53,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 %setup -q -c -T
 echo "/usr/lib/rpm/redhat/find-requires | %{__sed} -e '/^ksym.*/d'" > filter-requires.sh
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "override %{kmod_name}-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 
 %ifarch i686
 sh %{SOURCE0} --extract-only --target nvidiapkg
@@ -71,6 +72,8 @@ for kvariant in %{kvariants} ; do
     export SYSSRC=%{_usrsrc}/kernels/%{kversion}${kvariant:+-$kvariant}-%{_target_cpu}
     pushd _kmod_build_$kvariant/kernel
     %{__make} module
+    cd uvm
+    %{__make}
     popd
 done
 
@@ -81,6 +84,8 @@ export INSTALL_MOD_DIR=extra/%{kmod_name}
 for kvariant in %{kvariants} ; do
     pushd _kmod_build_$kvariant/kernel
     ksrc=%{_usrsrc}/kernels/%{kversion}${kvariant:+-$kvariant}-%{_target_cpu}
+    %{__make} -C "${ksrc}" modules_install M=$PWD
+    cd uvm
     %{__make} -C "${ksrc}" modules_install M=$PWD
     popd
 done

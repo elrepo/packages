@@ -30,6 +30,7 @@ Source2:	nvidia-config-display
 Source3:	blacklist-nouveau.conf
 Source4:	nvidia.nodes
 Source5:	alternate-install-present
+Source6:	nvidia.modprobe
 
 # Fix broken SONAME dependency chain
 %ifarch i686
@@ -316,6 +317,9 @@ desktop-file-install \
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/
 %{__install} -p -m 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/blacklist-nouveau.conf
 
+# Install nvidia.modprobe
+%{__install} -p -m 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/nvidia.conf
+
 # Install udev configuration file
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/udev/makedev.d/
 %{__install} -p -m 0644 %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/udev/makedev.d/60-nvidia.nodes
@@ -414,6 +418,7 @@ fi ||:
 %{_bindir}/nvidia*
 %{_sbindir}/nvidia-config-display
 %config(noreplace) %{_sysconfdir}/modprobe.d/blacklist-nouveau.conf
+%config(noreplace) %{_sysconfdir}/modprobe.d/nvidia.conf
 %config %{_sysconfdir}/ld.so.conf.d/nvidia.conf
 %config %{_sysconfdir}/udev/makedev.d/60-nvidia.nodes
 %{_sysconfdir}/OpenCL/vendors/nvidia.icd

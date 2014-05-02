@@ -385,7 +385,7 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %config(noreplace) %{_sysconfdir}/profile.d/nvidia.sh
 %{_bindir}/nvidia*
 %{_sbindir}/nvidia-config-display
-%config %{_sysconfdir}/modprobe.d/nvidia
+%config(noreplace) %{_sysconfdir}/modprobe.d/nvidia
 %config %{_sysconfdir}/ld.so.conf.d/nvidia.conf
 %config %{_sysconfdir}/udev/makedev.d/60-nvidia.nodes
 %{_sysconfdir}/OpenCL/vendors/nvidia.icd
