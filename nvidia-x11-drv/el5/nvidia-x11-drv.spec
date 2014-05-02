@@ -316,7 +316,7 @@ desktop-file-install --vendor elrepo \
 
 # Install modprobe.d file
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/
-%{__install} -p -m 0644 %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/nvidia
+%{__install} -p -m 0644 %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/nvidia.conf
 
 # Install udev configuration file
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/udev/makedev.d/
@@ -385,7 +385,7 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %config(noreplace) %{_sysconfdir}/profile.d/nvidia.sh
 %{_bindir}/nvidia*
 %{_sbindir}/nvidia-config-display
-%config(noreplace) %{_sysconfdir}/modprobe.d/nvidia
+%config(noreplace) %{_sysconfdir}/modprobe.d/nvidia.conf
 %config %{_sysconfdir}/ld.so.conf.d/nvidia.conf
 %config %{_sysconfdir}/udev/makedev.d/60-nvidia.nodes
 %{_sysconfdir}/OpenCL/vendors/nvidia.icd
