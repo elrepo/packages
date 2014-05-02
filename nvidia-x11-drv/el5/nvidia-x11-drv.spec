@@ -5,7 +5,7 @@
 
 Name:		nvidia-x11-drv
 Version:	331.67
-Release:	1%{?dist}
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -415,6 +415,9 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %endif
 
 %changelog
+* Fri May 02 2014 Philip J Perry <phil@elrepo.org> - 331.67-2.el5.elrepo
+- Add support for the nvidia-uvm module required for CUDA
+
 * Wed Apr 09 2014 Philip J Perry <phil@elrepo.org> - 331.67-1.el5.elrepo
 - Updated to version 331.67
 - Added missing libnvidia-fbc.so to the 32-bit compat package
