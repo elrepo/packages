@@ -72,7 +72,8 @@ for kvariant in %{kvariants} ; do
     export SYSSRC=%{_usrsrc}/kernels/%{kversion}${kvariant:+-$kvariant}-%{_target_cpu}
     pushd _kmod_build_$kvariant/kernel
     %{__make} module
-    cd uvm
+    popd
+    pushd _kmod_build_$kvariant/kernel/uvm
     %{__make}
     popd
 done
@@ -82,10 +83,11 @@ done
 export INSTALL_MOD_PATH=%{buildroot}
 export INSTALL_MOD_DIR=extra/%{kmod_name}
 for kvariant in %{kvariants} ; do
-    pushd _kmod_build_$kvariant/kernel
     ksrc=%{_usrsrc}/kernels/%{kversion}${kvariant:+-$kvariant}-%{_target_cpu}
+    pushd _kmod_build_$kvariant/kernel
     %{__make} -C "${ksrc}" modules_install M=$PWD
-    cd uvm
+    popd
+    pushd _kmod_build_$kvariant/kernel/uvm
     %{__make} -C "${ksrc}" modules_install M=$PWD
     popd
 done

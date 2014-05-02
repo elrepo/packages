@@ -55,17 +55,19 @@ sh %{SOURCE1} --extract-only --target nvidiapkg
 export SYSSRC=%{_usrsrc}/kernels/%{kversion}
 pushd _kmod_build_/kernel
 %{__make} module
-cd uvm
+popd
+pushd _kmod_build_/kernel/uvm
 %{__make}
 popd
 
 %install
 export INSTALL_MOD_PATH=%{buildroot}
 export INSTALL_MOD_DIR=extra/%{kmod_name}
-pushd _kmod_build_/kernel
 ksrc=%{_usrsrc}/kernels/%{kversion}
+pushd _kmod_build_/kernel
 %{__make} -C "${ksrc}" modules_install M=$PWD
-cd uvm
+popd
+pushd _kmod_build_/kernel/uvm
 %{__make} -C "${ksrc}" modules_install M=$PWD
 popd
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
