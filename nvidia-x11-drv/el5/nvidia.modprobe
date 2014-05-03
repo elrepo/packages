@@ -1,2 +1,14 @@
-options nvidia NVreg_ModifyDeviceFiles=0
-install nvidia /sbin/modprobe --ignore-install nvidia && /sbin/modprobe nvidia-uvm && /bin/mknod -m 0600 /dev/nvidia-uvm c `/bin/grep nvidia-uvm /proc/devices | /bin/cut -d' ' -f1` 0 && /sbin/pam_console_apply /dev/nvidia-uvm
+#
+# /etc/modprobe.d/nvidia.conf provided by http://elrepo.org
+#
+# This configuration file may be used to pass options to nvidia-modprobe
+# and control the loading of nvidia kernel modules. Some example configuration
+# are provided and may be uncommented for use.
+#
+
+# Uncomment the following line to always load the nvidia-uvm kernel module
+# and create the associated device files
+# install nvidia /sbin/modprobe --ignore-install nvidia && /sbin/modprobe nvidia-uvm && /bin/mknod -m 0600 /dev/nvidia-uvm c `/bin/grep nvidia-uvm /proc/devices | /bin/cut -d' ' -f1` 0 && /sbin/pam_console_apply /dev/nvidia-uvm
+
+# Disable dynamic device file management
+# options nvidia NVreg_ModifyDeviceFiles=0
