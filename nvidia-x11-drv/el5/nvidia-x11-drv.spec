@@ -119,6 +119,7 @@ pushd nvidiapkg
 %{__install} -p -m 0755 nvidia-cuda-mps-control $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-cuda-mps-server $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-debugdump $RPM_BUILD_ROOT%{_bindir}/
+%{__install} -p -m 0755 nvidia-modprobe $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-settings $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-smi $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-xconfig $RPM_BUILD_ROOT%{_bindir}/
@@ -279,7 +280,7 @@ pushd nvidiapkg
 
 # Install man pages
 %{__mkdir_p} $RPM_BUILD_ROOT%{_mandir}/man1/
-%{__install} -p -m 0644 nvidia-{cuda-mps-control,settings,smi,xconfig}.1.gz $RPM_BUILD_ROOT%{_mandir}/man1/
+%{__install} -p -m 0644 nvidia-{cuda-mps-control,modprobe,settings,smi,xconfig}.1.gz $RPM_BUILD_ROOT%{_mandir}/man1/
 
 # Install pixmap for the desktop entry
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/pixmaps/
@@ -383,7 +384,14 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %{_datadir}/nvidia/nvidia-application-profiles-*
 %config(noreplace) %{_sysconfdir}/profile.d/nvidia.csh
 %config(noreplace) %{_sysconfdir}/profile.d/nvidia.sh
-%{_bindir}/nvidia*
+%{_bindir}/nvidia-bug-report.sh
+%{_bindir}/nvidia-cuda-mps-control
+%{_bindir}/nvidia-cuda-mps-server
+%{_bindir}/nvidia-debugdump
+%attr(4755, root, root) %{_bindir}/nvidia-modprobe
+%{_bindir}/nvidia-settings
+%{_bindir}/nvidia-smi
+%{_bindir}/nvidia-xconfig
 %{_sbindir}/nvidia-config-display
 %config(noreplace) %{_sysconfdir}/modprobe.d/nvidia.conf
 %config %{_sysconfdir}/ld.so.conf.d/nvidia.conf
