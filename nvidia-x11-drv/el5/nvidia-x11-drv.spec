@@ -5,7 +5,7 @@
 
 Name:		nvidia-x11-drv
 Version:	331.67
-Release:	2%{?dist}
+Release:	3%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -423,6 +423,10 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %endif
 
 %changelog
+* Sat May 03 2014 Philip J Perry <phil@elrepo.org> - 331.67-3.el5.elrepo
+- Add nvidia-modprobe
+- Comment out options in /etc/modprobe.d/nvidia.conf
+
 * Fri May 02 2014 Philip J Perry <phil@elrepo.org> - 331.67-2.el5.elrepo
 - Add support for the nvidia-uvm module required for CUDA
 

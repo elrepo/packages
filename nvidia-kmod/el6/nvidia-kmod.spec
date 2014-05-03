@@ -6,7 +6,7 @@
 
 Name:	 %{kmod_name}-kmod
 Version: 331.67
-Release: 2%{?dist}
+Release: 3%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
@@ -79,6 +79,9 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat May 03 2014 Philip J Perry <phil@elrepo.org> - 331.67-3.el6.elrepo
+- Add nvidia-modprobe
+
 * Fri May 02 2014 Philip J Perry <phil@elrepo.org> - 331.67-2.el6.elrepo
 - Build the nvidia-uvm module required for CUDA
 
