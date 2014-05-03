@@ -74,7 +74,7 @@ for kvariant in %{kvariants} ; do
     %{__make} module
     popd
     pushd _kmod_build_$kvariant/kernel/uvm
-    %{__make}
+    %{__make} module
     popd
 done
 

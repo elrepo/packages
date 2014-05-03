@@ -57,7 +57,7 @@ pushd _kmod_build_/kernel
 %{__make} module
 popd
 pushd _kmod_build_/kernel/uvm
-%{__make}
+%{__make} module
 popd
 
 %install
