@@ -45,6 +45,7 @@ Requires(post):	/usr/sbin/ldconfig
 
 Requires(post):	 grubby
 Requires(preun): grubby
+Requires(preun): sed
 
 # elrepo
 Conflicts:	nvidia-x11-drv-304xx
