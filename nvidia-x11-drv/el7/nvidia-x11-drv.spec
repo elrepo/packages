@@ -307,6 +307,10 @@ if [ "$1" -eq "1" ]; then # new install
     [ ! -f %{_sysconfdir}/X11/xorg.conf ] && \
       cp -p %{_sysconfdir}/X11/nvidia-xorg.conf %{_sysconfdir}/X11/xorg.conf &>/dev/null
     # Disable the nouveau driver
+    if [ -f /etc/default/grub ]; then
+      echo "GRUB_CMDLINE_LINUX_DEFAULT=\"nouveau.modeset=0 rd.driver.blacklist=nouveau\"" >> \
+        /etc/default/grub
+    fi
     if [ -x /usr/sbin/grubby ]; then
       # get installed kernels
       for KERNEL in $(rpm -q --qf '%{v}-%{r}.%{arch}\n' kernel); do
@@ -332,6 +336,10 @@ if [ "$1" -eq "0" ]; then # uninstall
     # Backup and remove xorg.conf
     [ -f %{_sysconfdir}/X11/xorg.conf ] && \
       mv %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/post-nvidia.xorg.conf.elreposave &>/dev/null
+    if [ -f /etc/default/grub ]; then
+      /usr/bin/sed -i -e 's|GRUB_CMDLINE_LINUX_DEFAULT="nouveau.modeset=0 rd.driver.blacklist=nouveau"||g' \
+        /etc/default/grub
+    fi
     # Clear grub option to disable nouveau for all RHEL7 kernels
     if [ -x /usr/sbin/grubby ]; then
       # get installed kernels
