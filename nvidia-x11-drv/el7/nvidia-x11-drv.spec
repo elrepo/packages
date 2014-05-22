@@ -347,7 +347,7 @@ if [ "$1" -eq "0" ]; then # uninstall
         VMLINUZ="/boot/vmlinuz-"$KERNEL
         if [[ -e "$VMLINUZ" ]]; then
           /usr/sbin/grubby --update-kernel="$VMLINUZ" \
-            --remove-args='nouveau.modeset=0 rdblacklist=nouveau nomodeset' &>/dev/null
+            --remove-args='nouveau.modeset=0 rd.driver.blacklist=nouveau' &>/dev/null
         fi
       done
     fi
