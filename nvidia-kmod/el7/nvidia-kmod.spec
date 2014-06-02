@@ -17,6 +17,7 @@ ExclusiveArch: x86_64
 
 # Sources.
 Source0:  ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+Source1:  blacklist-nouveau.conf
 Source10: kmodtool-%{kmod_name}-el7.sh
 
 NoSource: 0
@@ -58,6 +59,8 @@ pushd _kmod_build_/kernel/uvm
 popd
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
+%{__install} -d %{buildroot}%{_prefix}/lib/modprobe.d/
+%{__install} %{SOURCE1} %{buildroot}%{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
 
 %clean
 %{__rm} -rf %{buildroot}

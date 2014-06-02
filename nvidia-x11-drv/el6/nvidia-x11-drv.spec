@@ -9,8 +9,8 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	331.67
-Release:	3%{?dist}
+Version:	331.79
+Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -453,6 +453,9 @@ fi ||:
 %endif
 
 %changelog
+* Wed May 21 2014 Philip J Perry <phil@elrepo.org> - 331.79-1.el6.elrepo
+- Updated to version 331.79
+
 * Sat May 03 2014 Philip J Perry <phil@elrepo.org> - 331.67-3.el6.elrepo
 - Add nvidia-modprobe
 - Comment out options in /etc/modprobe.d/nvidia.conf

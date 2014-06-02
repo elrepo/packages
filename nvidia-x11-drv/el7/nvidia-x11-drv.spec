@@ -25,9 +25,8 @@ NoSource: 0
 
 Source1:	nvidia-xorg.conf
 Source2:	99-nvidia.conf
-Source3:	blacklist-nouveau.conf
-Source4:	nvidia.ld.so.conf
-Source5:	alternate-install-present
+Source3:	nvidia.ld.so.conf
+Source4:	alternate-install-present
 
 # Fix broken SONAME dependency chain
 Provides: libnvcuvid.so()(64bit)
@@ -45,7 +44,6 @@ Requires(post):	/usr/sbin/ldconfig
 
 Requires(post):	 grubby
 Requires(preun): grubby
-Requires(preun): sed
 
 # elrepo
 Conflicts:	nvidia-x11-drv-304xx
@@ -276,15 +274,12 @@ desktop-file-install \
 %{__install} -p -m 0644 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/X11/nvidia-xorg.conf
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/
 %{__install} -p -m 0644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
-# Blacklist the nouveau driver
-%{__mkdir_p} $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
-%{__install} -p -m 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
 # Install ld.so.conf.d file
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
-%{__install} -p -m 0644 %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia.conf
+%{__install} -p -m 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia.conf
 # Install alternate-install-present file
 # This file tells the NVIDIA installer that a packaged version of the driver is already present on the system
-%{__install} -p -m 0644 %{SOURCE5} $RPM_BUILD_ROOT%{nvidialibdir}/alternate-install-present
+%{__install} -p -m 0644 %{SOURCE4} $RPM_BUILD_ROOT%{nvidialibdir}/alternate-install-present
 
 popd
 
@@ -308,10 +303,6 @@ if [ "$1" -eq "1" ]; then # new install
     [ ! -f %{_sysconfdir}/X11/xorg.conf ] && \
       cp -p %{_sysconfdir}/X11/nvidia-xorg.conf %{_sysconfdir}/X11/xorg.conf &>/dev/null
     # Disable the nouveau driver
-    if [ -f /etc/default/grub ]; then
-      echo "GRUB_CMDLINE_LINUX_DEFAULT=\"nouveau.modeset=0 rd.driver.blacklist=nouveau\"" >> \
-        /etc/default/grub
-    fi
     if [ -x /usr/sbin/grubby ]; then
       # get installed kernels
       for KERNEL in $(rpm -q --qf '%{v}-%{r}.%{arch}\n' kernel); do
@@ -337,10 +328,6 @@ if [ "$1" -eq "0" ]; then # uninstall
     # Backup and remove xorg.conf
     [ -f %{_sysconfdir}/X11/xorg.conf ] && \
       mv %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/post-nvidia.xorg.conf.elreposave &>/dev/null
-    if [ -f /etc/default/grub ]; then
-      /usr/bin/sed -i -e 's|GRUB_CMDLINE_LINUX_DEFAULT="nouveau.modeset=0 rd.driver.blacklist=nouveau"||g' \
-        /etc/default/grub
-    fi
     # Clear grub option to disable nouveau for all RHEL7 kernels
     if [ -x /usr/sbin/grubby ]; then
       # get installed kernels
@@ -377,7 +364,6 @@ fi ||:
 %{_bindir}/nvidia-xconfig
 %config %{_sysconfdir}/X11/nvidia-xorg.conf
 %config %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
-%config(noreplace) %{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
 %config %{_sysconfdir}/ld.so.conf.d/nvidia.conf
 %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 

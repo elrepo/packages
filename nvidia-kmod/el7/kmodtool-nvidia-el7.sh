@@ -151,7 +151,7 @@ get_rpmtemplate ()
     echo "%global _use_internal_dependency_generator 0"
 
     cat <<EOF
-Provides:         kabi-modules >= ${verrel_dep}${dotvariant}
+Provides:         kernel-modules >= ${verrel_dep}${dotvariant}
 Provides:         ${kmod_name}-kmod = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:         ${kmod_name}-x11-drv = %{?epoch:%{epoch}:}%{version}
 Requires(post):   /usr/sbin/depmod
@@ -217,6 +217,7 @@ then
     echo "%defattr(644,root,root,755)"
     echo "/lib/modules/${verrel}${dotvariant}/"
     echo "%config /etc/depmod.d/kmod-${kmod_name}.conf"
+    echo "%config /usr/lib/modprobe.d/blacklist-nouveau.conf"
 else
     cat "$override_filelist" | get_filelist
 fi

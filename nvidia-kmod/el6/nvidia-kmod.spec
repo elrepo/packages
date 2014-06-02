@@ -5,8 +5,8 @@
 %{!?kversion: %define kversion 2.6.32-431.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 331.67
-Release: 3%{?dist}
+Version: 331.79
+Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
@@ -79,6 +79,9 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed May 21 2014 Philip J Perry <phil@elrepo.org> - 331.79-1.el6.elrepo
+- Updated to version 331.79
+
 * Sat May 03 2014 Philip J Perry <phil@elrepo.org> - 331.67-3.el6.elrepo
 - Add nvidia-modprobe
 
