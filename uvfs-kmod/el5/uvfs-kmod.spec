@@ -1,23 +1,27 @@
 # Define the kmod package name here.
 %define kmod_name uvfs
+%define real_name pmfs
+
+# Disable stripping
+%define __os_install_post %{nil}
 
 # If kversion isn't defined on the rpmbuild line, define it here.
 %{!?kversion: %define kversion 2.6.18-8.el5}
 
-Name:    %{kmod_name}-kmod
-Version: 2.0.5
-Release: 1%{?dist}
-Group:   System Environment/Kernel
-License: GPLv2
 Summary: %{kmod_name} kernel module(s)
-URL:     http://sourceforge.net/projects/uvfs/
+Name: %{kmod_name}-kmod
+Version: 2.0.6.1
+Release: 1%{?dist}
+License: GPLv2
+Group: System Environment/Kernel
+URL: http://sourceforge.net/projects/uvfs/
 
 BuildRequires: redhat-rpm-config
-BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 ExclusiveArch: i686 x86_64
 
 # Sources.
-Source0:  %{kmod_name}_%{version}.tar.gz
+Source0: http://dl.sf.net/project/uvfs/uvfs/%{version}/%{kmod_name}-%{version}.tar.gz
 Source10: kmodtool-%{kmod_name}-el5.sh
 
 # Define the variants for each architecture.
@@ -49,11 +53,11 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -q -c -T -a 0
 for kvariant in %{kvariants} ; do
-    %{__cp} -a %{kmod_name}_%{version} _kmod_build_$kvariant
+    %{__cp} -a %{kmod_name}-%{version} _kmod_build_$kvariant
 done
 echo "/usr/lib/rpm/redhat/find-requires | %{__sed} -e '/^ksym.*/d'" > filter-requires.sh
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
-%{__cp} %{kmod_name}_%{version}/{GPL,LGPL,README} .
+%{__cp} %{kmod_name}-%{version}/{GPL,LGPL,README} .
 
 %build
 for kvariant in %{kvariants} ; do
@@ -80,5 +84,11 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Feb 27 2014 Dag Wieers <dag@wieers.com> - 2.0.6.1-1
+- Updated to release 2.0.6.1.
+
+* Tue Oct 15 2013 Dag Wieers <dag@wieers.com> - 2.0.6-1
+- Updated to release 2.0.6.
+
 * Thu Aug 02 2012 Dag Wieers <dag@wieers.com> - 2.0.5-1
 - Initial el5 build of the kmod package.

@@ -4,7 +4,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv-304xx
-Version:	304.88
+Version:	304.121
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -330,6 +330,19 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %endif
 
 %changelog
+* Wed Apr 09 2014 Philip J Perry <phil@elrepo.org> - 304.121-1.el5.elrepo
+- Updated to version 304.121
+
+* Wed Feb 19 2014 Philip J Perry <phil@elrepo.org> - 304.119-1.el5.elrepo
+- Updated to version 304.119
+
+* Mon Dec 23 2013 Philip J Perry <phil@elrepo.org> - 304.117-1.el5.elrepo
+- Updated to version 304.117
+- Adds support for Xorg Server 1.15
+
+* Wed Aug 14 2013 Philip J Perry <phil@elrepo.org> - 304.108-1.el5.elrepo
+- Updated to version 304.108
+
 * Thu Apr 04 2013 Philip J Perry <phil@elrepo.org> - 304.88-1.el5.elrepo
 - Updated to version 304.88
 

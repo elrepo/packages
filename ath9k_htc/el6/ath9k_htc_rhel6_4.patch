@@ -1,0 +1,45 @@
+ath9k_htc: Fix build on RHEL6_4
+
+Signed-off-by: Philip J Perry <phil@elrepo.org>
+
+--- a/ath/ath9k/hif_usb.c	2013-06-17 19:36:32.000000000 +0100
++++ b/ath/ath9k/hif_usb.c	2013-08-05 17:50:12.000000000 +0100
+@@ -17,6 +17,10 @@
+ #include <asm/unaligned.h>
+ #include "htc.h"
+ 
++#ifndef ATH9K_HTC_RHEL6_4
++#define ATH9K_HTC_RHEL6_4
++#endif
++
+ /* identify firmware images */
+ #define FIRMWARE_AR7010_1_1     "htc_7010.fw"
+ #define FIRMWARE_AR9271         "htc_9271.fw"
+@@ -1076,13 +1080,17 @@ static void ath9k_hif_usb_firmware_fail(
+ 
+ 	complete(&hif_dev->fw_done);
+ 
++#ifndef ATH9K_HTC_RHEL6_4
+ 	if (parent)
+ 		device_lock(parent);
++#endif
+ 
+ 	device_release_driver(&hif_dev->udev->dev);
+ 
++#ifndef ATH9K_HTC_RHEL6_4
+ 	if (parent)
+ 		device_unlock(parent);
++#endif
+ }
+ 
+ static void ath9k_hif_usb_firmware_cb(const struct firmware *fw, void *context)
+@@ -1358,7 +1366,9 @@ static struct usb_driver ath9k_hif_usb_d
+ #endif
+ 	.id_table = ath9k_hif_usb_ids,
+ 	.soft_unbind = 1,
++#ifndef ATH9K_HTC_RHEL6_4
+ 	.disable_hub_initiated_lpm = 1,
++#endif
+ };
+ 
+ int ath9k_hif_usb_init(void)

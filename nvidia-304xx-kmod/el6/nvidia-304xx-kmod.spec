@@ -2,10 +2,10 @@
 %define	 kmod_name nvidia-304xx
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-358.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-431.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 304.88
+Version: 304.121
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -72,6 +72,19 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Apr 09 2014 Philip J Perry <phil@elrepo.org> - 304.121-1.el6.elrepo
+- Updated to version 304.121
+
+* Wed Feb 19 2014 Philip J Perry <phil@elrepo.org> - 304.119-1.el6.elrepo
+- Updated to version 304.119
+
+* Mon Dec 23 2013 Philip J Perry <phil@elrepo.org> - 304.117-1.el6.elrepo
+- Updated to version 304.117
+- Adds support for Xorg Server 1.15
+
+* Wed Aug 14 2013 Philip J Perry <phil@elrepo.org> - 304.108-1.el6.elrepo
+- Updated to version 304.108
+
 * Thu Apr 04 2013 Philip J Perry <phil@elrepo.org> - 304.88-1.el6.elrepo
 - Updated to version 304.88
 

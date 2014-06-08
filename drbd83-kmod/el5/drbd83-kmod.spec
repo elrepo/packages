@@ -10,7 +10,7 @@
 
 Summary: Distributed Redundant Block Device driver for Linux
 Name: %{kmod_name}-kmod
-Version: 8.3.15
+Version: 8.3.16
 Release: 1%{?dist}
 License: GPL
 Group: System Environment/Kernel
@@ -99,8 +99,14 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Sep 27 2013 Philip J Perry <phil@elrepo.org> - 8.3.16-1
+- Updated to release 8.3.16.
+
 * Fri Dec 21 2012 Philip J Perry <phil@elrepo.org> - 8.3.15-1
 - Updated to release 8.3.15.
+
+* Sat Oct 27 2012 Dag Wieers <dag@wieers.com> - 8.3.14-1
+- Updated to release 8.3.14.
 
 * Mon May 07 2012 Dag Wieers <dag@wieers.com> - 8.3.13-1
 - Updated to release 8.3.13.

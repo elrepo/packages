@@ -5,8 +5,8 @@
 
 Summary: Management utilities for DRBD
 Name: drbd84-utils
-Version: 8.4.2
-Release: 1%{?dist}
+Version: 8.4.4
+Release: 2%{?dist}
 License: GPLv2+
 Group: System Environment/Kernel
 URL: http://www.drbd.org/
@@ -57,6 +57,12 @@ scripts for heartbeat, pacemaker, rgmanager and xen.
 %{__rm} -rf %{buildroot}
 %{__make} install DESTDIR="%{buildroot}"
 
+# Moved to /usr/sbin, symlink to /sbin for compatibility
+%{__mkdir_p} %{buildroot}/sbin/
+%{__ln_s} %{_sbindir}/drbdadm %{buildroot}/sbin/
+%{__ln_s} %{_sbindir}/drbdmeta %{buildroot}/sbin/
+%{__ln_s} %{_sbindir}/drbdsetup %{buildroot}/sbin/
+
 %clean
 %{__rm} -rf %{buildroot}
 
@@ -103,6 +109,9 @@ fi
 /sbin/drbdadm
 /sbin/drbdmeta
 /sbin/drbdsetup
+%{_sbindir}/drbdadm
+%{_sbindir}/drbdmeta
+%{_sbindir}/drbdsetup
 %{_sbindir}/drbd-overview
 %dir %{_prefix}/lib/drbd/
 %{_prefix}/lib/drbd/notify-out-of-sync.sh
@@ -137,6 +146,16 @@ fi
 %{_sysconfdir}/xen/scripts/block-drbd
 
 %changelog
+* Fri Oct 25 2013 Philip J Perry <phil@elrepo.org> - 8.4.4-2
+- Add symlinks for drbd files moved from /sbin to /usr/sbin
+  [http://elrepo.org/bugs/view.php?id=418]
+
+* Sat Oct 12 2013 Philip J Perry <phil@elrepo.org> - 8.4.4-1
+- Updated to release 8.4.4.
+
+* Sat Jul 06 2013 Akemi Yagi <toracat@elrepo.org> - 8.4.3-1
+-Updated to release 8.4.3.
+
 * Thu Sep 06 2012 Dag Wieers <dag@elrepo.org> - 8.4.1-2
 - Updated to release 8.4.2.
 

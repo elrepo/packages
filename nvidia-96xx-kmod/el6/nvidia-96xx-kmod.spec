@@ -2,10 +2,13 @@
 %define	 kmod_name nvidia-96xx
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-71.el6.%{_target_cpu}}
+# Lets build against the latest release as RHEL6_3 has kABI issues
+# https://access.redhat.com/knowledge/solutions/220223
+# Fixed in kernel 2.6.32-279.11.1.el6 onwards
+%{!?kversion: %define kversion 2.6.32-279.22.1.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 96.43.19
+Version: 96.43.23
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -70,6 +73,12 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Feb 19 2013 Philip J Perry <phil@elrepo.org> - 96.43.23-1.el6.elrepo
+- Update to version 96.43.23.
+
+* Sat Dec 10 2011 Philip J Perry <phil@elrepo.org> - 96.43.20-1.el6.elrepo
+- Update to version 96.43.20.
+
 * Fri Feb 04 2011 Philip J Perry <phil@elrepo.org> - 96.43.19-1.el6.elrepo
 - Fork to el6
 - Update to version 96.43.19.

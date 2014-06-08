@@ -8,22 +8,38 @@ correct driver to use based on any matches found. For example:
 $ nvidia-detect
 Probing for supported NVIDIA devices...
 [10de:0ca3] NVIDIA Corporation GT215 [GeForce GT 240]
-This device requires the current NVIDIA driver (kmod-nvidia).
+This device requires the current 331.67 NVIDIA driver kmod-nvidia
 
 $ nvidia-detect
 Probing for supported NVIDIA devices...
 [10de:0392] NVIDIA Corporation G73 [GeForce 7600 GS]
-This device requires the legacy 304.xx NVIDIA driver (kmod-nvidia-304xx).
+This device requires the legacy 304.xx NVIDIA driver kmod-nvidia-304xx
+
+
+nvidia-detect will also check compatibility between the detected devices
+recommended driver and the current Xorg Server. The Xorg compatibility tests
+are always performed and compatibility information is displayed if run with the
+--xorg (-x) command line argument:
+
+$ nvidia-detect --xorg
+Probing for supported NVIDIA devices...
+[10de:0ca3] NVIDIA Corporation GT215 [GeForce GT 240]
+This device requires the current 331.67 NVIDIA driver kmod-nvidia
+
+Checking ABI compatibility with Xorg Server...
+Xorg Video Driver ABI detected: 13
+ABI compatibility check passed
+
 
 nvidia-detect may be run from within a script and will return the following codes:
 
 0: No supported devices found
-1: Device supported by the current 319.17 NVIDIA driver
+1: Device supported by the current 331.67 NVIDIA driver
 2: Device supported by the legacy 96.xx NVIDIA driver
 3: Device supported by the legacy 173.xx NVIDIA driver
 4: Device supported by the legacy 304.xx NVIDIA driver
 
 For a full list of supported devices, see:
-ftp://download.nvidia.com/XFree86/Linux-x86_64/319.17/README/supportedchips.html
+ftp://download.nvidia.com/XFree86/Linux-x86_64/331.67/README/supportedchips.html
 
 Bugs should be reported at http://elrepo.org/bugs

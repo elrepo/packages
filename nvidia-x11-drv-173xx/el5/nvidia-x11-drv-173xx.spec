@@ -5,7 +5,7 @@
 %define		debug_packages	%{nil}
 
 Name:		nvidia-x11-drv-173xx
-Version:	173.14.36
+Version:	173.14.39
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -303,6 +303,9 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %endif
 
 %changelog
+* Mon Feb 10 2014 Philip J Perry <phil@elrepo.org> - 173.14.39-1.el5.elrepo
+- Update to version 173.14.39.
+
 * Sat Mar 02 2013 Philip J Perry <phil@elrepo.org> - 173.14.36-1.el5.elrepo
 - Update to version 173.14.36.
 - Make package nosrc.

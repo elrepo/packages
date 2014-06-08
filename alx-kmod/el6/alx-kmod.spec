@@ -1,24 +1,22 @@
 # Define the kmod package name here.
 %define kmod_name alx
-%define src_name compat-wireless
-%define src_version 2012-10-03-pc
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-279.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-358.el6.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 2.20121003%{?dist}
+Release: 8%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
-URL:     http://www.linuxfoundation.org/collaborate/workgroups/networking/alx
+URL:     http://www.kernel.org/
 
 BuildRequires: redhat-rpm-config
 ExclusiveArch: i686 x86_64
 
 # Sources.
-Source0:  http://www.orbit-lab.org/kernel/compat-wireless/%{src_name}-%{src_version}.tar.bz2
+Source0:  %{kmod_name}-%{version}.tar.bz2
 Source5:  GPL-v2.0.txt
 Source10: kmodtool-%{kmod_name}-el6.sh
 
@@ -33,28 +31,19 @@ This package provides the %{kmod_name} kernel module(s).
 It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
-For more information on the development of this driver, please see:
-http://www.linuxfoundation.org/collaborate/workgroups/networking/alx
-
 %prep
-%setup -q -n %{src_name}-%{src_version}
+%setup -q -n %{kmod_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
-echo "override compat * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
-echo "override sch_codel * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
-echo "override sch_fq_codel * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 
 %build
 KSRC=%{_usrsrc}/kernels/%{kversion}
-./scripts/driver-select alx
-%{__make} KLIB=/lib/modules/%{kversion} KLIB_BUILD="${KSRC}"
+%{__make} -C "${KSRC}" %{?_smp_mflags} modules M=$PWD
 
 %install
-%{__install} -d %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
-%{__install} drivers/net/ethernet/atheros/alx/alx.ko \
-    %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
-%{__install} compat/compat.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
-%{__install} compat/sch_codel.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
-%{__install} compat/sch_fq_codel.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
+export INSTALL_MOD_PATH=%{buildroot}
+export INSTALL_MOD_DIR=extra/%{kmod_name}
+KSRC=%{_usrsrc}/kernels/%{kversion}
+%{__make} -C "${KSRC}" modules_install M=$PWD
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
@@ -68,6 +57,30 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Mon Nov 04 2013 Philip J Perry <phil@elrepo.org> - 0.0-8
+- Fix multicast stream (patch submitted by aroguez)
+  [http://elrepo.org/bugs/view.php?id=422]
+
+* Mon Jul 29 2013 Philip J Perry <phil@elrepo.org> - 0.0-7
+- Fix lockdep annotation [2013-07-28]
+
+* Wed Jul 17 2013 Philip J Perry <phil@elrepo.org> - 0.0-6
+- Rebase driver to upstream kernel code.
+- Backported from kernel-3.10.1
+
+* Sun Jul 14 2013 Alan Bartlett <ajb@elrepo.org> - 0.0-5
+- Removed previously added filter.
+- Renamed pcmcia_loop_tuple() as compat_pcmcia_loop_tuple()
+  [http://elrepo.org/bugs/view.php?id=388]
+
+* Sat Jul 13 2013 Alan Bartlett <ajb@elrepo.org> - 0.0-4
+- Added a filter to the provides.
+  [http://elrepo.org/bugs/view.php?id=388]
+
+* Mon Mar 11 2013 Paul Hampson <Paul.Hampson@Pobox.com> - 0.0-3
+- Update to compat-drivers release 2013-03-07-u with RHEL6_4-specific patches.
+  [http://elrepo.org/bugs/view.php?id=361]
+
 * Sat Dec 22 2012 Philip J Perry <phil@elrepo.org> - 0.0-2
 - Add missing modules
   [http://elrepo.org/bugs/view.php?id=306]

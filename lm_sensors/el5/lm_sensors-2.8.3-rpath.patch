@@ -1,0 +1,12 @@
+--- lm_sensors-2.8.3/Makefile.rpath	2004-03-08 18:06:52.318271655 +0100
++++ lm_sensors-2.8.3/Makefile	2004-03-08 18:08:30.344078783 +0100
+@@ -95,7 +95,8 @@
+ # library files (both static and shared) will be installed.
+ LIBDIR := $(libdir)
+ 
+-EXLDFLAGS := -Wl,-rpath,$(LIBDIR)
++#EXLDFLAGS := -Wl,-rpath,$(LIBDIR)
++EXLDFLAGS :=
+ 
+ # You should not need to change this. It is the directory into which the
+ # executable program files will be installed. BINDIR for programs that are

@@ -3,10 +3,10 @@
 
 # If kversion isn't defined on the rpmbuild line, define it here.
 # kABI compatible with kernel 2.6.18-194.el5 upwards
-%{!?kversion: %define kversion 2.6.18-348.el5}
+%{!?kversion: %define kversion 2.6.18-371.el5}
 
 Name:    %{kmod_name}-kmod
-Version: 319.23
+Version: 331.79
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -53,6 +53,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 %setup -q -c -T
 echo "/usr/lib/rpm/redhat/find-requires | %{__sed} -e '/^ksym.*/d'" > filter-requires.sh
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "override %{kmod_name}-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 
 %ifarch i686
 sh %{SOURCE0} --extract-only --target nvidiapkg
@@ -72,6 +73,9 @@ for kvariant in %{kvariants} ; do
     pushd _kmod_build_$kvariant/kernel
     %{__make} module
     popd
+    pushd _kmod_build_$kvariant/kernel/uvm
+    %{__make} module
+    popd
 done
 
 %install
@@ -79,8 +83,11 @@ done
 export INSTALL_MOD_PATH=%{buildroot}
 export INSTALL_MOD_DIR=extra/%{kmod_name}
 for kvariant in %{kvariants} ; do
-    pushd _kmod_build_$kvariant/kernel
     ksrc=%{_usrsrc}/kernels/%{kversion}${kvariant:+-$kvariant}-%{_target_cpu}
+    pushd _kmod_build_$kvariant/kernel
+    %{__make} -C "${ksrc}" modules_install M=$PWD
+    popd
+    pushd _kmod_build_$kvariant/kernel/uvm
     %{__make} -C "${ksrc}" modules_install M=$PWD
     popd
 done
@@ -91,6 +98,33 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed May 21 2014 Philip J Perry <phil@elrepo.org> - 331.79-1.el5.elrepo
+- Updated to version 331.79
+
+* Sat May 03 2014 Philip J Perry <phil@elrepo.org> - 331.67-3.el5.elrepo
+- Add nvidia-modprobe
+
+* Fri May 02 2014 Philip J Perry <phil@elrepo.org> - 331.67-2.el5.elrepo
+- Build the nvidia-uvm module required for CUDA
+
+* Wed Apr 09 2014 Philip J Perry <phil@elrepo.org> - 331.67-1.el5.elrepo
+- Updated to version 331.67
+
+* Wed Feb 19 2014 Philip J Perry <phil@elrepo.org> - 331.49-1.el5.elrepo
+- Updated to version 331.49
+
+* Sat Jan 18 2014 Philip J Perry <phil@elrepo.org> - 331.38-1.el5.elrepo
+- Updated to version 331.38
+
+* Fri Nov 08 2013 Philip J Perry <phil@elrepo.org> - 331.20-1.el5.elrepo
+- Updated to version 331.20
+
+* Mon Aug 05 2013 Philip J Perry <phil@elrepo.org> - 325.15-1.el5.elrepo
+- Updated to version 325.15
+
+* Sun Jun 30 2013 Philip J Perry <phil@elrepo.org> - 319.32-1.el5.elrepo
+- Updated to version 319.32
+
 * Fri May 24 2013 Philip J Perry <phil@elrepo.org> - 319.23-1.el5.elrepo
 - Updated to version 319.23
 

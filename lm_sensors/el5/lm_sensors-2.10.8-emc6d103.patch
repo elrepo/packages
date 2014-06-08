@@ -1,0 +1,65 @@
+diff -Naurp lm_sensors-2.10.8.orig/lib/chips.c lm_sensors-2.10.8/lib/chips.c
+--- lm_sensors-2.10.8.orig/lib/chips.c	2008-12-16 09:44:11.000000000 +0000
++++ lm_sensors-2.10.8/lib/chips.c	2013-09-12 13:12:22.000000000 +0100
+@@ -6467,6 +6467,7 @@ sensors_chip_features sensors_chip_featu
+  { SENSORS_LM85C_PREFIX, lm85_features },
+  { SENSORS_EMC6D100_PREFIX, lm85_features },
+  { SENSORS_EMC6D102_PREFIX, lm85_features },
++ { SENSORS_EMC6D103_PREFIX, lm85_features },
+  { SENSORS_ADM1027_PREFIX, adm1027_features },
+  { SENSORS_ADT7463_PREFIX, adm1027_features },
+  { SENSORS_LM83_PREFIX, lm83_features },
+diff -Naurp lm_sensors-2.10.8.orig/lib/chips.h lm_sensors-2.10.8/lib/chips.h
+--- lm_sensors-2.10.8.orig/lib/chips.h	2008-10-20 09:18:39.000000000 +0100
++++ lm_sensors-2.10.8/lib/chips.h	2013-09-12 13:13:15.000000000 +0100
+@@ -397,6 +397,7 @@
+ #define SENSORS_ADT7463_PREFIX "adt7463"
+ #define SENSORS_EMC6D100_PREFIX "emc6d100"
+ #define SENSORS_EMC6D102_PREFIX "emc6d102"
++#define SENSORS_EMC6D103_PREFIX "emc6d103"
+ 
+ #define SENSORS_ADM1027_ALARM_MASK           1  /* RW -- alarm_mask  */
+ #define SENSORS_ADM1027_FAN1_PPR             2  /* RW -- fan1_ppr  */
+diff -Naurp lm_sensors-2.10.8.orig/prog/detect/sensors-detect lm_sensors-2.10.8/prog/detect/sensors-detect
+--- lm_sensors-2.10.8.orig/prog/detect/sensors-detect	2008-12-15 08:36:09.000000000 +0000
++++ lm_sensors-2.10.8/prog/detect/sensors-detect	2013-09-12 13:25:29.000000000 +0100
+@@ -681,7 +681,7 @@ use vars qw(@pci_adapters_sis5595 @pci_a
+        i2c_detect => sub { lm85_detect(0x41, @_); },
+      },
+      {
+-       name => "SMSC EMC6D100, EMC6D101 or EMC6D102",
++       name => "SMSC EMC6D100, EMC6D101, EMC6D102 or EMC6D103",
+        driver => "lm85",
+        i2c_addrs => [0x2c..0x2e],
+        i2c_detect => sub { lm85_detect(0x5c, @_); },
+diff -Naurp lm_sensors-2.10.8.orig/prog/sensors/chips.c lm_sensors-2.10.8/prog/sensors/chips.c
+--- lm_sensors-2.10.8.orig/prog/sensors/chips.c	2008-09-27 11:39:41.000000000 +0100
++++ lm_sensors-2.10.8/prog/sensors/chips.c	2013-09-12 13:16:27.000000000 +0100
+@@ -1549,12 +1549,14 @@ void print_lm85(const sensors_chip_name 
+   char *label;
+   double cur, min, max;
+   int alarms, alarm_mask = 0, valid;
+-  int is1027, is7463, is6d100, xadc;
++  int is1027, is7463, is6d100, is6d102, xadc;
+ 
+   is7463 = !strcmp(name->prefix, "adt7463");
+   is1027 = is7463 || !strcmp(name->prefix, "adm1027");
+   is6d100 = !strcmp(name->prefix,"emc6d100") ;
+-  xadc = is1027 || !strcmp(name->prefix, "emc6d102");
++  is6d102 = !strcmp(name->prefix, "emc6d102") ||
++            !strcmp(name->prefix, "emc6d103");
++  xadc = is1027 || is6d102;
+ 
+   if (!sensors_get_feature(*name,SENSORS_LM85_ALARMS,&cur)) 
+     alarms = cur + 0.5;
+diff -Naurp lm_sensors-2.10.8.orig/prog/sensors/main.c lm_sensors-2.10.8/prog/sensors/main.c
+--- lm_sensors-2.10.8.orig/prog/sensors/main.c	2008-10-20 09:18:39.000000000 +0100
++++ lm_sensors-2.10.8/prog/sensors/main.c	2013-09-12 13:17:15.000000000 +0100
+@@ -354,6 +354,7 @@ static struct match matches[] = {
+ 	{ "adt7463", print_lm85 },
+ 	{ "emc6d100", print_lm85 },
+ 	{ "emc6d102", print_lm85 },
++	{ "emc6d103", print_lm85 },
+ 	{ "lm87", print_lm87 },
+ 	{ "gl518sm", print_gl518 },
+ 	{ "gl520sm", print_gl520 },

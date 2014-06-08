@@ -1,10 +1,14 @@
+# Define the Max Xorg version (ABI) that this driver release supports
+# See README.txt, Chapter 2. Minimum Software Requirements
+%define		max_xorg_ver	1.15.99
+
 %define		nvidialibdir	%{_libdir}/nvidia
 %define		nvidialib32dir	%{_prefix}/lib/nvidia
 
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv-304xx
-Version:	304.88
+Version:	304.121
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -29,6 +33,7 @@ Source4:	nvidia.nodes
 BuildRequires:	desktop-file-utils
 BuildRequires:	perl
 
+Requires:	xorg-x11-server-Xorg <= %{max_xorg_ver}
 Requires:	nvidia-304xx-kmod = %{?epoch:%{epoch}:}%{version}
 Requires(post):	nvidia-304xx-kmod = %{?epoch:%{epoch}:}%{version}
 
@@ -249,6 +254,14 @@ popd
 %clean
 %{__rm} -rf $RPM_BUILD_ROOT
 
+%pre
+# Warn on libglamoregl
+if [ -e /usr/share/X11/xorg.conf.d/glamor.conf ]; then
+    echo "WARNING: libglamoregl conflicts with NVIDIA drivers"
+    echo "         Disable glamoregl or uninstall xorg-x11-glamor"
+    echo "         See: http://elrepo.org/tiki/kmod-nvidia (Known Issues) for more information"
+fi
+
 %post
 if [ "$1" -eq "1" ]; then
     # Check if xorg.conf exists, if it does, backup and remove [BugID # 0000127]
@@ -342,6 +355,20 @@ fi ||:
 %endif
 
 %changelog
+* Wed Apr 09 2014 Philip J Perry <phil@elrepo.org> - 304.121-1.el6.elrepo
+- Updated to version 304.121
+
+* Wed Feb 19 2014 Philip J Perry <phil@elrepo.org> - 304.119-1.el6.elrepo
+- Updated to version 304.119
+
+* Mon Dec 23 2013 Philip J Perry <phil@elrepo.org> - 304.117-1.el6.elrepo
+- Updated to version 304.117
+- Adds support for Xorg Server 1.15
+- Add requires for max Xorg version
+
+* Wed Aug 14 2013 Philip J Perry <phil@elrepo.org> - 304.108-1.el6.elrepo
+- Updated to version 304.108
+
 * Thu Apr 04 2013 Philip J Perry <phil@elrepo.org> - 304.88-1.el6.elrepo
 - Updated to version 304.88
 

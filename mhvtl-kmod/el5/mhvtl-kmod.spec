@@ -6,9 +6,9 @@
 
 Summary: Virtual Tape Library device driver
 Name: %{kmod_name}-kmod
-%define real_version 2012-09-13
+%define real_version 2013-08-29
 %define tar_version 1.4
-Version: 1.4.4
+Version: 1.4.9
 Release: 1%{?dist}
 Group: System Environment/Kernel
 License: GPLv2
@@ -84,6 +84,12 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Oct 15 2013 Dag Wieers <dag@wieers.com> - 1.4.9-1
+- Updated to release 1.4-9 (2013-08-29).
+
+* Mon May 27 2013 Dag Wieers <dag@wieers.com> - 1.4.7-1
+- Updated to release 1.4-7 (2013-03-22).
+
 * Fri Sep 14 2012 Dag Wieers <dag@wieers.com> - 1.4.4-1
 - Updated to release 1.4-4 (2012-09-13).
 

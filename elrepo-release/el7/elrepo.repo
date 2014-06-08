@@ -1,0 +1,54 @@
+### Name: ELRepo.org Community Enterprise Linux Repository for el7
+### URL: http://elrepo.org/
+
+[elrepo]
+name=ELRepo.org Community Enterprise Linux Repository - el7
+baseurl=http://elrepo.org/linux/elrepo/el7/$basearch/
+	http://mirrors.coreix.net/elrepo/elrepo/el7/$basearch/
+	http://jur-linux.org/download/elrepo/elrepo/el7/$basearch/
+	http://repos.lax-noc.com/elrepo/elrepo/el7/$basearch/
+	http://mirror.ventraip.net.au/elrepo/elrepo/el7/$basearch/
+mirrorlist=http://mirrors.elrepo.org/mirrors-elrepo.el7
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
+protect=0
+
+[elrepo-testing]
+name=ELRepo.org Community Enterprise Linux Testing Repository - el7
+baseurl=http://elrepo.org/linux/testing/el7/$basearch/
+	http://mirrors.coreix.net/elrepo/testing/el7/$basearch/
+	http://jur-linux.org/download/elrepo/testing/el7/$basearch/
+	http://repos.lax-noc.com/elrepo/testing/el7/$basearch/
+	http://mirror.ventraip.net.au/elrepo/testing/el7/$basearch/
+mirrorlist=http://mirrors.elrepo.org/mirrors-elrepo-testing.el7
+enabled=0
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
+protect=0
+
+[elrepo-kernel]
+name=ELRepo.org Community Enterprise Linux Kernel Repository - el7
+baseurl=http://elrepo.org/linux/kernel/el7/$basearch/
+	http://mirrors.coreix.net/elrepo/kernel/el7/$basearch/
+	http://jur-linux.org/download/elrepo/kernel/el7/$basearch/
+	http://repos.lax-noc.com/elrepo/kernel/el7/$basearch/
+	http://mirror.ventraip.net.au/elrepo/kernel/el7/$basearch/
+mirrorlist=http://mirrors.elrepo.org/mirrors-elrepo-kernel.el7
+enabled=0
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
+protect=0
+
+[elrepo-extras]
+name=ELRepo.org Community Enterprise Linux Extras Repository - el7
+baseurl=http://elrepo.org/linux/extras/el7/$basearch/
+	http://mirrors.coreix.net/elrepo/extras/el7/$basearch/
+	http://jur-linux.org/download/elrepo/extras/el7/$basearch/
+	http://repos.lax-noc.com/elrepo/extras/el7/$basearch/
+	http://mirror.ventraip.net.au/elrepo/extras/el7/$basearch/
+mirrorlist=http://mirrors.elrepo.org/mirrors-elrepo-extras.el7
+enabled=0
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
+protect=0

@@ -2,10 +2,10 @@
 %define	 kmod_name nvidia
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-358.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-431.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 319.23
+Version: 331.79
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -39,6 +39,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -q -c -T
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "override %{kmod_name}-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 
 %ifarch i686
 sh %{SOURCE0} --extract-only --target nvidiapkg
@@ -55,12 +56,18 @@ export SYSSRC=%{_usrsrc}/kernels/%{kversion}
 pushd _kmod_build_/kernel
 %{__make} module
 popd
+pushd _kmod_build_/kernel/uvm
+%{__make} module
+popd
 
 %install
 export INSTALL_MOD_PATH=%{buildroot}
 export INSTALL_MOD_DIR=extra/%{kmod_name}
-pushd _kmod_build_/kernel
 ksrc=%{_usrsrc}/kernels/%{kversion}
+pushd _kmod_build_/kernel
+%{__make} -C "${ksrc}" modules_install M=$PWD
+popd
+pushd _kmod_build_/kernel/uvm
 %{__make} -C "${ksrc}" modules_install M=$PWD
 popd
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
@@ -72,6 +79,33 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed May 21 2014 Philip J Perry <phil@elrepo.org> - 331.79-1.el6.elrepo
+- Updated to version 331.79
+
+* Sat May 03 2014 Philip J Perry <phil@elrepo.org> - 331.67-3.el6.elrepo
+- Add nvidia-modprobe
+
+* Fri May 02 2014 Philip J Perry <phil@elrepo.org> - 331.67-2.el6.elrepo
+- Build the nvidia-uvm module required for CUDA
+
+* Wed Apr 09 2014 Philip J Perry <phil@elrepo.org> - 331.67-1.el6.elrepo
+- Updated to version 331.67
+
+* Wed Feb 19 2014 Philip J Perry <phil@elrepo.org> - 331.49-1.el6.elrepo
+- Updated to version 331.49
+
+* Sat Jan 18 2014 Philip J Perry <phil@elrepo.org> - 331.38-1.el6.elrepo
+- Updated to version 331.38
+
+* Fri Nov 08 2013 Philip J Perry <phil@elrepo.org> - 331.20-1.el6.elrepo
+- Updated to version 331.20
+
+* Mon Aug 05 2013 Philip J Perry <phil@elrepo.org> - 325.15-1.el6.elrepo
+- Updated to version 325.15
+
+* Sun Jun 30 2013 Philip J Perry <phil@elrepo.org> - 319.32-1.el6.elrepo
+- Updated to version 319.32
+
 * Fri May 24 2013 Philip J Perry <phil@elrepo.org> - 319.23-1.el6.elrepo
 - Updated to version 319.23
 

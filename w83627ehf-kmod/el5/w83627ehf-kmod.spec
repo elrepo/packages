@@ -3,11 +3,11 @@
 
 # If kversion isn't defined on the rpmbuild line, define it here.
 # Only compatible with kernels >= 2.6.18-194.el5
-%{!?kversion: %define kversion 2.6.18-308.el5}
+%{!?kversion: %define kversion 2.6.18-348.el5}
 
 Name:	 %{kmod_name}-kmod
 Version: 0.0
-Release: 8%{?dist}
+Release: 9%{?dist}
 Group:	 System Environment/Kernel
 License: GPLv2
 Summary: w83627ehf kernel module
@@ -54,8 +54,6 @@ of the same variant of the Linux kernel and not on any one specific build.
 for kvariant in %{kvariants} ; do
     %{__cp} -a %{kmod_name}-%{version} _kmod_build_$kvariant
 done
-%{__cp} -a %{SOURCE5} .
-%{__cp} -a %{SOURCE6} .
 echo "/usr/lib/rpm/redhat/find-requires | %{__sed} -e '/^ksym.*/d'" > filter-requires.sh
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
@@ -80,8 +78,8 @@ done
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
-%{__install} GPL-v2.0.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
-%{__install} %{kmod_name}.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
+%{__install} %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
+%{__install} %{SOURCE6} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 # Set the module(s) to be executable, so that they will be stripped when packaged.
 find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 
@@ -89,6 +87,11 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Jul 25 2013 Philip J Perry <phil@elrepo.org> - 0.0-9.el5.elrepo
+- Rebase to LTS kernel-3.2.46
+- Adds support for W83627UHG
+  [http://elrepo.org/bugs/view.php?id=386]
+
 * Thu Apr 19 2012 Philip J Perry <phil@elrepo.org> - 0.0-8.el5.elrepo
 - Rebase to LTS kernel-3.0.28
 - Fix memory leak in probe function [2012-03-19]

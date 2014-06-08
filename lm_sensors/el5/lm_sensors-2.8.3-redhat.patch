@@ -1,0 +1,72 @@
+--- lm_sensors-2.8.3/Makefile.redhat	2003-12-29 20:29:16.000000000 +0100
++++ lm_sensors-2.8.3/Makefile	2004-03-08 16:37:36.262280059 +0100
+@@ -44,7 +44,7 @@
+ # may be used mistakenly. Note: This should point to the directory
+ # *above* the linux/ subdirectory, so to /usr/local/include in the
+ # above example.
+-I2C_HEADERS := /usr/local/include
++I2C_HEADERS := /usr/src/linux/include
+ #I2C_HEADERS := $(LINUX_HEADERS)
+ 
+ # Uncomment the third line on SMP systems if the magic invocation fails. It
+@@ -63,8 +63,8 @@
+ 
+ # Uncomment the second line if you are a developer. This will enable many
+ # additional warnings at compile-time
+-WARN := 0
+-#WARN := 1
++#WARN := 0
++WARN := 1
+ 
+ # Uncomment the second line if you want to get (loads of) debug information
+ # at run-time.
+@@ -77,7 +77,7 @@
+ DESTDIR :=
+ 
+ # This is the prefix that will be used for almost all directories below.
+-PREFIX := /usr/local
++PREFIX := $(prefix)
+ 
+ # This is the main modules directory into which the modules will be installed.
+ # The magic invocation will return something like this:
+@@ -89,11 +89,11 @@
+ 
+ # This is the directory where sensors.conf will be installed, if no other
+ # configuration file is found
+-ETCDIR := /etc
++ETCDIR := $(sysconfdir)
+ 
+ # You should not need to change this. It is the directory into which the
+ # library files (both static and shared) will be installed.
+-LIBDIR := $(PREFIX)/lib
++LIBDIR := $(libdir)
+ 
+ EXLDFLAGS := -Wl,-rpath,$(LIBDIR)
+ 
+@@ -104,8 +104,8 @@
+ # Note that not all programs in this package are really installed;
+ # some are just examples. You can always install them by hand, of
+ # course.
+-BINDIR := $(PREFIX)/bin
+-SBINDIR := $(PREFIX)/sbin
++BINDIR := $(bindir)
++SBINDIR := $(sbindir)
+ 
+ # You should not need to change this. It is the basic directory into which
+ # include files will be installed. The actual directory will be 
+@@ -113,13 +113,13 @@
+ # for library include files. If PREFIX equals the default /usr/local/bin,
+ # you will be able to use '#include <linux/sensors.h>' regardless of the
+ # current kernel selected.
+-INCLUDEDIR := $(PREFIX)/include
++INCLUDEDIR := $(includedir)
+ SYSINCLUDEDIR := $(INCLUDEDIR)/linux
+ LIBINCLUDEDIR := $(INCLUDEDIR)/sensors
+ 
+ # You should not need to change this. It is the base directory under which the
+ # manual pages will be installed.
+-MANDIR := $(PREFIX)/man
++MANDIR := $(mandir)
+ 
+ MACHINE := $(shell uname -m)
+ 
