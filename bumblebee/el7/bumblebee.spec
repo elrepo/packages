@@ -1,6 +1,6 @@
 Name: bumblebee		
 Version: 3.2.1	
-Release: 4%{?dist}
+Release: 5%{?dist}
 Summary: Bumblebee is a project that enables Linux to utilize the Nvidia Optimus Hybrid cards.
 Group: System Environment/Daemons		
 License: GPLv3	
@@ -95,6 +95,16 @@ then
    sed -i 's/^/#/g' /etc/X11/xorg.conf.d/99-nvidia.conf
 fi
 
+# Disable shared libraries from nvidia
+if [[ -f /etc/ld.so.conf.d/nvidia.conf ]]
+then
+   # Comment out the lines
+   sed -i 's/^/#/g' /etc/ld.so.conf.d/nvidia.conf 
+  
+   # run ldconfig
+   /sbin/ldconfig
+fi
+
 
 # Create the bumblebee group on the system if it doesn't exist
 if [[ $(grep -c bumblebee /etc/group) -ne 1 ]]
@@ -104,6 +114,9 @@ then
 fi 
    
 %changelog
+* Tue Jun 10 2014 Rob Mokkink <rob@mokkinksystems.com> - 3.2.1-5
+- Fixed shared library config
+
 * Tue Jun 10 2014 Rob Mokkink <rob@mokkinksystems.com> - 3.2.1-4
 - Fixed renaming config file
 
