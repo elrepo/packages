@@ -4,7 +4,7 @@
 Summary: ELRepo.org Community Enterprise Linux Repository release file
 Name: elrepo-release
 Version: 7
-Release: 0%{?dist}
+Release: 1%{?dist}
 License: GPLv2
 Group: System Environment/Base
 URL: http://elrepo.org/
@@ -15,7 +15,7 @@ Source1: RPM-GPG-KEY-elrepo.org
 BuildArch: noarch
 
 # To prevent users installing on the wrong dist
-Requires: kernel = 3.10.0
+Requires: glibc = 2.17
 
 %description
 This package contains yum configuration for the ELRepo.org Community Enterprise Linux Repository, as well as the public GPG keys used to sign packages.
@@ -43,5 +43,9 @@ This package contains yum configuration for the ELRepo.org Community Enterprise 
 %{_sysconfdir}/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
 
 %changelog
+* Tue Jun 10 2014 Philip J Perry <phil@elrepo.org> - 7-1
+- Changed requires to glibc to allow for kernel removal.
+  [http://elrepo.org/bugs/view.php?id=463]
+
 * Tue May 20 2014 Philip J Perry <phil@elrepo.org> - 7-0
-- Initial elrepo-release package for rhel7.
+- Initial elrepo-release package for rhel7rc.
