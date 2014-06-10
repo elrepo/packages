@@ -3,7 +3,7 @@
 
 Summary: ELRepo.org Community Enterprise Linux Repository release file
 Name: elrepo-release
-Version: 7
+Version: 7.0
 Release: 1%{?dist}
 License: GPLv2
 Group: System Environment/Base
@@ -43,7 +43,8 @@ This package contains yum configuration for the ELRepo.org Community Enterprise 
 %{_sysconfdir}/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
 
 %changelog
-* Tue Jun 10 2014 Philip J Perry <phil@elrepo.org> - 7-1
+* Tue Jun 10 2014 Philip J Perry <phil@elrepo.org> - 7.0-1
+- Rebuilt for rhel-7.0 release.
 - Changed requires to glibc to allow for kernel removal.
   [http://elrepo.org/bugs/view.php?id=463]
 
