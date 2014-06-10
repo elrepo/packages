@@ -1,0 +1,50 @@
+diff -up VirtualGL-2.3.3/glxdemos/glxgears.c.glx VirtualGL-2.3.3/glxdemos/glxgears.c
+--- VirtualGL-2.3.3/glxdemos/glxgears.c.glx	2013-10-14 14:24:33.952567278 -0400
++++ VirtualGL-2.3.3/glxdemos/glxgears.c	2013-10-14 14:29:02.216611780 -0400
+@@ -36,8 +36,8 @@
+ #include <X11/keysym.h>
+ #include <GL/gl.h>
+ #define GLX_GLXEXT_PROTOTYPES
+-#include "../common/glx.h"
+-#include "../common/glxext.h"
++#include <GL/glx.h>
++#include <GL/glxext.h>
+ 
+ #ifndef GLX_MESA_swap_control
+ #define GLX_MESA_swap_control 1
+diff -up VirtualGL-2.3.3/glxdemos/glxinfo.c.glx VirtualGL-2.3.3/glxdemos/glxinfo.c
+--- VirtualGL-2.3.3/glxdemos/glxinfo.c.glx	2013-10-14 14:30:34.441965073 -0400
++++ VirtualGL-2.3.3/glxdemos/glxinfo.c	2013-10-14 14:31:15.291136980 -0400
+@@ -42,7 +42,7 @@
+ #include <X11/Xlib.h>
+ #include <X11/Xutil.h>
+ #include <GL/gl.h>
+-#include "../common/glx.h"
++#include <GL/glx.h>
+ #include <stdio.h>
+ #include <string.h>
+ #include <stdlib.h>
+diff -up VirtualGL-2.3.3/glxdemos/texture_from_pixmap.c.glx VirtualGL-2.3.3/glxdemos/texture_from_pixmap.c
+--- VirtualGL-2.3.3/glxdemos/texture_from_pixmap.c.glx	2013-10-14 14:32:34.967449893 -0400
++++ VirtualGL-2.3.3/glxdemos/texture_from_pixmap.c	2013-10-14 14:33:25.234649699 -0400
+@@ -33,7 +33,7 @@
+ #define GL_GLEXT_PROTOTYPES
+ #define GLX_GLXEXT_PROTOTYPES
+ #include <GL/gl.h>
+-#include "../common/glx.h"
++#include <GL/glx.h>
+ #include <X11/keysym.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+diff -up VirtualGL-2.3.3/util/glreadtest.cpp.glx VirtualGL-2.3.3/util/glreadtest.cpp
+--- VirtualGL-2.3.3/util/glreadtest.cpp.glx	2013-10-14 14:22:44.626122603 -0400
++++ VirtualGL-2.3.3/util/glreadtest.cpp	2013-10-14 14:23:19.548258768 -0400
+@@ -23,7 +23,7 @@
+ #include "rrerror.h"
+ #include <errno.h>
+ #define GL_GLEXT_PROTOTYPES
+-#include "../common/glx.h"
++#include <GL/glx.h>
+ #ifdef MESAGLU
+ #include <mesa/glu.h>
+ #else

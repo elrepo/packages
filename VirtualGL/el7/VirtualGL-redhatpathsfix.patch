@@ -1,0 +1,12 @@
+diff -up VirtualGL-2.3.2/client/vglconnect.redhatpathsfix VirtualGL-2.3.2/client/vglconnect
+--- VirtualGL-2.3.2/client/vglconnect.redhatpathsfix	2013-03-20 16:01:50.656178363 -0400
++++ VirtualGL-2.3.2/client/vglconnect	2013-03-20 16:03:02.453525945 -0400
+@@ -52,7 +52,7 @@ usage()
+ }
+ 
+ if [ -z $VGL_BINDIR ]; then
+-	VGL_BINDIR=/opt/VirtualGL/bin
++	VGL_BINDIR=/usr/bin
+ fi
+ 
+ while [ $# -gt 0 ]

@@ -1,6 +1,6 @@
 Name: bumblebee		
 Version: 3.2.1	
-Release: 2%{?dist}
+Release: 5%{?dist}
 Summary: Bumblebee is a project that enables Linux to utilize the Nvidia Optimus Hybrid cards.
 Group: System Environment/Daemons		
 License: GPLv3	
@@ -9,11 +9,13 @@ URL: http://bumblebee-project.org
 BuildRequires: libbsd-devel
 BuildRequires: pkgconfig
 BuildRequires: autoconf
-#BuildRequires: help2man
+BuildRequires: help2man
 BuildRequires: glib2-devel
 BuildRequires: libX11-devel
 Requires: libbsd 	
-# Requires: VirtualGL
+Requires: VirtualGL
+Requires: kmod-nvidia
+Requires: kmod-bbswitch
 
 # Sources
 Source0: http://bumblebee-project.org/bumblebee-3.2.1.tar.gz
@@ -65,8 +67,8 @@ ln -s %{_unitdir}/bumblebeed.service $RPM_BUILD_ROOT/%{_sysconfdir}/systemd/syst
 %attr (644, root, root) %{_defaultdocdir}/%{name}-%{version}/GPL-v3.0.txt
 %attr (644, root, root) %{_defaultdocdir}/%{name}-%{version}/README.markdown
 %attr (644, root, root) %{_defaultdocdir}/%{name}-%{version}/RELEASE_NOTES_3_2_1
-# %attr (644, root, root) %{_mandir}/man1/bumblebeed.1.gz
-# %attr (644, root, root) %{_mandir}/man1/optirun.1.gz
+%attr (644, root, root) %{_mandir}/man1/bumblebeed.1.gz
+%attr (644, root, root) %{_mandir}/man1/optirun.1.gz
 
 %post
 /bin/systemctl daemon-reload >/dev/null 2>&1
@@ -76,9 +78,33 @@ ln -s %{_unitdir}/bumblebeed.service $RPM_BUILD_ROOT/%{_sysconfdir}/systemd/syst
 # Check if the file /etc/X11/xorg.conf is present, if so rename it
 if [[ -f /etc/X11/xorg.conf ]]
 then
-   # Moving the original xorg.conf to xorg.conf.bumblebee.backup
-   mv /etc/X11/xorg.conf
+   # Moving the original xorg.conf to bumblebee-xorg.backup
+   mv /etc/X11/xorg.conf /etc/X11/bumblebee-xorg.backup
 fi
+
+# Disable glamor
+if [[ -f /usr/share/X11/xorg.conf.d/glamor.conf ]]
+then
+   sed -i 's/^/#/g' /usr/share/X11/xorg.conf.d/glamor.conf
+fi
+
+
+# Disable any nvidia conf files in xorg config, bumblebee takes care of this
+if [[ -f /etc/X11/xorg.conf.d/99-nvidia.conf ]]
+then
+   sed -i 's/^/#/g' /etc/X11/xorg.conf.d/99-nvidia.conf
+fi
+
+# Disable shared libraries from nvidia
+if [[ -f /etc/ld.so.conf.d/nvidia.conf ]]
+then
+   # Comment out the lines
+   sed -i 's/^/#/g' /etc/ld.so.conf.d/nvidia.conf 
+  
+   # run ldconfig
+   /sbin/ldconfig
+fi
+
 
 # Create the bumblebee group on the system if it doesn't exist
 if [[ $(grep -c bumblebee /etc/group) -ne 1 ]]
@@ -88,6 +114,16 @@ then
 fi 
    
 %changelog
+* Tue Jun 10 2014 Rob Mokkink <rob@mokkinksystems.com> - 3.2.1-5
+- Fixed shared library config
+
+* Tue Jun 10 2014 Rob Mokkink <rob@mokkinksystems.com> - 3.2.1-4
+- Fixed renaming config file
+
+* Tue Jun 10 2014 Rob Mokkink <rob@mokkinksystems.com> - 3.2.1-3
+- Disable glamor and other nvidia xorg config
+- Added requirement for VirtualGL, kmod-nvidia and kmod-bbswitch
+
 * Sun Jun 08 2014 Rob Mokkink <rob@mokkinksystems.com> - 3.2.1-2
 - Upgrade to version 3.2.1-2 for el7
 
