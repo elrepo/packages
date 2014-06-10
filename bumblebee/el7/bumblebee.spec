@@ -1,6 +1,6 @@
 Name: bumblebee		
 Version: 3.2.1	
-Release: 3%{?dist}
+Release: 4%{?dist}
 Summary: Bumblebee is a project that enables Linux to utilize the Nvidia Optimus Hybrid cards.
 Group: System Environment/Daemons		
 License: GPLv3	
@@ -78,8 +78,8 @@ ln -s %{_unitdir}/bumblebeed.service $RPM_BUILD_ROOT/%{_sysconfdir}/systemd/syst
 # Check if the file /etc/X11/xorg.conf is present, if so rename it
 if [[ -f /etc/X11/xorg.conf ]]
 then
-   # Moving the original xorg.conf to xorg.conf.bumblebee.backup
-   mv /etc/X11/xorg.conf /etc/X11/xorg.conf.bumblebee.backup
+   # Moving the original xorg.conf to bumblebee-xorg.backup
+   mv /etc/X11/xorg.conf /etc/X11/bumblebee-xorg.backup
 fi
 
 # Disable glamor
@@ -104,6 +104,9 @@ then
 fi 
    
 %changelog
+* Tue Jun 10 2014 Rob Mokkink <rob@mokkinksystems.com> - 3.2.1-4
+- Fixed renaming config file
+
 * Tue Jun 10 2014 Rob Mokkink <rob@mokkinksystems.com> - 3.2.1-3
 - Disable glamor and other nvidia xorg config
 - Added requirement for VirtualGL, kmod-nvidia and kmod-bbswitch
