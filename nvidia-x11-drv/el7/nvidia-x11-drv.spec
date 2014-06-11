@@ -10,7 +10,7 @@
 
 Name:		nvidia-x11-drv
 Version:	331.79
-Release:	1%{?dist}
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -388,5 +388,8 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Tue Jun 10 2014 Philip J Perry <phil@elrepo.org> - 331.79-2
+- Rebuilt for rhel-7.0 release
+
 * Sat May 03 2014 Philip J Perry <phil@elrepo.org> - 331.79-1
 - Initial build for RHEL7RC

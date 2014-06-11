@@ -2,11 +2,11 @@
 %define kmod_name nvidia
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-121.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-123.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 331.79
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
@@ -66,5 +66,8 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Jun 10 2014 Philip J Perry <phil@elrepo.org> - 331.79-2
+- Rebuilt for rhel-7.0 release
+
 * Wed May 21 2014 Philip J Perry <phil@elrepo.org> - 331.79-1
 - Initial el7 build of the nvidia kmod package.
