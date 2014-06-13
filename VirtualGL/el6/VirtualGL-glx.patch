@@ -1,0 +1,12 @@
+diff -up VirtualGL-2.3.1/util/glreadtest.cpp.glx VirtualGL-2.3.1/util/glreadtest.cpp
+--- VirtualGL-2.3.1/util/glreadtest.cpp.glx	2011-12-22 11:27:13.000000000 -0700
++++ VirtualGL-2.3.1/util/glreadtest.cpp	2012-07-10 11:19:56.904891622 -0600
+@@ -23,7 +23,7 @@
+ #include "rrerror.h"
+ #include <errno.h>
+ #define GL_GLEXT_PROTOTYPES
+-#include "../common/glx.h"
++#include <GL/glx.h>
+ #ifdef MESAGLU
+ #include <mesa/glu.h>
+ #else
