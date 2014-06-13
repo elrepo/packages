@@ -1,0 +1,17 @@
+diff -up VirtualGL-2.3.1/server/CMakeLists.txt.fltk VirtualGL-2.3.1/server/CMakeLists.txt
+--- VirtualGL-2.3.1/server/CMakeLists.txt.fltk	2012-02-08 13:11:50.000000000 -0700
++++ VirtualGL-2.3.1/server/CMakeLists.txt	2012-07-10 11:23:17.574740534 -0600
+@@ -1,4 +1,3 @@
+-add_subdirectory(fltk)
+ 
+ 
+ #
+@@ -67,7 +66,7 @@ set(HEADERS ../common/rr.h rrtransport.h
+ install(FILES ${HEADERS} DESTINATION ${VGL_INCDIR})
+ 
+ add_executable(vglconfig vglconfig.cpp fakerconfig.cpp)
+-target_link_libraries(vglconfig ${X11_X11_LIB} fltk_static pthread rrutil)
++target_link_libraries(vglconfig ${X11_X11_LIB} fltk pthread rrutil)
+ if(VGL_USEXV)
+ 	target_link_libraries(vglconfig ${X11_Xv_LIB})
+ endif()
