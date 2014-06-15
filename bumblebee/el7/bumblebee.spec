@@ -12,6 +12,7 @@ BuildRequires: autoconf
 BuildRequires: help2man
 BuildRequires: glib2-devel
 BuildRequires: libX11-devel
+BuildRequires: systemd
 Requires: libbsd 	
 Requires: VirtualGL
 Requires: kmod-nvidia
