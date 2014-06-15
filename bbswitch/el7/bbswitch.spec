@@ -2,7 +2,7 @@
 %define kmod_name bbswitch
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-121.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-123.el7.%{_target_cpu}}
 
 Name: %{kmod_name}-kmod
 Version: 0.5
@@ -13,7 +13,7 @@ Summary: %{kmod_name} kernel module(s)
 URL: https://github.com/Bumblebee-Project/bbswitch
 
 BuildRequires: redhat-rpm-config
-ExclusiveArch: i686 x86_64
+ExclusiveArch: x86_64
 
 # Sources.
 Source0: %{kmod_name}-%{version}.tar.gz
@@ -54,10 +54,8 @@ KSRC=%{_usrsrc}/kernels/%{kversion}
 %{__make} -C "${KSRC}" %{?_smp_mflags} modules M=$PWD
 
 %install
-export INSTALL_MOD_PATH=%{buildroot}
-export INSTALL_MOD_DIR=extra/%{kmod_name}
-KSRC=%{_usrsrc}/kernels/%{kversion}
-%{__make} -C "${KSRC}" modules_install M=$PWD
+%{__install} -d %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
+%{__install} %{kmod_name}.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d/
@@ -68,8 +66,6 @@ KSRC=%{_usrsrc}/kernels/%{kversion}
 %{__install} README.md %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/README
 # Set the module(s) to be executable, so that they will be stripped when packaged.
 find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
-# Remove the unrequired files.
-%{__rm} -f %{buildroot}/lib/modules/%{kversion}/modules.*
 
 %clean
 %{__rm} -rf %{buildroot}
