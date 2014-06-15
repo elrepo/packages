@@ -42,17 +42,33 @@
 shopt -s extglob
 
 myprog="kmodtool"
-myver="rhel6-rh2"
+myver="0.10.10_kmp2"
 knownvariants=@(debug|kdump)
 kmod_name=
 kver=
 verrel=
 variant=
 
+get_kernel_release ()
+{
+  if [[ -z $1 ]]; then
+    uname -r
+    return
+  fi
+  local arch=$(arch)
+  local verrel=${1%.$arch}
+  local verprefix=${verrel%.*}
+  local versuffix=${verrel#$verprefix}
+  verrel=$(ls -Ud /usr/src/kernels/$verprefix*$versuffix.$arch | sort -V | tail -n 1)
+  verrel=${verrel##*/}
+  [[ -z $verrel ]] && verrel=$1.$arch
+  echo "$verrel"
+}
+
 get_verrel ()
 {
-  verrel=${1:-$(uname -r)}
-  verrel=${verrel%%$knownvariants}
+  verrel=$(get_kernel_release "$1")
+  verrel=${verrel/%.$knownvariants/}
 }
 
 print_verrel ()
@@ -61,11 +77,17 @@ print_verrel ()
   echo "${verrel}"
 }
 
+get_verrel_for_deps ()
+{
+  verrel_dep=${1:-$(uname -r)}
+  verrel_dep=${verrel_dep/%.$knownvariants/}
+}
+
 get_variant ()
 {
   get_verrel $@
-  variant=${1:-$(uname -r)}
-  variant=${variant##$verrel}
+  variant=$(get_kernel_release "$1")
+  variant=${variant/#$verrel?(.)/}
   variant=${variant:-'""'}
 }
 
