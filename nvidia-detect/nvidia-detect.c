@@ -39,7 +39,7 @@
 #endif
 
 /* Only recommend elrepo drivers on RHEL*/
-#if (RHEL_MAJOR == 5 || RHEL_MAJOR == 6)
+#if (RHEL_MAJOR == 5 || RHEL_MAJOR == 6 || RHEL_MAJOR == 7)
 #define KMOD_NVIDIA		"kmod-nvidia"
 #define KMOD_NVIDIA_304XX	"kmod-nvidia-304xx"
 #define KMOD_NVIDIA_173XX	"kmod-nvidia-173xx"
