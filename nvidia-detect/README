@@ -8,7 +8,7 @@ correct driver to use based on any matches found. For example:
 $ nvidia-detect
 Probing for supported NVIDIA devices...
 [10de:0ca3] NVIDIA Corporation GT215 [GeForce GT 240]
-This device requires the current 331.67 NVIDIA driver kmod-nvidia
+This device requires the current 331.79 NVIDIA driver kmod-nvidia
 
 $ nvidia-detect
 Probing for supported NVIDIA devices...
@@ -24,7 +24,7 @@ are always performed and compatibility information is displayed if run with the
 $ nvidia-detect --xorg
 Probing for supported NVIDIA devices...
 [10de:0ca3] NVIDIA Corporation GT215 [GeForce GT 240]
-This device requires the current 331.67 NVIDIA driver kmod-nvidia
+This device requires the current 331.79 NVIDIA driver kmod-nvidia
 
 Checking ABI compatibility with Xorg Server...
 Xorg Video Driver ABI detected: 13
@@ -34,12 +34,12 @@ ABI compatibility check passed
 nvidia-detect may be run from within a script and will return the following codes:
 
 0: No supported devices found
-1: Device supported by the current 331.67 NVIDIA driver
+1: Device supported by the current 331.79 NVIDIA driver
 2: Device supported by the legacy 96.xx NVIDIA driver
 3: Device supported by the legacy 173.xx NVIDIA driver
 4: Device supported by the legacy 304.xx NVIDIA driver
 
 For a full list of supported devices, see:
-ftp://download.nvidia.com/XFree86/Linux-x86_64/331.67/README/supportedchips.html
+ftp://download.nvidia.com/XFree86/Linux-x86_64/331.79/README/supportedchips.html
 
 Bugs should be reported at http://elrepo.org/bugs
