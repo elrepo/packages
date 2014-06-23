@@ -238,7 +238,7 @@ static int get_xorg_abi(void)
 			if ((sscanf(ret, "X.Org Video Driver: %d", &version)) == 1)
 				break;
 
-		if ((ret = strstr(line, XORG_VID_DRV)) != NULL)
+		if ((ret = strstr(line, ABI_CLASS)) != NULL)
 			if ((sscanf(ret, "ABI class: X.Org Video Driver, version %d",
 					&version)) == 1)
 				break;
