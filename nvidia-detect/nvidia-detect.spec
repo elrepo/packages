@@ -40,6 +40,7 @@ A utility to detect NVIDIA graphics cards.
 * Mon Jun 23 2014 Philip J Perry <phil@elrepo.org> - 331.79-1
 - Bump release to match latest upstream release, no new devices added
 - Add support for RHEL 7
+- Fix Xorg detection
 
 * Wed Apr 09 2014 Philip J Perry <phil@elrepo.org> - 331.67-1
 - Add support for detection of devices added to 331.67 driver release
