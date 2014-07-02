@@ -1,3 +1,36 @@
+# If KERNELRELEASE is defined, the make command using this Makefile has
+# been invoked by the kernel build system and so can use its language.
+# Otherwise, if KERNELRELEASE is null, a make command was issued from
+# the command line. So invoke the kernel build system.
+
+ifeq ($(KERNELRELEASE),)
+
+    # KVERSION should be set in the environment if this
+    # build is not for the currently running kernel.
+    KVERSION ?= $(shell uname -r)
+
+    # BUILD_DIR should be set in the environment if a
+    # subdirectory of /lib/modules/ is not appropriate.
+    BUILD_DIR ?= /lib/modules/${KVERSION}/build
+
+    PWD := $(shell pwd)
+
+modules:
+	$(MAKE) -C $(BUILD_DIR) M=$(PWD) modules
+
+modules_install:
+	$(MAKE) -C $(BUILD_DIR) M=$(PWD) modules_install
+
+clean:
+	rm -rf *~ *.o .*.cmd *.mod.c *.ko *.ko.unsigned .depend \
+	.tmp_versions modules.order Module.symvers Module.markers
+
+.PHONY: modules modules_install clean
+
+else
+
+# Called from kernel build system -- just declare the module(s).
+
 #
 # Makefile for Marvell 88SE64xx/88SE84xx SAS/SATA driver.
 #
@@ -22,10 +55,14 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA
 
-ccflags-$(CONFIG_SCSI_MVSAS_DEBUG) := -DMV_DEBUG
+#ccflags-y := -DMV_DEBUG
 
-obj-$(CONFIG_SCSI_MVSAS) += mvsas.o
+obj-m += mvsas.o
+
 mvsas-y +=  mv_init.o  \
            mv_sas.o   \
            mv_64xx.o  \
            mv_94xx.o
+
+
+endif
