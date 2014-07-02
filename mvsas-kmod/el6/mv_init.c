@@ -25,6 +25,7 @@
 
 
 #include "mv_sas.h"
+#include "mvsas_rhel6_5.h"
 
 static int lldd_max_execute_num = 1;
 module_param_named(collector, lldd_max_execute_num, int, S_IRUGO);
