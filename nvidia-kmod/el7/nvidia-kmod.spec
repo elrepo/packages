@@ -5,8 +5,8 @@
 %{!?kversion: %define kversion 3.10.0-123.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 331.79
-Release: 2%{?dist}
+Version: 331.89
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
@@ -66,6 +66,9 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Jul 05 2014 Philip J Perry <phil@elrepo.org> - 331.89-1
+- Updated to version 331.89
+
 * Tue Jun 10 2014 Philip J Perry <phil@elrepo.org> - 331.79-2
 - Rebuilt for rhel-7.0 release
 

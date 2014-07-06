@@ -9,8 +9,8 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	331.79
-Release:	2%{?dist}
+Version:	331.89
+Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -391,6 +391,10 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Sat Jul 05 2014 Philip J Perry <phil@elrepo.org> - 331.89-1
+- Updated to version 331.89
+- Update initramfs images for kABI compatible kernels
+
 * Tue Jun 10 2014 Philip J Perry <phil@elrepo.org> - 331.79-2
 - Rebuilt for rhel-7.0 release
 
