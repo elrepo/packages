@@ -42,6 +42,8 @@ Requires(post):	nvidia-kmod = %{?epoch:%{epoch}:}%{version}
 
 Requires(post):	/usr/sbin/ldconfig
 
+Requires(post):	 dracut
+
 Requires(post):	 grubby
 Requires(preun): grubby
 
@@ -310,6 +312,7 @@ if [ "$1" -eq "1" ]; then # new install
       # Check kABI compatibility
         for KABI in $(find /lib/modules -name nvidia.ko | cut -d / -f 4); do
           if [[ "$KERNEL" == "$KABI" && -e "$VMLINUZ" ]]; then
+            /usr/bin/dracut --add-drivers nvidia -f /boot/initramfs-$KERNEL.img $KERNEL
             /usr/sbin/grubby --update-kernel="$VMLINUZ" \
               --args='nouveau.modeset=0 rd.driver.blacklist=nouveau' &>/dev/null
           fi
