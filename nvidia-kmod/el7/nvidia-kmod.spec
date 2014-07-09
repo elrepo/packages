@@ -5,13 +5,14 @@
 %{!?kversion: %define kversion 3.10.0-123.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 331.89
+Version: 340.24
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
 URL:	 http://www.nvidia.com/
 
+BuildRequires: perl
 BuildRequires: redhat-rpm-config
 ExclusiveArch: x86_64
 
@@ -62,10 +63,25 @@ popd
 %{__install} -d %{buildroot}%{_prefix}/lib/modprobe.d/
 %{__install} %{SOURCE1} %{buildroot}%{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
 
+# Sign the modules(s)
+%if %{?_with_modsign:1}%{!?_with_modsign:0}
+# If the module signing keys are not defined, define them here.
+%{!?privkey: %define privkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.priv}
+%{!?pubkey: %define pubkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.der}
+for module in $(find %{buildroot} -type f -name \*.ko);
+do %{__perl} /usr/src/kernels/%{kversion}/scripts/sign-file \
+sha256 %{privkey} %{pubkey} $module;
+done
+%endif
+
 %clean
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Jul 09 2014 Philip J Perry <phil@elrepo.org> - 340.24-1
+- Updated to version 340.24
+- Enabled Secure Boot
+
 * Sat Jul 05 2014 Philip J Perry <phil@elrepo.org> - 331.89-1
 - Updated to version 331.89
 
