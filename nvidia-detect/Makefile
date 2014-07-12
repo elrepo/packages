@@ -1,8 +1,9 @@
-CC=gcc
-CFLAGS=$(RPM_OPT_FLAGS)
+CC     := gcc
+CFLAGS += $(RPM_OPT_FLAGS)
+LDLIBS += -lresolv -lpci
 
 nvidia-detect:	nvidia-detect.h nvidia-detect.c
-	$(CC) $(CFLAGS) nvidia-detect.c -o nvidia-detect -lpci -lresolv
+	$(CC) $(CFLAGS) $(LDLIBS) nvidia-detect.c -o nvidia-detect
 
 .PHONEY:	clean
 
