@@ -51,11 +51,11 @@
 #define KMOD_NVIDIA_96XX	""
 #endif
 
-/* Define the max Xorg ABI supported by each driver */
-#define XORG_ABI_CURRENT	16	/* 340.24 */
+/* Define the max Xorg Video Driver ABI supported by each NVIDIA driver */
+#define XORG_ABI_CURRENT	18	/* 340.24 */
 #define XORG_ABI_96XX		12	/* 96.43.23 */
 #define XORG_ABI_173XX		15	/* 173.14.39 */
-#define XORG_ABI_304XX		16	/* 304.123 */
+#define XORG_ABI_304XX		18	/* 304.123 */
 
 /* Change the default Xorg log file here if it's different */
 #define XORG_LOG_FILE	"/var/log/Xorg.0.log"
