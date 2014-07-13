@@ -57,7 +57,7 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
-* Mon Jun 30 2012 Philip J Perry <phil@elrepo.org> - 0.8.16-1
+* Mon Jun 30 2014 Philip J Perry <phil@elrepo.org> - 0.8.16-1
 - Initial el6 build of the kmod package.
 - Backported from kernel-3.10.45
   [http://elrepo.org/bugs/view.php?id=481]
