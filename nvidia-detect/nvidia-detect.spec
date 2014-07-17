@@ -37,8 +37,9 @@ A utility to detect NVIDIA graphics cards.
 %{_bindir}/nvidia-detect
 
 %changelog
-* Fri Jul 11 2014 Philip J Perry <phil@elrepo.org> - 340.24-1
+* Thu Jul 17 2014 Philip J Perry <phil@elrepo.org> - 340.24-1
 - Add support for detection of devices added to 340.24 driver release
+- Update Xorg Video Driver ABI versions
 
 * Sun Jul 06 2014 Philip J Perry <phil@elrepo.org> - 331.89-1
 - Add support for detection of devices added to 331.89 driver release
