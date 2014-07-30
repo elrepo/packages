@@ -1,4 +1,3 @@
-# Define the kmod package name here.
 %define real_name drbd
 
 Name:    drbd84-utils
