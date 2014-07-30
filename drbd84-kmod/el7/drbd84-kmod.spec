@@ -9,15 +9,16 @@ Name:    %{kmod_name}-kmod
 Version: 8.4.4
 Release: 1%{?dist}
 Group:   System Environment/Kernel
-License: GPLv2+
+License: GPLv2
 Summary: Distributed Redundant Block Device driver for Linux
 URL:     http://www.drbd.org/
 
 # Sources.
 Source0:  http://oss.linbit.com/drbd/8.4/drbd-%{version}.tar.gz
-Source10: kmodtool-%{kmod_name}.sh
+Source10: kmodtool-%{kmod_name}-el7.sh
 
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
+BuildRequires: perl
 BuildRequires: redhat-rpm-config
 ExclusiveArch: x86_64
 
@@ -60,8 +61,20 @@ KSRC=%{_usrsrc}/kernels/%{kversion}
 for file in ChangeLog COPYING README; do
     %{__install} -Dp -m0644 $file %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/$file
 done
-# Set the module(s) to be executable, so that they will be stripped when packaged.
-find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
+
+# strip the modules(s)
+find %{buildroot} -type f -name \*.ko -exec %{__strip} --strip-debug \{\} \;
+
+# Sign the modules(s)
+%if %{?_with_modsign:1}%{!?_with_modsign:0}
+# If the module signing keys are not defined, define them here.
+%{!?privkey: %define privkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.priv}
+%{!?pubkey: %define pubkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.der}
+for module in $(find %{buildroot} -type f -name \*.ko);
+do %{__perl} /usr/src/kernels/%{kversion}/scripts/sign-file \
+sha256 %{privkey} %{pubkey} $module;
+done
+%endif
 
 %clean
 %{__rm} -rf %{buildroot}
