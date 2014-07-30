@@ -156,7 +156,6 @@ Provides:         ${kmod_name}-kmod = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires(post):   /usr/sbin/depmod
 Requires(postun): /usr/sbin/depmod
 
-Requires: kernel >= 2.6.32-279.el6
 Requires: drbd84-utils >= %{?epoch:%{epoch}:}%{version}
 
 ### We cannot obsolete all Linbit drbd-km-%{kversion} variants
@@ -165,7 +164,7 @@ Conflicts: kmod-drbd82 <= %{version}-%{release}
 Conflicts: kmod-drbd83 <= %{version}-%{release}
 EOF
 
-    if [ "no" != "$nobuildreqs" ]
+    if [ "yes" != "$nobuildreqs" ]
     then
         echo "BuildRequires: kernel${dashvariant}-devel"
     fi
