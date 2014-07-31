@@ -35,6 +35,8 @@
 #define DRV_VERSION	"1.5.1"
 #define DRV_RELDATE	"2010-10-09"
 
+#define CONFIG_VIA_RHINE_MMIO
+
 #include <linux/types.h>
 
 /* A few user-configurable values.
