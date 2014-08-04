@@ -171,6 +171,9 @@ cat <<EOF
 %description   -n kmod-${kmod_name}${dashvariant}
 This package provides the ${kmod_name} kernel module(s) built
 for the Linux kernel using the %{_target_cpu} family of processors.
+Netatop gather statistics about the TCP and UDP packets that have been
+transmitted/received per process and per thread and can be used with the
+atop performance monitor.
 EOF
 
 ##############################################################################
@@ -217,6 +220,8 @@ then
     echo "/lib/modules/${verrel}${dotvariant}/"
     echo "%config /etc/depmod.d/kmod-${kmod_name}.conf"
     echo "%doc /usr/share/doc/kmod-${kmod_name}-%{version}/"
+    echo "%doc /usr/share/man/man4/${kmod_name}.4.gz"
+    echo "%doc /usr/share/man/man8/${kmod_name}d.8.gz"
 else
     cat "$override_filelist" | get_filelist
 fi
