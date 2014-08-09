@@ -12,7 +12,7 @@ License: GPLv2
 Summary: %{kmod_name} kernel module(s)
 URL:     http://www.atoptool.nl/
 
-BuildRequires: redhat-rpm-config,perl, zlib-devel
+BuildRequires: redhat-rpm-config, perl, zlib-devel
 ExclusiveArch: x86_64
 
 # Sources.
