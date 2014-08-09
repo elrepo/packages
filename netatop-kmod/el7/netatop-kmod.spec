@@ -12,10 +12,6 @@ License: GPLv2
 Summary: %{kmod_name} kernel module(s)
 URL:     http://www.atoptool.nl/
 
-Requires: atop
-Requires: netatop-utils
-
-
 BuildRequires: redhat-rpm-config, perl, zlib-devel
 ExclusiveArch: x86_64
 
@@ -83,10 +79,6 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
-* Sat Aug 9 2014 Rob Mokkink <rob@mokkinksystems.com> - 0.3-3
-- Added requirement for atop
-- Added requirement for netatop-utils
-
 * Mon Aug 4 2014 Alan Bartlett <ajb@elrepo.org> - 0.3-2
 - Update this specification file to the current standard.
 
