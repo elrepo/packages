@@ -1,0 +1,11 @@
+[Unit]
+Description=Atop Daemon
+
+[Service]
+Type=simple
+PIDFile=/var/run/atop.pid
+ExecStart=/etc/atop/atop.daily
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
