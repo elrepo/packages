@@ -1,0 +1,11 @@
+[Unit]
+Description=NetAtop Daemon
+
+[Service]
+Type=simple
+PIDFile=/var/run/netatop.pid
+ExecStart=/usr/sbin/netatopd
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
