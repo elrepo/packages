@@ -7,3 +7,7 @@ rpmbuild -bb --target `uname -m` --define 'kversion 2.6.18-274.el5' --define 'di
 For EL6:
 
 rpmbuild -bb --target `uname -m` --define 'kversion 2.6.32-220.el6.x86_64' --define 'dist .el6.elrepo' flashcache-kmod.spec
+
+2014-08-10
+ This is now obsolete. kmod and utils were combined into 'flashcache'.
+
