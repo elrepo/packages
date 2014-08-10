@@ -31,7 +31,7 @@ popd
 
 
 %install
-rm    -rf 			  $RPM_BUILD_ROOT
+%{__rm} -rf $RPM_BUILD_ROOT
 
 mkdir -p $RPM_BUILD_ROOT/%{_unitdir}/
 mkdir -p $RPM_BUILD_ROOT/usr/sbin/
@@ -40,7 +40,7 @@ install -pm 644 %{SOURCE1} $RPM_BUILD_ROOT/%{_unitdir}/
 install -m 775 daemon/netatopd -t $RPM_BUILD_ROOT/usr/sbin
 
 %clean
-rm -rf    $RPM_BUILD_ROOT
+%{__rm} -rf $RPM_BUILD_ROOT
 
 %post
 # Configure atop for systemd
