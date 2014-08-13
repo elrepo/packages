@@ -1,6 +1,9 @@
-Name: flashcache-utils	
-Version: 0.0	
-Release: 4.1%{?dist}
+# Define the utils package name here.
+%define utils_name flashcache
+
+Name: %{utils_name}-utils
+Version: 3.1.2
+Release: 1%{?dist}
 Summary: Utility packages for flashcache
 Group: System Environment/Base
 License: GPLv2
@@ -9,8 +12,11 @@ URL: https://github.com/facebook/flashcache
 BuildRequires: redhat-rpm-config
 
 # Sources.
-Source0:  %{name}-%{version}.tar.gz
+Source0:  %{utils_name}-%{version}.tar.gz
 Source5:  GPL-v2.0.txt
+
+# Patches.
+Patch0: ELRepo-%{utils_name}.patch
 
 Requires: sudo
 
@@ -23,23 +29,28 @@ flashcache_create, flashcache_load and flashcache_destroy. It is expected
 that the majority of users can use these utilities instead of dmsetup.
 
 %prep
-%setup -q -n %{name}-%{version}
-%{__cp} -a %{SOURCE5} .
+%setup -q -n %{utils_name}-%{version}
+%patch0 -p1
 
 %build
-%{__make} -s %{?_smp_mflags}
+%{__make} -C src/utils
 
 %install
-%{__make} -s install DESTDIR="%{buildroot}"
-%{__install} -m 755 flashstat %{buildroot}/sbin/
-%{__install} -m 755 flashcache_scan  %{buildroot}/sbin/
+%{__install} -d %{buildroot}/sbin
+%{__install} -m 755 src/utils/flashcache_create %{buildroot}/sbin/
+%{__install} -m 755 src/utils/flashcache_destroy %{buildroot}/sbin/
+%{__install} -m 755 src/utils/flashcache_load %{buildroot}/sbin/
+%{__install} -m 755 src/utils/flashcache_scan %{buildroot}/sbin/
+%{__install} -m 755 src/utils/flashcache_setioctl %{buildroot}/sbin/
+%{__install} -m 755 src/utils/get_agsize %{buildroot}/sbin/
+%{__install} -m 755 utils/flashstat %{buildroot}/sbin/
 %{__install} -d -m 755 %{buildroot}/usr/lib/ocf/resource.d/
-%{__install} -m 755 flashcache %{buildroot}/usr/lib/ocf/resource.d/
+%{__install} -m 755 src/ocf/flashcache %{buildroot}/usr/lib/ocf/resource.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/%{name}-%{version}/
 %{__install} %{SOURCE5} %{buildroot}%{_defaultdocdir}/%{name}-%{version}/
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
@@ -54,8 +65,12 @@ rm -rf $RPM_BUILD_ROOT
 %doc /usr/share/doc/%{name}-%{version}/GPL-v2.0.txt
 
 %changelog
+* Sat Jul 26 2014 Alan Bartlett <ajb@elrepo.org> - 3.1.2-1
+- Updated to the flashcache-3.1.2 sources.
+- Re-wrote this specification file.
+
 * Thu Mar 28 2013 Akemi Yagi <toracat@elrepo.org> - 0.0-4.1
-- added Requires: sudo ( http://elrepo.org/bugs/view.php?id=356 )
+- added Requires: sudo [http://elrepo.org/bugs/view.php?id=356]
 
 * Mon Dec 24 2012 Akemi Yagi <toracat@elrepo.org> - 0.0-4
 - Updated to flashcache-stable_v2.
