@@ -2,11 +2,11 @@
 %define kmod_name flashcache
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-279.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-431.el6.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 0.0
-Release: 3%{?dist}
+Version: 3.1.2
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -16,10 +16,12 @@ BuildRequires: redhat-rpm-config
 ExclusiveArch: i686 x86_64
 
 # Sources.
-Source0:  %{kmod_name}-%{version}.tar.bz2
+Source0:  %{kmod_name}-%{version}.tar.gz
 Source5:  GPL-v2.0.txt
 Source10: kmodtool-%{kmod_name}-el6.sh
-Source20: ELRepo-Makefile-%{kmod_name}
+
+# Patches.
+Patch0: ELRepo-%{kmod_name}.patch
 
 # Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
@@ -38,23 +40,19 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -q -n %{kmod_name}-%{version}
 %{__cp} -a %{SOURCE5} .
-%{__rm} -f src/Makefile*
-%{__cp} -a %{SOURCE20} src/Makefile
+%patch0 -p1
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
-KSRC=%{_usrsrc}/kernels/%{kversion}
-%{__make} -C "${KSRC}" %{?_smp_mflags} modules M=$PWD/src
+%{__make} KERNEL_TREE=%{_usrsrc}/kernels/%{kversion} modules
 
 %install
-export INSTALL_MOD_PATH=%{buildroot}
-export INSTALL_MOD_DIR=extra/%{kmod_name}
-KSRC=%{_usrsrc}/kernels/%{kversion}
-%{__make} -C "${KSRC}" modules_install M=$PWD/src
+%{__install} -d %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
+%{__install} src/%{kmod_name}.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
-%{__install} GPL-v2.0.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
+%{__install} %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} README %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} doc/%{kmod_name}-doc.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} doc/%{kmod_name}-sa-guide.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
@@ -67,6 +65,10 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Jul 26 2014 Alan Bartlett <ajb@elrepo.org> - 3.1.2-1
+- Updated to the flashcache-3.1.2 sources.
+- Built against kernel-2.6.32-431.el6
+
 * Mon Dec 24 2012 Akemi Yagi <toracat@elrepo.org> - 0.0-3
 - Updated to flashcache-stable_v2.
 - Built against kernel 2.6.32-279.el6.
