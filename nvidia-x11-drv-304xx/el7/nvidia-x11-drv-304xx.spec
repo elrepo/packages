@@ -31,6 +31,7 @@ Source3:	nvidia.ld.so.conf
 BuildRequires:	desktop-file-utils
 BuildRequires:	perl
 
+Requires:	perl
 Requires:	xorg-x11-server-Xorg <= %{max_xorg_ver}
 Requires:	nvidia-304xx-kmod = %{?epoch:%{epoch}:}%{version}
 Requires(post):	nvidia-304xx-kmod = %{?epoch:%{epoch}:}%{version}
@@ -244,6 +245,9 @@ if [ "$1" -eq "1" ]; then # new install
     [ ! -f %{_sysconfdir}/X11/xorg.conf ] && \
       cp -p %{_sysconfdir}/X11/nvidia-xorg.conf %{_sysconfdir}/X11/xorg.conf &>/dev/null
     # Disable the nouveau driver
+    [ -f %{_sysconfdir}/default/grub ] && \
+      %{__perl} -pi -e 's|(GRUB_CMDLINE_LINUX=".*)"|$1 nouveau\.modeset=0 rd\.driver\.blacklist=nouveau"|g' \
+        %{_sysconfdir}/default/grub
     if [ -x /usr/sbin/grubby ]; then
       # get installed kernels
       for KERNEL in $(rpm -q --qf '%{v}-%{r}.%{arch}\n' kernel); do
@@ -271,6 +275,10 @@ if [ "$1" -eq "0" ]; then # uninstall
     [ -f %{_sysconfdir}/X11/xorg.conf ] && \
       mv %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/post-nvidia.xorg.conf.elreposave &>/dev/null
     # Clear grub option to disable nouveau for all RHEL7 kernels
+    if [ -f %{_sysconfdir}/default/grub ]; then
+      %{__perl} -pi -e 's|(GRUB_CMDLINE_LINUX=.*) nouveau\.modeset=0|$1|g' %{_sysconfdir}/default/grub
+      %{__perl} -pi -e 's|(GRUB_CMDLINE_LINUX=.*) rd\.driver\.blacklist=nouveau|$1|g' %{_sysconfdir}/default/grub
+    fi
     if [ -x /usr/sbin/grubby ]; then
       # get installed kernels
       for KERNEL in $(rpm -q --qf '%{v}-%{r}.%{arch}\n' kernel); do
@@ -321,6 +329,8 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+- Disable nouveau in /etc/default/grub
+
 * Fri Jul 18 2014 Philip J Perry <phil@elrepo.org> - 304.123-1
 - Port 304.xx legacy driver to RHEL7.
 - Updated to version 304.123
