@@ -4,7 +4,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	340.24
+Version:	340.32
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -422,6 +422,9 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %endif
 
 %changelog
+* Sat Aug 16 2014 Philip J Perry <phil@elrepo.org> - 340.32-1.el5.elrepo
+- Updated to version 340.32
+
 * Wed Jul 09 2014 Philip J Perry <phil@elrepo.org> - 340.24-1.el5.elrepo
 - Updated to version 340.24
 

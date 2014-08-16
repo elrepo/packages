@@ -9,7 +9,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	340.24
+Version:	340.32
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -414,6 +414,8 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Sat Aug 16 2014 Philip J Perry <phil@elrepo.org> - 340.32-1
+- Updated to version 340.32
 - Disable nouveau in /etc/default/grub
 
 * Wed Jul 09 2014 Philip J Perry <phil@elrepo.org> - 340.24-1
