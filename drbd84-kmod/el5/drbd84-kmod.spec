@@ -10,7 +10,7 @@
 
 Summary: Distributed Redundant Block Device driver for Linux
 Name: %{kmod_name}-kmod
-Version: 8.4.4
+Version: 8.4.5
 Release: 1%{?dist}
 License: GPL
 Group: System Environment/Kernel
@@ -53,17 +53,6 @@ high availability (HA) clusters.
 
 %prep
 %setup -c -T -a 0
-pushd %{real_name}-%{version}
-%configure \
-    --with-km \
-    --without-bashcompletion \
-    --without-heartbeat \
-    --without-pacemaker \
-    --without-rgmanager \
-    --without-udev \
-    --without-utils \
-    --without-xen
-popd
 
 for kvariant in %{kvariants} ; do
     %{__cp} -a %{real_name}-%{version} _kmod_build_$kvariant
@@ -99,6 +88,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Aug 17 2014 Jun Futagawa <jfut@integ.jp> - 8.4.5-1
+- Updated to version 8.4.5.
+
 * Sat Oct 12 2013 Philip J Perry <phil@elrepo.org> - 8.4.4-1
 - Updated to release 8.4.4.
 

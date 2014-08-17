@@ -6,7 +6,7 @@
 %{!?kversion: %define kversion 3.10.0-123.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 8.4.4
+Version: 8.4.5
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -36,16 +36,6 @@ high availability (HA) clusters.
 
 %prep
 %setup -n %{real_name}-%{version}
-
-%configure \
-    --with-km \
-    --without-bashcompletion \
-    --without-heartbeat \
-    --without-pacemaker \
-    --without-rgmanager \
-    --without-udev \
-    --without-utils \
-    --without-xen
 
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
@@ -80,5 +70,8 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Aug 17 2014 Jun Futagawa <jfut@integ.jp> - 8.4.5-1
+- Updated to version 8.4.5
+
 * Sun Jul 27 2014 Jun Futagawa <jfut@integ.jp> - 8.4.4-1
 - Initial package for RHEL7.
