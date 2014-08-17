@@ -1,17 +1,17 @@
 # $Id$
 # Authority: dag
 
-%define real_name drbd
+%define real_name drbd-utils
 
 Summary: Management utilities for DRBD
 Name: drbd84-utils
-Version: 8.4.4
+Version: 8.9.1
 Release: 2%{?dist}
 License: GPLv2+
 Group: System Environment/Kernel
 URL: http://www.drbd.org/
 
-Source: http://oss.linbit.com/drbd/8.4/drbd-%{version}.tar.gz
+Source: http://oss.linbit.com/drbd/drbd-utils-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 BuildRequires: flex
@@ -47,15 +47,20 @@ scripts for heartbeat, pacemaker, rgmanager and xen.
 
 %build
 %configure \
-    --without-km \
     --with-initdir="%{_initrddir}" \
     --with-rgmanager \
-    --with-utils
-%{__make} %{?_smp_mflags}
+    --with-initscripttype=sysv
+WITH_HEARTBEAT=yes %{__make} %{?_smp_mflags}
 
 %install
 %{__rm} -rf %{buildroot}
-%{__make} install DESTDIR="%{buildroot}"
+WITH_HEARTBEAT=yes %{__make} install DESTDIR="%{buildroot}"
+pushd scripts
+WITH_HEARTBEAT=yes %{__make} install-heartbeat DESTDIR="%{buildroot}"
+popd
+
+install -d -m 755 %{buildroot}/%{_sysconfdir}/udev/rules.d
+mv %{buildroot}/lib/udev/65-drbd.rules %{buildroot}/%{_sysconfdir}/udev/rules.d/65-drbd.rules
 
 # Moved to /usr/sbin, symlink to /sbin for compatibility
 %{__mkdir_p} %{buildroot}/sbin/
@@ -92,11 +97,17 @@ fi
 %defattr(-, root, root, 0755)
 %doc ChangeLog COPYING README scripts/drbd.conf.example
 %doc %{_mandir}/man5/drbd.conf.5*
+%doc %{_mandir}/man5/drbd.conf-*
 %doc %{_mandir}/man8/drbd.8*
+%doc %{_mandir}/man8/drbd-*
 %doc %{_mandir}/man8/drbdadm.8*
+%doc %{_mandir}/man8/drbdadm-*
 %doc %{_mandir}/man8/drbddisk.8*
+%doc %{_mandir}/man8/drbddisk-*
 %doc %{_mandir}/man8/drbdmeta.8*
+%doc %{_mandir}/man8/drbdmeta-*
 %doc %{_mandir}/man8/drbdsetup.8*
+%doc %{_mandir}/man8/drbdsetup-*
 %config %{_initrddir}/drbd
 %config %{_sysconfdir}/bash_completion.d/drbdadm*
 %config %{_sysconfdir}/udev/rules.d/65-drbd.rules*
@@ -106,6 +117,8 @@ fi
 %dir %{_localstatedir}/lib/drbd/
 /lib/drbd/drbdadm-83
 /lib/drbd/drbdsetup-83
+/lib/drbd/drbdadm-84
+/lib/drbd/drbdsetup-84
 /sbin/drbdadm
 /sbin/drbdmeta
 /sbin/drbdsetup
@@ -146,6 +159,9 @@ fi
 %{_sysconfdir}/xen/scripts/block-drbd
 
 %changelog
+* Sun Aug 17 2014 Jun Futagawa <jfut@integ.jp> - 8.9.1-1
+- Updated to version 8.9.1.
+
 * Fri Oct 25 2013 Philip J Perry <phil@elrepo.org> - 8.4.4-2
 - Add symlinks for drbd files moved from /sbin to /usr/sbin
   [http://elrepo.org/bugs/view.php?id=418]
