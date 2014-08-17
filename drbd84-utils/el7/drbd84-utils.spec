@@ -1,15 +1,14 @@
-%define real_name drbd
+%define real_name drbd-utils
 
 Name:    drbd84-utils
-Version: 8.4.4
+Version: 8.9.1
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
 Summary: Management utilities for DRBD
 URL:     http://www.drbd.org/
 
-Source0:   http://oss.linbit.com/drbd/8.4/drbd-%{version}.tar.gz
-Source1:   drbd.service
+Source0:   http://oss.linbit.com/drbd/drbd-utils-%{version}.tar.gz
 
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: flex
@@ -63,18 +62,24 @@ It is not required when the init system used is systemd.
 
 %build
 %configure \
-    --without-km \
     --with-initdir="%{_initrddir}" \
     --with-rgmanager \
-    --with-utils
-%{__make} %{?_smp_mflags}
+    --with-initscripttype=both
+WITH_HEARTBEAT=yes %{__make} %{?_smp_mflags}
 
 %install
 %{__rm} -rf %{buildroot}
-%{__make} install DESTDIR="%{buildroot}"
+WITH_HEARTBEAT=yes %{__make} install DESTDIR="%{buildroot}"
+pushd scripts
+WITH_HEARTBEAT=yes %{__make} install-heartbeat DESTDIR="%{buildroot}"
+popd
 
-install -d -m 755 $RPM_BUILD_ROOT%{_unitdir}
-install -m 644 %{SOURCE1} $RPM_BUILD_ROOT%{_unitdir}/drbd.service
+install -d -m 755 %{buildroot}/%{_unitdir}
+mv %{buildroot}/drbd.service %{buildroot}/%{_unitdir}/drbd.service
+chmod 644 %{buildroot}/%{_unitdir}/drbd.service
+
+install -d -m 755 %{buildroot}/%{_sysconfdir}/udev/rules.d
+mv %{buildroot}/lib/udev/65-drbd.rules %{buildroot}/%{_sysconfdir}/udev/rules.d/65-drbd.rules
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -105,11 +110,17 @@ fi
 %defattr(-, root, root, 0755)
 %doc ChangeLog COPYING README scripts/drbd.conf.example
 %doc %{_mandir}/man5/drbd.conf.5*
+%doc %{_mandir}/man5/drbd.conf-*
 %doc %{_mandir}/man8/drbd.8*
+%doc %{_mandir}/man8/drbd-*
 %doc %{_mandir}/man8/drbdadm.8*
+%doc %{_mandir}/man8/drbdadm-*
 %doc %{_mandir}/man8/drbddisk.8*
+%doc %{_mandir}/man8/drbddisk-*
 %doc %{_mandir}/man8/drbdmeta.8*
+%doc %{_mandir}/man8/drbdmeta-*
 %doc %{_mandir}/man8/drbdsetup.8*
+%doc %{_mandir}/man8/drbdsetup-*
 %config %{_sysconfdir}/bash_completion.d/drbdadm*
 %config %{_sysconfdir}/udev/rules.d/65-drbd.rules*
 %config(noreplace) %{_sysconfdir}/drbd.conf
@@ -119,6 +130,8 @@ fi
 %dir %{_localstatedir}/lib/drbd/
 /lib/drbd/drbdadm-83
 /lib/drbd/drbdsetup-83
+/lib/drbd/drbdadm-84
+/lib/drbd/drbdsetup-84
 %{_sbindir}/drbdadm
 %{_sbindir}/drbdmeta
 %{_sbindir}/drbdsetup
@@ -160,5 +173,8 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Sun Aug 17 2014 Jun Futagawa <jfut@integ.jp> - 8.9.1-1
+- Updated to version 8.9.1
+
 * Sun Jul 27 2014 Jun Futagawa <jfut@integ.jp> - 8.4.4-1
 - Initial package for RHEL7.
