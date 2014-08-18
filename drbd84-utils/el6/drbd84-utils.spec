@@ -16,6 +16,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 BuildRequires: flex
 BuildRequires: udev
+BuildRequires: libxslt
 Requires: chkconfig
 Requires: udev
 
