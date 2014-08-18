@@ -13,6 +13,7 @@ Source0:   http://oss.linbit.com/drbd/drbd-utils-%{version}.tar.gz
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: flex
 BuildRequires: udev
+BuildRequires: libxslt
 
 Requires: udev
 Requires(post):   systemd-units
