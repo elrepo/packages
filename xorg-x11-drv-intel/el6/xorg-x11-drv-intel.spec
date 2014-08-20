@@ -1,74 +1,54 @@
-%define legacyname  xorg-x11-drv-i810
-%define legacyver   2.6.0-8
 %define moduledir %(pkg-config xorg-server --variable=moduledir )
 %define driverdir	%{moduledir}/drivers
-%define gputoolsdate 20100416
-#define gitdate 20100326
+# %define gputoolsdate 20121019
+%define gputoolsdate 20110817
+#define gitdate 20120907
+#define gitrev .%{gitdate}
+
+%if 0%{?rhel} == 7
+%define rhel7 1
+%endif
+%if 0%{?rhel} == 6
+%define rhel6 1
+%endif
+
+%if 0%{?rhel7} || 0%{?fedora} > 17
+%define prime 1
+%endif
 
 Summary:   Xorg X11 Intel video driver
 Name:      xorg-x11-drv-intel
-Version:   2.17.0
-Release:   2%{?dist}
+Version:   2.21.2
+Release:   1%{?gitrev}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X Hardware Support
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
+%if 0%{?gitdate}
+Source0:    xf86-video-intel-%{gitdate}.tar.bz2
+%else
 Source0:    http://xorg.freedesktop.org/archive/individual/driver/xf86-video-intel-%{version}.tar.bz2 
-#Source0:    xf86-video-intel-%{gitdate}.tar.bz2
+%endif
 Source1:    make-intel-gpu-tools-snapshot.sh
-Source2:    intel.xinf
 Source3:    intel-gpu-tools-%{gputoolsdate}.tar.bz2
 Source4:    make-git-snapshot.sh
-
-#Patch1: kill-svideo.patch
-#Patch2: copy-fb.patch
-
-# needs to be upstreamed
-#Patch20: intel-2.8.0-kms-get-crtc.patch
-#Patch21: intel-2.11-lvds-first.patch
-#Patch22: intel-2.11.0-vga-clock-max.patch
-
-#Patch60: uevent.patch
-
-# https://bugs.freedesktop.org/show_bug.cgi?id=27885
-#Patch61: intel-2.10.0-add-mbp-backlight.patch
-
-# https://bugzilla.redhat.com/588421
-#Patch62: intel-2.11-no-pageflipping.patch
-
-# https://bugzilla.redhat.com/604024
-#Patch63: intel-2.11.0-fix-rotate-flushing-965.patch
-
-#Patch64: intel-no-sandybridge.patch
 
 ExclusiveArch: %{ix86} x86_64 ia64
 
 BuildRequires: autoconf automake libtool
-BuildRequires: xorg-x11-server-devel >= 1.4.99.1
+BuildRequires: xorg-x11-server-devel >= 1.13
 BuildRequires: libXvMC-devel
 BuildRequires: mesa-libGL-devel >= 6.5-9
-BuildRequires: libdrm-devel >= 2.4.31
-BuildRequires: kernel-headers
+BuildRequires: libdrm-devel >= 2.4.25
+BuildRequires: kernel-headers >= 2.6.32-3
 BuildRequires: libudev-devel
 BuildRequires: libxcb-devel >= 1.5 
 BuildRequires: xcb-util-devel
-BuildRequires: libdmx-devel
-BuildRequires: libXtst-devel
-BuildRequires: libXxf86dga-devel
-BuildRequires: libXxf86misc-devel
-BuildRequires: xorg-x11-util-macros >= 1.15.0
-BuildRequires: xorg-x11-proto-devel >= 7.6-17
+BuildRequires: cairo-devel
+BuildRequires: pixman-devel >= 0.20
 
-Requires:  hwdata
-Requires:  xorg-x11-server-Xorg >= 1.4.99.1
-Requires:  libxcb >= 1.5
-Requires:  xcb-util
-Requires:  libdrm >= 2.4.31
-
-Requires:  kernel >= 2.6.32-33.el6
-Provides:   %{legacyname} = %{legacyver}
-Obsoletes:  %{legacyname} < %{legacyver}
+Requires: Xorg %(xserver-sdk-abi-requires ansic)
+Requires: Xorg %(xserver-sdk-abi-requires videodrv)
 
 %description 
 X.Org X11 Intel video driver.
@@ -78,8 +58,6 @@ Summary:   Xorg X11 Intel video driver XvMC development package
 Group:     Development/System
 Requires:  %{name} = %{version}-%{release}
 Provides:  xorg-x11-drv-intel-devel = %{version}-%{release}
-Provides:   %{legacyname}-devel = %{legacyver}
-Obsoletes:  %{legacyname}-devel < %{legacyver}
 
 %description devel
 X.Org X11 Intel video driver XvMC development package.
@@ -98,29 +76,33 @@ Debugging tools for Intel graphics chips
 %endif
 
 %prep
-%setup -q -n xf86-video-intel-%{dirsuffix} -b3
-#%patch1 -p1 -b .svideo
-#%patch2 -p1 -b .copy-fb
-#%patch20 -p1 -b .get-crtc
-#%patch21 -p1 -b .lvds-first
-#%patch22 -p1 -b .vga-clock
-#%patch60 -p1 -b .uevent
-#%patch61 -p1 -b .mbp-backlight
-#%patch62 -p1 -b .no-flip
-#%patch63 -p1 -b .rotateflush
-#%patch64 -p1 -b .snb
+%setup -q -n xf86-video-intel-%{?gitdate:%{gitdate}}%{!?gitdate:%{dirsuffix}} -b3
+
+#For backward compatibility
+sed -i 's/miCompositeSourceValidate(src);/miCompositeSourceValidate(src,src_x-dst_x,src_y-dst_y,width,height);/' src/sna/sna_composite.c
+sed -i 's/miCompositeSourceValidate(mask);/miCompositeSourceValidate(mask,mask_x-dst_x,mask_y-dst_y,width,height);/' src/sna/sna_composite.c
 
 %build
  
-# Need autoreconf also when patching a release (to pick up -ludev)
-autoreconf -vi
+#export CFLAGS="$RPM_OPT_FLAGS -fno-omit-frame-pointer"
+%{?gitdate:autoreconf -v --install}
 
-%configure --disable-static --libdir=%{_libdir} --mandir=%{_mandir} --enable-dri --enable-xvmc
+%configure \
+%ifnarch %{ix86}
+    --enable-kms-only \
+%endif
+    %{?rhel7:--enable-kms-only} \
+    --disable-static \
+    --enable-dri \
+    --enable-xvmc \
+    --enable-sna \
+    --with-default-accel=uxa
 make
 
 pushd ../intel-gpu-tools-%{gputoolsdate}
-autoreconf -v --install
-%configure
+mkdir -p m4
+autoreconf -f -i -v
+%configure %{!?prime:--disable-nouveau}
 make
 popd
 
@@ -128,8 +110,6 @@ popd
 rm -rf $RPM_BUILD_ROOT
 
 make install DESTDIR=$RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/hwdata/videoaliases
-install -m 0644 %{SOURCE2} $RPM_BUILD_ROOT%{_datadir}/hwdata/videoaliases/
 
 pushd ../intel-gpu-tools-%{gputoolsdate}
 make install DESTDIR=$RPM_BUILD_ROOT
@@ -142,43 +122,271 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
+%doc COPYING
 %{driverdir}/intel_drv.so
-%{_datadir}/hwdata/videoaliases/intel.xinf
+%ifarch %{ix86}
+%if !0%{?rhel7}
 %{_libdir}/libI810XvMC.so.1*
+%endif
+%endif
 %{_libdir}/libIntelXvMC.so.1*
 %{_mandir}/man4/i*
 
 %files devel
 %defattr(-,root,root,-)
+%ifarch %{ix86}
+%if !0%{?rhel7}
 %{_libdir}/libI810XvMC.so
+%endif
+%endif
 %{_libdir}/libIntelXvMC.so
 
 %files -n intel-gpu-tools
 %defattr(-,root,root,-)
+%doc COPYING
 %{_bindir}/intel_*
+%{_bindir}/forcewaked
 %{_mandir}/man1/intel_*.1*
 
 %changelog
-* Sun Feb 26 2012 Phil Schaffner <pschaff2@verison.net> 2.17.0-2
-- build with libdrm 2.4.31
+* Thu Mar 14 2013 Akemi Yagi <toracat@elrepo.org> 2.21.2-1.el6.elrepo
+- rebuild for ELRepo
+- spec file contributed by Rudy Eschauzier <reschauzier@yahoo.com>
+  backports the driver to xorg server 1.10.6-1 by including two sed lines
 
-* Sun Jan 01 2012 Phil Schaffner <p.r.schaffner@ieee.org> 2.17.0-1
-- 2.17.0
+* Mon Jan 21 2013 Dave Airlie <airlied@redhat.com> 2.20.19-1
+- intel 2.20.19
 
-* Fri Sep 16 2011 Phil Schaffner <p.r.schaffner@ieee.org> 2.16.0-1
-- 2.16.0
+* Wed Jan 16 2013 Adam Jackson <ajax@redhat.com> 2.20.18-2
+- Compensate for rawhide's aclocal breaking in a newly stupid way
 
-* Sat May 14 2011 Phil Schaffner <p.r.schaffner@ieee.org> 2.15.0-1
-- 2.15.0
+* Wed Jan 16 2013 Adam Jackson <ajax@redhat.com> 2.20.18-1
+- intel 2.20.18
 
-* Fri Aug 13 2010 Adam Jackson <ajax@redhat.com> 2.11.0-7
-- intel-no-sandybridge.patch: Don't try to bind to snb devices (#624132)
+* Tue Jan 08 2013 Dave Airlie <airlied@redhat.com> 2.20.17-2
+- Fix damage issue for reverse prime work
 
-* Fri Jun 25 2010 Dave Airlie <airlied@redhat.com> 2.11.0-6
-- intel-2.11.0-fix-rotate-flushing-965.patch: fix rotated lags (#604024)
+* Fri Jan 04 2013 Adam Jackson <ajax@redhat.com> 2.20.17-1
+- intel 2.20.17
 
-* Fri Jun 04 2010 Dave Airlie <airlied@redhat.com> 2.11.0-5
-- fix X -nr (requires kernel 2.6.32-33 to work).
+* Wed Jan 02 2013 Dave Airlie <airlied@redhat.com> 2.20.16-2
+- Fix uxa bug that trips up ilk on 3.7 kernels
+
+* Mon Dec 17 2012 Adam Jackson <ajax@redhat.com> 2.20.16-1
+- intel 2.20.16
+
+* Wed Nov 28 2012 Adam Jackson <ajax@redhat.com> 2.20.14-1
+- intel 2.20.14
+
+* Mon Oct 22 2012 Adam Jackson <ajax@redhat.com> 2.20.12-1
+- intel 2.20.12
+
+* Fri Oct 19 2012 Adam Jackson <ajax@redhat.com> 2.20.10-2
+- Today's i-g-t
+- Don't bother building the nouveau bits of i-g-t on OSes without an X
+  server with prime support.
+
+* Mon Oct 15 2012 Dave Airlie <airlied@redhat.com> 2.20.10-1
+- intel 2.20.10
+
+* Fri Oct 05 2012 Adam Jackson <ajax@redhat.com> 2.20.9-1
+- intel 2.20.9
+- Today's intel-gpu-tools snapshot
+
+* Fri Sep 21 2012 Adam Jackson <ajax@redhat.com> 2.20.8-1
+- intel 2.20.8
+
+* Mon Sep 10 2012 Adam Jackson <ajax@redhat.com> 2.20.7-1
+- intel 2.20.7
+
+* Fri Sep 07 2012 Dave Airlie <airlied@redhat.com> 2.20.6-2
+- latest upstream git snapshot with prime + fixes
+
+* Tue Sep 04 2012 Adam Jackson <ajax@redhat.com> 2.20.6-2
+- Only bother to build UMS (read: i810) support on 32-bit.  If you've
+  managed to build a machine with an i810 GPU but a 64-bit CPU, please
+  don't have done that.
+
+* Tue Sep 04 2012 Adam Jackson <ajax@redhat.com> 2.20.6-1
+- intel 2.20.6 (#853783)
+
+* Thu Aug 30 2012 Adam Jackson <ajax@redhat.com> 2.20.5-2
+- Don't package I810XvMC when not building legacy i810
+
+* Mon Aug 27 2012 Adam Jackson <ajax@redhat.com> 2.20.5-1
+- intel 2.20.5
+
+* Mon Aug 20 2012 Adam Jackson <ajax@redhat.com> 2.20.4-3
+- Rebuild for new xcb-util soname
+
+* Mon Aug 20 2012 Adam Jackson <ajax@redhat.com> 2.20.4-2
+- Backport some patches to avoid binding to non-i915.ko-driven Intel GPUs,
+  like Cedarview and friends (#849475)
+
+* Mon Aug 20 2012 Adam Jackson <ajax@redhat.com> 2.20.4-1
+- intel 2.20.4
+
+* Thu Aug 16 2012 Dave Airlie <airlied@redhat.com> 2.20.3-3
+- fix vmap flush to correct upstream version in prime patch
+
+* Thu Aug 16 2012 Dave Airlie <airlied@redhat.com> 2.20.3-2
+- snapshot upstream + add prime support for now
+
+* Wed Aug 15 2012 Adam Jackson <ajax@redhat.com> 2.20.3-1
+- intel 2.20.3
+
+* Wed Aug 01 2012 Adam Jackson <ajax@redhat.com> 2.20.2-1
+- intel 2.20.2
+- Only disable UMS in RHEL7, since i810 exists in RHEL6
+
+* Mon Jul 23 2012 Adam Jackson <ajax@redhat.com> 2.20.1-1
+- intel 2.20.1
+
+* Sun Jul 22 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.20.0-2.20120718
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Wed Jul 18 2012 Dave Airlie <airlied@redhat.com> 2.20.0-1.20120718
+- todays git snapshot
+
+* Tue Jun 12 2012 Dave Airlie <airlied@redhat.com> 2.19.0-5.20120612
+- today's git snapshot
+- resurrect copy-fb
+
+* Tue May 29 2012 Adam Jackson <ajax@redhat.com> 2.19.0-4.20120529
+- Today's git snapshot
+- Enable SNA (default is still UXA, use Option "AccelMethod" to switch)
+- build-fix.patch: Fix build with Fedora's default cflags
+
+* Tue May 29 2012 Adam Jackson <ajax@redhat.com> 2.19.0-3
+- Don't autoreconf the driver, fixes build on F16.
+
+* Mon May 21 2012 Adam Jackson <ajax@redhat.com> 2.19.0-2
+- Disable UMS support in RHEL.
+- Trim some Requires that haven't been needed since F15.
+
+* Thu May 03 2012 Adam Jackson <ajax@redhat.com> 2.19.0-1
+- intel 2.19.0
+
+* Tue Apr 24 2012 Adam Jackson <ajax@redhat.com> 2.18.0-2
+- intel-2.18-fedora-branch.patch: Backport stuff from post-2.18 git.
+
+* Fri Feb 24 2012 Adam Jackson <ajax@redhat.com> 2.18.0-1
+- intel 2.18.0
+
+* Sat Feb 11 2012 Peter Hutterer <peter.hutterer@redhat.com> - 2.17.0-10
+- ABI rebuild
+
+* Fri Feb 10 2012 Peter Hutterer <peter.hutterer@redhat.com> - 2.17.0-9
+- ABI rebuild
+
+* Wed Jan 25 2012 Bill Nottingham <notting@redhat.com> - 2.17.0-8
+- fix crash (fdo #45325)
+
+* Tue Jan 24 2012 Peter Hutterer <peter.hutterer@redhat.com> - 2.17.0-7
+- ABI rebuild
+
+* Tue Jan 03 2012 Peter Hutterer <peter.hutterer@redhat.com> - 2.17.0-6
+- Rebuild for server 1.12
+
+* Fri Dec 16 2011 Adam Jackson <ajax@redhat.com> - 2.17.0-5
+- Drop xinf file
+
+* Tue Dec 13 2011 Adam Jackson <ajax@redhat.com> 2.17.0-4
+- 0001-uxa-Fix-clip-processing-for-uxa_fill_spans.patch: Backport clipping
+  fixes from master.
+
+* Tue Nov 29 2011 Adam Jackson <ajax@redhat.com> 2.17.0-3
+- Rebuild for new xcb-util
+
+* Mon Nov 21 2011 Adam Jackson <ajax@redhat.com> 2.17.0-2
+- Re-enable DRI1 build for the moment
+
+* Fri Nov 18 2011 Adam Jackson <ajax@redhat.com> 2.17.0-1
+- intel 2.17.0
+- intel-2.17.0-legacy-dri1.patch: Fix build with DRI1 disabled
+
+* Mon Nov 14 2011 Adam Jackson <ajax@redhat.com> - 2.16.901-2
+- ABI rebuild
+
+* Thu Nov 10 2011 Adam Jackson <ajax@redhat.com> 2.16.901-1
+- Today's git snapshot (2.16.901 plus a lot)
+
+* Thu Aug 18 2011 Adam Jackson <ajax@redhat.com> - 2.16.0-2
+- Rebuild for xserver 1.11 ABI
+
+* Wed Aug 17 2011 Adam Jackson <ajax@redhat.com> 2.16.0-1
+- intel 2.16.0
+- Today's intel-gpu-tools snapshot
+
+* Wed Aug 03 2011 Adam Jackson <ajax@redhat.com> 2.15.901-1
+- intel 2.15.901
+
+* Tue May 10 2011 Peter Hutterer <peter.hutterer@redhat.com> - 2.15.0-4
+- Rebuild for what will be server 1.11 one day
+
+* Wed Apr 27 2011 Adam Jackson <ajax@redhat.com> 2.15.0-3
+- Bump libdrm requires. (#699669)
+
+* Mon Apr 18 2011 Adam Jackson <ajax@redhat.com> 2.15.0-2
+- Turn frame pointers back on
+
+* Thu Apr 14 2011 Adam Jackson <ajax@redhat.com> 2.15.0-1
+- intel 2.15.0
+
+* Mon Feb 28 2011 Peter Hutterer <peter.hutterer@redhat.com> - 2.14.0-3
+- Rebuild for server 1.10
+
+* Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.14.0-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
+* Thu Jan 13 2011 Adam Jackson <ajax@redhat.com> 2.14.0-1
+- intel 2.14.0
+
+* Wed Dec 01 2010 Peter Hutterer <peter.hutterer@redhat.com> 2.13.901-5
+- Rebuild for X Server 1.10
+
+* Thu Nov 18 2010 Adam Jackson <ajax@redhat.com> 2.13.901-4
+- Build with frame pointers for profiling
+
+* Thu Nov 18 2010 Adam Jackson <ajax@redhat.com> 2.13.901-3
+- intel-2.11-no-pageflipping.patch: Re-un-disable.
+
+* Mon Nov 15 2010 Adam Jackson <ajax@redhat.com> 2.13.901-2
+- intel-2.11-no-pageflipping.patch: Re-disable, still broken.
+
+* Tue Nov 09 2010 Adam Jackson <ajax@redhat.com> 2.13.901-1
+- intel 2.13.901
+
+* Tue Nov 09 2010 Adam Jackson <ajax@redhat.com> 2.13.0-2
+- intel 2.13.0 (now with competent changelog)
+
+* Sun Nov 07 2010 Adel Gadllah <adel.gadllah@gmail.com> 2.12.0-8
+- Apply corruption fix to rawhide too (RH #613118, GNOME #634068)
+
+* Wed Oct 27 2010 Adam Jackson <ajax@redhat.com> 2.12.0-7
+- Drop legacy i810 prov/obs, haven't shipped i810 since F10.
+
+* Wed Oct 27 2010 Adam Jackson <ajax@redhat.com> 2.12.0-6
+- Add ABI requires magic (#542742)
+
+* Thu Jul 08 2010 Adam Jackson <ajax@redhat.com> 2.12.0-5
+- Install COPYING.
+
+* Mon Jul 05 2010 Dave Airlie <airlied@redhat.com> 2.12.0-4
+- rebuild for fixed patch.
+
+* Mon Jul 05 2010 Peter Hutterer <peter.hutterer@redhat.com> - 2.12.0-3
+- rebuild for X Server 1.9
+
+* Mon Jul 05 2010 Dave Airlie <airlied@redhat.com> 2.12.0-2
+- add fix for UXA planemask issue
+
+* Fri Jun 25 2010 Adam Jackson <ajax@redhat.com> 2.12.0-1
+- intel 2.12.0
+- new gpu-tools snapshot
+
+* Fri Jun 25 2010 Dave Airlie <airlied@redhat.com> 2.11.0-5
+- intel-2.11.0-fix-rotate-flushing-965.patch: fix rotation issues
 
 * Mon May 03 2010 Adam Jackson <ajax@redhat.com> 2.11.0-4
 - intel-2.11-no-pageflipping.patch: Disable pageflipping (#588421)
