@@ -1,0 +1,103 @@
+From b405923c2690d782f33549546685b612a4706b8c Mon Sep 17 00:00:00 2001
+From: Chris Wilson <chris@chris-wilson.co.uk>
+Date: Tue, 22 Jul 2014 08:38:42 +0100
+Subject: [PATCH] sna/dri3: Mesa relies upon implicit fences
+
+Keith Packard says that he did not implement fences for mesa and so DRI3
+with explicit fencing is currently broken by design.
+
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+---
+ src/sna/sna_accel.c |  3 +++
+ src/sna/sna_dri3.c  | 32 ++++++++++++++++++++++++++++----
+ 2 files changed, 31 insertions(+), 4 deletions(-)
+
+diff --git a/src/sna/sna_accel.c b/src/sna/sna_accel.c
+index 78f422d..1b488e7 100644
+--- a/src/sna/sna_accel.c
++++ b/src/sna/sna_accel.c
+@@ -1416,6 +1416,9 @@ static void __sna_free_pixmap(struct sna *sna,
+ 
+ 	__sna_pixmap_free_cpu(sna, priv);
+ 
++	if (priv->flush)
++		sna_accel_watch_flush(sna, -1);
++
+ 	if (priv->header) {
+ 		assert(pixmap->drawable.pScreen == sna->scrn->pScreen);
+ 		assert(!priv->shm);
+diff --git a/src/sna/sna_dri3.c b/src/sna/sna_dri3.c
+index 5d51b41..61ebbe4 100644
+--- a/src/sna/sna_dri3.c
++++ b/src/sna/sna_dri3.c
+@@ -39,6 +39,8 @@
+ #include <misyncshm.h>
+ #include <misyncstr.h>
+ 
++#define MESA_IS_BROKEN 1
++
+ static DevPrivateKeyRec sna_sync_fence_private_key;
+ struct sna_sync_fence {
+ 	SyncFenceSetTriggeredFunc set_triggered;
+@@ -49,6 +51,22 @@ static inline struct sna_sync_fence *sna_sync_fence(SyncFence *fence)
+ 	return dixLookupPrivate(&fence->devPrivates, &sna_sync_fence_private_key);
+ }
+ 
++static inline void mark_dri3_pixmap(struct sna *sna, struct sna_pixmap *priv, struct kgem_bo *bo)
++{
++	if (!MESA_IS_BROKEN)
++		return;
++
++	bo->flush = true;
++	if (bo->exec)
++		sna->kgem.flush = 1;
++	if (bo == priv->gpu_bo)
++		priv->flush |= 3;
++	else
++		priv->shm = true;
++
++	sna_accel_watch_flush(sna, 1);
++}
++
+ static void sna_sync_flush(struct sna *sna, struct sna_pixmap *priv)
+ {
+ 	struct kgem_bo *bo = NULL;
+@@ -94,11 +112,13 @@ sna_sync_fence_set_triggered(SyncFence *fence)
+ 		DBG(("%s: associated pixmap=%ld\n", __FUNCTION__, get_drawable_pixmap(draw)->drawable.serialNumber));
+ 		sna_sync_flush(sna, sna_pixmap(get_drawable_pixmap(draw)));
+ 	} else { /* SyncFence are currently per-screen, sigh */
+-		struct sna_pixmap *priv;
++		if (!MESA_IS_BROKEN) {
++			struct sna_pixmap *priv;
+ 
+-		DBG(("%s: flushing all DRI3 pixmaps\n", __FUNCTION__));
+-		list_for_each_entry(priv, &sna->dri3.pixmaps, cow_list)
+-			sna_sync_flush(sna, priv);
++			DBG(("%s: flushing all DRI3 pixmaps\n", __FUNCTION__));
++			list_for_each_entry(priv, &sna->dri3.pixmaps, cow_list)
++				sna_sync_flush(sna, priv);
++		}
+ 
+ 		sna_accel_flush(sna);
+ 	}
+@@ -278,6 +298,8 @@ static PixmapPtr sna_dri3_pixmap_from_fd(ScreenPtr screen,
+ 	}
+ 	list_add(&priv->cow_list, &sna->dri3.pixmaps);
+ 
++	mark_dri3_pixmap(sna, priv, bo);
++
+ 	return pixmap;
+ 
+ free_pixmap:
+@@ -338,6 +360,8 @@ static int sna_dri3_fd_from_pixmap(ScreenPtr screen,
+ 		priv->pinned |= PIN_DRI3;
+ 	list_move(&priv->cow_list, &sna->dri3.pixmaps);
+ 
++	mark_dri3_pixmap(sna, priv, bo);
++
+ 	*stride = (priv->pinned & PIN_DRI3) ? priv->gpu_bo->pitch : priv->cpu_bo->pitch;
+ 	*size = kgem_bo_size((priv->pinned & PIN_DRI3) ? priv->gpu_bo : priv->cpu_bo);
+ 	DBG(("%s: exporting %s pixmap=%ld, handle=%d, stride=%d, size=%d\n",
+-- 
+1.9.3
+

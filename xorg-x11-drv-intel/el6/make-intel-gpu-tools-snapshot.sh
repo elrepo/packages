@@ -13,7 +13,7 @@ echo HEAD ${1:-HEAD}
 
 rm -rf $DIRNAME
 
-git clone ${REF:+--reference $REF} \
+git clone --depth 1 ${REF:+--reference $REF} \
 	git://git.freedesktop.org/git/xorg/app/intel-gpu-tools $DIRNAME
 
 GIT_DIR=$DIRNAME/.git git archive --format=tar --prefix=$DIRNAME/ ${1:-HEAD} \
