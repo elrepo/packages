@@ -7,7 +7,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 1.0.3
-Release: 990.git20140821%{?dist}
+Release: 991.20140823git%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -96,6 +96,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Aug 23 2014 Philip J Perry <phil@elrepo.org> - 1.0.3-991.20140823git
+- Update to latest git snapshot as a beta for 1.0.4 release.
+
 * Thu Aug 21 2014 Philip J Perry <phil@elrepo.org> - 1.0.3-990.git20140821
 - Update to latest git snapshot as a beta for 1.0.4 release.
 
