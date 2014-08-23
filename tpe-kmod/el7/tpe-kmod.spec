@@ -3,23 +3,24 @@
 %define src_name tpe-lkm
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-431.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-123.el7.%{_target_cpu}}
 
-Name: %{kmod_name}-kmod
+Name:    %{kmod_name}-kmod
 Version: 1.0.3
 Release: 990.git20140821%{?dist}
-Group: System Environment/Kernel
+Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
-URL: https://github.com/cormander/tpe-lkm
+URL:     https://github.com/cormander/tpe-lkm
 
+BuildRequires: perl
 BuildRequires: redhat-rpm-config
-ExclusiveArch: i686 x86_64
+ExclusiveArch: x86_64
 
-#Sources.
+# Sources.
 # http://sourceforge.net/projects/tpe-lkm/files/latest/download
 Source0: %{src_name}-%{version}.tar.gz
-Source10: kmodtool-%{kmod_name}-el6.sh
+Source10: kmodtool-%{kmod_name}-el7.sh
 
 # Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
@@ -32,11 +33,6 @@ This package provides the %{kmod_name} kernel module(s).
 It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
-Trusted Path Execution (TPE) is a security feature that denies users from executing
-programs that are not owned by root, or are writable. This closes the door on a
-whole category of exploits where a malicious user tries to execute his or her
-own code to hack the system.
-
 %prep
 %setup -q -n %{src_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
@@ -46,10 +42,8 @@ KSRC=%{_usrsrc}/kernels/%{kversion}
 %{__make} -C "${KSRC}" %{?_smp_mflags} modules M=$PWD
 
 %install
-export INSTALL_MOD_PATH=%{buildroot}
-export INSTALL_MOD_DIR=extra/%{kmod_name}
-KSRC=%{_usrsrc}/kernels/%{kversion}
-%{__make} -C "${KSRC}"  modules_install M=$PWD
+%{__install} -d %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
+%{__install} %{kmod_name}.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d/
@@ -61,42 +55,25 @@ KSRC=%{_usrsrc}/kernels/%{kversion}
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -p {FAQ,GPL,INSTALL,LICENSE,README} \
     %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
-# Set the module(s) to be executable, so that they will be stripped when packaged.
-find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
-# Remove the unrequired files.
-%{__rm} -f %{buildroot}/lib/modules/%{kversion}/modules.*
+
+# strip the modules(s)
+find %{buildroot} -type f -name \*.ko -exec %{__strip} --strip-debug \{\} \;
+
+# Sign the modules(s)
+%if %{?_with_modsign:1}%{!?_with_modsign:0}
+# If the module signing keys are not defined, define them here.
+%{!?privkey: %define privkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.priv}
+%{!?pubkey: %define pubkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.der}
+for module in $(find %{buildroot} -type f -name \*.ko);
+do %{__perl} /usr/src/kernels/%{kversion}/scripts/sign-file \
+sha256 %{privkey} %{pubkey} $module;
+done
+%endif
 
 %clean
 %{__rm} -rf %{buildroot}
 
 %changelog
 * Thu Aug 21 2014 Philip J Perry <phil@elrepo.org> - 1.0.3-990.git20140821
+- Initial el7 port of the kmod package.
 - Update to latest git snapshot as a beta for 1.0.4 release.
-
-* Thu May 11 2012 Philip J Perry <phil@elrepo.org> - 1.0.3-4
-- Handle all file permissions in kmodtool rather than the SPEC.
-
-* Thu May 11 2012 Philip J Perry <phil@elrepo.org> - 1.0.3-3
-- Fix file permissions.
-
-* Thu May 10 2012 Philip J Perry <phil@elrepo.org> - 1.0.3-2
-- Fix typo: Install /etc/sysctl.d/tpe.conf
-
-* Thu May 10 2012 Philip J Perry <phil@elrepo.org> - 1.0.3-1
-- Update to version 1.0.3
-- Install /etc/sysctl/tpe.conf
-
-* Wed May 02 2012 Philip J Perry <phil@elrepo.org> - 1.0.2-1
-- Update to version 1.0.2
-- Install /etc/modprobe.d/tpe.conf
-- Install /etc/sysconfig/modules/tpe.modules
-- Install the docs
-
-* Mon Apr 30 2012 Akemi Yagi <toracat@elrepo.org> - 1.0.1-1
-- Initial rebuild for ELRepo.
-
-* Wed Apr  4 2012 Corey Henderson <corman@cormander.com>
-- Fixed NULL pointer in denied execution of long file paths
-
-* Wed Jul  7 2011 Corey Henderson <corman@cormander.com>
-- Initial build.

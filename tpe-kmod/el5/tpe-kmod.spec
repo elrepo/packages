@@ -3,11 +3,11 @@
 %define src_name tpe-lkm
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.18-308.el5}
+%{!?kversion: %define kversion 2.6.18-371.el5}
 
 Name:    %{kmod_name}-kmod
 Version: 1.0.3
-Release: 4%{?dist}
+Release: 990.git20140821%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -96,6 +96,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Aug 21 2014 Philip J Perry <phil@elrepo.org> - 1.0.3-990.git20140821
+- Update to latest git snapshot as a beta for 1.0.4 release.
+
 * Thu May 11 2012 Philip J Perry <phil@elrepo.org> - 1.0.3-4
 - Handle all file permissions in kmodtool rather than the SPEC.
 
