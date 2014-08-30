@@ -10,7 +10,7 @@
 
 Name:		nvidia-x11-drv-304xx
 Version:	304.123
-Release:	1%{?dist}
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA 304xx OpenGL X11 display driver files
@@ -36,7 +36,7 @@ Requires:	xorg-x11-server-Xorg <= %{max_xorg_ver}
 Requires:	nvidia-304xx-kmod = %{?epoch:%{epoch}:}%{version}
 Requires(post):	nvidia-304xx-kmod = %{?epoch:%{epoch}:}%{version}
 
-Requires(post):	/usr/sbin/ldconfig
+Requires(post):	/sbin/ldconfig
 
 Requires(post):	 dracut
 
@@ -70,7 +70,7 @@ This package provides the proprietary NVIDIA 304xx OpenGL X11 display driver fil
 Summary:	Compatibility 32-bit files for the 64-bit Proprietary NVIDIA driver
 Group:		User Interface/X Hardware Support
 Requires:	%{name} = %{version}-%{release}
-Requires(post):	/usr/sbin/ldconfig
+Requires(post):	/sbin/ldconfig
 
 %description 32bit
 Compatibility 32-bit files for the 64-bit Proprietary NVIDIA driver.
@@ -264,10 +264,10 @@ if [ "$1" -eq "1" ]; then # new install
     fi
 fi || :
 
-/usr/sbin/ldconfig
+/sbin/ldconfig
 
 %post 32bit
-/usr/sbin/ldconfig
+/sbin/ldconfig
 
 %preun
 if [ "$1" -eq "0" ]; then # uninstall
@@ -292,10 +292,10 @@ if [ "$1" -eq "0" ]; then # uninstall
 fi ||:
 
 %postun
-/usr/sbin/ldconfig
+/sbin/ldconfig
 
 %postun 32bit
-/usr/sbin/ldconfig
+/sbin/ldconfig
 
 %files
 %defattr(-,root,root,-)
@@ -330,6 +330,7 @@ fi ||:
 
 %changelog
 - Disable nouveau in /etc/default/grub
+- Revert to /sbin/ldconfig
 
 * Fri Jul 18 2014 Philip J Perry <phil@elrepo.org> - 304.123-1
 - Port 304.xx legacy driver to RHEL7.

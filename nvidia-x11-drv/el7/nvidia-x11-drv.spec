@@ -10,7 +10,7 @@
 
 Name:		nvidia-x11-drv
 Version:	340.32
-Release:	1%{?dist}
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -41,7 +41,7 @@ Requires:	xorg-x11-server-Xorg <= %{max_xorg_ver}
 Requires:	nvidia-kmod = %{?epoch:%{epoch}:}%{version}
 Requires(post):	nvidia-kmod = %{?epoch:%{epoch}:}%{version}
 
-Requires(post):	/usr/sbin/ldconfig
+Requires(post):	/sbin/ldconfig
 
 Requires(post):	 dracut
 
@@ -75,7 +75,7 @@ This package provides the proprietary NVIDIA OpenGL X11 display driver files.
 Summary:	Compatibility 32-bit files for the 64-bit Proprietary NVIDIA driver
 Group:		User Interface/X Hardware Support
 Requires:	%{name} = %{version}-%{release}
-Requires(post):	/usr/sbin/ldconfig
+Requires(post):	/sbin/ldconfig
 # Fix broken SONAME dependency chain
 Provides: libnvcuvid.so
 Provides: libGL.so
@@ -340,10 +340,10 @@ if [ "$1" -eq "1" ]; then # new install
     fi
 fi || :
 
-/usr/sbin/ldconfig
+/sbin/ldconfig
 
 %post 32bit
-/usr/sbin/ldconfig
+/sbin/ldconfig
 
 %preun
 if [ "$1" -eq "0" ]; then # uninstall
@@ -368,10 +368,10 @@ if [ "$1" -eq "0" ]; then # uninstall
 fi ||:
 
 %postun
-/usr/sbin/ldconfig
+/sbin/ldconfig
 
 %postun 32bit
-/usr/sbin/ldconfig
+/sbin/ldconfig
 
 %files
 %defattr(-,root,root,-)
@@ -414,6 +414,9 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Sat Aug 30 2014 Philip J Perry <phil@elrepo.org> - 340.32-2
+- Revert to /sbin/ldconfig
+
 * Sat Aug 16 2014 Philip J Perry <phil@elrepo.org> - 340.32-1
 - Updated to version 340.32
 - Disable nouveau in /etc/default/grub
