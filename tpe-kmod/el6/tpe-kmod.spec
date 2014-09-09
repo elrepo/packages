@@ -6,8 +6,8 @@
 %{!?kversion: %define kversion 2.6.32-431.el6.%{_target_cpu}}
 
 Name: %{kmod_name}-kmod
-Version: 1.0.3
-Release: 991.20140823git%{?dist}
+Version: 1.1.0
+Release: 1%{?dist}
 Group: System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -70,6 +70,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Mon Sep 01 2014 Philip J Perry <phil@elrepo.org> - 1.1.0-1
+- Update to 1.1.0
+
 * Sat Aug 23 2014 Philip J Perry <phil@elrepo.org> - 1.0.3-991.20140823git
 - Update to latest git snapshot as a beta for 1.0.4 release.
 
