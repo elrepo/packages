@@ -38,4 +38,4 @@ with the Linux kernel zd1211rw driver.
 
 %changelog
 * Sat Sep 13 2014 Philip J Perry <phil@elrepo.org> - 1.5-1
-- Initial RPM packagefor rhel7.
+- Initial RPM package for rhel7.
