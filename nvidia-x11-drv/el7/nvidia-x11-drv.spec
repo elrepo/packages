@@ -9,8 +9,8 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	340.32
-Release:	2%{?dist}
+Version:	340.46
+Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -414,6 +414,9 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Sat Oct 04 2014 Philip J Perry <phil@elrepo.org> - 340.46-1
+- Updated to version 340.46
+
 * Sat Aug 30 2014 Philip J Perry <phil@elrepo.org> - 340.32-2
 - Revert to /sbin/ldconfig
 
