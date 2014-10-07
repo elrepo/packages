@@ -329,6 +329,7 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Sat Oct 04 2014 Philip J Perry <phil@elrepo.org> - 304.123-2
 - Disable nouveau in /etc/default/grub
 - Revert to /sbin/ldconfig
 
