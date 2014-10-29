@@ -2,11 +2,11 @@
 %define	 kmod_name nvidia-304xx
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-431.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-504.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
 Version: 304.123
-Release: 1%{?dist}
+Release: 3%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
@@ -72,6 +72,12 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Oct 28 2014 Philip J Perry <phil@elrepo.org> - 304.123-3.el6.elrepo
+- Add requires for RHEL-6.6 kernel as not backwards compatible.
+
+* Tue Oct 28 2014 Philip J Perry <phil@elrepo.org> - 304.123-2.el6.elrepo
+- Rebuilt for RHEL-6.6 kernel due to kABI breakage
+
 * Fri Jul 18 2014 Philip J Perry <phil@elrepo.org> - 304.123-1.el6.elrepo
 - Updated to version 304.123
 

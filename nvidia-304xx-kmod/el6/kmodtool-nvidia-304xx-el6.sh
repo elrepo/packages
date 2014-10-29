@@ -130,6 +130,7 @@ get_rpmtemplate ()
     cat <<EOF
 Provides:         kabi-modules = ${verrel}${dotvariant}
 Provides:         ${kmod_name}-kmod = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:         kernel >= 2.6.32-504.el6
 Requires:         nvidia-x11-drv-304xx = %{?epoch:%{epoch}:}%{version}
 Requires(post):   /sbin/depmod
 Requires(postun): /sbin/depmod
