@@ -67,3 +67,4 @@ done
 %changelog
 * Fri Sep 12 2014 Alan Bartlett <ajb@elrepo.org> - 1.0-1
 - Initial el7 build of the kmod package.
+- Backported from kernel-3.10.50
