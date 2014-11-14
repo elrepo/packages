@@ -9,7 +9,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	340.46
+Version:	340.58
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -414,6 +414,9 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Thu Nov 06 2014 Philip J Perry <phil@elrepo.org> - 340.58-1
+- Updated to version 340.58
+
 * Sat Oct 04 2014 Philip J Perry <phil@elrepo.org> - 340.46-1
 - Updated to version 340.46
 
