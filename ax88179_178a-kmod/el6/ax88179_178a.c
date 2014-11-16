@@ -614,12 +614,12 @@ static void ax88179_set_multicast(struct net_device *net)
 		 * to avoid allocating memory that is tricky to free later
 		 */
 		u32 crc_bits;
-		struct netdev_hw_addr *ha;
+		struct dev_mc_list *mc_list;
 
 		memset(m_filter, 0, AX_MCAST_FLTSIZE);
 
-		netdev_for_each_mc_addr(ha, net) {
-			crc_bits = ether_crc(ETH_ALEN, ha->addr) >> 26;
+		netdev_for_each_mc_addr(mc_list, net) {
+			crc_bits = ether_crc(ETH_ALEN, mc_list->dmi_addr) >> 26;
 			*(m_filter + (crc_bits >> 3)) |= (1 << (crc_bits & 7));
 		}
 
@@ -634,6 +634,7 @@ static void ax88179_set_multicast(struct net_device *net)
 				2, 2, &data->rxctl);
 }
 
+#ifndef AX88179_RHEL6_6
 static int
 ax88179_set_features(struct net_device *net, netdev_features_t features)
 {
@@ -662,6 +663,7 @@ ax88179_set_features(struct net_device *net, netdev_features_t features)
 
 	return 0;
 }
+#endif
 
 static int ax88179_change_mtu(struct net_device *net, int new_mtu)
 {
@@ -693,9 +695,10 @@ static int ax88179_change_mtu(struct net_device *net, int new_mtu)
 
 static int ax88179_set_mac_addr(struct net_device *net, void *p)
 {
+	int ret;
+
 	struct usbnet *dev = netdev_priv(net);
 	struct sockaddr *addr = p;
-	int ret;
 
 	if (netif_running(net))
 		return -EBUSY;
@@ -723,7 +726,9 @@ static const struct net_device_ops ax88179_netdev_ops = {
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_do_ioctl		= ax88179_ioctl,
 	.ndo_set_rx_mode	= ax88179_set_multicast,
+#ifndef AX88179_RHEL6_6
 	.ndo_set_features	= ax88179_set_features,
+#endif
 };
 
 static int ax88179_check_eeprom(struct usbnet *dev)
@@ -1036,8 +1041,10 @@ static int ax88179_bind(struct usbnet *dev, struct usb_interface *intf)
 	dev->net->features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM |
 			      NETIF_F_RXCSUM;
 
+#ifndef AX88179_RHEL6_6
 	dev->net->hw_features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM |
 				 NETIF_F_RXCSUM;
+#endif
 
 	/* Enable checksum offload */
 	*tmp = AX_RXCOE_IP | AX_RXCOE_TCP | AX_RXCOE_UDP |
@@ -1327,8 +1334,10 @@ static int ax88179_reset(struct usbnet *dev)
 	dev->net->features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM |
 			      NETIF_F_RXCSUM;
 
+#ifndef AX88179_RHEL6_6
 	dev->net->hw_features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM |
 				 NETIF_F_RXCSUM;
+#endif
 
 	/* Enable checksum offload */
 	*tmp = AX_RXCOE_IP | AX_RXCOE_TCP | AX_RXCOE_UDP |
