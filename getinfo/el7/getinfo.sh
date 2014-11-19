@@ -31,10 +31,10 @@ PRGPKGS=$PRGPKGS:"yum repolist all:egrep 'include|exclude' /etc/yum.repos.d/*.re
 PRGPKGS=$PRGPKGS:'sed -n -e "/^\[/h; /priority *=/{ G; s/\n/ /; s/ity=/ity = /; p }" /etc/yum.repos.d/*.repo | sort -k3n'
 PRGKRNL="rpm -qa kernel\\* | sort"
 PRGHARD="lspci -nn:lsusb:rpm -qa kmod\* kmdl\*"
-PRGSNET="ifconfig -a:brctl show:route -n"
+PRGSNET="ip addr:brctl show:route -n"
 PRGSNET=$PRGSNET:"sysctl -a | grep "\.rp_filter":ip rule show:ip route show"
 PRGSNET=$PRGSNET:"cat /etc/resolv.conf:egrep 'net|hosts' /etc/nsswitch.conf"
-PRGSNET=$PRGSNET:"chkconfig --list | grep -Ei 'network|wpa'"
+PRGSNET=$PRGSNET:"systemctl list-unit-files | grep -Ei 'network|wpa'"
 
 if [ $# -lt 1 ]; then
     echo "No option provided.  Defaulting to all information."
