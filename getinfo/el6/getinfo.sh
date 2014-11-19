@@ -1,10 +1,13 @@
 #!/bin/bash
+#
 # getinfo.sh
+#
 # This script collects system hardware and software information.
 # Exact information collected depends on how it is called.
 # It was developed by CentOS Forum members and is released under
 # the GNU General Public License, version 2 or later (GPL).
 # It should work on most Enterprise Linux or Fedora distributions.
+#
 # Version 1.0 4/5/2011
 # Version 1.1 4/23/2012
 # Version 1.2 5/9/2012
