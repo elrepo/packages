@@ -1,7 +1,7 @@
 Summary: Packaged 'getinfo.sh' script for RPM based distros
 Name: getinfo
 Version: 1.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPLv2
 Group: Applications/System
 URL: https://github.com/elrepo/packages/tree/master/getinfo/el7
@@ -35,6 +35,9 @@ Bash script to supply system information for use on support fora.
 %doc %{_usr}/local/share/doc/%{name}-%{version}/ReadMe.txt
 
 %changelog
+* Thu Nov 20 2014 Philip J Perry <phil@elrepo.org> - 1.2-2
+- Update script for el7
+
 * Wed Nov 19 2014 Philip J Perry <phil@elrepo.org> - 1.2-1
 - Rebuilt for el7
 
