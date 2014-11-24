@@ -133,7 +133,7 @@ Provides:         ${kmod_name}-kmod = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires(post):   /sbin/depmod
 Requires(postun): /sbin/depmod
 
-Requires: kernel >= 2.6.32-279.el6
+Requires: kernel >= 2.6.32-504.el6
 Requires: drbd83-utils >= %{?epoch:%{epoch}:}%{version}
 
 ### We cannot obsolete all Linbit drbd-km-%{kversion} variants
