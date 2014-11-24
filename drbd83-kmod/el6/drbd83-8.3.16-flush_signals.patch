@@ -1,0 +1,11 @@
+diff -Naurp a/drbd/drbd_nl.c b/drbd/drbd_nl.c
+--- a/drbd/drbd_nl.c	2013-08-14 13:55:40.000000000 +0100
++++ b/drbd/drbd_nl.c	2014-11-24 19:28:43.000000000 +0000
+@@ -303,6 +303,7 @@ void drbd_try_outdate_peer_async(struct 
+ {
+ 	struct task_struct *opa;
+ 
++	flush_signals(current);
+ 	opa = kthread_run(_try_outdate_peer_async, mdev, "drbd%d_a_helper", mdev_to_minor(mdev));
+ 	if (IS_ERR(opa))
+ 		dev_err(DEV, "out of mem, failed to invoke fence-peer helper\n");

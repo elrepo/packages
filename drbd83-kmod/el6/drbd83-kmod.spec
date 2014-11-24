@@ -12,7 +12,7 @@
 Summary: Distributed Redundant Block Device driver for Linux
 Name: %{kmod_name}-kmod
 Version: 8.3.16
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: GPL
 Group: System Environment/Kernel
 URL: http://wwww.drbd.org/
@@ -20,6 +20,9 @@ URL: http://wwww.drbd.org/
 # Sources.
 Source0: http://oss.linbit.com/drbd/8.3/drbd-%{version}.tar.gz
 Source10: kmodtool-%{kmod_name}-el6.sh
+
+# Patches.
+Patch0: drbd83-8.3.16-flush_signals.patch
 
 ExclusiveArch: i686 x86_64
 BuildRequires: redhat-rpm-config
@@ -38,6 +41,7 @@ high availability (HA) clusters.
 
 %prep
 %setup -n %{real_name}-%{version}
+%patch0 -p1
 
 %configure \
     --with-km \
@@ -72,6 +76,10 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Nov 23 2014 Madison Kelly <mkelly@alteeve.ca> - 8.3.16-3
+- Backport flush_signals() before kthread_run() fix
+  [http://elrepo.org/bugs/view.php?id=533]
+
 * Tue Oct 28 2014 Philip J Perry <phil@elrepo.org> - 8.3.16-2
 - Rebuilt for RHEL-6.6 kernel due to kABI breakage
 
