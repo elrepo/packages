@@ -1,30 +1,55 @@
+# This package provides VirtualGL for RHEL7.
+# The main (64-bit) package should be built as normal in mock.
+# The 32-bit libs package can not be built in mock as there is no 32-bit tree
+# The 32-bit package must be built using 'rpmbuild -ba --target=i686 VirtualGL.spec'
+# The 32-bit BuildRequires will need to be installed on the build host before building.
+
+%define		debug_package	%{nil}
+
 Summary:        A toolkit for displaying OpenGL applications to thin clients
 Name:           VirtualGL
 Version:        2.3.3
-URL:            http://www.virtualgl.org/
+Release:        4%{?dist}
 Group:          Applications/System
+License:        wxWidgets
+URL:            http://www.virtualgl.org/
+
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
+ExclusiveArch:	i686 x86_64
+
 Source0:        http://downloads.sourceforge.net/project/virtualgl/VirtualGL/%{version}/VirtualGL-%{version}.tar.gz
+Source1:	VirtualGL32.conf
+Source2:	VirtualGL64.conf
+
 # Use system fltk
-Patch0:         %{name}-fltk.patch
+Patch0:		%{name}-fltk.patch
 # Use system glx.h
 Patch1:         %{name}-glx.patch
 # fix for bz923961
-Patch2:         %{name}-redhatpathsfix.patch
-Release:        3%{?dist}
-License:        wxWidgets
-%if 0%{?rhel} == 6
-BuildRequires: cmake28
-%else
-BuildRequires: cmake
-%endif
-BuildRequires:  fltk-devel
-BuildRequires:  openssl-devel
-BuildRequires:  turbojpeg-devel
-BuildRequires:  mesa-libGLU-devel
-BuildRequires:  libXv-devel
+Patch2:		%{name}-redhatpathsfix.patch
+
+BuildRequires:	cmake
 BuildRequires:	gcc-c++
-Requires:       fltk
-Provides:       bumblebee-bridge
+
+# The rest of the BRs need to be arch specific
+## glib
+BuildRequires:	glibc-devel%{?_isa}
+BuildRequires:	nss-softokn-freebl%{?_isa}
+BuildRequires:	libgcc%{?_isa}
+BuildRequires:	libstdc++-devel%{?_isa}
+## X11
+BuildRequires:	libX11-devel%{?_isa}
+BuildRequires:	libXext-devel%{?_isa}
+BuildRequires:	mesa-libGL-devel%{?_isa}
+BuildRequires:	mesa-libGLU-devel%{?_isa}
+BuildRequires:	libXv-devel%{?_isa}
+## other libs
+BuildRequires:	fltk-devel%{?_isa}
+BuildRequires:	openssl-devel%{?_isa}
+BuildRequires:	turbojpeg-devel%{?_isa}
+
+Requires:	fltk
+Provides:	bumblebee-bridge
 
 %description
 VirtualGL is a toolkit that allows most Unix/Linux OpenGL applications to be
@@ -55,16 +80,34 @@ Visualization" (Stegmaier, Magallon, Ertl 2002) and "A Framework for
 Interactive Hardware Accelerated Remote 3D-Visualization" (Engel, Sommer,
 Ertl 2000.)
 
+%ifarch x86_64
 %package devel
-Summary:    Development headers and libraries for VirtualGL
-Requires:   %{name}%{?_isa} = %{version}-%{release}
-Requires:   openssl-devel%{?_isa}
-Requires:   turbojpeg-devel%{?_isa}
-Requires:   mesa-libGLU-devel%{?_isa}
-Requires:   libXv-devel%{?_isa}
+Summary:	Development headers and libraries for VirtualGL
+Requires:	%{name}%{?_isa} = %{version}-%{release}
+Requires:	openssl-devel%{?_isa}
+Requires:	turbojpeg-devel%{?_isa}
+Requires:	mesa-libGLU-devel%{?_isa}
+Requires:	libXv-devel%{?_isa}
 
 %description devel
 Development headers and libraries for VirtualGL.
+%endif
+
+%ifarch i686
+%package libs
+Summary:	32-Bit libraries for VirtualGL
+Requires:	%{name} = %{version}
+Requires:	glibc%{?_isa}
+Requires:	libX11%{?_isa}
+Requires:	libXext%{?_isa}
+Requires:	libXv%{?_isa}
+Requires:	openssl-libs%{?_isa}
+Requires:	libstdc++%{?_isa}
+Requires:	turbojpeg%{?_isa}
+
+%description libs
+This package contains the 32-bit libraries for VirtualGL.
+%endif
 
 %prep
 %setup -q
@@ -78,8 +121,7 @@ rm -r client/{putty,x11windows} common/glx* include/FL server/fltk
 rm doc/LICENSE-*.txt
 
 %build
-%cmake \
-         -DTJPEG_INCLUDE_DIR=%{_includedir} \
+%cmake   -DTJPEG_INCLUDE_DIR=%{_includedir} \
          -DTJPEG_LIBRARY=%{_libdir}/libturbojpeg.so \
          -DVGL_USESSL=ON -DVGL_LIBDIR=%{_libdir} \
          -DVGL_DOCDIR=%{_docdir}/%{name}/ \
@@ -90,13 +132,37 @@ make %{?_smp_mflags}
 %install
 make install DESTDIR=$RPM_BUILD_ROOT
 rm $RPM_BUILD_ROOT%{_bindir}/glxinfo
+%ifarch i686
+rm $RPM_BUILD_ROOT%{_includedir}/*.h
+%endif
 ln -sf %{_libdir}/VirtualGL/librrfaker.so $RPM_BUILD_ROOT%{_libdir}/fakelib/libGL.so
+
+# Install the ld.so.conf.d files
+%{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
+%ifarch i686
+%{__install} -p -m 0644 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/VirtualGL32.conf
+%endif
+%ifarch x86_64
+%{__install} -p -m 0644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/VirtualGL64.conf
+%endif
+
+%clean
+%{__rm} -rf $RPM_BUILD_ROOT
 
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
 
+%ifarch i686
+%post libs
+/sbin/ldconfig
+
+%postun libs
+/sbin/ldconfig
+%endif
+
 %files
+%defattr(-,root,root,-)
 %{_docdir}/%{name}/
 %{_bindir}/tcbench
 %{_bindir}/nettest
@@ -109,22 +175,35 @@ ln -sf %{_libdir}/VirtualGL/librrfaker.so $RPM_BUILD_ROOT%{_libdir}/fakelib/libG
 %{_bindir}/vglserver_config
 %{_bindir}/vglrun
 %{_bindir}/glreadtest
-%if %{__isa_bits} == 64
-%{_bindir}/glxspheres64
-%{_bindir}/.vglrun.vars64
-%else
-%{_bindir}/glxspheres
-%{_bindir}/.vglrun.vars32
-%endif
 %{_libdir}/VirtualGL/
 %{_libdir}/fakelib/
+%ifarch x86_64
+%config %{_sysconfdir}/ld.so.conf.d/VirtualGL64.conf
+%{_bindir}/glxspheres64
+%{_bindir}/.vglrun.vars64
+%endif
 
+%ifarch x86_64
 %files devel
 %{_includedir}/rrtransport.h
 %{_includedir}/rr.h
+%endif
 
+%ifarch i686
+%files libs
+%defattr(-,root,root,-)
+%config %{_sysconfdir}/ld.so.conf.d/VirtualGL32.conf
+%{_bindir}/glxspheres
+%{_bindir}/.vglrun.vars32
+%{_libdir}/VirtualGL/
+%{_libdir}/fakelib/
+%endif
 
 %changelog
+* Mon Dec 01 2014 Philip J Perry <phil@elrepo.org> - 2.3.3-4
+- Build 32-bit libs package for RHEL7
+  [http://elrepo.org/bugs/view.php?id=537]
+
 * Tue Jun 10 2014 Rob Mokkink <rob@mokkinksystems.com> - 2.3.3-3
 - Rebuild for elrepo el7
 - Added build requirement gcc-c++, to prevent cmake errors
