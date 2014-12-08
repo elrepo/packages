@@ -1,0 +1,10 @@
+EXTRA_CFLAGS :=  -I$(PWD)
+
+obj-m += smsc7500.o
+
+
+smsc7500-objs := smsclan7500.o smsc7500usbnet.o 
+
+default:
+	make -C ${KSRC} SUBDIRS=$(PWD) modules
+
