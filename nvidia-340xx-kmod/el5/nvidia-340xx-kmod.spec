@@ -3,10 +3,10 @@
 
 # If kversion isn't defined on the rpmbuild line, define it here.
 # kABI compatible with kernel 2.6.18-194.el5 upwards
-%{!?kversion: %define kversion 2.6.18-371.el5}
+%{!?kversion: %define kversion 2.6.18-398.el5}
 
 Name:    %{kmod_name}-kmod
-Version: 340.32
+Version: 340.65
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -98,6 +98,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Dec 16 2014 Philip J Perry <phil@elrepo.org> - 340.65-1.el5.elrepo
+- Updated to version 340.65
+
 * Fri Sep 26 2014 Philip J Perry <phil@elrepo.org> - 340.32-1.el5.elrepo
 - Fork to legacy release nvidia-340xx
 - Trimmed changelog
