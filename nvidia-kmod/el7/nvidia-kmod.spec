@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-123.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 340.58
+Version: 340.65
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -78,6 +78,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Dec 12 2014 Philip J Perry <phil@elrepo.org> - 340.65-1
+- Updated to version 340.65
+
 * Thu Nov 06 2014 Philip J Perry <phil@elrepo.org> - 340.58-1
 - Updated to version 340.58
 
