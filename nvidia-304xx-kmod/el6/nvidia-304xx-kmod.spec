@@ -5,8 +5,8 @@
 %{!?kversion: %define kversion 2.6.32-504.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 304.123
-Release: 3%{?dist}
+Version: 304.125
+Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
@@ -72,6 +72,9 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Dec 19 2014 Philip J Perry <phil@elrepo.org> - 304.125-1.el6.elrepo
+- Updated to version 304.125
+
 * Tue Oct 28 2014 Philip J Perry <phil@elrepo.org> - 304.123-3.el6.elrepo
 - Add requires for RHEL-6.6 kernel as not backwards compatible.
 

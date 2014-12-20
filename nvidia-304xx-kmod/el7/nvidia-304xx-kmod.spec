@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-123.el7.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 304.123
+Version: 304.125
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -71,6 +71,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Dec 19 2014 Philip J Perry <phil@elrepo.org> - 304.125-1
+- Updated to version 304.125
+
 * Fri Jul 18 2014 Philip J Perry <phil@elrepo.org> - 304.123-1
 - Port 304.xx legacy driver to RHEL7.
 - Updated to version 304.123
