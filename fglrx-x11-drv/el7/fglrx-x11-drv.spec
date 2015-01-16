@@ -52,8 +52,8 @@ Requires(preun): chkconfig
 Requires(post):  /sbin/ldconfig
 
 # for ati-config-display
-Requires(post):  pyxf86config
-Requires(preun): pyxf86config
+#Requires(post):  pyxf86config
+#Requires(preun): pyxf86config
 
 Requires(post):	 grubby
 Requires(preun): grubby
@@ -251,6 +251,14 @@ echo %{atilibdir} > %{buildroot}%{_sysconfdir}/ld.so.conf.d/ati.conf.disable
 %clean
 %{__rm} -rf %{buildroot}
 
+%pre
+# Warn on libglamoregl
+if [ -e /usr/share/X11/xorg.conf.d/glamor.conf ]; then
+    echo "WARNING: libglamoregl might conflict with ATI drivers"
+    echo "         Disable glamoregl by renaming or removing /usr/share/X11/xorg.conf.d/glamor.conf or uninstall xorg-x11-glamor"
+    echo "         See: http://elrepo.org/tiki/kmod-fglrx (Known Issues) for updated information"
+fi
+
 %post
 if [ "${1}" -eq 1 ]; then
   # Check if xorg.conf exists, if it does, backup and remove [BugID # 0000127]
@@ -267,20 +275,24 @@ if [ "${1}" -eq 1 ]; then
   if [ -e /etc/pam.d/su ]; then
     ln -s /etc/pam.d/su /etc/pam.d/amdcccle-su
   fi
-  # Disable the radeon driver
-  if [[ -x /sbin/grubby && -e /boot/grub/grub.conf ]]; then
-    # get installed kernels
-    for KERNEL in $(rpm -q --qf '%{v}-%{r}.%{arch}\n' kernel); do
-    VMLINUZ="/boot/vmlinuz-"$KERNEL
-    # Check kABI compatibility
-      for KABI in $(find /lib/modules -name fglrx.ko | cut -d / -f 4); do
-        if [[ "$KERNEL" == "$KABI" && -e "$VMLINUZ" ]]; then
-          /sbin/grubby --update-kernel="$VMLINUZ" \
-            --args='radeon.modeset=0' &>/dev/null
-        fi
+
+  [ -f %{_sysconfdir}/default/grub ] && \
+      %{__perl} -pi -e 's|(GRUB_CMDLINE_LINUX=".*)"|$1 radeon\.modeset=0 rd\.driver\.blacklist=radeon"|g' \
+        %{_sysconfdir}/default/grub
+  if [ -x /usr/sbin/grubby ]; then
+      # get installed kernels
+      for KERNEL in $(rpm -q --qf '%{v}-%{r}.%{arch}\n' kernel); do
+      VMLINUZ="/boot/vmlinuz-"$KERNEL
+      # Check kABI compatibility
+        for KABI in $(find /lib/modules -name radeon.ko | cut -d / -f 4); do
+          if [[ "$KERNEL" == "$KABI" && -e "$VMLINUZ" ]]; then
+            /usr/bin/dracut --add-drivers fglrx -f /boot/initramfs-$KERNEL.img $KERNEL
+            /usr/sbin/grubby --update-kernel="$VMLINUZ" \
+              --args='radeon.modeset=0 rd.driver.blacklist=radeon' &>/dev/null
+          fi
+        done
       done
-    done
-  fi
+    fi
 fi || :
 # Reset driver version in database
 %{_bindir}/aticonfig --del-pcs-key=LDC,ReleaseVersion &>/dev/null
@@ -310,6 +322,11 @@ if [ "${1}" -eq 0 ]; then
     rm -f /etc/pam.d/amdcccle-su &>/dev/null
   fi
   # Clear grub option to disable radeon for all RHEL6 kernels
+  if [ -f %{_sysconfdir}/default/grub ]; then
+     %{__perl} -pi -e 's|(GRUB_CMDLINE_LINUX=.*) radeon\.modeset=0|$1|g' %{_sysconfdir}/default/grub
+      %{__perl} -pi -e 's|(GRUB_CMDLINE_LINUX=.*) rd\.driver\.blacklist=radeon|$1|g' %{_sysconfdir}/default/grub
+  fi
+
   if [[ -x /sbin/grubby && -e /boot/grub/grub.conf ]]; then
     # get installed kernels
     for KERNEL in $(rpm -q --qf '%{v}-%{r}.%{arch}\n' kernel); do
@@ -386,9 +403,8 @@ fi || :
 %{_includedir}/ATI/GL/*.h
 
 %changelog
-* Sun Oct 19 2014 Manuel Wolfshant <wolfy@fedoraproject.org> - 14.9-1.el6_6.elrepo
-- Update to version 14.9.
-- Rebuilt for RHEL6.6.
+* Sun Oct 19 2014 Manuel Wolfshant <wolfy@fedoraproject.org> - 14.9-1.el7.elrepo
+- Initial version for EL7
 
 * Wed Dec 04 2013 Philip J Perry <phil@elrepo.org> - 13.4-1.el6_5.elrepo
 - Rebuilt for RHEL6.5
