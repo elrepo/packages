@@ -14,21 +14,24 @@
 %endif
 
 # built for RHEL6.6
-%define realversion 14.301.1001
+%define realversion 14.501.1003
 
 Name:		fglrx-x11-drv
-Version:	14.9
+Version:	14.12
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Proprietary 
 Summary:	AMD's proprietary driver for ATI graphic cards
-URL:		http://support.amd.com/us/gpudownload/linux/Pages/radeon_linux.aspx
+#AMD prohibits deep linking but loves redirects
+URL:     http://support.amd.com/en-us/download
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 ExclusiveArch:	i686 x86_64
 
-# Sources
-# http://www2.ati.com/drivers/linux/amd-driver-installer-catalyst-13.1-linux-x86.x86_64.zip
+# I think AMD makes a special effort to make sure that no one can infer the name
+# of a release from the previous one
+# Sources.
+# http://www2.ati.com/drivers/linux/amd-catalyst-omega-14.12-linux-run-installers.zip
 Source0:  amd-driver-installer-%{realversion}-x86.x86_64.run
 NoSource:	0
 
@@ -386,6 +389,9 @@ fi || :
 %{_includedir}/ATI/GL/*.h
 
 %changelog
+* Sat Jan 10 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 14.12-1.el6_6.elrepo
+- Update to version 14.12
+
 * Sun Oct 19 2014 Manuel Wolfshant <wolfy@fedoraproject.org> - 14.9-1.el6_6.elrepo
 - Update to version 14.9.
 - Rebuilt for RHEL6.6.
