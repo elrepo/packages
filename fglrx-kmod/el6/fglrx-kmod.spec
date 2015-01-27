@@ -1,3 +1,4 @@
+
 # Define the kmod package name here.
 %define kmod_name fglrx
 
@@ -6,20 +7,23 @@
 %{!?kversion: %define kversion 2.6.32-504.el6.%{_target_cpu}}
 
 # built for RHEL6.6
-%define realversion 14.301.1001
+%define realversion 14.501.1003
 Name:    %{kmod_name}-kmod
-Version: 14.9
+Version: 14.12
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: AMD %{kmod_name} kernel module(s)
-URL:     http://support.amd.com/us/gpudownload/linux/Pages/radeon_linux.aspx
+#AMD prohibits deep linking but loves redirects
+URL:     http://support.amd.com/en-us/download
 
 BuildRequires: redhat-rpm-config
 ExclusiveArch: i686 x86_64
 
+# I think AMD makes a special effort to make sure that no one can infer the name
+# of a release from the previous one
 # Sources.
-# http://www2.ati.com/drivers/linux/amd-driver-installer-catalyst-14.9-linux-x86.x86_64.zip
+# http://www2.ati.com/drivers/linux/amd-catalyst-omega-14.12-linux-run-installers.zip
 Source0:  amd-driver-installer-%{realversion}-x86.x86_64.run
 Source10: kmodtool-%{kmod_name}-el6.sh
 NoSource: 0
@@ -83,6 +87,10 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Jan 09 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 14.12-1.el6_6.elrepo
+- Update to version 14.12
+- Fix again the URL to the drivers' web page
+
 * Sun Oct 19 2014 Manuel Wolfshant <wolfy@fedoraproject.org> - 14.9-1.el6_6.elrepo
 - Update to version 14.9.
 - Rebuilt for RHEL6.6.
