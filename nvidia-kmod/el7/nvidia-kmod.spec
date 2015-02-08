@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-123.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 340.65
+Version: 346.35
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -78,6 +78,11 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Jan 17 2015 Philip J Perry <phil@elrepo.org> - 346.35-1
+- Updated to version 346.35
+- Drops support of older G8x, G9x, and GT2xx GPUs
+- Drops support for UVM on 32-bit architectures
+
 * Fri Dec 12 2014 Philip J Perry <phil@elrepo.org> - 340.65-1
 - Updated to version 340.65
 

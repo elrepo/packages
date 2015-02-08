@@ -6,7 +6,7 @@
 %{!?kversion: %define kversion 2.6.18-398.el5}
 
 Name:    %{kmod_name}-kmod
-Version: 340.65
+Version: 346.35
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -53,7 +53,9 @@ of the same variant of the Linux kernel and not on any one specific build.
 %setup -q -c -T
 echo "/usr/lib/rpm/redhat/find-requires | %{__sed} -e '/^ksym.*/d'" > filter-requires.sh
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+%ifarch x86_64
 echo "override %{kmod_name}-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+%endif
 
 %ifarch i686
 sh %{SOURCE0} --extract-only --target nvidiapkg
@@ -73,9 +75,11 @@ for kvariant in %{kvariants} ; do
     pushd _kmod_build_$kvariant/kernel
     %{__make} module
     popd
+    %ifarch x86_64
     pushd _kmod_build_$kvariant/kernel/uvm
     %{__make} module
     popd
+    %endif
 done
 
 %install
@@ -87,9 +91,11 @@ for kvariant in %{kvariants} ; do
     pushd _kmod_build_$kvariant/kernel
     %{__make} -C "${ksrc}" modules_install M=$PWD
     popd
+    %ifarch x86_64
     pushd _kmod_build_$kvariant/kernel/uvm
     %{__make} -C "${ksrc}" modules_install M=$PWD
     popd
+    %endif
 done
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -p -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
@@ -98,6 +104,11 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Jan 17 2015 Philip J Perry <phil@elrepo.org> - 346.35-1
+- Updated to version 346.35
+- Drops support of older G8x, G9x, and GT2xx GPUs
+- Drops support for UVM on 32-bit architectures
+
 * Fri Dec 12 2014 Philip J Perry <phil@elrepo.org> - 340.65-1.el5.elrepo
 - Updated to version 340.65
 

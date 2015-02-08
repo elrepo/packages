@@ -4,7 +4,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	340.65
+Version:	346.35
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -153,6 +153,8 @@ pushd nvidiapkg
 %{__install} -p -m 0755 libnvidia-glcore.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libnvidia-glsi.so in 340.24 driver
 %{__install} -p -m 0755 libnvidia-glsi.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
+# Added in 346.35 driver
+%{__install} -p -m 0755 libnvidia-gtk2.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libnvidia-ifr.so in 325.15 driver
 %{__install} -p -m 0755 libnvidia-ifr.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libnvidia-ml.so in 270.xx series driver
@@ -422,6 +424,10 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %endif
 
 %changelog
+* Sat Jan 17 2015 Philip J Perry <phil@elrepo.org> - 346.35-1
+- Updated to version 346.35
+- Drops support of older G8x, G9x, and GT2xx GPUs
+
 * Fri Dec 12 2014 Philip J Perry <phil@elrepo.org> - 340.65-1.el5.elrepo
 - Updated to version 340.65
 

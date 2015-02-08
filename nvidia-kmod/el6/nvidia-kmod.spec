@@ -1,11 +1,12 @@
 # Define the kmod package name here.
 %define	 kmod_name nvidia
 
+# build against rhel6.5 (2.6.32-431.el6) for backwards compatibility
 # If kversion isn't defined on the rpmbuild line, define it here.
 %{!?kversion: %define kversion 2.6.32-431.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 340.65
+Version: 346.35
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -39,7 +40,9 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -q -c -T
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+%ifarch x86_64
 echo "override %{kmod_name}-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+%endif
 
 %ifarch i686
 sh %{SOURCE0} --extract-only --target nvidiapkg
@@ -56,9 +59,11 @@ export SYSSRC=%{_usrsrc}/kernels/%{kversion}
 pushd _kmod_build_/kernel
 %{__make} module
 popd
+%ifarch x86_64
 pushd _kmod_build_/kernel/uvm
 %{__make} module
 popd
+%endif
 
 %install
 export INSTALL_MOD_PATH=%{buildroot}
@@ -67,9 +72,11 @@ ksrc=%{_usrsrc}/kernels/%{kversion}
 pushd _kmod_build_/kernel
 %{__make} -C "${ksrc}" modules_install M=$PWD
 popd
+%ifarch x86_64
 pushd _kmod_build_/kernel/uvm
 %{__make} -C "${ksrc}" modules_install M=$PWD
 popd
+%endif
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 # Remove the unrequired files.
@@ -79,6 +86,11 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Jan 17 2015 Philip J Perry <phil@elrepo.org> - 346.35-1
+- Updated to version 346.35
+- Drops support of older G8x, G9x, and GT2xx GPUs
+- Drops support for UVM on 32-bit architectures
+
 * Fri Dec 12 2014 Philip J Perry <phil@elrepo.org> - 340.65-1.el6.elrepo
 - Updated to version 340.65
 
