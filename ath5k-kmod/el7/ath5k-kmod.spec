@@ -6,12 +6,13 @@
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
 URL:     http://www.kernel.org/
 
+BuildRequires: perl
 BuildRequires: redhat-rpm-config
 ExclusiveArch: x86_64
 
@@ -48,16 +49,33 @@ KSRC=%{_usrsrc}/kernels/%{kversion}
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
-# Set the module(s) to be executable, so that they will be stripped when packaged.
-find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
+
+# strip the modules(s)
+find %{buildroot} -type f -name \*.ko -exec %{__strip} --strip-debug \{\} \;
+
+# Sign the modules(s)
+%if %{?_with_modsign:1}%{!?_with_modsign:0}
+# If the module signing keys are not defined, define them here.
+%{!?privkey: %define privkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.priv}
+%{!?pubkey: %define pubkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.der}
+for module in $(find %{buildroot} -type f -name \*.ko);
+do %{__perl} /usr/src/kernels/%{kversion}/scripts/sign-file \
+sha256 %{privkey} %{pubkey} $module;
+done
+%endif
 
 %clean
 %{__rm} -rf %{buildroot}
 
 %changelog
-* Thu Jun 12 2014 Alan Bartlett <ajb@elrepo.org> - 0.0-3
-- Corrected the Makefile in the ath5k-00/ath5k/ directory.
-- Backported from kernel-3.10.60
+* Sun Jan 18 2015 Philip J Perry <phil@elrepo.org> - 0.0-4
+- Update to kernel-3.10.65
+- fix hardware queue index assignment [2015-01-16]
+
+* Mon Jan 05 2015 Philip J Perry <phil@elrepo.org> - 0.0-3
+- Update to kernel-3.10.63
+- Enabled CONFIG_ATH5K_PCI
+- Add Secure Boot signing of module(s)
 
 * Fri May 23 2014 Alan Bartlett <ajb@elrepo.org> - 0.0-2
 - Corrected the kmodtool file.
