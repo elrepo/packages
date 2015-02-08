@@ -9,7 +9,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv-340xx
-Version:	340.65
+Version:	340.76
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -416,6 +416,9 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Thu Feb 05 2015 Philip J Perry <phil@elrepo.org> - 340.76-1
+- Updated to version 340.76
+
 * Tue Dec 16 2014 Philip J Perry <phil@elrepo.org> - 340.65-1
 - Updated to version 340.65
 - Adds support for Xorg 1.17 (Video Driver ABI 19)
