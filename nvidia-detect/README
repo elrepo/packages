@@ -47,7 +47,7 @@ nvidia-detect may be run from within a script and will return the following code
 
 nvidia-detect may be run with terse output (returns package name only):
 
-$ nvidia-detect
+$ nvidia-detect -t
 kmod-nvidia-304xx
 
 For a full list of supported devices, see:
