@@ -127,9 +127,9 @@ static void usage(void)
 
 static void has_optimus(void)
 {
-	printf("Optimus hardware detected: An Intel display controller was detected\n");
-	printf("Either disable the Intel display controller in the BIOS\n");
-	printf("or use the bumblebee driver to support Optimus hardware\n");
+	fprintf(stderr, "Optimus hardware detected: An Intel display controller was detected\n");
+	fprintf(stderr, "Either disable the Intel display controller in the BIOS\n");
+	fprintf(stderr, "or use the bumblebee driver to support Optimus hardware\n");
 }
 
 static void list_all_nvidia_devices(void)
@@ -248,8 +248,8 @@ static int nv_lookup_device_id(u_int16_t device_id)
 
 	/** Catch NVIDIA devices that aren't supported **/
 	if (!opt_terse) {
-		printf("This device does not appear to be supported at present\n");
-		printf("Please report at http://elrepo.org/bugs quoting the output "
+		fprintf(stderr, "This device does not appear to be supported at present\n");
+		fprintf(stderr, "Please report at http://elrepo.org/bugs quoting the output "
 			"from '/sbin/lspci -nn'\n");
 	}
 	return NVIDIA_NONE;
@@ -263,8 +263,8 @@ static int get_xorg_abi(void)
 	int version = 0;
 
 	if ((fp = fopen(XORG_LOG_FILE, "r")) == NULL) {
-		printf("WARNING: Xorg log file %s does not exist\n", XORG_LOG_FILE);
-		printf("WARNING: Unable to determine Xorg ABI compatibility\n");
+		fprintf(stderr, "WARNING: Xorg log file %s does not exist\n", XORG_LOG_FILE);
+		fprintf(stderr, "WARNING: Unable to determine Xorg ABI compatibility\n");
 
 		return version;
 	}
@@ -433,7 +433,7 @@ int main(int argc, char *argv[])
 		abi_compat = check_xorg_abi_compat(ret);
 
 		if (!abi_compat)
-			printf("WARNING: The driver for this device "
+			fprintf(stderr, "WARNING: The driver for this device "
 			"does not support the current Xorg version\n");
 		else
 			if (opt_xorg)
