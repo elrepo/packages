@@ -95,8 +95,9 @@ static struct option longopts[] = {
 	/* { name  has_arg  *flag  val } */
 	{"list",	0, 0, 'l'},
 	{"xorg",	0, 0, 'x'},
-	{"version",	0, 0, 'V'},
 	{"help",	0, 0, 'h'},
+	{"terse",	0, 0, 't'},
+	{"version",	0, 0, 'V'},
 	{0, 0, 0, 0}
 };
 
@@ -110,9 +111,9 @@ static void usage(void)
 	printf("Usage: %s [-lxVh]\n", PROGRAM_NAME);
 	printf("  -l, --list         list all supported NVIDIA devices\n");
 	printf("  -x, --xorg         display xorg compatibility information\n");
-	printf("  -h, --help         print this help and exit\n\n");
-	printf("  -t, --help         terse output (package name only)\n\n");
-	printf("  -V, --version      display version number and exit\n");
+	printf("  -h, --help         print this help and exit\n");
+	printf("  -t, --terse        terse output (package name only)\n");
+	printf("  -V, --version      display version number and exit\n\n");
 	printf("Detect NVIDIA graphics cards and determine the correct NVIDIA driver.\n\n");
 	printf("%s will return the following codes:\n\n", PROGRAM_NAME);
 	printf("0: No supported devices found\n");
