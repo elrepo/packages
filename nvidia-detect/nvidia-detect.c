@@ -245,12 +245,12 @@ static int nv_lookup_device_id(u_int16_t device_id)
 		}
 	}
 
-	/** Terse Output **/
 	/** Catch NVIDIA devices that aren't supported **/
-	printf("This device does not appear to be supported at present\n");
-	printf("Please report at http://elrepo.org/bugs quoting the output "
-		"from '/sbin/lspci -nn'\n");
-
+	if (!opt_terse) {
+		printf("This device does not appear to be supported at present\n");
+		printf("Please report at http://elrepo.org/bugs quoting the output "
+			"from '/sbin/lspci -nn'\n");
+	}
 	return NVIDIA_NONE;
 }
 
@@ -445,7 +445,7 @@ int main(int argc, char *argv[])
 
 	/* Catch cases where no NVIDIA devices were detected */
 	if (!has_nvidia)
-		if (opt_terse != 1) {
+		if (!opt_terse) {
 			printf("No NVIDIA devices were found.\n");
 		}
 
