@@ -80,6 +80,7 @@ enum {
 	NVIDIA_LEGACY_340XX,
 };
 
+static int ret = 0;
 static char namebuf[128], *name;
 static struct pci_access *pacc;
 static struct pci_dev *dev;
@@ -87,16 +88,19 @@ static struct pci_dev *dev;
 /* command line options */
 static bool opt_list = 0;
 static bool opt_xorg = 0;
-static bool opt_terse = 0;
-
-static int ret = 0;
+/* We can only return package names on RHEL */
+#if (RHEL_MAJOR == 5 || RHEL_MAJOR == 6 || RHEL_MAJOR == 7)
+static bool opt_verbose = 0;
+#else	/* do generic verbose output */
+static bool opt_verbose = 1;
+#endif
 
 static struct option longopts[] = {
 	/* { name  has_arg  *flag  val } */
 	{"list",	0, 0, 'l'},
 	{"xorg",	0, 0, 'x'},
 	{"help",	0, 0, 'h'},
-	{"terse",	0, 0, 't'},
+	{"verbose",	0, 0, 'v'},
 	{"version",	0, 0, 'V'},
 	{0, 0, 0, 0}
 };
@@ -112,7 +116,7 @@ static void usage(void)
 	printf("  -l, --list         list all supported NVIDIA devices\n");
 	printf("  -x, --xorg         display xorg compatibility information\n");
 	printf("  -h, --help         print this help and exit\n");
-	printf("  -t, --terse        terse output (package name only)\n");
+	printf("  -v, --verbose      verbose output\n");
 	printf("  -V, --version      display version number and exit\n\n");
 	printf("Detect NVIDIA graphics cards and determine the correct NVIDIA driver.\n\n");
 	printf("%s will return the following codes:\n\n", PROGRAM_NAME);
@@ -194,10 +198,11 @@ static int nv_lookup_device_id(u_int16_t device_id)
 	/** Find devices supported by the current driver **/
 	for (i = 0; i < ARRAY_SIZE(nv_current_pci_ids); i++) {
 		if (device_id == nv_current_pci_ids[i]) {
-			if (!opt_terse) {
+			if (opt_verbose) {
 				printf("This device requires the current %3.2f NVIDIA "
-					"driver %s\n", NVIDIA_VERSION, KMOD_NVIDIA);
+					"driver ", NVIDIA_VERSION);
 			}
+			printf("%s\n", KMOD_NVIDIA);
 			return NVIDIA_CURRENT;
 		}
 	}
@@ -205,10 +210,11 @@ static int nv_lookup_device_id(u_int16_t device_id)
 	/** Find devices supported by the 340xx legacy driver **/
 	for (i = 0; i < ARRAY_SIZE(nv_340xx_pci_ids); i++) {
 		if (device_id == nv_340xx_pci_ids[i]) {
-			if (!opt_terse) {
+			if (opt_verbose) {
 				printf("This device requires the legacy 340.xx NVIDIA "
-					"driver %s\n", KMOD_NVIDIA_340XX);
+					"driver ");
 			}
+			printf("%s\n", KMOD_NVIDIA_340XX);
 			return NVIDIA_LEGACY_340XX;
 		}
 	}
@@ -216,10 +222,11 @@ static int nv_lookup_device_id(u_int16_t device_id)
 	/** Find devices supported by the 304xx legacy driver **/
 	for (i = 0; i < ARRAY_SIZE(nv_304xx_pci_ids); i++) {
 		if (device_id == nv_304xx_pci_ids[i]) {
-			if (!opt_terse) {
+			if (opt_verbose) {
 				printf("This device requires the legacy 304.xx NVIDIA "
-					"driver %s\n", KMOD_NVIDIA_304XX);
+					"driver ");
 			}
+			printf("%s\n", KMOD_NVIDIA_304XX);
 			return NVIDIA_LEGACY_304XX;
 		}
 	}
@@ -227,10 +234,11 @@ static int nv_lookup_device_id(u_int16_t device_id)
 	/** Find devices supported by the 173xx legacy driver **/
 	for (i = 0; i < ARRAY_SIZE(nv_173xx_pci_ids); i++) {
 		if (device_id == nv_173xx_pci_ids[i]) {
-			if (!opt_terse) {
+			if (opt_verbose) {
 				printf("This device requires the legacy 173.xx NVIDIA "
-					"driver %s\n", KMOD_NVIDIA_173XX);
+					"driver ");
 			}
+			printf("%s\n", KMOD_NVIDIA_173XX);
 			return NVIDIA_LEGACY_173XX;
 		}
 	}
@@ -238,20 +246,20 @@ static int nv_lookup_device_id(u_int16_t device_id)
 	/** Find devices supported by the 96xx legacy driver **/
 	for (i = 0; i < ARRAY_SIZE(nv_96xx_pci_ids); i++) {
 		if (device_id == nv_96xx_pci_ids[i]) {
-			if (!opt_terse) {
+			if (opt_verbose) {
 				printf("This device requires the legacy 96.xx NVIDIA "
-					"driver %s\n", KMOD_NVIDIA_96XX);
+					"driver ");
 			}
+			printf("%s\n", KMOD_NVIDIA_96XX);
 			return NVIDIA_LEGACY_96XX;
 		}
 	}
 
 	/** Catch NVIDIA devices that aren't supported **/
-	if (!opt_terse) {
-		fprintf(stderr, "This device does not appear to be supported at present\n");
-		fprintf(stderr, "Please report at http://elrepo.org/bugs quoting the output "
+	fprintf(stderr, "This device does not appear to be supported at present\n");
+	fprintf(stderr, "Please report at http://elrepo.org/bugs quoting the output "
 			"from '/sbin/lspci -nn'\n");
-	}
+
 	return NVIDIA_NONE;
 }
 
@@ -292,32 +300,6 @@ static int get_xorg_abi(void)
 	return version;
 }
 
-static bool terse_output()
-{
-	if (ret == NVIDIA_CURRENT) {
-		printf("%s\n", KMOD_NVIDIA);
-		return 0;
-	}
-	else if (ret == NVIDIA_LEGACY_340XX) {
-		printf("%s\n", KMOD_NVIDIA_340XX);
-		return 0;
-	}
-	else if (ret == NVIDIA_LEGACY_304XX) {
-		printf("%s\n", KMOD_NVIDIA_304XX);
-		return 0;
-	}
-	else if (ret == NVIDIA_LEGACY_173XX) {
-		printf("%s\n", KMOD_NVIDIA_173XX);
-		return 0;
-	}
-	else if (ret == NVIDIA_LEGACY_96XX) {
-		printf("%s\n", KMOD_NVIDIA_96XX);
-		return 0;
-	} else {
-	return 0;
-	}
-}
-
 static bool check_xorg_abi_compat(int driver)
 {
 	int abi = 0;
@@ -349,7 +331,7 @@ int main(int argc, char *argv[])
 	bool abi_compat = 0;
 	int c = 0;
 
-	while ((c = getopt_long(argc, argv, "lxVht", longopts, 0)) != EOF)
+	while ((c = getopt_long(argc, argv, "lxVhv", longopts, 0)) != EOF)
 		switch (c) {
 		case 'l':
 			opt_list = true;
@@ -363,8 +345,8 @@ int main(int argc, char *argv[])
 		case 'h':
 			usage();
 			exit(0);
-		case 't':
-			opt_terse = true;
+		case 'v':
+			opt_verbose = true;
 			break;
 		default:
 			usage();
@@ -381,7 +363,7 @@ int main(int argc, char *argv[])
 
 	pci_scan_bus(pacc);		/* Scan the bus for devices */
 
-	if (!opt_terse) {
+	if (opt_verbose) {
 		printf("Probing for supported NVIDIA devices...\n");
 	}
 
@@ -401,7 +383,7 @@ int main(int argc, char *argv[])
 				PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
 				dev->vendor_id, dev->device_id);
 
-			if (!opt_terse) {
+			if (opt_verbose) {
 				printf("[%04x:%04x] %s\n",
 					dev->vendor_id, dev->device_id, name);
 			}
@@ -410,8 +392,6 @@ int main(int argc, char *argv[])
 			if (dev->vendor_id == PCI_VENDOR_ID_NVIDIA) {
 				has_nvidia = true;
 				ret = nv_lookup_device_id(dev->device_id);
-
-
 			}
 
 			/* 
@@ -446,15 +426,10 @@ int main(int argc, char *argv[])
 
 	/* Catch cases where no NVIDIA devices were detected */
 	if (!has_nvidia)
-		if (!opt_terse) {
-			printf("No NVIDIA devices were found.\n");
-		}
+		fprintf(stderr, "No NVIDIA devices were found.\n");
 
 exit:
 	pci_cleanup(pacc);	/* Close everything */
 
-	if (opt_terse) {
-		terse_output();
-	}
 	exit(ret);
 }

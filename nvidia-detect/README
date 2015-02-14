@@ -6,16 +6,27 @@ list of supported device_ids. nvidia-detect will make a recommendation for the
 correct driver to use based on any matches found. For example:
 
 $ nvidia-detect
+kmod-nvidia
+
+Because nvidia-detect outputs the package name on RHEL based systems, it may be
+used in the following way to install the correct NVIDIA driver for your system:
+
+# yum install $(nvidia-detect)
+
+
+More verbose output is availabe using the verbose (-v) switch, for example:
+
+$ nvidia-detect -v
 Probing for supported NVIDIA devices...
 [10de:0fc1] NVIDIA Corporation GK107 [GeForce GT 640]
 This device requires the current 346.35 NVIDIA driver kmod-nvidia
 
-$ nvidia-detect
+$ nvidia-detect -v
 Probing for supported NVIDIA devices...
 [10de:0ca3] NVIDIA Corporation GT215 [GeForce GT 240]
 This device requires the legacy 340.xx NVIDIA driver kmod-nvidia-340xx
 
-$ nvidia-detect
+$ nvidia-detect -v
 Probing for supported NVIDIA devices...
 [10de:0392] NVIDIA Corporation G73 [GeForce 7600 GS]
 This device requires the legacy 304.xx NVIDIA driver kmod-nvidia-304xx
@@ -44,11 +55,6 @@ nvidia-detect may be run from within a script and will return the following code
 3: Device supported by the legacy 173.xx NVIDIA driver
 4: Device supported by the legacy 304.xx NVIDIA driver
 5: Device supported by the legacy 340.xx NVIDIA driver
-
-nvidia-detect may be run with terse output (returns package name only):
-
-$ nvidia-detect -t
-kmod-nvidia-304xx
 
 For a full list of supported devices, see:
 ftp://download.nvidia.com/XFree86/Linux-x86_64/346.35/README/supportedchips.html
