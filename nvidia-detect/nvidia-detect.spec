@@ -1,6 +1,6 @@
 Name:    nvidia-detect
 Version: 346.35
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group:   Applications/System
 License: GPLv2
 Summary: NVIDIA graphics card detection utility
@@ -33,10 +33,14 @@ A utility to detect NVIDIA graphics cards.
 
 %files
 %defattr(-,root,root,0755)
-%doc COPYING README
+%doc CHANGELOG COPYING README
 %{_bindir}/nvidia-detect
 
 %changelog
+* Sat Feb 14 2015 Philip J Perry <phil@elrepo.org> - 346.35-2
+- Make output terse returning only package name by default
+- Add verbose option to restore previously verbose output
+
 * Sat Jan 17 2015 Philip J Perry <phil@elrepo.org> - 346.35-1
 - Add support for detection of devices added to 346.35 driver release
 

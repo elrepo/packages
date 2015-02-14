@@ -1,0 +1,35 @@
+14 Feb 2015
+	Make output terse returning only package name by default
+	Add --verbose option to restore previously verbose output
+
+26 Sep 2014
+	Add support for 340.xx legacy driver
+
+23 Jun 2014
+	Add support for RHEL 7
+	Fix Xorg detection
+
+05 Mar 2013
+	Add mask to device_class to detect all display classes
+	[http://elrepo.org/bugs/view.php?id=462]
+
+20 Nov 2013
+	Fix Xorg detection issue [http://elrepo.org/bugs/view.php?id=426]
+
+11 Nov 2013
+	Move many features into functions.
+	Fix device ID listing bug [http://elrepo.org/bugs/view.php?id=423]
+	Add --list option to list all supported NVIDIA devices
+	Add checks to see if we are running on RHEL
+	Add --xorg option for Xorg compatibility check
+
+06 May 2013
+	Remove pci_fill_info(), it is not required to get device_class.
+	Added some simple error handling.
+	Clean up text output.
+
+09 Mar 2013
+	Add support for detection of Optimus hardware configurations.
+
+06 Feb 2013
+	Original release of nvidia-detect based on NVIDIA 310.32 driver.
