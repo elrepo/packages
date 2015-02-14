@@ -98,9 +98,9 @@ static bool opt_verbose = 1;
 static struct option longopts[] = {
 	/* { name  has_arg  *flag  val } */
 	{"list",	0, 0, 'l'},
+	{"verbose",	0, 0, 'v'},
 	{"xorg",	0, 0, 'x'},
 	{"help",	0, 0, 'h'},
-	{"verbose",	0, 0, 'v'},
 	{"version",	0, 0, 'V'},
 	{0, 0, 0, 0}
 };
@@ -112,11 +112,11 @@ static void version(void)
 
 static void usage(void)
 {
-	printf("Usage: %s [-lxVh]\n", PROGRAM_NAME);
+	printf("Usage: %s [-lvxhV]\n", PROGRAM_NAME);
 	printf("  -l, --list         list all supported NVIDIA devices\n");
+	printf("  -v, --verbose      verbose output\n");
 	printf("  -x, --xorg         display xorg compatibility information\n");
 	printf("  -h, --help         print this help and exit\n");
-	printf("  -v, --verbose      verbose output\n");
 	printf("  -V, --version      display version number and exit\n\n");
 	printf("Detect NVIDIA graphics cards and determine the correct NVIDIA driver.\n\n");
 	printf("%s will return the following codes:\n\n", PROGRAM_NAME);
@@ -331,10 +331,13 @@ int main(int argc, char *argv[])
 	bool abi_compat = 0;
 	int c = 0;
 
-	while ((c = getopt_long(argc, argv, "lxVhv", longopts, 0)) != EOF)
+	while ((c = getopt_long(argc, argv, "lvxVh", longopts, 0)) != EOF)
 		switch (c) {
 		case 'l':
 			opt_list = true;
+			break;
+		case 'v':
+			opt_verbose = true;
 			break;
 		case 'x':
 			opt_xorg = true;
@@ -345,9 +348,6 @@ int main(int argc, char *argv[])
 		case 'h':
 			usage();
 			exit(0);
-		case 'v':
-			opt_verbose = true;
-			break;
 		default:
 			usage();
 			exit(0);
