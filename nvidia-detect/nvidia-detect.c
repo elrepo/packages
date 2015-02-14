@@ -1,7 +1,7 @@
 /*
  *  nvidia-detect - A utility to detect NVIDIA graphics cards
  *
- *  Copyright (C) 2013-2014 Philip J Perry <phil@elrepo.org>
+ *  Copyright (C) 2013-2015 Philip J Perry <phil@elrepo.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
