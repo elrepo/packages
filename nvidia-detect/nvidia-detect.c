@@ -200,9 +200,8 @@ static int nv_lookup_device_id(u_int16_t device_id)
 		if (device_id == nv_current_pci_ids[i]) {
 			if (opt_verbose) {
 				printf("This device requires the current %3.2f NVIDIA "
-					"driver ", NVIDIA_VERSION);
+					"driver %s\n", NVIDIA_VERSION, KMOD_NVIDIA);
 			}
-			printf("%s\n", KMOD_NVIDIA);
 			return NVIDIA_CURRENT;
 		}
 	}
@@ -212,9 +211,8 @@ static int nv_lookup_device_id(u_int16_t device_id)
 		if (device_id == nv_340xx_pci_ids[i]) {
 			if (opt_verbose) {
 				printf("This device requires the legacy 340.xx NVIDIA "
-					"driver ");
+					"driver %s\n", KMOD_NVIDIA_340XX);
 			}
-			printf("%s\n", KMOD_NVIDIA_340XX);
 			return NVIDIA_LEGACY_340XX;
 		}
 	}
@@ -224,9 +222,8 @@ static int nv_lookup_device_id(u_int16_t device_id)
 		if (device_id == nv_304xx_pci_ids[i]) {
 			if (opt_verbose) {
 				printf("This device requires the legacy 304.xx NVIDIA "
-					"driver ");
+					"driver %s\n", KMOD_NVIDIA_304XX);
 			}
-			printf("%s\n", KMOD_NVIDIA_304XX);
 			return NVIDIA_LEGACY_304XX;
 		}
 	}
@@ -236,9 +233,8 @@ static int nv_lookup_device_id(u_int16_t device_id)
 		if (device_id == nv_173xx_pci_ids[i]) {
 			if (opt_verbose) {
 				printf("This device requires the legacy 173.xx NVIDIA "
-					"driver ");
+					"driver %s\n", KMOD_NVIDIA_173XX);
 			}
-			printf("%s\n", KMOD_NVIDIA_173XX);
 			return NVIDIA_LEGACY_173XX;
 		}
 	}
@@ -248,9 +244,8 @@ static int nv_lookup_device_id(u_int16_t device_id)
 		if (device_id == nv_96xx_pci_ids[i]) {
 			if (opt_verbose) {
 				printf("This device requires the legacy 96.xx NVIDIA "
-					"driver ");
+					"driver %s\n", KMOD_NVIDIA_96XX);
 			}
-			printf("%s\n", KMOD_NVIDIA_96XX);
 			return NVIDIA_LEGACY_96XX;
 		}
 	}
@@ -261,6 +256,32 @@ static int nv_lookup_device_id(u_int16_t device_id)
 			"from '/sbin/lspci -nn'\n");
 
 	return NVIDIA_NONE;
+}
+
+static int terse_output(void)
+{
+	if (ret == NVIDIA_CURRENT) {
+		printf("%s\n", KMOD_NVIDIA);
+		return 0;
+	}
+	else if (ret == NVIDIA_LEGACY_340XX) {
+		printf("%s\n", KMOD_NVIDIA_340XX);
+		return 0;
+	}
+	else if (ret == NVIDIA_LEGACY_304XX) {
+		printf("%s\n", KMOD_NVIDIA_304XX);
+		return 0;
+	}
+	else if (ret == NVIDIA_LEGACY_173XX) {
+		printf("%s\n", KMOD_NVIDIA_173XX);
+		return 0;
+	}
+	else if (ret == NVIDIA_LEGACY_96XX) {
+		printf("%s\n", KMOD_NVIDIA_96XX);
+		return 0;
+	} else {
+	return 0;
+	}
 }
 
 static int get_xorg_abi(void)
@@ -404,6 +425,11 @@ int main(int argc, char *argv[])
 		}	/* End of device_class */
 
 	}		/* End iteration of devices */
+
+	/* Print package name */
+	if (!opt_verbose) {
+		terse_output();
+	}
 
 	/* Check Xorg ABI compatibility */
 	if (ret > 0) {
