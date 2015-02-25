@@ -1,3 +1,6 @@
+16 Feb 2015
+	Return only one package name 
+
 14 Feb 2015
 	Make output terse returning only package name by default
 	Add --verbose option to restore previously verbose output
