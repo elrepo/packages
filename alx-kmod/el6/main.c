@@ -48,7 +48,6 @@
 #include "alx.h"
 #include "hw.h"
 #include "reg.h"
-#include "alx_rhel6_4.h"
 
 const char alx_drv_name[] = "alx";
 
@@ -464,7 +463,7 @@ static void __alx_set_rx_mode(struct net_device *netdev)
 {
 	struct alx_priv *alx = netdev_priv(netdev);
 	struct alx_hw *hw = &alx->hw;
-#ifndef ALX_RHEL6_4
+#ifndef ALX_RHEL6_6
 	struct netdev_hw_addr *ha;
 #else
 	struct dev_addr_list *ha;
@@ -473,7 +472,7 @@ static void __alx_set_rx_mode(struct net_device *netdev)
 
 	if (!(netdev->flags & IFF_ALLMULTI)) {
 	netdev_for_each_mc_addr(ha, netdev)
-	#ifndef ALX_RHEL6_4
+	#ifndef ALX_RHEL6_6
 			alx_add_mc_addr(hw, ha->addr, mc_hash);
 	#else
 			alx_add_mc_addr(hw, ha->dmi_addr, mc_hash);
@@ -742,7 +741,7 @@ static int alx_init_sw(struct alx_priv *alx)
 	return err;
 }
 
-#ifndef ALX_RHEL6_4
+#ifndef ALX_RHEL6_6
 static netdev_features_t alx_fix_features(struct net_device *netdev,
 					  netdev_features_t features)
 {
@@ -827,7 +826,7 @@ static int alx_change_mtu(struct net_device *netdev, int mtu)
 	alx->hw.mtu = mtu;
 	alx->rxbuf_size = mtu > ALX_DEF_RXBUF_SIZE ?
 			   ALIGN(max_frame, 8) : ALX_DEF_RXBUF_SIZE;
-	#ifndef ALX_RHEL6_4
+	#ifndef ALX_RHEL6_6
 	netdev_update_features(netdev);
 	#endif
 	if (netif_running(netdev))
@@ -1247,7 +1246,7 @@ static const struct net_device_ops alx_netdev_ops = {
 	.ndo_change_mtu         = alx_change_mtu,
 	.ndo_do_ioctl           = alx_ioctl,
 	.ndo_tx_timeout         = alx_tx_timeout,
-#ifndef ALX_RHEL6_4
+#ifndef ALX_RHEL6_6
 	.ndo_fix_features	= alx_fix_features,
 #endif
 #ifdef CONFIG_NET_POLL_CONTROLLER
