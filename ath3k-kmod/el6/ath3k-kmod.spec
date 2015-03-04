@@ -2,11 +2,11 @@
 %define kmod_name ath3k
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-431.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-504.el6.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 1.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -57,6 +57,10 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Mar 04 2015 Philip J Perry <phil@elrepo.org> - 1.0-2
+- Updated to kernel-3.10.70
+- Add support for Lite-on [04ca:3007]
+
 * Sat Dec 21 2013 Philip J Perry <phil@elrepo.org> - 1.0-1
 - Initial el6 build of the ath3k kmod package.
 - Backported from kernel-3.10.24
