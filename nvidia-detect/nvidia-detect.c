@@ -140,7 +140,7 @@ static void list_all_nvidia_devices(void)
 {
 	size_t i;
 
-	printf("\n*** These devices are supported by the current %3.2f NVIDIA "
+	printf("\n*** These devices are supported by the current %3.2f NVIDIA (kmod-nvidia) "
 		"driver ***\n\n", NVIDIA_VERSION);
 	for (i = 0; i < ARRAY_SIZE(nv_current_pci_ids); i++) {
 		name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
@@ -150,7 +150,7 @@ static void list_all_nvidia_devices(void)
 		printf("[10de:%04x] %s\n", nv_current_pci_ids[i], name);
 	}
 
-	printf("\n*** These devices are supported by the legacy 340.xx NVIDIA "
+	printf("\n*** These devices are supported by the legacy 340.xx NVIDIA (kmod-nvidia-340xx) "
 		"driver ***\n\n");
 	for (i = 0; i < ARRAY_SIZE(nv_340xx_pci_ids); i++) {
 		name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
@@ -160,7 +160,7 @@ static void list_all_nvidia_devices(void)
 		printf("[10de:%04x] %s\n", nv_340xx_pci_ids[i], name);
 	}
 
-	printf("\n*** These devices are supported by the legacy 304.xx NVIDIA "
+	printf("\n*** These devices are supported by the legacy 304.xx NVIDIA (kmod-nvidia-304xx) "
 		"driver ***\n\n");
 	for (i = 0; i < ARRAY_SIZE(nv_304xx_pci_ids); i++) {
 		name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
@@ -170,7 +170,7 @@ static void list_all_nvidia_devices(void)
 		printf("[10de:%04x] %s\n", nv_304xx_pci_ids[i], name);
 	}
 
-	printf("\n*** These devices are supported by the legacy 173.xx NVIDIA "
+	printf("\n*** These devices are supported by the legacy 173.xx NVIDIA (kmod-nvidia-173xx) "
 		"driver ***\n\n");
 	for (i = 0; i < ARRAY_SIZE(nv_173xx_pci_ids); i++) {
 		name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
@@ -180,7 +180,7 @@ static void list_all_nvidia_devices(void)
 		printf("[10de:%04x] %s\n", nv_173xx_pci_ids[i], name);
 	}
 
-	printf("\n*** These devices are supported by the legacy 96.xx NVIDIA "
+	printf("\n*** These devices are supported by the legacy 96.xx NVIDIA (kmod-nvidia-96xx) "
 		"driver ***\n\n");
 	for (i = 0; i < ARRAY_SIZE(nv_96xx_pci_ids); i++) {
 		name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
