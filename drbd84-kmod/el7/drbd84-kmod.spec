@@ -9,7 +9,7 @@ Name:    %{kmod_name}-kmod
 Version: 8.4.5
 Release: 2%{?dist}
 Group:   System Environment/Kernel
-License: GPL
+License: GPLv2
 Summary: Distributed Redundant Block Device driver for Linux
 URL:     http://www.drbd.org/
 
