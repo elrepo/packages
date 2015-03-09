@@ -2,11 +2,11 @@
 %define kmod_name nvidia
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-123.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-229.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 346.35
-Release: 1%{?dist}
+Version: 346.47
+Release: 2%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
@@ -78,6 +78,12 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Mar 05 2015 Philip J Perry <phil@elrepo.org> - 346.47-2
+- Rebuilt against RHEL 7.1 kernel
+
+* Wed Feb 25 2015 Philip J Perry <phil@elrepo.org> - 346.47-1
+- Updated to version 346.47
+
 * Sat Jan 17 2015 Philip J Perry <phil@elrepo.org> - 346.35-1
 - Updated to version 346.35
 - Drops support of older G8x, G9x, and GT2xx GPUs

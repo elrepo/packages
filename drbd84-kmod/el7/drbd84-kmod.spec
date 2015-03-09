@@ -3,24 +3,23 @@
 %define real_name drbd
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-123.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-229.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 8.4.5
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group:   System Environment/Kernel
-License: GPLv2
+License: GPL
 Summary: Distributed Redundant Block Device driver for Linux
 URL:     http://www.drbd.org/
+
+BuildRequires: perl
+BuildRequires: redhat-rpm-config
+ExclusiveArch: x86_64
 
 # Sources.
 Source0:  http://oss.linbit.com/drbd/8.4/drbd-%{version}.tar.gz
 Source10: kmodtool-%{kmod_name}-el7.sh
-
-BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
-BuildRequires: perl
-BuildRequires: redhat-rpm-config
-ExclusiveArch: x86_64
 
 # Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
@@ -36,12 +35,11 @@ high availability (HA) clusters.
 
 %prep
 %setup -n %{real_name}-%{version}
-
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
 KSRC=%{_usrsrc}/kernels/%{kversion}
-%{__make} %{?_smp_mflags} module KDIR="${KSRC}"
+%{__make} %{?_smp_mflags} module KDIR=${KSRC} KVER=%{kversion}
 
 %install
 %{__install} -d %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
@@ -70,8 +68,8 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
-* Sun Aug 17 2014 Jun Futagawa <jfut@integ.jp> - 8.4.5-1
-- Updated to version 8.4.5
+* Thu Mar 05 2015 Philip J Perry <phil@elrepo.org> - 8.4.5-2
+- Rebuilt against RHEL 7.1 kernel
 
-* Sun Jul 27 2014 Jun Futagawa <jfut@integ.jp> - 8.4.4-1
-- Initial package for RHEL7.
+* Sat Jul 19 2014 Philip J Perry <phil@elrepo.org> - 8.4.5-1
+- Initial el7 build of the kmod package.

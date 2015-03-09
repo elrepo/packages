@@ -2,11 +2,11 @@
 %define kmod_name ax88179_178a
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-123.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-229.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -66,7 +66,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Mar 05 2015 Philip J Perry <phil@elrepo.org> - 0.0-4
+- Rebuilt against RHEL 7.1 kernel
+
 * Wed Dec 03 2014 Philip J Perry <phil@elrepo.org> - 0.0-3
 - Initial el7 build of the kmod package backported from LTS kernel-3.14.25
 - Adds support for newer hardware devices.
-

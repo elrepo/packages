@@ -154,6 +154,7 @@ get_rpmtemplate ()
 Provides:         kernel-modules >= ${verrel_dep}${dotvariant}
 Provides:         ${kmod_name}-kmod = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:         nvidia-x11-drv-304xx = %{?epoch:%{epoch}:}%{version}
+Requires:         kernel >= 3.10.0-229.el7
 Requires(post):   /usr/sbin/depmod
 Requires(postun): /usr/sbin/depmod
 EOF
