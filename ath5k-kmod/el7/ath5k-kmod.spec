@@ -6,7 +6,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 6%{?dist}
+Release: 7%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -68,6 +68,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Mar 28 2015 Philip J Perry <phil@elrepo.org> - 0.0-7
+- Updated to kernel-3.18.10
+- fix spontaneus AR5312 freezes [2015-03-24]
+
 * Wed Mar 11 2015 Philip J Perry <phil@elrepo.org> - 0.0-6
 - Updated to kernel-3.18.9 for RHEL 7.1
 
