@@ -2,11 +2,11 @@
 %define kmod_name ath5k
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-123.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-229.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 4%{?dist}
+Release: 6%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -68,6 +68,12 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Mar 11 2015 Philip J Perry <phil@elrepo.org> - 0.0-6
+- Updated to kernel-3.18.9 for RHEL 7.1
+
+* Thu Mar 05 2015 Philip J Perry <phil@elrepo.org> - 0.0-5
+- Rebuilt against RHEL 7.1 kernel
+
 * Sun Jan 18 2015 Philip J Perry <phil@elrepo.org> - 0.0-4
 - Update to kernel-3.10.65
 - fix hardware queue index assignment [2015-01-16]
