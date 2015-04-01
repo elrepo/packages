@@ -152,8 +152,8 @@ get_rpmtemplate ()
     cat <<EOF
 Provides:         kabi-modules = ${verrel}${dotvariant}
 Provides:         ${kmod_name}-kmod = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires(post):   /sbin/depmod
-Requires(postun): /sbin/depmod
+Requires(post):   /usr/sbin/depmod
+Requires(postun): /usr/sbin/depmod
 EOF
 
     if [ "yes" != "$nobuildreqs" ]

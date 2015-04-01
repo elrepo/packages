@@ -6,7 +6,7 @@
 
 Name: %{kmod_name}-kmod
 Version: 0.5
-Release: 2%{?dist}
+Release: 3%{?dist}
 Group: System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -71,5 +71,7 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Apr 01 2015 Rob Mokkink <rob@mokkinksystems.com> - 0.5-3
+- Requires /usr/sbin/depmod
 * Sun Jun  08 2014 Rob Mokkink <rob@mokkinksystems.com> - 0.5-2
 - First build of bbswitch for el7
