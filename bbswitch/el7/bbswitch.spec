@@ -72,7 +72,11 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Apr 02 2015 Rob Mokkink <rob@mokkinksystems.com> - 0.5-4
+- Rebuild against RHEL7.1 kernel.
+
 * Wed Apr 01 2015 Rob Mokkink <rob@mokkinksystems.com> - 0.5-3
 - Requires /usr/sbin/depmod
+
 * Sun Jun  08 2014 Rob Mokkink <rob@mokkinksystems.com> - 0.5-2
 - First build of bbswitch for el7
