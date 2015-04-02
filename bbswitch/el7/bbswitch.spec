@@ -2,7 +2,6 @@
 %define kmod_name bbswitch
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-#%{!?kversion: %define kversion 3.10.0-123.el7.%{_target_cpu}}
 %{!?kversion: %define kversion 3.10.0-229.el7.%{_target_cpu}}
 
 Name: %{kmod_name}-kmod
