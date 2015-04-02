@@ -1,6 +1,6 @@
 Name: bumblebee		
 Version: 3.2.1	
-Release: 5%{?dist}
+Release: 7%{?dist}
 Summary: Bumblebee is a project that enables Linux to utilize the Nvidia Optimus Hybrid cards.
 Group: System Environment/Daemons		
 License: GPLv3	
@@ -22,6 +22,7 @@ Requires: kmod-bbswitch
 Source0: http://bumblebee-project.org/bumblebee-3.2.1.tar.gz
 Source1: bumblebeed.service
 Source5: GPL-v3.0.txt
+Source10: bumblebee.conf
 
 %description
 The %{name} package is a project that enables Linux to utilize 
@@ -39,9 +40,10 @@ the Nvidia Optimus Hybrid cards.
 %install
 %{__make} -s install DESTDIR="%{buildroot}"
 mkdir -p $RPM_BUILD_ROOT/%{_unitdir}/
+mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/modprobe.d/
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/systemd/system/
 install -pm 644 %{SOURCE1}  $RPM_BUILD_ROOT/%{_unitdir}/
-ln -s %{_unitdir}/bumblebeed.service $RPM_BUILD_ROOT/%{_sysconfdir}/systemd/system/bumblebeed.service
+install -pm 644 %{SOURCE10}  $RPM_BUILD_ROOT/%{_sysconfdir}/modprobe.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/%{name}-%{version}/
 %{__install} %{SOURCE5} %{buildroot}%{_defaultdocdir}/%{name}-%{version}/
 %{__mv} %{buildroot}%{_defaultdocdir}/%{name}/* %{buildroot}%{_defaultdocdir}/%{name}-%{version}/
@@ -57,8 +59,8 @@ ln -s %{_unitdir}/bumblebeed.service $RPM_BUILD_ROOT/%{_sysconfdir}/systemd/syst
 %{_sbindir}/bumblebeed
 %{_bindir}/%{name}-bugreport
 %{_unitdir}/bumblebeed.service
-%{_sysconfdir}/systemd/system/bumblebeed.service
 %attr (644, root, root) %{_sysconfdir}/bash_completion.d/%{name}
+%attr (644, root, root) %{_sysconfdir}/modprobe.d/bumblebee.conf
 %config(noreplace) %attr (644, root, root) %{_sysconfdir}/%{name}/%{name}.conf
 %config(noreplace) %attr (644, root, root) %{_sysconfdir}/%{name}/xorg.conf.nouveau
 %config(noreplace) %attr (644, root, root) %{_sysconfdir}/%{name}/xorg.conf.nvidia
@@ -115,6 +117,11 @@ then
 fi 
    
 %changelog
+* Tue Apr 02 2015 Rob Mokkink <rob@mokkinksystems.com> - 3.2.1-7
+- Added blacklist
+- Modified service file for selinux
+- Removed symbolic link to /etc/systemd/system
+
 * Tue Jun 10 2014 Rob Mokkink <rob@mokkinksystems.com> - 3.2.1-5
 - Fixed shared library config
 
