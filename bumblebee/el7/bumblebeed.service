@@ -4,7 +4,9 @@ Description=Bumblebee C Daemon
 [Service]
 Type=simple
 CPUSchedulingPolicy=idle
+ExecStartPre=/sbin/setenforce 0
 ExecStart=/sbin/bumblebeed
+ExecStartPost=sleep 5 && /sbin/setenforce 0
 Restart=always
 RestartSec=60
 StandardOutput=kmsg
