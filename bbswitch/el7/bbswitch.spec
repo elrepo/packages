@@ -6,12 +6,18 @@
 %{!?kversion: %define kversion 3.10.0-229.el7.%{_target_cpu}}
 
 Name: %{kmod_name}-kmod
-Version: 0.5
-Release: 4%{?dist}
+Version: 0.8
+Release: 1%{?dist}
 Group: System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
 URL: https://github.com/Bumblebee-Project/bbswitch
+
+# To re-create the source tarball, run the following commands:
+# git clone git://github.com/Bumblebee-Project/bbswitch.git
+# cd bbswitch
+# git archive HEAD --prefix="bbswitch/" | gzip -c > bbswitch.tar.gz
+
 
 BuildRequires: redhat-rpm-config
 ExclusiveArch: x86_64
@@ -72,6 +78,8 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Apr 03 2015 mokkr00 <rob@mokkinksystems.com> - 0.8.1
+- Changed rpm version according to source version
 * Wed Apr 01 2015 Rob Mokkink <rob@mokkinksystems.com> - 0.5-3
 - Requires /usr/sbin/depmod
 * Sun Jun  08 2014 Rob Mokkink <rob@mokkinksystems.com> - 0.5-2
