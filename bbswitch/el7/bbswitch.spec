@@ -2,7 +2,6 @@
 %define kmod_name bbswitch
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-#%{!?kversion: %define kversion 3.10.0-123.el7.%{_target_cpu}}
 %{!?kversion: %define kversion 3.10.0-229.el7.%{_target_cpu}}
 
 Name: %{kmod_name}-kmod
@@ -78,9 +77,16 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+<<<<<<< HEAD
 * Fri Apr 03 2015 mokkr00 <rob@mokkinksystems.com> - 0.8.1
 - Changed rpm version according to source version
+=======
+* Thu Apr 02 2015 Rob Mokkink <rob@mokkinksystems.com> - 0.5-4
+- Rebuild against RHEL7.1 kernel.
+
+>>>>>>> upstream/master
 * Wed Apr 01 2015 Rob Mokkink <rob@mokkinksystems.com> - 0.5-3
 - Requires /usr/sbin/depmod
+
 * Sun Jun  08 2014 Rob Mokkink <rob@mokkinksystems.com> - 0.5-2
 - First build of bbswitch for el7
