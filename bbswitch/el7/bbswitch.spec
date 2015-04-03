@@ -77,14 +77,12 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
-<<<<<<< HEAD
 * Fri Apr 03 2015 mokkr00 <rob@mokkinksystems.com> - 0.8.1
 - Changed rpm version according to source version
-=======
+
 * Thu Apr 02 2015 Rob Mokkink <rob@mokkinksystems.com> - 0.5-4
 - Rebuild against RHEL7.1 kernel.
 
->>>>>>> upstream/master
 * Wed Apr 01 2015 Rob Mokkink <rob@mokkinksystems.com> - 0.5-3
 - Requires /usr/sbin/depmod
 
