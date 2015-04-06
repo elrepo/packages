@@ -1,6 +1,6 @@
 Name: bumblebee		
 Version: 3.2.1	
-Release: 8%{?dist}
+Release: 9%{?dist}
 Summary: Bumblebee is a project that enables Linux to utilize the Nvidia Optimus Hybrid cards.
 Group: System Environment/Daemons		
 License: GPLv3	
@@ -17,7 +17,7 @@ Requires: libbsd
 Requires: VirtualGL
 Requires: kmod-nvidia
 Requires: kmod-bbswitch
-Requires: selinux-bumblebee
+Requires: bumblebee-selinux
 
 # Sources
 Source0: http://bumblebee-project.org/bumblebee-3.2.1.tar.gz
@@ -118,7 +118,10 @@ then
 fi 
    
 %changelog
-* Sat Apr 04 2015 mokkr00 <rob@mokkinksystems.com
+* Mon Apr 06 2015 Rob Mokkink <rob@mokkinksystems.com> - 3.2.1-9
+- Changed requirement bumblebee-sexlinux 
+
+* Sat Apr 04 2015 Rob Mokkink <rob@mokkinksystems.com> - 3.2.1-8
 - Added requirement for selinux-bumblebee package 
 
 * Tue Apr 02 2015 Rob Mokkink <rob@mokkinksystems.com> - 3.2.1-7
