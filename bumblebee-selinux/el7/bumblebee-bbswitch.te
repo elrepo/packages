@@ -1,0 +1,20 @@
+module bumblebee-bbswitch 1.0.0; 
+
+require {
+
+	type bumblebee_t;
+	type insmod_t;
+	type proc_t;
+	type xserver_t;
+
+	class file { write };
+	class process { siginh noatsecure rlimitinh };
+	
+	
+}
+
+#============= bumblebee_t ==============
+allow bumblebee_t insmod_t:process { siginh noatsecure rlimitinh };
+allow bumblebee_t proc_t:file write;
+allow bumblebee_t xserver_t:process { noatsecure rlimitinh };
+
