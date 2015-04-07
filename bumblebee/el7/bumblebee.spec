@@ -124,7 +124,7 @@ fi
 * Sat Apr 04 2015 Rob Mokkink <rob@mokkinksystems.com> - 3.2.1-8
 - Added requirement for selinux-bumblebee package 
 
-* Tue Apr 02 2015 Rob Mokkink <rob@mokkinksystems.com> - 3.2.1-7
+* Thu Apr 02 2015 Rob Mokkink <rob@mokkinksystems.com> - 3.2.1-7
 - Added blacklist
 - Modified service file for selinux
 - Removed symbolic link to /etc/systemd/system
