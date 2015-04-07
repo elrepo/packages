@@ -7,9 +7,9 @@
 
 Name:           %{kmod_name}-kmod
 Version:        6.0.2
-Release:        1%{?dist}.js
+Release:        1%{?dist}
 Group:          System Environment/Kernel
-License:        GPLv2/GPLv3/BSD
+License:        GPLv2
 Summary:        %{kmod_name} kernel module(s)
 URL:            http://www.ntop.org/products/pf_ring/
 
@@ -17,8 +17,9 @@ BuildRequires:  redhat-rpm-config
 ExclusiveArch:  i686 x86_64
 
 # Sources.
-Source0:        http://cznic.dl.sourceforge.net/project/ntop/PF_RING/PF_RING-%{version}.tar.gz
-Source10:       kmodtool-%{kmod_name}-el6.sh
+Source0:   http://sourceforge.net/projects/ntop/files/PF_RING/PF_RING-%{version}.tar.gz
+Source5:   GPL-v2.0.txt
+Source10:  kmodtool-%{kmod_name}-el6.sh
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 
 # Magic hidden here.
@@ -38,7 +39,6 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 
 %build
 KSRC=%{_usrsrc}/kernels/%{kversion}
-
 pushd kernel
 %{__make} -C "${KSRC}" %{?_smp_mflags} \
     EXTRA_CFLAGS='-I%{_builddir}/PF_RING-%{version}/kernel -DSVN_REV="\"exported\""' \

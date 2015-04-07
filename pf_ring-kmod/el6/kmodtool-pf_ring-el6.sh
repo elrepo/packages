@@ -76,28 +76,28 @@ print_variant ()
 }
 
 get_filelist() {
-    local IFS=$'\n'
-    filelist=($(cat))
+	local IFS=$'\n'
+	filelist=($(cat))
 
-    if [ ${#filelist[@]} -gt 0 ];
-    then
-        for ((n = 0; n < ${#filelist[@]}; n++));
-        do
-            line="${filelist[n]}"
-            line=$(echo "$line" \
-                | sed -e "s/%verrel/$verrel/g" \
-                | sed -e "s/%variant/$variant/g" \
-                | sed -e "s/%dashvariant/$dashvariant/g" \
-                | sed -e "s/%dotvariant/$dotvariant/g" \
-                | sed -e "s/\.%1/$dotvariant/g" \
-                | sed -e "s/\-%1/$dotvariant/g" \
-                | sed -e "s/%2/$verrel/g")
-            echo "$line"
-        done
-    else
-        echo "%defattr(644,root,root,755)"
-        echo "/lib/modules/${verrel}${dotvariant}"
-    fi
+	if [ ${#filelist[@]} -gt 0 ];
+	then
+		for ((n = 0; n < ${#filelist[@]}; n++));
+		do
+			line="${filelist[n]}"
+			line=$(echo "$line" \
+				| sed -e "s/%verrel/$verrel/g" \
+				| sed -e "s/%variant/$variant/g" \
+				| sed -e "s/%dashvariant/$dashvariant/g" \
+				| sed -e "s/%dotvariant/$dotvariant/g" \
+				| sed -e "s/\.%1/$dotvariant/g" \
+				| sed -e "s/\-%1/$dotvariant/g" \
+				| sed -e "s/%2/$verrel/g")
+			echo "$line"
+		done
+	else
+		echo "%defattr(644,root,root,755)"
+		echo "/lib/modules/${verrel}${dotvariant}"
+	fi
 }
 
 get_rpmtemplate ()
