@@ -140,8 +140,8 @@ static void list_all_nvidia_devices(void)
 {
 	size_t i;
 
-	printf("\n*** These devices are supported by the current %3.2f NVIDIA (kmod-nvidia) "
-		"driver ***\n\n", NVIDIA_VERSION);
+	printf("\n*** These devices are supported by the current %3.2f NVIDIA "
+		"driver %s ***\n\n", NVIDIA_VERSION, KMOD_NVIDIA);
 	for (i = 0; i < ARRAY_SIZE(nv_current_pci_ids); i++) {
 		name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
 			PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
@@ -150,8 +150,8 @@ static void list_all_nvidia_devices(void)
 		printf("[10de:%04x] %s\n", nv_current_pci_ids[i], name);
 	}
 
-	printf("\n*** These devices are supported by the legacy 340.xx NVIDIA (kmod-nvidia-340xx) "
-		"driver ***\n\n");
+	printf("\n*** These devices are supported by the legacy 340.xx NVIDIA "
+		"driver %s ***\n\n", KMOD_NVIDIA_340XX);
 	for (i = 0; i < ARRAY_SIZE(nv_340xx_pci_ids); i++) {
 		name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
 			PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
@@ -160,8 +160,8 @@ static void list_all_nvidia_devices(void)
 		printf("[10de:%04x] %s\n", nv_340xx_pci_ids[i], name);
 	}
 
-	printf("\n*** These devices are supported by the legacy 304.xx NVIDIA (kmod-nvidia-304xx) "
-		"driver ***\n\n");
+	printf("\n*** These devices are supported by the legacy 304.xx NVIDIA "
+		"driver %s ***\n\n", KMOD_NVIDIA_304XX);
 	for (i = 0; i < ARRAY_SIZE(nv_304xx_pci_ids); i++) {
 		name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
 			PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
@@ -170,8 +170,8 @@ static void list_all_nvidia_devices(void)
 		printf("[10de:%04x] %s\n", nv_304xx_pci_ids[i], name);
 	}
 
-	printf("\n*** These devices are supported by the legacy 173.xx NVIDIA (kmod-nvidia-173xx) "
-		"driver ***\n\n");
+	printf("\n*** These devices are supported by the legacy 173.xx NVIDIA "
+		"driver %s ***\n\n", KMOD_NVIDIA_173XX);
 	for (i = 0; i < ARRAY_SIZE(nv_173xx_pci_ids); i++) {
 		name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
 			PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
@@ -180,8 +180,8 @@ static void list_all_nvidia_devices(void)
 		printf("[10de:%04x] %s\n", nv_173xx_pci_ids[i], name);
 	}
 
-	printf("\n*** These devices are supported by the legacy 96.xx NVIDIA (kmod-nvidia-96xx) "
-		"driver ***\n\n");
+	printf("\n*** These devices are supported by the legacy 96.xx NVIDIA "
+		"driver %s ***\n\n", KMOD_NVIDIA_96XX);
 	for (i = 0; i < ARRAY_SIZE(nv_96xx_pci_ids); i++) {
 		name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
 			PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
