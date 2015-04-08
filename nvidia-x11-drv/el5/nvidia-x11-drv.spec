@@ -4,7 +4,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	346.35
+Version:	346.59
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -424,6 +424,12 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %endif
 
 %changelog
+* Wed Apr 08 2015 Philip J Perry <phil@elrepo.org> - 346.59-1
+- Updated to version 346.59
+
+* Wed Feb 25 2015 Philip J Perry <phil@elrepo.org> - 346.47-1
+- Updated to version 346.47
+
 * Sat Jan 17 2015 Philip J Perry <phil@elrepo.org> - 346.35-1
 - Updated to version 346.35
 - Drops support of older G8x, G9x, and GT2xx GPUs

@@ -5,8 +5,8 @@
 %{!?kversion: %define kversion 3.10.0-229.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 346.47
-Release: 2%{?dist}
+Version: 346.59
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
@@ -78,6 +78,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Apr 08 2015 Philip J Perry <phil@elrepo.org> - 346.59-1
+- Updated to version 346.59
+
 * Thu Mar 05 2015 Philip J Perry <phil@elrepo.org> - 346.47-2
 - Rebuilt against RHEL 7.1 kernel
 

@@ -6,7 +6,7 @@
 %{!?kversion: %define kversion 2.6.32-431.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 346.35
+Version: 346.59
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -86,6 +86,12 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Apr 08 2015 Philip J Perry <phil@elrepo.org> - 346.59-1
+- Updated to version 346.59
+
+* Wed Feb 25 2015 Philip J Perry <phil@elrepo.org> - 346.47-1
+- Updated to version 346.47
+
 * Sat Jan 17 2015 Philip J Perry <phil@elrepo.org> - 346.35-1
 - Updated to version 346.35
 - Drops support of older G8x, G9x, and GT2xx GPUs
