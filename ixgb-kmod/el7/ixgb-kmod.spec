@@ -2,11 +2,11 @@
 %define kmod_name ixgb
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-123.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-229.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 1.0.135
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -66,6 +66,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Apr 30 2015 Philip J Perry <phil@elrepo.org> - 1.0.135-2
+- Updated to kernel-3.10.76
+
 * Mon Nov 17 2014 Philip J Perry <phil@elrepo.org> - 1.0.135-1
 - Initial el7 build of the kmod package.
 - Backported from kernel-3.10.60
