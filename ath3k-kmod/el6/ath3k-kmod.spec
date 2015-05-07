@@ -6,7 +6,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 1.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -57,6 +57,10 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Apr 30 2015 Philip J Perry <phil@elrepo.org> - 1.0-3
+- Updated to kernel-3.10.76
+- Add firmware support for [0cf3:311e] and [0cf3:311f]
+
 * Wed Mar 04 2015 Philip J Perry <phil@elrepo.org> - 1.0-2
 - Updated to kernel-3.10.70
 - Add support for Lite-on [04ca:3007]
