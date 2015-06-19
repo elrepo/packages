@@ -6,7 +6,7 @@
 %{!?kversion: %define kversion 2.6.32-431.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 346.59
+Version: 352.21
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -86,6 +86,9 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Jun 17 2015 Philip J Perry <phil@elrepo.org> - 352.21-1
+- Updated to version 352.21
+
 * Wed Apr 08 2015 Philip J Perry <phil@elrepo.org> - 346.59-1
 - Updated to version 346.59
 
