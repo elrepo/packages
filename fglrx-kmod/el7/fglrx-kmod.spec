@@ -2,25 +2,32 @@
 %define kmod_name fglrx
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-123.el7.%{_target_cpu}}
+# Due to CVE-2010-3081 patch, won't build against x86_64 kernels prior to 2.6.32-71.7.1.el6
+%{!?kversion: %define kversion 2.6.32-504.el6.%{_target_cpu}}
 
 # built for RHEL6.6
-%define realversion 14.301.1001
+# in 14.12 the following line was useful; in 15.5 in their infinite wisdom ATI
+# decided to change the naming convention again so it's not used for now
+# leaving it in though for the next version
+%define realversion 15.101.1001
 Name:    %{kmod_name}-kmod
-Version: 14.9
+Version: 15.5
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: AMD %{kmod_name} kernel module(s)
-URL:     http://support.amd.com/us/gpudownload/linux/Pages/radeon_linux.aspx
+#AMD prohibits deep linking but loves redirects
+URL:     http://support.amd.com/en-us/download
 
 BuildRequires: redhat-rpm-config
 ExclusiveArch: i686 x86_64
 
+# I think AMD makes a special effort to make sure that no one can infer the name
+# of a release from the previous one
 # Sources.
-# http://www2.ati.com/drivers/linux/amd-driver-installer-catalyst-14.9-linux-x86.x86_64.zip
-Source0:  amd-driver-installer-%{realversion}-x86.x86_64.run
-Source10: kmodtool-%{kmod_name}-el7.sh
+# http://www2.ati.com/drivers/linux/amd-catalyst-omega-15.5-linux-run-installers.zip
+Source0:  amd-catalyst-omega-%{version}-linux-run-installers.run
+Source10: kmodtool-%{kmod_name}-el6.sh
 NoSource: 0
 
 # Magic hidden here.
@@ -43,13 +50,12 @@ sh %{SOURCE0} --extract atipkg
 %ifarch i686
 %{__cp} -a atipkg/common/* atipkg/arch/x86/* _kmod_build_/
 %endif
-
 %ifarch x86_64
 %{__cp} -a atipkg/common/* atipkg/arch/x86_64/* _kmod_build_/
 %endif
 
 # Suppress warning message
-#echo 'This is a dummy file created to suppress this warning: could not find /lib/modules/fglrx/build_mod/2.6.x/.libfglrx_ip.a.GCC4.cmd for /lib/modules/fglrx/build_mod/2.6.x/libfglrx_ip.a.GCC4' > _kmod_build_/lib/modules/fglrx/build_mod/2.6.x/.libfglrx_ip.a.GCC4.cmd
+echo 'This is a dummy file created to suppress this warning: could not find /lib/modules/fglrx/build_mod/2.6.x/.libfglrx_ip.a.GCC4.cmd for /lib/modules/fglrx/build_mod/2.6.x/libfglrx_ip.a.GCC4' > _kmod_build_/lib/modules/fglrx/build_mod/2.6.x/.libfglrx_ip.a.GCC4.cmd
 
 # proper permissions
 find _kmod_build_/lib/modules/fglrx/build_mod/ -type f | xargs chmod 0644
@@ -78,31 +84,20 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 # Remove the unrequired files.
 %{__rm} -f %{buildroot}/lib/modules/%{kversion}/modules.*
 
-# strip the modules(s)
-find %{buildroot} -type f -name \*.ko -exec %{__strip} --strip-debug \{\} \;
-
-# Sign the modules(s)
-%if %{?_with_modsign:1}%{!?_with_modsign:0}
-# If the module signing keys are not defined, define them here.
-%{!?privkey: %define privkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.priv}
-%{!?pubkey: %define pubkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.der}
-for module in $(find %{buildroot} -type f -name \*.ko);
-do %{__perl} /usr/src/kernels/%{kversion}/scripts/sign-file \
-sha256 %{privkey} %{pubkey} $module;
-done
-%endif
-
 %clean
 %{__rm} -rf %{buildroot}
-
 %changelog
-* Sun Oct 19 2014 Manuel Wolfshant <wolfy@fedoraproject.org> - 14.9-1.el7.elrepo
-- Initial version for EL7
+* Thu Jun 25 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.5-1.el6.elrepo
+- Update to version 15.5
+
+* Sun Oct 19 2014 Manuel Wolfshant <wolfy@fedoraproject.org> - 14.9-1.el6_6.elrepo
+- Update to version 14.9.
+- Rebuilt for RHEL6.6.
 
 * Wed Dec 04 2013 Philip J Perry <phil@elrepo.org> - 13.4-1.el6_5.elrepo
 - Rebuilt for RHEL6.5
 
-* Thu Oct 10 2013 Philip J Perry <phil@elrepo.org> - 13.4-1.el6.elrepo
+* Mon Oct 10 2013 Philip J Perry <phil@elrepo.org> - 13.4-1.el6.elrepo
 - Update to version 13.4.
 
 * Thu Feb 28 2013 Philip J Perry <phil@elrepo.org> - 13.1-1.el6.elrepo
