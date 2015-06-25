@@ -9,7 +9,7 @@
 # built for RHEL6.6
 # in 14.12 the following line was useful; in 15.5 in their infinite wisdom ATI
 # decided to change the naming convention again so it's not used for now
-# leaving it in though for the next version
+# leaving it in though as it might be needed for the next update
 %define realversion 15.101.1001
 Name:    %{kmod_name}-kmod
 Version: 15.5
