@@ -33,7 +33,7 @@ ExclusiveArch:	i686 x86_64
 # Sources.
 # http://www2.ati.com/drivers/linux/amd-catalyst-omega-14.12-linux-run-installers.zip
 Source0:  amd-catalyst-omega-%{version}-linux-run-installers.run
-#NoSource:	0
+NoSource:	0
 
 # taken from the rpmforge dkms package
 Source2:	ati.sh
