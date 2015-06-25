@@ -7,9 +7,12 @@
 %{!?kversion: %define kversion 2.6.32-504.el6.%{_target_cpu}}
 
 # built for RHEL6.6
-%define realversion 14.501.1003
+# in 14.12 the following line was useful; in 15.5 in their infinite wisdom ATI
+# decided to change the naming convention again so it's not used for now
+# leaving it in though as it might be needed for the next update
+%define realversion 15.101.1001
 Name:    %{kmod_name}-kmod
-Version: 14.12
+Version: 15.5
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -23,8 +26,8 @@ ExclusiveArch: i686 x86_64
 # I think AMD makes a special effort to make sure that no one can infer the name
 # of a release from the previous one
 # Sources.
-# http://www2.ati.com/drivers/linux/amd-catalyst-omega-14.12-linux-run-installers.zip
-Source0:  amd-driver-installer-%{realversion}-x86.x86_64.run
+# http://www2.ati.com/drivers/linux/amd-catalyst-omega-15.5-linux-run-installers.zip
+Source0:  amd-catalyst-omega-%{version}-linux-run-installers.run
 Source10: kmodtool-%{kmod_name}-el6.sh
 NoSource: 0
 
@@ -87,9 +90,8 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
-* Fri Jan 09 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 14.12-1.el6_6.elrepo
-- Update to version 14.12
-- Fix again the URL to the drivers' web page
+* Thu Jun 25 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.5-1.el6.elrepo
+- Update to version 15.5
 
 * Sun Oct 19 2014 Manuel Wolfshant <wolfy@fedoraproject.org> - 14.9-1.el6_6.elrepo
 - Update to version 14.9.
