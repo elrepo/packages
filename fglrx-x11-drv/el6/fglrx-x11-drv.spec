@@ -14,10 +14,10 @@
 %endif
 
 # built for RHEL6.6
-%define realversion 14.501.1003
+
 
 Name:		fglrx-x11-drv
-Version:	14.12
+Version:	15.5
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Proprietary 
@@ -32,8 +32,8 @@ ExclusiveArch:	i686 x86_64
 # of a release from the previous one
 # Sources.
 # http://www2.ati.com/drivers/linux/amd-catalyst-omega-14.12-linux-run-installers.zip
-Source0:  amd-driver-installer-%{realversion}-x86.x86_64.run
-NoSource:	0
+Source0:  amd-catalyst-omega-%{version}-linux-run-installers.run
+#NoSource:	0
 
 # taken from the rpmforge dkms package
 Source2:	ati.sh
@@ -389,6 +389,9 @@ fi || :
 %{_includedir}/ATI/GL/*.h
 
 %changelog
+* Thu Jun 25 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.5-2.el6.elrepo
+- Update to version 15.5
+
 * Sat Jan 10 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 14.12-1.el6_6.elrepo
 - Update to version 14.12
 
