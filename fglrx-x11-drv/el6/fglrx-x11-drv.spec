@@ -18,7 +18,7 @@
 
 Name:		fglrx-x11-drv
 Version:	15.5
-Release:	1%{?dist}
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Proprietary 
 Summary:	AMD's proprietary driver for ATI graphic cards
@@ -389,6 +389,9 @@ fi || :
 %{_includedir}/ATI/GL/*.h
 
 %changelog
+* Thu Jun 25 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.5-2.el6.elrepo
+- rebuilt to fix incorrect kernel deps
+
 * Thu Jun 25 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.5-2.el6.elrepo
 - Update to version 15.5
 
