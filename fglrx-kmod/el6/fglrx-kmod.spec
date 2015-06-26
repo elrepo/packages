@@ -13,7 +13,7 @@
 %define realversion 15.101.1001
 Name:    %{kmod_name}-kmod
 Version: 15.5
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: AMD %{kmod_name} kernel module(s)
@@ -90,6 +90,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Jun 26 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.5-2.el6.elrepo
+- rebuilt to fix incorrect kernel deps 
+
 * Thu Jun 25 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.5-1.el6.elrepo
 - Update to version 15.5
 
