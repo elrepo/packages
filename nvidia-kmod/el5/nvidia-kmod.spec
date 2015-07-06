@@ -7,7 +7,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 352.21
-Release: 1%{?dist}
+Release: 3%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
@@ -22,6 +22,7 @@ Source0:  ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x8
 Source1:  ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 
 Source10: kmodtool-%{kmod_name}-el5.sh
+Source15: nvidia-provides.sh
 
 NoSource: 0
 NoSource: 1
@@ -43,6 +44,8 @@ NoSource: 1
 
 # Define the filter.
 %define __find_requires sh %{_builddir}/%{buildsubdir}/filter-requires.sh
+# Define for nvidia-provides
+%define __find_provides %{SOURCE15}
 
 %description
 This package provides the proprietary NVIDIA OpenGL kernel driver module.
@@ -104,6 +107,13 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Jul 03 2015 Philip J Perry <phil@elrepo.org> - 352.21-3
+- Add blacklist() provides.
+- Revert modalias() provides.
+
+* Wed Jul 01 2015 Philip J Perry <phil@elrepo.org> - 352.21-2
+- Add modalias() provides.
+
 * Wed Jun 17 2015 Philip J Perry <phil@elrepo.org> - 352.21-1
 - Updated to version 352.21
 

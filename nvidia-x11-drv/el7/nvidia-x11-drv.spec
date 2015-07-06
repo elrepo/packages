@@ -7,10 +7,11 @@
 %define		nvidialib32dir	%{_prefix}/lib/nvidia
 
 %define		debug_package	%{nil}
+%define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
 Version:	352.21
-Release:	1%{?dist}
+Release:	3%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -27,6 +28,10 @@ Source1:	nvidia-xorg.conf
 Source2:	99-nvidia.conf
 Source3:	nvidia.ld.so.conf
 Source4:	alternate-install-present
+Source5:    nvidia-provides.sh
+
+# Define for nvidia-provides
+%define __find_provides %{SOURCE5}
 
 # Fix broken SONAME dependency chain
 Provides: libnvcuvid.so()(64bit)
@@ -417,6 +422,13 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Fri Jul 03 2015 Philip J Perry <phil@elrepo.org> - 352.21-3
+- Add blacklist() provides.
+- Revert modalias() provides.
+
+* Wed Jul 01 2015 Philip J Perry <phil@elrepo.org> - 352.21-2
+- Add modalias() provides.
+
 * Wed Jun 17 2015 Philip J Perry <phil@elrepo.org> - 352.21-1
 - Updated to version 352.21
 
