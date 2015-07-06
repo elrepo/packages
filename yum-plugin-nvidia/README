@@ -1,0 +1,8 @@
+A yum plugin to prevent install or update of NVIDIA drivers on unsupported hardware.
+
+NVIDIA occasionally drops support for older hardware from the current driver release.
+This plugin prevents nvidia drivers being updated on hardware that is no longer supported.
+
+At present yum-plugin-nvidia only works with kmod-nvidia packages >= 352.21-3
+
+Bugs should be reported at http://elrepo.org/bugs
