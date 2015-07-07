@@ -2,7 +2,7 @@
 
 Name:    yum-plugin-nvidia
 Version: 1.0.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group:   Development/Tools
 License: GPLv2
 Summary: Yum plugin to prevent update of NVIDIA drivers on unsupported hardware
@@ -36,7 +36,6 @@ for that hardware has been dropped.
 %{__mkdir_p} %{buildroot}%{pluginhome}
 %{__install} -m 0644 nvidia.conf %{buildroot}%{_sysconfdir}/yum/pluginconf.d/
 %{__install} -m 0644 nvidia.py %{buildroot}%{pluginhome}/nvidia.py
-%{__python} -c "import compileall; compileall.compile_dir('%{buildroot}%{pluginhome}', 1)"
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -45,8 +44,13 @@ for that hardware has been dropped.
 %defattr(-,root,root)
 %doc COPYING README
 %config(noreplace) %{_sysconfdir}/yum/pluginconf.d/nvidia.conf
-%{pluginhome}/nvidia.*
+%{pluginhome}/nvidia.py
+%{pluginhome}/nvidia.pyc
+%{pluginhome}/nvidia.pyo
 
 %changelog
+* Tue Jul 07 2015 Philip J Perry <phil@elrepo.org> - 1.0.0-2
+- Let brp-python-bytecompile handle the byte compile
+
 * Tue Jul 07 2015 Philip J Perry <phil@elrepo.org> - 1.0.0-1
 - Initial release of the package
