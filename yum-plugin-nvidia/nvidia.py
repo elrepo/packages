@@ -30,13 +30,13 @@ def init_hook(conduit):
 
     for file in glob.glob('/sys/bus/*/devices/*/modalias'):
         f = open(file, 'r')
-        modalias = f.read()
+        modalias = f.read()[:-1]
         f.close()
 
         # find only NVIDIA display devices
         if modalias.find(':v000010DE') > 0 and modalias.find('bc03sc') > 0:
-            conduit.info(2, '[nvidia]: device found: %s' % modalias.rstrip('\r\n'))
-            nvidia_devices.append('blacklist(' + modalias[:-1] + ')')
+            conduit.info(2, '[nvidia]: device found: %s' % modalias)
+            nvidia_devices.append('blacklist(' + modalias + ')')
 
     if not nvidia_devices:
         conduit.info(2, '[nvidia]: No NVIDIA display devices found')
