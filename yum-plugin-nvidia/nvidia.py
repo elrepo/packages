@@ -21,7 +21,7 @@ from yum.plugins import TYPE_CORE
 import glob
 import fnmatch
 
-requires_api_version = '2.1'
+requires_api_version = '2.6'
 plugin_type = (TYPE_CORE,)
 
 def init_hook(conduit):
