@@ -34,7 +34,7 @@ def init_hook(conduit):
         f.close()
 
         # find only NVIDIA display devices
-        if modalias.find(':v000010DE') > 0 and modalias.find('bc03sc') > 0:
+        if ':v000010DE' in modalias and 'bc03sc' in modalias:
             conduit.info(2, '[nvidia]: device found: %s' % modalias)
             nvidia_devices.append('blacklist(' + modalias + ')')
 
