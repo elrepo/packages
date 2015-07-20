@@ -24,6 +24,7 @@ import fnmatch
 requires_api_version = '2.6'
 plugin_type = (TYPE_CORE,)
 
+
 def init_hook(conduit):
     global nvidia_devices
     nvidia_devices = []
@@ -41,6 +42,7 @@ def init_hook(conduit):
     if not nvidia_devices:
         conduit.info(2, '[nvidia]: No NVIDIA display devices found')
 
+
 def exclude_hook(conduit):
 
     def find_matches(pkg, provides, matchfor=None):
@@ -57,7 +59,6 @@ def exclude_hook(conduit):
                     conduit.delPackage(pkg)
                     return
 
-
     if nvidia_devices:
-        conduit._base.searchPackageProvides(['blacklist(pci:v000010DEd0000*bc03sc*)', ], \
+        conduit._base.searchPackageProvides(['blacklist(pci:v000010DEd0000*bc03sc*)', ],
                                     callback=find_matches, callback_has_matchfor=True)
