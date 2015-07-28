@@ -17,7 +17,7 @@
 
 
 Name:		fglrx-x11-drv
-Version:	15.5
+Version:	15.7
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Proprietary 
@@ -31,8 +31,8 @@ ExclusiveArch:	i686 x86_64
 # I think AMD makes a special effort to make sure that no one can infer the name
 # of a release from the previous one
 # Sources.
-# http://www2.ati.com/drivers/linux/amd-catalyst-omega-14.12-linux-run-installers.zip
-Source0:  amd-catalyst-omega-%{version}-linux-run-installers.run
+# http://www2.ati.com/drivers/linux/amd-driver-installer-15.20.1046-x86.x86_64.zip
+Source0:  amd-driver-installer-15.20.1046-x86.x86_64.run
 #NoSource:	0
 
 # taken from the rpmforge dkms package
@@ -389,6 +389,12 @@ fi || :
 %{_includedir}/ATI/GL/*.h
 
 %changelog
+* Thu Jul 28 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.7-1.el6.elrepo
+- Update to version 15.7
+
+* Fri Jun 26 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.5-2.el6.elrepo
+- rebuilt to fix incorrect kernel deps
+
 * Thu Jun 25 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.5-2.el6.elrepo
 - Update to version 15.5
 
