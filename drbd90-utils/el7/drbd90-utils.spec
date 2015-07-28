@@ -1,6 +1,6 @@
 %define real_name drbd-utils
 
-Name:    drbd84-utils
+Name:    drbd90-utils
 Version: 8.9.3
 Release: 1%{?dist}
 Group:   System Environment/Kernel
@@ -22,18 +22,19 @@ Requires(postun): systemd-units
 
 ### Virtual provides that people may use
 Provides: drbd = %{version}-%{release}
-Provides: drbd84 = %{version}-%{release}
+Provides: drbd90 = %{version}-%{release}
 
 ### Conflict with older Linbit packages
-Conflicts: drbd < 8.4
-Conflicts: drbd-utils < 8.4
+Conflicts: drbd < 9.0
+Conflicts: drbd-utils < 9.0
 
 ### Conflict with older CentOS packages
 Conflicts: drbd82 <= %{version}-%{release}
 Conflicts: drbd82-utils <= %{version}-%{release}
 Conflicts: drbd83 <= %{version}-%{release}
 Conflicts: drbd83-utils <= %{version}-%{release}
-Obsoletes: drbd84 <= %{version}-%{release}
+Conflicts: drbd84 <= %{version}-%{release}
+Conflicts: drbd84-utils <= %{version}-%{release}
 
 %package sysvinit
 Summary: The SysV initscript to manage the DRBD.
@@ -163,16 +164,4 @@ fi
 
 %changelog
 * Wed Jun 24 2015 Hiroshi Fujishima <h-fujishima@sakura.ad.jp> - 8.9.3-1
-- Update to version 8.9.3.
-
-* Sat May 16 2015 Akemi Yagi <toracat@elrepo.org> - 8.9.2-2
-- Added missing line %dir %{_localstatedir}/lib/drbd/ (bug#571)
-
-* Fri Apr 10 2015 Philip J Perry <phil@elrepo.org> - 8.9.2-1
-- Update to version 8.9.2.
-
-* Sun Aug 17 2014 Jun Futagawa <jfut@integ.jp> - 8.9.1-1
-- Updated to version 8.9.1
-
-* Sun Jul 27 2014 Jun Futagawa <jfut@integ.jp> - 8.4.4-1
 - Initial package for RHEL7.
