@@ -10,10 +10,11 @@
 # in 14.12 the following line was useful; in 15.5 in their infinite wisdom ATI
 # decided to change the naming convention again so it's not used for now
 # leaving it in though as it might be needed for the next update
-%define realversion 15.101.1001
+%define realversion 15.20.1046
+
 Name:    %{kmod_name}-kmod
-Version: 15.5
-Release: 2%{?dist}
+Version: 15.7
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: AMD %{kmod_name} kernel module(s)
@@ -26,10 +27,10 @@ ExclusiveArch: i686 x86_64
 # I think AMD makes a special effort to make sure that no one can infer the name
 # of a release from the previous one
 # Sources.
-# http://www2.ati.com/drivers/linux/amd-catalyst-omega-15.5-linux-run-installers.zip
-Source0:  amd-catalyst-omega-%{version}-linux-run-installers.run
+# http://www2.ati.com/drivers/linux/amd-driver-installer-15.20.1046-x86.x86_64.zip
+Source0:  amd-driver-installer-%{realversion}-x86.x86_64.run
 Source10: kmodtool-%{kmod_name}-el6.sh
-NoSource: 0
+#NoSource: 0
 
 # Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
@@ -90,8 +91,11 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Jul 28 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.7-1.el6.elrepo
+- Update to version 15.7
+
 * Fri Jun 26 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.5-2.el6.elrepo
-- rebuilt to fix incorrect kernel deps 
+- rebuilt to fix incorrect kernel deps
 
 * Thu Jun 25 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.5-1.el6.elrepo
 - Update to version 15.5
