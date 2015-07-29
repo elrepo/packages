@@ -1,7 +1,7 @@
 %define pluginhome /usr/lib/yum-plugins
 
 Name:    yum-plugin-nvidia
-Version: 1.0.1
+Version: 1.0.2
 Release: 1%{?dist}
 Group:   Development/Tools
 License: GPLv2
@@ -15,8 +15,6 @@ Source0:   %{name}-%{version}.tar.bz2
 
 Requires:	python >= 2.4
 Requires:	yum >= 3.2.22
-Requires:	nvidia-kmod >= 352.21-3
-Requires:	nvidia-x11-drv >= 352.21-3
 
 BuildRequires: python-devel >= 2.4
 
@@ -49,6 +47,10 @@ for that hardware has been dropped.
 %{pluginhome}/nvidia.pyo
 
 %changelog
+* Wed Jul 29 2015 Philip J Perry <phil@elrepo.org> - 1.0.2-1
+- Make default output less verbose
+- Remove requires for nvidia drivers
+
 * Mon Jul 20 2015 Philip J Perry <phil@elrepo.org> - 1.0.1-1
 - Some minor code cleanup
 
