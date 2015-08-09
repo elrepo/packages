@@ -5,8 +5,8 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	352.21
-Release:	3%{?dist}
+Version:	352.30
+Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -49,6 +49,7 @@ Provides: libGL.so()(64bit)
 BuildRequires:	desktop-file-utils
 BuildRequires:	perl
 
+Requires:	yum-plugin-nvidia >= 1.0.2
 Requires:	nvidia-kmod = %{?epoch:%{epoch}:}%{version}
 Requires(post):	nvidia-kmod = %{?epoch:%{epoch}:}%{version}
 
@@ -429,6 +430,10 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %endif
 
 %changelog
+* Sat Aug 01 2015 Philip J Perry <phil@elrepo.org> - 352.30-1
+- Updated to version 352.30
+- Add requires for yum-plugin-nvidia
+
 * Fri Jul 03 2015 Philip J Perry <phil@elrepo.org> - 352.21-3
 - Add blacklist() provides.
 - Revert modalias() provides.

@@ -1,13 +1,12 @@
 # Define the kmod package name here.
 %define	 kmod_name nvidia
 
-# build against rhel6.5 (2.6.32-431.el6) for backwards compatibility
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-431.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-573.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 352.21
-Release: 3%{?dist}
+Version: 352.30
+Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
@@ -90,6 +89,10 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Aug 01 2015 Philip J Perry <phil@elrepo.org> - 352.30-1
+- Updated to version 352.30
+- Built against RHEL-6.7 kernel
+
 * Fri Jul 03 2015 Philip J Perry <phil@elrepo.org> - 352.21-3
 - Add blacklist() provides.
 - Revert modalias() provides.

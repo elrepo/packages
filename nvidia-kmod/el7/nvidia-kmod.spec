@@ -5,8 +5,8 @@
 %{!?kversion: %define kversion 3.10.0-229.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 352.21
-Release: 3%{?dist}
+Version: 352.30
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
@@ -82,6 +82,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Aug 01 2015 Philip J Perry <phil@elrepo.org> - 352.30-1
+- Updated to version 352.30
+
 * Fri Jul 03 2015 Philip J Perry <phil@elrepo.org> - 352.21-3
 - Add blacklist() provides.
 - Revert modalias() provides.

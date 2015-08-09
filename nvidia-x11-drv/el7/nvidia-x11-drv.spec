@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# ftp://download.nvidia.com/XFree86/Linux-x86_64/352.21/README/minimumrequirements.html
+# ftp://download.nvidia.com/XFree86/Linux-x86_64/352.30/README/minimumrequirements.html
 %define		max_xorg_ver	1.17.99
 
 %define		nvidialibdir	%{_libdir}/nvidia
@@ -10,8 +10,8 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	352.21
-Release:	3%{?dist}
+Version:	352.30
+Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -43,6 +43,7 @@ BuildRequires:	perl
 
 Requires:	perl
 Requires:	xorg-x11-server-Xorg <= %{max_xorg_ver}
+Requires:	yum-plugin-nvidia >= 1.0.2
 Requires:	nvidia-kmod = %{?epoch:%{epoch}:}%{version}
 Requires(post):	nvidia-kmod = %{?epoch:%{epoch}:}%{version}
 
@@ -422,6 +423,10 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Sat Aug 01 2015 Philip J Perry <phil@elrepo.org> - 352.30-1
+- Updated to version 352.30
+- Add requires for yum-plugin-nvidia
+
 * Fri Jul 03 2015 Philip J Perry <phil@elrepo.org> - 352.21-3
 - Add blacklist() provides.
 - Revert modalias() provides.
