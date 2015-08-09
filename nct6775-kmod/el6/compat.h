@@ -3,8 +3,8 @@
 
 #include <linux/version.h>
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 16)
-#error This driver is for kernel versions 2.6.16 and later
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 32)
+#error This driver is for kernel versions 2.6.32 and later
 #endif
 
 #if !defined (CONFIG_HWMON_VID) && !defined(CONFIG_HWMON_VID_MODULE)
@@ -20,6 +20,7 @@ u8 vid_which_vrm(void)
 #endif
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 0)
+#if !(defined RHEL_MAJOR && RHEL_MAJOR == 6 && RHEL_MINOR >= 7)
 static int sysfs_create_groups(struct kobject *kobj,
 			       const struct attribute_group **groups)
 {
@@ -39,6 +40,7 @@ static int sysfs_create_groups(struct kobject *kobj,
 	}
 	return error;
 }
+#endif
 
 static void sysfs_remove_groups(struct kobject *kobj,
 				const struct attribute_group **groups)
@@ -51,6 +53,7 @@ static void sysfs_remove_groups(struct kobject *kobj,
 		sysfs_remove_group(kobj, groups[i]);
 }
 
+#if !(defined RHEL_MAJOR && RHEL_MAJOR == 6 && RHEL_MINOR >= 7)
 static inline int __must_check PTR_ERR_OR_ZERO(__force const void *ptr)
 {
 	if (IS_ERR(ptr))
@@ -58,7 +61,7 @@ static inline int __must_check PTR_ERR_OR_ZERO(__force const void *ptr)
 	else
 		return 0;
 }
-
+#endif
 #endif
 
 #ifdef __NEED_I2C__
@@ -199,11 +202,13 @@ module_exit(__driver##_exit);
 #define clamp_val SENSORS_LIMIT
 #endif
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 0)
 #ifndef kstrtol
 #define kstrtol strict_strtol
 #endif
 #ifndef kstrtoul
 #define kstrtoul strict_strtoul
+#endif
 #endif
 
 #ifndef request_muxed_region
@@ -211,6 +216,14 @@ module_exit(__driver##_exit);
 #endif
 #ifndef release_region
 #define release_region(a, b)
+#endif
+
+#ifndef pr_warn
+/* pr_warn macro not introduced until 2.6.35 */
+#define pr_warn pr_warning
+#endif
+#ifndef pr_warn_ratelimited
+#define pr_warn_ratelimited pr_warning_ratelimited
 #endif
 
 #endif /* __COMPAT_H */
