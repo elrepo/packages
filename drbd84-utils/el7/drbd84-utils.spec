@@ -2,13 +2,17 @@
 
 Name:    drbd84-utils
 Version: 8.9.3
-Release: 1%{?dist}
+Release: 1.1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
 Summary: Management utilities for DRBD
 URL:     http://www.drbd.org/
 
 Source0:   http://oss.linbit.com/drbd/drbd-utils-%{version}.tar.gz
+
+### ELRepo patches
+patch001: drbd.ocf.patch
+### end of ELRepo patches
 
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: flex
@@ -60,6 +64,7 @@ It is not required when the init system used is systemd.
 
 %prep
 %setup -n %{real_name}-%{version}
+%patch001 -p1
 
 %build
 %configure \
@@ -162,6 +167,9 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Sat Aug 15 2015 Akemi Yagi <toracat@elrepo.org> - 8.9.3-1.1
+- Patch drbd.ocf to the version from 8.9.3-2 (bugs #578 and #589)
+
 * Wed Jun 24 2015 Hiroshi Fujishima <h-fujishima@sakura.ad.jp> - 8.9.3-1
 - Update to version 8.9.3.
 

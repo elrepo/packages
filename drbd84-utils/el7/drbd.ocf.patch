@@ -1,0 +1,56 @@
+ELRepo patch 
+http://elrepo.org/bugs/view.php?id=578
+http://elrepo.org/bugs/view.php?id=589
+
+Patch the drbd.ocf file to the level of 8.9.3-2
+ttp://git.linbit.com/gitweb.cgi?p=drbd-utils.git;a=blobdiff;f=scripts/drbd.ocf;h=cf6b966341377a993d1bf5f585a5b9fe72eaa5f2;hp=0481a32a97a3b5fb814871e46d48024ea112abf4;hb=c11ba026bbbbc647b8112543df142f2185cb4b4b;hpb=5c3a50319dedf5f84fbdf2f19ba1665a91850872
+
+--- a/scripts/drbd.ocf	2015-06-14 05:20:25.000000000 -0700
++++ b/scripts/drbd.ocf	2015-08-14 16:40:17.350668282 -0700
+@@ -114,7 +114,11 @@ DEBUG_LOG=$DEBUG_LOG_DIR/log
+ USE_DEBUG_LOG=false
+ ls_stat_is_dir_0700_root() {
+ 	set -- $(command ls -ldn "$1" 2>/dev/null);
+-	[[ $1/$3 = drwx?-??-?/0 ]]
++	case "$1/$3" in
++	drwx?-??-?/0|\
++	drwx?-??-?./0)	true ;;
++	*)	false ;;
++	esac
+ }
+ # try to avoid symlink vuln.
+ if ls_stat_is_dir_0700_root $DEBUG_LOG_DIR &&
+@@ -308,7 +312,13 @@ drbd_set_status_variables() {
+ 	DRBD_DSTATE_LOCAL=()
+ 	DRBD_DSTATE_REMOTE=()
+ 
+-	eval "$($DRBDADM sh-status "$DRBD_RESOURCE")"
++	if $DRBD_HAS_MULTI_VOLUME ; then
++		eval "$($DRBDSETUP sh-status "$DRBD_RESOURCE")"
++	else
++		# without "MULTI_VOLUME", the DRBD_DEVICES array
++		# should contain exactly one value
++		eval "$($DRBDSETUP "$DRBD_DEVICES" sh-status)"
++	fi
+ 
+ 	# if there was no output at all, or a weird output
+ 	# make sure the status arrays won't be empty.
+@@ -920,6 +930,18 @@ drbd_validate_all () {
+ 	if VERSION="$($DRBDADM --version 2>/dev/null)"; then
+ 		eval $VERSION
+ 	fi
++	if (( $DRBD_KERNEL_VERSION_CODE == 0x0 )) ; then
++		# Maybe the DRBD module was not loaded (yet).
++		# I don't want to load the module here,
++		# maybe this is just a probe or stop.
++		# It will be loaded on "start", though.
++		# Instead, look at modinfo output.
++		# Newer drbdadm does this implicitly, but may reexec older
++		# drbdadm versions for compatibility reasons.
++		DRBD_KERNEL_VERSION_CODE=$(printf "0x%02x%02x%02x" $(
++			modinfo -F version drbd |
++			sed -ne 's/^\([0-9]\+\)\.\([0-9]\+\)\.\([0-9]\+\).*$/\1 \2 \3/p'))
++	fi
+ 	if (( $DRBD_KERNEL_VERSION_CODE >= 0x080400 )); then
+ 		DRBD_HAS_MULTI_VOLUME=true
+ 	fi
