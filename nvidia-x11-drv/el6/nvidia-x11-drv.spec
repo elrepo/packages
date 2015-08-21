@@ -47,6 +47,12 @@ Provides: libnvcuvid.so()(64bit)
 Provides: libGL.so()(64bit)
 %endif
 
+%ifarch x86_64
+# Provides for CUDA
+Provides:	cuda-driver = %{version}
+Provides:	cuda-drivers = %{version}
+%endif
+
 # provides desktop-file-install
 BuildRequires:	desktop-file-utils
 BuildRequires:	perl
@@ -460,6 +466,8 @@ fi ||:
 %endif
 
 %changelog
+- Add CUDA provides
+
 * Sat Aug 01 2015 Philip J Perry <phil@elrepo.org> - 352.30-1
 - Updated to version 352.30
 - Add requires for yum-plugin-nvidia

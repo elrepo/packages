@@ -37,6 +37,10 @@ Source5:    nvidia-provides.sh
 Provides: libnvcuvid.so()(64bit)
 Provides: libGL.so()(64bit)
 
+# Provides for CUDA
+Provides:	cuda-driver = %{version}
+Provides:	cuda-drivers = %{version}
+
 # provides desktop-file-install
 BuildRequires:	desktop-file-utils
 BuildRequires:	perl
@@ -423,6 +427,8 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+- Add CUDA provides
+
 * Sat Aug 01 2015 Philip J Perry <phil@elrepo.org> - 352.30-1
 - Updated to version 352.30
 - Add requires for yum-plugin-nvidia
