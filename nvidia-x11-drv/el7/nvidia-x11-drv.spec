@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# ftp://download.nvidia.com/XFree86/Linux-x86_64/352.30/README/minimumrequirements.html
+# ftp://download.nvidia.com/XFree86/Linux-x86_64/352.41/README/minimumrequirements.html
 %define		max_xorg_ver	1.17.99
 
 %define		nvidialibdir	%{_libdir}/nvidia
@@ -10,7 +10,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	352.30
+Version:	352.41
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -427,6 +427,8 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Sat Aug 29 2015 Philip J Perry <phil@elrepo.org> - 352.41-1
+- Updated to version 352.41
 - Add CUDA provides
 
 * Sat Aug 01 2015 Philip J Perry <phil@elrepo.org> - 352.30-1

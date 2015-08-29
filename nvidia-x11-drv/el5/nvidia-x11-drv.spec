@@ -5,7 +5,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	352.30
+Version:	352.41
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -430,6 +430,9 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %endif
 
 %changelog
+* Sat Aug 29 2015 Philip J Perry <phil@elrepo.org> - 352.41-1
+- Updated to version 352.41
+
 * Sat Aug 01 2015 Philip J Perry <phil@elrepo.org> - 352.30-1
 - Updated to version 352.30
 - Add requires for yum-plugin-nvidia
