@@ -9,7 +9,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv-340xx
-Version:	340.76
+Version:	340.93
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -40,6 +40,12 @@ Provides: libGL.so
 %ifarch x86_64
 Provides: libnvcuvid.so()(64bit)
 Provides: libGL.so()(64bit)
+%endif
+
+%ifarch x86_64
+# Provides for CUDA
+Provides:	cuda-driver = %{version}
+Provides:	cuda-drivers = %{version}
 %endif
 
 # provides desktop-file-install
@@ -454,6 +460,10 @@ fi ||:
 %endif
 
 %changelog
+* Sat Sep 12 2015 Philip J Perry <phil@elrepo.org> - 340.93-1.el6.elrepo
+- Updated to version 340.93
+- Add CUDA provides
+
 * Thu Feb 05 2015 Philip J Perry <phil@elrepo.org> - 340.76-1.el6.elrepo
 - Updated to version 340.76
 
