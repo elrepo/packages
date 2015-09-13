@@ -1,6 +1,6 @@
 Name: bumblebee		
 Version: 3.2.1	
-Release: 2%{?dist}
+Release: 3%{?dist}
 Summary: Bumblebee is a project that enables Linux to utilize the Nvidia Optimus Hybrid cards.
 Group: System Environment/Daemons		
 License: GPLv3	
@@ -9,7 +9,6 @@ URL: http://bumblebee-project.org
 BuildRequires: libbsd-devel pkgconfig autoconf help2man glib2-devel libX11-devel
 Requires: libbsd 	
 Requires: VirtualGL
-Requires: kmod-nvidia
 Requires: kmod-bbswitch
 
 # Sources
@@ -103,6 +102,9 @@ then
 fi 
    
 %changelog
+* Sun Sep 13 2015 Akemi Yagi <toracat@elrepo.org> - 3.2.1-3
+- Removed Requires: kmod-nvidia [http://elrepo.org/bugs/view.php?id=594]
+
 * Fri Jun 13 2014 Rob Mokkink <rob@mokkinksystems.com> - 3.2.1-2
 - Added requirements for VirtualGL, kmod-bbswitch and kmod-nvidia
 - Added some config adjustments in %post
