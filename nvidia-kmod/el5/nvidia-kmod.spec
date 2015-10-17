@@ -6,7 +6,7 @@
 %{!?kversion: %define kversion 2.6.18-398.el5}
 
 Name:    %{kmod_name}-kmod
-Version: 352.41
+Version: 352.55
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -107,6 +107,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Oct 17 2015 Philip J Perry <phil@elrepo.org> - 352.55-1
+- Updated to version 352.55
+
 * Sat Aug 29 2015 Philip J Perry <phil@elrepo.org> - 352.41-1
 - Updated to version 352.41
 
