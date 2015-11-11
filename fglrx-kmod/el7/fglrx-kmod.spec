@@ -2,16 +2,17 @@
 %define kmod_name fglrx
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-123.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-229.el7.%{_target_cpu}}
 
 # in 14.12 the following line was useful; in 15.5 in their infinite wisdom ATI
 # decided to change the naming convention again so it's not used for now
 # leaving it in though for the next version
-# built for RHEL7.0
-%define realversion 15.101.1001
+# built for RHEL7.1
+%define realversion 15.201.1151
+
 Name:    %{kmod_name}-kmod
-Version: 15.5
-Release: 1%{?dist}
+Version: 15.9
+Release: 2%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: AMD %{kmod_name} kernel module(s)
@@ -23,9 +24,10 @@ ExclusiveArch: i686 x86_64
 
 # I think AMD makes a special effort to make sure that no one can infer the name
 # of a release from the previous one
+# bonus points this time for starting to use Caps as well
 # Sources.
-# http://www2.ati.com/drivers/linux/amd-catalyst-omega-15.5-linux-run-installers.zip
-Source0:  amd-catalyst-omega-%{version}-linux-run-installers.run
+# http://www2.ati.com/drivers/linux/amd-catalyst-15.9-linux-installer-15.201.1151-x86.x86_64.zip
+Source0:  AMD-Catalyst-15.9-Linux-installer-15.201.1151-x86.x86_64.run
 Source10: kmodtool-%{kmod_name}-el7.sh
 NoSource: 0
 
@@ -102,8 +104,15 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Nov 10 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.9-2.el7.elrepo
+- Rebuilt to sync with fglrx-x11-drv
+
+* Sat Oct 31 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.9-1.el7.elrepo
+- Update to version 15.9
+- Strongly suggested to update due to CVE-2015-7724
+
 * Thu Jun 25 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.5-1.el7.elrepo
-- Update to version 15.1
+- Update to version 15.5
 
 * Sun Jan 11 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 14.12-1.el7.elrepo
 - Update to version 14.12
