@@ -13,24 +13,28 @@
   %define xorgver xpic_64a
 %endif
 
-# built for RHEL6.6
-%define realversion 14.301.1001
+# built for RHEL7
+
 
 Name:		fglrx-x11-drv
-Version:	14.9
-Release:	1%{?dist}
+Version:	15.9
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Proprietary 
 Summary:	AMD's proprietary driver for ATI graphic cards
-URL:		http://support.amd.com/us/gpudownload/linux/Pages/radeon_linux.aspx
+#AMD prohibits deep linking but loves redirects
+URL:     http://support.amd.com/en-us/download
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 ExclusiveArch:	i686 x86_64
 
-# Sources
-# http://www2.ati.com/drivers/linux/amd-driver-installer-catalyst-13.1-linux-x86.x86_64.zip
-Source0:  amd-driver-installer-%{realversion}-x86.x86_64.run
-NoSource:	0
+# I think AMD makes a special effort to make sure that no one can infer the name
+# of a release from the previous one
+# bonus points this time for starting to use Caps as well
+# Sources.
+# http://www2.ati.com/drivers/linux/amd-catalyst-15.9-linux-installer-15.201.1151-x86.x86_64.zip
+Source0:  AMD-Catalyst-15.9-Linux-installer-15.201.1151-x86.x86_64.run
+NoSource: 0
 
 # taken from the rpmforge dkms package
 Source2:	ati.sh
@@ -40,7 +44,9 @@ Source5:	ati.nodes
 # modified ATI switching scripts
 Source6:	switchlibGL
 Source7:	switchlibglx
-
+Source8:	atieventsd.service
+# custom ModulePath
+Source9:	20-fglrx.conf
 # provides desktop-file-install
 BuildRequires:	desktop-file-utils
 
@@ -51,12 +57,10 @@ Requires(post):  chkconfig
 Requires(preun): chkconfig
 Requires(post):  /sbin/ldconfig
 
-# for ati-config-display
-#Requires(post):  pyxf86config
-#Requires(preun): pyxf86config
-
 Requires(post):	 grubby
 Requires(preun): grubby
+Requires: systemd, acpid
+
 
 # ATI RPM
 Conflicts:	fglrx_p_i_c
@@ -110,7 +114,7 @@ find common/usr/share/doc -type f -exec chmod 0644 {} \;
 
 %install
 # Install utilities, atieventsd program with its init script and man pages
-%{__mkdir_p} %{buildroot}{%{_bindir},%{_sbindir},%{_sysconfdir}/ati}
+%{__mkdir_p} %{buildroot}{%{_bindir},%{_sbindir},%{_sysconfdir}/ati,%{_sysconfdir}/X11/xorg.conf.d,/usr/lib/systemd/system}
 %{__install} -p -m 0755 arch/%{atiarch}/usr/bin/* %{buildroot}%{_bindir}/
 %{__install} -p -m 0755 arch/%{atiarch}/usr/X11R6/bin/* %{buildroot}%{_bindir}/
 %{__install} -p -m 0755 common/usr/X11R6/bin/* %{buildroot}%{_bindir}/
@@ -119,10 +123,14 @@ find common/usr/share/doc -type f -exec chmod 0644 {} \;
 %{__install} -p -m 0644 common/etc/ati/* %{buildroot}%{_sysconfdir}/ati/
 # fix permissions on authatieventsd.sh
 %{__chmod} 755 %{buildroot}%{_sysconfdir}/ati/authatieventsd.sh
+#patch it , EL7 has authentication bits in a different place
+sed -e "s#GDM_AUTH_FILE=/var/gdm/\$1.Xauth#GDM_AUTH_FILE=/run/gdm/auth-for-gdm-*/database@#;s#DISP_SEARCH_STRING=\"\$1\"#DISP_SEARCH_STRING=\"unix\$1\"#" %{buildroot}%{_sysconfdir}/ati/authatieventsd.sh
 %{__install} -D -p -m 0755 packages/Fedora/atieventsd.init %{buildroot}%{_sysconfdir}/rc.d/init.d/atieventsd
 %{__install} -D -p -m 0644 common/etc/security/console.apps/amdcccle-su %{buildroot}%{_sysconfdir}/security/console.apps/amdcccle-su
 %{__install} -D -p -m 0644 common/usr/share/man/man8/atieventsd.8 %{buildroot}%{_mandir}/man8/atieventsd.8
 %{__install} -D -p -m 0755 %{SOURCE4} %{buildroot}%{_sbindir}/
+%{__install} -D -p -m 0644 %{SOURCE8} %{buildroot}/usr/lib/systemd/system
+%{__install} -D -p -m 0644 %{SOURCE9} %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/
 
 # Install OpenCL Vendor file
 %{__mkdir_p} %{buildroot}%{_sysconfdir}/OpenCL/vendors/
@@ -359,6 +367,7 @@ fi || :
 %{_sysconfdir}/OpenCL/vendors/*
 %{_sysconfdir}/profile.d/ati.*
 %{_sysconfdir}/security/console.apps/amdcccle-su
+%{_sysconfdir}/X11/xorg.conf.d/*
 %{_initrddir}/atieventsd
 %{_sbindir}/*
 %{_bindir}/*
@@ -367,6 +376,7 @@ fi || :
 %{_datadir}/applications/*amdcccle*.desktop
 %{_datadir}/icons/*.xpm
 %{_mandir}/man[1-9]/atieventsd.*
+/usr/lib/systemd/system/atieventsd.service
 # libs
 %dir %{atilibdir}
 %{atilibdir}/*.so*
@@ -403,6 +413,16 @@ fi || :
 %{_includedir}/ATI/GL/*.h
 
 %changelog
+* Tue Nov 10 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.9-2.el7.elrepo
+- include custom ModulePath for xorg.conf
+
+* Sat Oct 31 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.9-1.el7.elrepo
+- Update to version 15.9
+- Strongly suggested to update due to CVE-2015-7724
+
+* Sun Oct 19 2014 Manuel Wolfshant <wolfy@fedoraproject.org> - 14.9-2.el7.elrepo
+- Fix atieventsd interaction with systemd
+
 * Sun Oct 19 2014 Manuel Wolfshant <wolfy@fedoraproject.org> - 14.9-1.el7.elrepo
 - Initial version for EL7
 
