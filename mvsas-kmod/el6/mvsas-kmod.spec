@@ -2,11 +2,11 @@
 %define kmod_name mvsas
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-431.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-573.el6.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 0.8.16
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -57,6 +57,10 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Mon Jun 30 2014 Philip J Perry <phil@elrepo.org> - 0.8.16-2
+- Updated to kernel-3.10.93
+- Fix NULL pointer dereference in mvs_slot_task_free [9/11/2015]
+
 * Mon Jun 30 2014 Philip J Perry <phil@elrepo.org> - 0.8.16-1
 - Initial el6 build of the kmod package.
 - Backported from kernel-3.10.45
