@@ -1,7 +1,7 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# ftp://download.nvidia.com/XFree86/Linux-x86_64/304.123/README/minimumrequirements.html
-%define		max_xorg_ver	1.17.99
+# ftp://download.nvidia.com/XFree86/Linux-x86_64/304.131/README/minimumrequirements.html
+%define		max_xorg_ver	1.18.99
 
 %define		nvidialibdir	%{_libdir}/nvidia
 %define		nvidialib32dir	%{_prefix}/lib/nvidia
@@ -9,7 +9,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv-304xx
-Version:	304.125
+Version:	304.131
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -329,6 +329,10 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Fri Nov 20 2015 Philip J Perry <phil@elrepo.org> - 304.131-1
+- Updated to version 304.131
+- Adds support for Xorg 1.18 (Video Driver ABI 20)
+
 * Fri Dec 19 2014 Philip J Perry <phil@elrepo.org> - 304.125-1
 - Updated to version 304.125
 - Adds support for Xorg 1.17 (Video Driver ABI 19)

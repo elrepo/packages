@@ -2,10 +2,10 @@
 %define kmod_name nvidia
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-229.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-327.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 352.55
+Version: 352.63
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -82,6 +82,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Nov 20 2015 Philip J Perry <phil@elrepo.org> - 352.63-1
+- Updated to version 352.63
+- Rebuilt against RHEL 7.2 kernel
+
 * Sat Oct 17 2015 Philip J Perry <phil@elrepo.org> - 352.55-1
 - Updated to version 352.55
 

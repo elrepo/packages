@@ -6,7 +6,7 @@
 %{!?kversion: %define kversion 2.6.18-398.el5}
 
 Name:    %{kmod_name}-kmod
-Version: 340.93
+Version: 340.96
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -98,6 +98,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Nov 20 2015 Philip J Perry <phil@elrepo.org> - 340.96-1.el5.elrepo
+- Updated to version 340.96
+
 * Sat Sep 12 2015 Philip J Perry <phil@elrepo.org> - 340.93-1.el5.elrepo
 - Updated to version 340.93
 
