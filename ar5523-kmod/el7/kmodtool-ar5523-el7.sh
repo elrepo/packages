@@ -154,7 +154,7 @@ get_rpmtemplate ()
 Provides:         kernel-modules >= ${verrel_dep}${dotvariant}
 Provides:         ${kmod_name}-kmod = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:         /usr/lib/firmware/ar5523.bin
-Requires:         kernel >= 3.10.0-229.el7
+Requires:         kernel >= 3.10.0-327.el7
 Requires(post):   /usr/sbin/depmod
 Requires(postun): /usr/sbin/depmod
 EOF
