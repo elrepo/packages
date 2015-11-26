@@ -39,6 +39,7 @@ A utility to detect NVIDIA graphics cards.
 %changelog
 * Wed Nov 25 2015 Philip J Perry <phil@elrepo.org> - 352.63-1
 - Add support for detection of devices added to 352.63 driver release
+- Update Xorg Video Driver ABI versions
 
 * Sat Oct 17 2015 Philip J Perry <phil@elrepo.org> - 352.55-1
 - Add support for detection of devices added to 352.55 driver release

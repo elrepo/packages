@@ -54,11 +54,11 @@
 #endif
 
 /* Define the max Xorg Video Driver ABI supported by each NVIDIA driver */
-#define XORG_ABI_CURRENT	19	/* 343.36; Xorg 1.17 */
+#define XORG_ABI_CURRENT	20	/* 352.63; Xorg 1.18 */
 #define XORG_ABI_96XX		12	/* 96.43.23 */
 #define XORG_ABI_173XX		15	/* 173.14.39 */
-#define XORG_ABI_304XX		19	/* 304.125; Xorg 1.17 */
-#define XORG_ABI_340XX		19	/* 340.65; Xorg 1.17 */
+#define XORG_ABI_304XX		20	/* 304.131; Xorg 1.18 */
+#define XORG_ABI_340XX		20	/* 340.96; Xorg 1.18 */
 
 /* Change the default Xorg log file here if it's different */
 #define XORG_LOG_FILE	"/var/log/Xorg.0.log"
