@@ -6,7 +6,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -69,6 +69,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Dec 09 2015 Philip J Perry <phil@elrepo.org> - 0.0-3
+- Fix invalid NSS for 4x4 devices, backported from kernel-4.1.14
+
 * Wed Nov 25 2015 Philip J Perry <phil@elrepo.org> - 0.0-2
 - Backported from kernel-4.1.13 for RHEL-7.2
 
