@@ -10,10 +10,10 @@
 # in 14.12 the following line was useful; in 15.5 in their infinite wisdom ATI
 # decided to change the naming convention again so it's not used for now
 # leaving it in though as it might be needed for the next update
-%define realversion 15.201.1151
+%define realversion 15.30.1025
 
 Name:    %{kmod_name}-kmod
-Version: 15.9
+Version: 15.11
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -26,10 +26,9 @@ ExclusiveArch: i686 x86_64
 
 # I think AMD makes a special effort to make sure that no one can infer the name
 # of a release from the previous one
-# bonus points this time for starting to use Caps as well
 # Sources.
-# http://www2.ati.com/drivers/linux/amd-catalyst-15.9-linux-installer-15.201.1151-x86.x86_64.zip
-Source0:  AMD-Catalyst-15.9-Linux-installer-15.201.1151-x86.x86_64.run
+# http://www2.ati.com/drivers/linux/radeon-crimson-15.11-15.30.1025.zip
+Source0:  amd-driver-installer-15.30.1025-x86.x86_64.run
 Source10: kmodtool-%{kmod_name}-el6.sh
 #NoSource: 0
 
@@ -92,6 +91,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Dec 18 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.11-1.el6.elrepo
+- Update to version 15.11
+
 * Thu Oct 29 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.9-1.el6.elrepo
 - Update to version 15.9
 - Strongly suggested to update due to CVE-2015-7724
