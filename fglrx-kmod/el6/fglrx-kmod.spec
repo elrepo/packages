@@ -30,7 +30,7 @@ ExclusiveArch: i686 x86_64
 # http://www2.ati.com/drivers/linux/radeon-crimson-15.11-15.30.1025.zip
 Source0:  amd-driver-installer-15.30.1025-x86.x86_64.run
 Source10: kmodtool-%{kmod_name}-el6.sh
-#NoSource: 0
+NoSource: 0
 
 # Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
