@@ -13,11 +13,11 @@
   %define xorgver xpic_64a
 %endif
 
-# built for RHEL6.6
+# built for RHEL6.7
 
 
 Name:		fglrx-x11-drv
-Version:	15.7
+Version:	15.11
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Proprietary 
@@ -31,9 +31,9 @@ ExclusiveArch:	i686 x86_64
 # I think AMD makes a special effort to make sure that no one can infer the name
 # of a release from the previous one
 # Sources.
-# http://www2.ati.com/drivers/linux/amd-driver-installer-15.20.1046-x86.x86_64.zip
-Source0:  amd-driver-installer-15.20.1046-x86.x86_64.run
-#NoSource:	0
+# http://www2.ati.com/drivers/linux/radeon-crimson-15.11-15.30.1025.zip
+Source0:  amd-driver-installer-15.30.1025-x86.x86_64.run 
+NoSource: 0
 
 # taken from the rpmforge dkms package
 Source2:	ati.sh
@@ -389,6 +389,13 @@ fi || :
 %{_includedir}/ATI/GL/*.h
 
 %changelog
+* Fri Dec 18 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.11-1.el6.elrepo
+- Update to version 15.11
+
+* Thu Oct 29 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.9-1.el6.elrepo
+- Update to version 15.9
+- Strongly suggested to update due to CVE-2015-7724
+
 * Thu Jul 28 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.7-1.el6.elrepo
 - Update to version 15.7
 
