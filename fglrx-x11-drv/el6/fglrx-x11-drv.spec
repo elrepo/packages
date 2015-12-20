@@ -33,7 +33,7 @@ ExclusiveArch:	i686 x86_64
 # Sources.
 # http://www2.ati.com/drivers/linux/radeon-crimson-15.11-15.30.1025.zip
 Source0:  amd-driver-installer-15.30.1025-x86.x86_64.run 
-#NoSource: 0
+NoSource: 0
 
 # taken from the rpmforge dkms package
 Source2:	ati.sh
