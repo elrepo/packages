@@ -8,11 +8,11 @@
 # decided to change the naming convention again so it's not used for now
 # leaving it in though for the next version
 # built for RHEL7.1
-%define realversion 15.201.1151
+%define realversion 15.30.1025
 
 Name:    %{kmod_name}-kmod
-Version: 15.9
-Release: 2%{?dist}
+Version: 15.11
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: AMD %{kmod_name} kernel module(s)
@@ -24,12 +24,11 @@ ExclusiveArch: i686 x86_64
 
 # I think AMD makes a special effort to make sure that no one can infer the name
 # of a release from the previous one
-# bonus points this time for starting to use Caps as well
 # Sources.
-# http://www2.ati.com/drivers/linux/amd-catalyst-15.9-linux-installer-15.201.1151-x86.x86_64.zip
-Source0:  AMD-Catalyst-15.9-Linux-installer-15.201.1151-x86.x86_64.run
+# http://www2.ati.com/drivers/linux/radeon-crimson-15.11-15.30.1025.zip
+Source0:  amd-driver-installer-15.30.1025-x86.x86_64.run
 Source10: kmodtool-%{kmod_name}-el7.sh
-NoSource: 0
+#NoSource: 0
 
 # Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
@@ -55,9 +54,6 @@ sh %{SOURCE0} --extract atipkg
 %ifarch x86_64
 %{__cp} -a atipkg/common/* atipkg/arch/x86_64/* _kmod_build_/
 %endif
-
-# Suppress warning message
-#echo 'This is a dummy file created to suppress this warning: could not find /lib/modules/fglrx/build_mod/2.6.x/.libfglrx_ip.a.GCC4.cmd for /lib/modules/fglrx/build_mod/2.6.x/libfglrx_ip.a.GCC4' > _kmod_build_/lib/modules/fglrx/build_mod/2.6.x/.libfglrx_ip.a.GCC4.cmd
 
 # proper permissions
 find _kmod_build_/lib/modules/fglrx/build_mod/ -type f | xargs chmod 0644
@@ -104,8 +100,8 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
-* Tue Nov 10 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.9-2.el7.elrepo
-- Rebuilt to sync with fglrx-x11-drv
+* Fri Dec 18 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.11-1.el7.elrepo
+- Update to version 15.11
 
 * Sat Oct 31 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.9-1.el7.elrepo
 - Update to version 15.9

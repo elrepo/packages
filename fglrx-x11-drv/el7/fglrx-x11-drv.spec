@@ -17,8 +17,8 @@
 
 
 Name:		fglrx-x11-drv
-Version:	15.9
-Release:	2%{?dist}
+Version:	15.11
+Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Proprietary 
 Summary:	AMD's proprietary driver for ATI graphic cards
@@ -30,11 +30,10 @@ ExclusiveArch:	i686 x86_64
 
 # I think AMD makes a special effort to make sure that no one can infer the name
 # of a release from the previous one
-# bonus points this time for starting to use Caps as well
 # Sources.
-# http://www2.ati.com/drivers/linux/amd-catalyst-15.9-linux-installer-15.201.1151-x86.x86_64.zip
-Source0:  AMD-Catalyst-15.9-Linux-installer-15.201.1151-x86.x86_64.run
-NoSource: 0
+# http://www2.ati.com/drivers/linux/radeon-crimson-15.11-15.30.1025.zip
+Source0:  amd-driver-installer-15.30.1025-x86.x86_64.run 
+#NoSource: 0
 
 # taken from the rpmforge dkms package
 Source2:	ati.sh
@@ -413,6 +412,9 @@ fi || :
 %{_includedir}/ATI/GL/*.h
 
 %changelog
+* Fri Dec 18 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.11-1.el6.elrepo
+- Update to version 15.11
+
 * Tue Nov 10 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.9-2.el7.elrepo
 - include custom ModulePath for xorg.conf
 
