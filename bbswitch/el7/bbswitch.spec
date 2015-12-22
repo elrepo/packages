@@ -2,11 +2,11 @@
 %define kmod_name bbswitch
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-229.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-327.el7.%{_target_cpu}}
 
 Name: %{kmod_name}-kmod
 Version: 0.8
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group: System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -77,6 +77,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Mon Dec 21 2015 Akemi Yagi <toracat@elrepo.org> - 0.8.2
+- Rebuild against EL7.2 kernel 3.10.0-327.el7.
+
 * Fri Apr 03 2015 mokkr00 <rob@mokkinksystems.com> - 0.8.1
 - Changed rpm version according to source version
 
