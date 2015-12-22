@@ -152,6 +152,7 @@ get_rpmtemplate ()
     cat <<EOF
 Provides:         kabi-modules = ${verrel}${dotvariant}
 Provides:         ${kmod_name}-kmod = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:         kernel >= 3.10.0-327.el7
 Requires(post):   /usr/sbin/depmod
 Requires(postun): /usr/sbin/depmod
 EOF
