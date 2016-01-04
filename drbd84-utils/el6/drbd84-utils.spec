@@ -149,7 +149,7 @@ fi
 %{_sysconfdir}/xen/scripts/block-drbd
 
 %changelog
-* Sun Jan  3 2016 Hiroshi Fujishima <h-fujishima@sakura.ad.jp> - 8.4.5-1
+* Sun Jan  3 2016 Hiroshi Fujishima <h-fujishima@sakura.ad.jp> - 8.9.5-1
 - Updated to version 8.9.5.
 
 * Sun Aug 17 2014 Jun Futagawa <jfut@integ.jp> - 8.9.1-1
