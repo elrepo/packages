@@ -7,18 +7,19 @@
 
 ### BEWARE: The kernel version is also mentioned in kmodtool !
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion:%define kversion 2.6.32-504.el6.%{_target_cpu}}
+%{!?kversion:%define kversion 2.6.32-573.el6.%{_target_cpu}}
 
 Summary: Distributed Redundant Block Device driver for Linux
 Name: %{kmod_name}-kmod
-Version: 8.4.5
-Release: 2%{?dist}
+Version: 8.4.7
+%define original_release 1
+Release: %{original_release}_1%{?dist}
 License: GPL
 Group: System Environment/Kernel
 URL: http://www.drbd.org/
 
 # Sources.
-Source0: http://oss.linbit.com/drbd/8.4/drbd-%{version}.tar.gz
+Source0: http://oss.linbit.com/drbd/8.4/drbd-%{version}-%{original_release}.tar.gz
 Source10: kmodtool-%{kmod_name}.sh
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 
@@ -38,7 +39,7 @@ as networked raid 1. It is a building block for setting up
 high availability (HA) clusters.
 
 %prep
-%setup -n %{real_name}-%{version}
+%setup -n %{real_name}-%{version}-%{original_release}
 
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
@@ -63,6 +64,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Jan  3 2016 Hiroshi Fujishima <h-fujishima@sakura.ad.jp> - 8.4.7-1_1
+- Updated to version 8.4.7.
+
 * Tue Oct 28 2014 Philip J Perry <phil@elrepo.org> - 8.4.5-2
 - Rebuilt for RHEL-6.6 kernel due to kABI breakage
 

@@ -5,7 +5,7 @@
 
 Summary: Management utilities for DRBD
 Name: drbd84-utils
-Version: 8.9.1
+Version: 8.9.5
 Release: 1%{?dist}
 License: GPLv2+
 Group: System Environment/Kernel
@@ -50,7 +50,8 @@ scripts for heartbeat, pacemaker, rgmanager and xen.
 %configure \
     --with-initdir="%{_initrddir}" \
     --with-rgmanager \
-    --with-initscripttype=sysv
+    --with-initscripttype=sysv \
+    --without-83support
 WITH_HEARTBEAT=yes %{__make} %{?_smp_mflags}
 
 %install
@@ -66,20 +67,11 @@ popd
 %{__ln_s} %{_sbindir}/drbdmeta %{buildroot}/sbin/
 %{__ln_s} %{_sbindir}/drbdsetup %{buildroot}/sbin/
 
-install -d -m 755 %{buildroot}/%{_sysconfdir}/udev/rules.d
-mv %{buildroot}/lib/udev/65-drbd.rules %{buildroot}/%{_sysconfdir}/udev/rules.d/65-drbd.rules
-
 %clean
 %{__rm} -rf %{buildroot}
 
 %post
 /sbin/chkconfig --add drbd
-
-for i in $(seq 0 15); do
-    if [ ! -b /dev/drbd$i ]; then
-        mknod -m0660 /dev/drbd$i b 147 $i
-    fi
-done
 
 if /usr/bin/getent group | grep -q ^haclient; then
     chgrp haclient /sbin/drbdsetup
@@ -103,7 +95,6 @@ fi
 %doc %{_mandir}/man8/drbd-*
 %doc %{_mandir}/man8/drbdadm.8*
 %doc %{_mandir}/man8/drbdadm-*
-%doc %{_mandir}/man8/drbddisk.8*
 %doc %{_mandir}/man8/drbddisk-*
 %doc %{_mandir}/man8/drbdmeta.8*
 %doc %{_mandir}/man8/drbdmeta-*
@@ -111,15 +102,13 @@ fi
 %doc %{_mandir}/man8/drbdsetup-*
 %config %{_initrddir}/drbd
 %config %{_sysconfdir}/bash_completion.d/drbdadm*
-%config %{_sysconfdir}/udev/rules.d/65-drbd.rules*
 %config(noreplace) %{_sysconfdir}/drbd.conf
 %dir %{_sysconfdir}/drbd.d/
 %config(noreplace) %{_sysconfdir}/drbd.d/global_common.conf
 %dir %{_localstatedir}/lib/drbd/
-/lib/drbd/drbdadm-83
-/lib/drbd/drbdsetup-83
 /lib/drbd/drbdadm-84
 /lib/drbd/drbdsetup-84
+/lib/udev/rules.d/65-drbd.rules
 /sbin/drbdadm
 /sbin/drbdmeta
 /sbin/drbdsetup
@@ -160,6 +149,9 @@ fi
 %{_sysconfdir}/xen/scripts/block-drbd
 
 %changelog
+* Sun Jan  3 2016 Hiroshi Fujishima <h-fujishima@sakura.ad.jp> - 8.9.5-1
+- Updated to version 8.9.5.
+
 * Sun Aug 17 2014 Jun Futagawa <jfut@integ.jp> - 8.9.1-1
 - Updated to version 8.9.1.
 
