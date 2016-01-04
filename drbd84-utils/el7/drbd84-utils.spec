@@ -1,7 +1,7 @@
 %define real_name drbd-utils
 
 Name:    drbd84-utils
-Version: 8.9.3
+Version: 8.9.5
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
@@ -65,28 +65,19 @@ It is not required when the init system used is systemd.
 %configure \
     --with-initdir="%{_initrddir}" \
     --with-rgmanager \
-    --with-initscripttype=both
-WITH_HEARTBEAT=yes %{__make} %{?_smp_mflags}
+    --with-initscripttype=both \
+    --without-83support
+%{__make} %{?_smp_mflags}
 
 %install
 %{__rm} -rf %{buildroot}
-WITH_HEARTBEAT=yes %{__make} install DESTDIR="%{buildroot}"
-pushd scripts
-WITH_HEARTBEAT=yes %{__make} install-heartbeat DESTDIR="%{buildroot}"
-popd
-
+%{__make} install DESTDIR="%{buildroot}"
 
 %clean
 %{__rm} -rf %{buildroot}
 
 %post
 %systemd_post drbd.service
-
-for i in $(seq 0 15); do
-    if [ ! -b /dev/drbd$i ]; then
-        mknod -m0660 /dev/drbd$i b 147 $i
-    fi
-done
 
 if /usr/bin/getent group | grep -q ^haclient; then
     chgrp haclient /usr/sbin/drbdsetup
@@ -116,8 +107,6 @@ fi
 %dir %{_localstatedir}/lib/drbd/
 %dir /lib/drbd/
 /lib/drbd/drbd
-/lib/drbd/drbdadm-83
-/lib/drbd/drbdsetup-83
 /lib/drbd/drbdadm-84
 /lib/drbd/drbdsetup-84
 %{_sbindir}/drbdadm
@@ -162,6 +151,9 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Mon Jan  4 2016 Hiroshi Fujishima <h-fujishima@sakura.ad.jp> - 8.9.5-1
+- Update to version 8.9.5.
+
 * Wed Jun 24 2015 Hiroshi Fujishima <h-fujishima@sakura.ad.jp> - 8.9.3-1
 - Update to version 8.9.3.
 
