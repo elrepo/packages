@@ -1,18 +1,14 @@
 %define real_name drbd-utils
 
 Name:    drbd84-utils
-Version: 8.9.3
-Release: 1.1%{?dist}
+Version: 8.9.5
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
 Summary: Management utilities for DRBD
 URL:     http://www.drbd.org/
 
 Source0:   http://oss.linbit.com/drbd/drbd-utils-%{version}.tar.gz
-
-### ELRepo patches
-patch001: drbd.ocf.patch
-### end of ELRepo patches
 
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: flex
@@ -64,34 +60,24 @@ It is not required when the init system used is systemd.
 
 %prep
 %setup -n %{real_name}-%{version}
-%patch001 -p1
 
 %build
 %configure \
     --with-initdir="%{_initrddir}" \
     --with-rgmanager \
-    --with-initscripttype=both
-WITH_HEARTBEAT=yes %{__make} %{?_smp_mflags}
+    --with-initscripttype=both \
+    --without-83support
+%{__make} %{?_smp_mflags}
 
 %install
 %{__rm} -rf %{buildroot}
-WITH_HEARTBEAT=yes %{__make} install DESTDIR="%{buildroot}"
-pushd scripts
-WITH_HEARTBEAT=yes %{__make} install-heartbeat DESTDIR="%{buildroot}"
-popd
-
+%{__make} install DESTDIR="%{buildroot}"
 
 %clean
 %{__rm} -rf %{buildroot}
 
 %post
 %systemd_post drbd.service
-
-for i in $(seq 0 15); do
-    if [ ! -b /dev/drbd$i ]; then
-        mknod -m0660 /dev/drbd$i b 147 $i
-    fi
-done
 
 if /usr/bin/getent group | grep -q ^haclient; then
     chgrp haclient /usr/sbin/drbdsetup
@@ -121,8 +107,6 @@ fi
 %dir %{_localstatedir}/lib/drbd/
 %dir /lib/drbd/
 /lib/drbd/drbd
-/lib/drbd/drbdadm-83
-/lib/drbd/drbdsetup-83
 /lib/drbd/drbdadm-84
 /lib/drbd/drbdsetup-84
 %{_sbindir}/drbdadm
@@ -167,6 +151,9 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Mon Jan  4 2016 Hiroshi Fujishima <h-fujishima@sakura.ad.jp> - 8.9.5-1
+- Update to version 8.9.5.
+
 * Sat Aug 15 2015 Akemi Yagi <toracat@elrepo.org> - 8.9.3-1.1
 - Patch drbd.ocf to the version from 8.9.3-2 (bugs #578 and #589)
 
