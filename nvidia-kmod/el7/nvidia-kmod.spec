@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-327.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 352.63
+Version: 352.79
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -82,6 +82,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Jan 31 2016 Philip J Perry <phil@elrepo.org> - 352.79-1
+- Updated to version 352.79
+
 * Fri Nov 20 2015 Philip J Perry <phil@elrepo.org> - 352.63-1
 - Updated to version 352.63
 - Rebuilt against RHEL 7.2 kernel
