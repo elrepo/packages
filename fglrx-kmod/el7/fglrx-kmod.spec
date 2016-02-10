@@ -12,7 +12,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 15.11
-Release: 1%{?dist}
+Release: 3%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: AMD %{kmod_name} kernel module(s)
@@ -28,7 +28,7 @@ ExclusiveArch: i686 x86_64
 # http://www2.ati.com/drivers/linux/radeon-crimson-15.11-15.30.1025.zip
 Source0:  amd-driver-installer-15.30.1025-x86.x86_64.run
 Source10: kmodtool-%{kmod_name}-el7.sh
-#NoSource: 0
+NoSource: 0
 
 # Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
@@ -100,6 +100,12 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Feb 10 2016 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.11-3
+- keep in sync with fglrx-x11-drv
+
+* Thu Dec 24 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.11-2.el7.elrepo
+- Bump version to keep in sync with fglrx-x11-drv
+
 * Fri Dec 18 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.11-1.el7.elrepo
 - Update to version 15.11
 
