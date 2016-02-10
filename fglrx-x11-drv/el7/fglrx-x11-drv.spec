@@ -18,7 +18,7 @@
 
 Name:		fglrx-x11-drv
 Version:	15.11
-Release:	1%{?dist}
+Release:	3%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Proprietary 
 Summary:	AMD's proprietary driver for ATI graphic cards
@@ -33,7 +33,7 @@ ExclusiveArch:	i686 x86_64
 # Sources.
 # http://www2.ati.com/drivers/linux/radeon-crimson-15.11-15.30.1025.zip
 Source0:  amd-driver-installer-15.30.1025-x86.x86_64.run 
-#NoSource: 0
+NoSource: 0
 
 # taken from the rpmforge dkms package
 Source2:	ati.sh
@@ -350,10 +350,17 @@ if [ "${1}" -eq 0 ]; then
 fi || :
 
 %postun
+mv -f %{_libdir}/xorg/modules/extensions/libglx.so.elrepo %{_libdir}/xorg/modules/extensions/libglx.so
 /sbin/ldconfig
 
 %postun 32bit
 /sbin/ldconfig
+
+%triggerin -- xorg-x11-server-Xorg
+[ -f %{_libdir}/xorg/modules/extensions/libglx.so ] && \
+  mv %{_libdir}/xorg/modules/extensions/libglx.so \
+  %{_libdir}/xorg/modules/extensions/libglx.so.elrepo &>/dev/null
+
 
 %files
 %defattr(-,root,root,-)
@@ -412,7 +419,13 @@ fi || :
 %{_includedir}/ATI/GL/*.h
 
 %changelog
-* Fri Dec 18 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.11-1.el6.elrepo
+* Wed Feb 10 2016 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.11-3
+- add triggers to backup/restore the original libglx.so
+
+* Thu Dec 24 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.11-2.el7.elrepo
+- Rename 20-fglrx.conf to 99-fglrx.conf, maybe Xorg decides to ALWAYS use it
+
+* Fri Dec 18 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.11-1.el7.elrepo
 - Update to version 15.11
 
 * Tue Nov 10 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.9-2.el7.elrepo
