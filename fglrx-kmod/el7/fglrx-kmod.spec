@@ -100,7 +100,7 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
-* Wed Feb 10 2016 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.11-3
+* Wed Feb 10 2016 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.11-3.el7.elrepo
 - keep in sync with fglrx-x11-drv
 
 * Thu Dec 24 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.11-2.el7.elrepo
