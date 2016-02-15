@@ -10,10 +10,10 @@
 # in 14.12 the following line was useful; in 15.5 in their infinite wisdom ATI
 # decided to change the naming convention again so it's not used for now
 # leaving it in though as it might be needed for the next update
-%define realversion 15.30.1025
+%define realversion 15.302
 
 Name:    %{kmod_name}-kmod
-Version: 15.11
+Version: 15.12
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -27,10 +27,10 @@ ExclusiveArch: i686 x86_64
 # I think AMD makes a special effort to make sure that no one can infer the name
 # of a release from the previous one
 # Sources.
-# http://www2.ati.com/drivers/linux/radeon-crimson-15.11-15.30.1025.zip
-Source0:  amd-driver-installer-15.30.1025-x86.x86_64.run
+# http://www2.ati.com/drivers/linux/radeon-crimson-15.12-15.302-151217a-297685e.zip
+Source0:  amd-driver-installer-15.302-x86.x86_64.run
 Source10: kmodtool-%{kmod_name}-el6.sh
-NoSource: 0
+#NoSource: 0
 
 # Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
@@ -91,6 +91,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Feb 14 2016 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.12-1.el6.elrepo
+- Update to version 15.12
+
 * Fri Dec 18 2015 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.11-1.el6.elrepo
 - Update to version 15.11
 
