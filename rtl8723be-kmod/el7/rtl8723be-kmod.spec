@@ -6,7 +6,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -36,7 +36,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 %setup -q -n %{kmod_name}-%{version}
 echo "override btcoexist * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 echo "override rtl8723be * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
-echo "override rtl8723be-common * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+echo "override rtl8723-common * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 echo "override rtl_pci * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 echo "override rtlwifi * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 
@@ -74,6 +74,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Mar 01 2016 Philip J Perry <phil@elrepo.org> - 0.0-3
+- Fix typo in override.
+  [http://elrepo.org/bugs/view.php?id=618]
+
 * Wed Nov 25 2015 Philip J Perry <phil@elrepo.org> - 0.0-2
 - Backported from kernel-4.1.13 for RHEL-7.2
 
