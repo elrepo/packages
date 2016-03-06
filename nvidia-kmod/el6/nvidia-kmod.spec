@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 2.6.32-573.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 352.79
+Version: 361.28
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -43,6 +43,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -q -c -T
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "override %{kmod_name}-modeset * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 %ifarch x86_64
 echo "override %{kmod_name}-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 %endif
@@ -62,11 +63,6 @@ export SYSSRC=%{_usrsrc}/kernels/%{kversion}
 pushd _kmod_build_/kernel
 %{__make} module
 popd
-%ifarch x86_64
-pushd _kmod_build_/kernel/uvm
-%{__make} module
-popd
-%endif
 
 %install
 export INSTALL_MOD_PATH=%{buildroot}
@@ -75,11 +71,6 @@ ksrc=%{_usrsrc}/kernels/%{kversion}
 pushd _kmod_build_/kernel
 %{__make} -C "${ksrc}" modules_install M=$PWD
 popd
-%ifarch x86_64
-pushd _kmod_build_/kernel/uvm
-%{__make} -C "${ksrc}" modules_install M=$PWD
-popd
-%endif
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 # Remove the unrequired files.
@@ -89,6 +80,10 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Mar 01 2016 Philip J Perry <phil@elrepo.org> - 361.28-1
+- Updated to version 361.28
+- Adds nvidia-modeset kernel module
+
 * Sun Jan 31 2016 Philip J Perry <phil@elrepo.org> - 352.79-1
 - Updated to version 352.79
 

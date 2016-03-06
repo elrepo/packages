@@ -5,7 +5,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	352.79
+Version:	361.28
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -60,6 +60,8 @@ Requires(post):	 pyxf86config
 Requires(preun): pyxf86config
 
 # elrepo
+Conflicts:	nvidia-x11-drv-340xx
+Conflicts:	nvidia-x11-drv-340xx-32bit
 Conflicts:	nvidia-x11-drv-304xx
 Conflicts:	nvidia-x11-drv-304xx-32bit
 Conflicts:	nvidia-x11-drv-173xx
@@ -78,6 +80,8 @@ Conflicts:	xorg-x11-drv-nvidia-legacy
 Conflicts:	xorg-x11-drv-nvidia-71xx
 Conflicts:	xorg-x11-drv-nvidia-96xx
 Conflicts:	xorg-x11-drv-nvidia-173xx
+Conflicts:	xorg-x11-drv-nvidia-304xx
+Conflicts:	xorg-x11-drv-nvidia-340xx
 
 %description
 This package provides the proprietary NVIDIA OpenGL X11 display driver files.
@@ -138,14 +142,17 @@ pushd nvidiapkg
 %{__mkdir_p} $RPM_BUILD_ROOT%{_libdir}/vdpau/
 %{__mkdir_p} $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__mkdir_p} $RPM_BUILD_ROOT%{nvidialibdir}/tls/
-%{__install} -p -m 0755 libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/vdpau/
 %{__install} -p -m 0755 libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
-# Added in 340.24 driver
-%{__install} -p -m 0755 libEGL.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
-%{__install} -p -m 0755 libGLESv1_CM.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
-%{__install} -p -m 0755 libGLESv2.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
+%{__install} -p -m 0755 libEGL_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
+%{__install} -p -m 0755 libEGL.so.1 $RPM_BUILD_ROOT%{nvidialibdir}/
+%{__install} -p -m 0755 libGLdispatch.so.0 $RPM_BUILD_ROOT%{nvidialibdir}/
+%{__install} -p -m 0755 libGLESv1_CM_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
+%{__install} -p -m 0755 libGLESv1_CM.so.1 $RPM_BUILD_ROOT%{nvidialibdir}/
+%{__install} -p -m 0755 libGLESv2_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
+%{__install} -p -m 0755 libGLESv2.so.2 $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libGL.la $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libGL.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
+%{__install} -p -m 0755 libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libnvcuvid.so in 260.xx series driver
 %{__install} -p -m 0755 libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libnvidia-cfg.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
@@ -154,6 +161,8 @@ pushd nvidiapkg
 %{__install} -p -m 0755 libnvidia-eglcore.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libnvidia-encode.so in 310.19 driver
 %{__install} -p -m 0755 libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
+# Added libnvidia-fatbinaryloader.so in 361.28 driver
+%{__install} -p -m 0755 libnvidia-fatbinaryloader.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libnvidia-fbc.so in 331.20 driver
 %{__install} -p -m 0755 libnvidia-fbc.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libnvidia-glcore.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
@@ -169,28 +178,38 @@ pushd nvidiapkg
 # %{__install} -p -m 0755 libnvidia-vgxcfg.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libnvidia-opencl.so in 304.xx series driver
 %{__install} -p -m 0755 libnvidia-opencl.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
+# Added libnvidia-ptxjitcompiler.so in 361.28 driver
+%{__install} -p -m 0755 libnvidia-ptxjitcompiler.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libnvidia-tls.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
-%{__install} -p -m 0755 libOpenCL.so.* $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 tls/*.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/tls/
+%{__install} -p -m 0755 libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/
+# Added libOpenGL.so in 361.28 driver
+%{__install} -p -m 0755 libOpenGL.so.0 $RPM_BUILD_ROOT%{nvidialibdir}/
+%{__install} -p -m 0755 libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/vdpau/
 
 %ifarch x86_64
 # Install 32bit compat GL, tls and vdpau libs
 %{__mkdir_p} $RPM_BUILD_ROOT%{_prefix}/lib/vdpau/
 %{__mkdir_p} $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__mkdir_p} $RPM_BUILD_ROOT%{nvidialib32dir}/tls/
-%{__install} -p -m 0755 32/libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/vdpau/
 %{__install} -p -m 0755 32/libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
-# Added libEGL and libGLES libs in 331.20 driver
-%{__install} -p -m 0755 32/libEGL.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
-%{__install} -p -m 0755 32/libGLESv1_CM.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
-%{__install} -p -m 0755 32/libGLESv2.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
+%{__install} -p -m 0755 32/libEGL_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
+%{__install} -p -m 0755 32/libEGL.so.1 $RPM_BUILD_ROOT%{nvidialib32dir}/
+%{__install} -p -m 0755 32/libGLdispatch.so.0 $RPM_BUILD_ROOT%{nvidialib32dir}/
+%{__install} -p -m 0755 32/libGLESv1_CM_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
+%{__install} -p -m 0755 32/libGLESv1_CM.so.1 $RPM_BUILD_ROOT%{nvidialib32dir}/
+%{__install} -p -m 0755 32/libGLESv2_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
+%{__install} -p -m 0755 32/libGLESv2.so.2 $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libGL.la $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libGL.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
+%{__install} -p -m 0755 32/libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libnvidia-compiler.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 # Added libnvidia-eglcore in 331.20 driver
 %{__install} -p -m 0755 32/libnvidia-eglcore.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
+# Added libnvidia-fatbinaryloader.so in 361.28 driver
+%{__install} -p -m 0755 32/libnvidia-fatbinaryloader.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 # Added missing 32-bit libnvidia-fbc.so in 331.67 driver
 %{__install} -p -m 0755 32/libnvidia-fbc.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libnvidia-glcore.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
@@ -199,9 +218,13 @@ pushd nvidiapkg
 %{__install} -p -m 0755 32/libnvidia-ifr.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libnvidia-opencl.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
+# Added libnvidia-ptxjitcompiler.so in 361.28 driver
+%{__install} -p -m 0755 32/libnvidia-ptxjitcompiler.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libnvidia-tls.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
-%{__install} -p -m 0755 32/libOpenCL.so.* $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/tls/*.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/tls/
+%{__install} -p -m 0755 32/libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialib32dir}/
+%{__install} -p -m 0755 32/libOpenGL.so.0 $RPM_BUILD_ROOT%{nvidialib32dir}/
+%{__install} -p -m 0755 32/libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/vdpau/
 %endif
 
 # Install X driver and extension 
@@ -214,14 +237,16 @@ pushd nvidiapkg
 # Create the symlinks
 %{__ln_s} libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libcuda.so
 %{__ln_s} libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libcuda.so.1
-%{__ln_s} libEGL.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libEGL.so
-%{__ln_s} libEGL.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libEGL.so.1
-%{__ln_s} libGLESv1_CM.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libGLESv1_CM.so
-%{__ln_s} libGLESv1_CM.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libGLESv1_CM.so.1
-%{__ln_s} libGLESv2.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libGLESv2.so
-%{__ln_s} libGLESv2.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libGLESv2.so.2
+%{__ln_s} libEGL_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libEGL_nvidia.so.0
+%{__ln_s} libEGL.so.1 $RPM_BUILD_ROOT%{nvidialibdir}/libEGL.so
+%{__ln_s} libGLESv1_CM_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libGLESv1_CM_nvidia.so.1
+%{__ln_s} libGLESv1_CM.so.1 $RPM_BUILD_ROOT%{nvidialibdir}/libGLESv1_CM.so
+%{__ln_s} libGLESv2_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libGLESv2_nvidia.so.2
+%{__ln_s} libGLESv2.so.2 $RPM_BUILD_ROOT%{nvidialibdir}/libGLESv2.so
 %{__ln_s} libGL.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libGL.so
 %{__ln_s} libGL.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libGL.so.1
+%{__ln_s} libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libGLX_nvidia.so.0
+%{__ln_s} libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libGLX_indirect.so.0
 # Added libnvcuvid.so in 260.xx series driver
 %{__ln_s} libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvcuvid.so
 %{__ln_s} libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvcuvid.so.1
@@ -247,6 +272,7 @@ pushd nvidiapkg
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so.1
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so.1.0
+%{__ln_s} libOpenGL.so.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenGL.so
 %{__ln_s} libglx.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/libglx.so
 %{__ln_s} libnvidia-wfb.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/libwfb.so
 %{__ln_s} libnvidia-wfb.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/libnvidia-wfb.so.1
@@ -257,14 +283,16 @@ pushd nvidiapkg
 # Create the 32-bit symlinks
 %{__ln_s} libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libcuda.so
 %{__ln_s} libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libcuda.so.1
-%{__ln_s} libEGL.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libEGL.so
-%{__ln_s} libEGL.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libEGL.so.1
-%{__ln_s} libGLESv1_CM.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libGLESv1_CM.so
-%{__ln_s} libGLESv1_CM.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libGLESv1_CM.so.1
-%{__ln_s} libGLESv2.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libGLESv2.so
-%{__ln_s} libGLESv2.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libGLESv2.so.2
+%{__ln_s} libEGL_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libEGL_nvidia.so.0
+%{__ln_s} libEGL.so.1 $RPM_BUILD_ROOT%{nvidialib32dir}/libEGL.so
+%{__ln_s} libGLESv1_CM_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libGLESv1_CM_nvidia.so.1
+%{__ln_s} libGLESv1_CM.so.1 $RPM_BUILD_ROOT%{nvidialib32dir}/libGLESv1_CM.so
+%{__ln_s} libGLESv2_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libGLESv2_nvidia.so.2
+%{__ln_s} libGLESv2.so.2 $RPM_BUILD_ROOT%{nvidialib32dir}/libGLESv2.so
 %{__ln_s} libGL.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libGL.so
 %{__ln_s} libGL.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libGL.so.1
+%{__ln_s} libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libGLX_nvidia.so.0
+%{__ln_s} libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libGLX_indirect.so.0
 %{__ln_s} libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libnvcuvid.so
 %{__ln_s} libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libnvcuvid.so.1
 %{__ln_s} libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libnvidia-encode.so
@@ -279,6 +307,7 @@ pushd nvidiapkg
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialib32dir}/libOpenCL.so
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialib32dir}/libOpenCL.so.1
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialib32dir}/libOpenCL.so.1.0
+%{__ln_s} libOpenGL.so.0 $RPM_BUILD_ROOT%{nvidialib32dir}/libOpenGL.so
 %{__ln_s} libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/vdpau/libvdpau_nvidia.so
 %{__ln_s} libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/vdpau/libvdpau_nvidia.so.1
 %endif
@@ -388,6 +417,7 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %{_mandir}/man1/nvidia*.*
 %{_datadir}/pixmaps/nvidia-settings.png
 %{_datadir}/applications/*nvidia-settings.desktop
+%dir %{_datadir}/nvidia
 %{_datadir}/nvidia/nvidia-application-profiles-*
 %config(noreplace) %{_sysconfdir}/profile.d/nvidia.csh
 %config(noreplace) %{_sysconfdir}/profile.d/nvidia.sh
@@ -430,6 +460,11 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %endif
 
 %changelog
+* Tue Mar 01 2016 Philip J Perry <phil@elrepo.org> - 361.28-1
+- Updated to version 361.28
+- Adds GLVND support
+- This package ships the legacy non-GLVND enabled LibGL.so by default
+
 * Sun Jan 31 2016 Philip J Perry <phil@elrepo.org> - 352.79-1
 - Updated to version 352.79
 
