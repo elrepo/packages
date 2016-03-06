@@ -1,5 +1,5 @@
 Name:    nvidia-detect
-Version: 352.63
+Version: 361.28
 Release: 1%{?dist}
 Group:   Applications/System
 License: GPLv2
@@ -37,6 +37,9 @@ A utility to detect NVIDIA graphics cards.
 %{_bindir}/nvidia-detect
 
 %changelog
+* Sun Mar 06 2016 Philip J Perry <phil@elrepo.org> - 361.28-1
+- Add support for detection of devices added to 361.28 driver release
+
 * Wed Nov 25 2015 Philip J Perry <phil@elrepo.org> - 352.63-1
 - Add support for detection of devices added to 352.63 driver release
 - Update Xorg Video Driver ABI versions
