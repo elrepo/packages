@@ -18,7 +18,7 @@
 
 Name:		fglrx-x11-drv
 Version:	15.12
-Release:	1%{?dist}
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Proprietary 
 Summary:	AMD's proprietary driver for ATI graphic cards
@@ -331,16 +331,16 @@ if [ "${1}" -eq 0 ]; then
   # Clear grub option to disable radeon for all RHEL6 kernels
   if [ -f %{_sysconfdir}/default/grub ]; then
      %{__perl} -pi -e 's|(GRUB_CMDLINE_LINUX=.*) radeon\.modeset=0|$1|g' %{_sysconfdir}/default/grub
-      %{__perl} -pi -e 's|(GRUB_CMDLINE_LINUX=.*) rd\.driver\.blacklist=radeon|$1|g' %{_sysconfdir}/default/grub
+     %{__perl} -pi -e 's|(GRUB_CMDLINE_LINUX=.*) rd\.driver\.blacklist=radeon|$1|g' %{_sysconfdir}/default/grub
   fi
 
-  if [[ -x /sbin/grubby && -e /boot/grub/grub.conf ]]; then
+  if [[ -x /sbin/grubby ]]; then
     # get installed kernels
     for KERNEL in $(rpm -q --qf '%{v}-%{r}.%{arch}\n' kernel); do
       VMLINUZ="/boot/vmlinuz-"$KERNEL
       if [[ -e "$VMLINUZ" ]]; then
         /sbin/grubby --update-kernel="$VMLINUZ" \
-          --remove-args='radeon.modeset=0' &>/dev/null
+          --remove-args='radeon.modeset=0 rd.driver.blacklist=' &>/dev/null
       fi
     done
   fi
@@ -419,6 +419,9 @@ mv -f %{_libdir}/xorg/modules/extensions/libglx.so.elrepo %{_libdir}/xorg/module
 %{_includedir}/ATI/GL/*.h
 
 %changelog
+* Sun Mar 27 2016 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.12-2.el7.elrepo
+- fix postuninstall script
+
 * Sun Feb 14 2016 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.12-1.el7.elrepo
 - Update to version 15.12
 
