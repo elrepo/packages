@@ -6,7 +6,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -68,6 +68,11 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Mon Mar 28 2016 Philip J Perry <phil@elrepo.org> - 0.0-4
+- Update to kernel-4.1.20
+- rtlwifi: fix memory leak for USB device
+- rtlwifi: rtl8192cu: Add missing parameter setup
+
 * Wed Nov 25 2015 Philip J Perry <phil@elrepo.org> - 0.0-3
 - Backported from kernel-4.1.13 for RHEL-7.2
 
