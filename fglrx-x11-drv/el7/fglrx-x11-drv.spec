@@ -18,7 +18,7 @@
 
 Name:		fglrx-x11-drv
 Version:	15.12
-Release:	2%{?dist}
+Release:	3%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Proprietary 
 Summary:	AMD's proprietary driver for ATI graphic cards
@@ -340,7 +340,7 @@ if [ "${1}" -eq 0 ]; then
       VMLINUZ="/boot/vmlinuz-"$KERNEL
       if [[ -e "$VMLINUZ" ]]; then
         /sbin/grubby --update-kernel="$VMLINUZ" \
-          --remove-args='radeon.modeset=0 rd.driver.blacklist=' &>/dev/null
+          --remove-args='radeon.modeset=0 rd.driver.blacklist=radeon' &>/dev/null
       fi
     done
   fi
@@ -419,6 +419,9 @@ mv -f %{_libdir}/xorg/modules/extensions/libglx.so.elrepo %{_libdir}/xorg/module
 %{_includedir}/ATI/GL/*.h
 
 %changelog
+* Mon Mar 28 2016 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.12-3.el7.elrepo
+- fix typo. thanks NedSlider for spotting it
+
 * Sun Mar 27 2016 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.12-2.el7.elrepo
 - fix postuninstall script
 
