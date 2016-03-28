@@ -4,7 +4,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv-304xx
-Version:	304.125
+Version:	304.131
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -330,6 +330,9 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %endif
 
 %changelog
+* Fri Nov 20 2015 Philip J Perry <phil@elrepo.org> - 304.131-1.el5.elrepo
+- Updated to version 304.131
+
 * Fri Dec 19 2014 Philip J Perry <phil@elrepo.org> - 304.125-1.el5.elrepo
 - Updated to version 304.125
 

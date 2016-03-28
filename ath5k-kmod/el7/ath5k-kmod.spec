@@ -2,11 +2,11 @@
 %define kmod_name ath5k
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-229.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-327.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 7%{?dist}
+Release: 8%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -68,6 +68,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Nov 25 2015 Philip J Perry <phil@elrepo.org> - 0.0-8
+- Backported from kernel-4.1.13 for RHEL-7.2
+
 * Sat Mar 28 2015 Philip J Perry <phil@elrepo.org> - 0.0-7
 - Updated to kernel-3.18.10
 - fix spontaneus AR5312 freezes [2015-03-24]

@@ -2,10 +2,10 @@
 %define kmod_name nvidia
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-229.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-327.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 352.55
+Version: 361.28
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -41,6 +41,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -q -c -T
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "override %{kmod_name}-modeset * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 echo "override %{kmod_name}-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 sh %{SOURCE0} --extract-only --target nvidiapkg
 %{__cp} -a nvidiapkg _kmod_build_
@@ -50,16 +51,12 @@ export SYSSRC=%{_usrsrc}/kernels/%{kversion}
 pushd _kmod_build_/kernel
 %{__make} module
 popd
-pushd _kmod_build_/kernel/uvm
-%{__make} module
-popd
 
 %install
 %{__install} -d %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 pushd _kmod_build_/kernel
 %{__install} %{kmod_name}.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
-popd
-pushd _kmod_build_/kernel/uvm
+%{__install} %{kmod_name}-modeset.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 %{__install} %{kmod_name}-uvm.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 popd
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
@@ -82,6 +79,17 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Mar 01 2016 Philip J Perry <phil@elrepo.org> - 361.28-1
+- Updated to version 361.28
+- Adds nvidia-modeset kernel module
+
+* Sun Jan 31 2016 Philip J Perry <phil@elrepo.org> - 352.79-1
+- Updated to version 352.79
+
+* Fri Nov 20 2015 Philip J Perry <phil@elrepo.org> - 352.63-1
+- Updated to version 352.63
+- Rebuilt against RHEL 7.2 kernel
+
 * Sat Oct 17 2015 Philip J Perry <phil@elrepo.org> - 352.55-1
 - Updated to version 352.55
 

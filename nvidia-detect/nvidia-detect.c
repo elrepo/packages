@@ -1,7 +1,7 @@
 /*
  *  nvidia-detect - A utility to detect NVIDIA graphics cards
  *
- *  Copyright (C) 2013-2015 Philip J Perry <phil@elrepo.org>
+ *  Copyright (C) 2013-2016 Philip J Perry <phil@elrepo.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 #include "nvidia-detect.h"
 
 #define PROGRAM_NAME		"nvidia-detect"
-#define NVIDIA_VERSION		352.41
+#define NVIDIA_VERSION		361.28
 
 #ifndef PCI_VENDOR_ID_INTEL
 #define PCI_VENDOR_ID_INTEL	0x8086
@@ -54,11 +54,11 @@
 #endif
 
 /* Define the max Xorg Video Driver ABI supported by each NVIDIA driver */
-#define XORG_ABI_CURRENT	19	/* 343.36; Xorg 1.17 */
+#define XORG_ABI_CURRENT	20	/* 352.63; Xorg 1.18 */
 #define XORG_ABI_96XX		12	/* 96.43.23 */
 #define XORG_ABI_173XX		15	/* 173.14.39 */
-#define XORG_ABI_304XX		19	/* 304.125; Xorg 1.17 */
-#define XORG_ABI_340XX		19	/* 340.65; Xorg 1.17 */
+#define XORG_ABI_304XX		20	/* 304.131; Xorg 1.18 */
+#define XORG_ABI_340XX		20	/* 340.96; Xorg 1.18 */
 
 /* Change the default Xorg log file here if it's different */
 #define XORG_LOG_FILE	"/var/log/Xorg.0.log"

@@ -441,14 +441,11 @@ static u32 mvs_get_ncq_tag(struct sas_task *task, u32 *tag)
 static int mvs_task_prep_ata(struct mvs_info *mvi,
 			     struct mvs_task_exec_info *tei)
 {
-	struct sas_ha_struct *sha = mvi->sas;
 	struct sas_task *task = tei->task;
 	struct domain_device *dev = task->dev;
 	struct mvs_device *mvi_dev = dev->lldd_dev;
 	struct mvs_cmd_hdr *hdr = tei->hdr;
 	struct asd_sas_port *sas_port = dev->port;
-	struct sas_phy *sphy = dev->phy;
-	struct asd_sas_phy *sas_phy = sha->sas_phy[sphy->number];
 	struct mvs_slot_info *slot;
 	void *buf_prd;
 	u32 tag = tei->tag, hdr_tag;
@@ -468,7 +465,7 @@ static int mvs_task_prep_ata(struct mvs_info *mvi,
 	slot->tx = mvi->tx_prod;
 	del_q = TXQ_MODE_I | tag |
 		(TXQ_CMD_STP << TXQ_CMD_SHIFT) |
-		(MVS_PHY_ID << TXQ_PHY_SHIFT) |
+		((sas_port->phy_mask & TXQ_PHY_MASK) << TXQ_PHY_SHIFT) |
 		(mvi_dev->taskfileset << TXQ_SRS_SHIFT);
 	mvi->tx[mvi->tx_prod] = cpu_to_le32(del_q);
 
@@ -726,7 +723,7 @@ static int mvs_task_prep(struct sas_task *task, struct mvs_info *mvi, int is_tmf
 		 * libsas will use dev->port, should
 		 * not call task_done for sata
 		 */
-		if (dev->dev_type != SATA_DEV)
+		if (dev->dev_type != SAS_SATA_DEV)
 			task->task_done(task);
 		return rc;
 	}
@@ -990,6 +987,8 @@ static void mvs_slot_free(struct mvs_info *mvi, u32 rx_desc)
 static void mvs_slot_task_free(struct mvs_info *mvi, struct sas_task *task,
 			  struct mvs_slot_info *slot, u32 slot_idx)
 {
+	if (!slot)
+		return;
 	if (!slot->task)
 		return;
 	if (!sas_protocol_ata(task->task_proto))
@@ -1480,7 +1479,7 @@ static int mvs_debug_I_T_nexus_reset(struct domain_device *dev)
 {
 	int rc;
 	struct sas_phy *phy = sas_get_local_phy(dev);
-	int reset_type = (dev->dev_type == SATA_DEV ||
+	int reset_type = (dev->dev_type == SAS_SATA_DEV ||
 			(dev->tproto & SAS_PROTOCOL_STP)) ? 0 : 1;
 	rc = sas_phy_reset(phy, reset_type);
 	sas_put_local_phy(phy);
@@ -1629,7 +1628,7 @@ int mvs_abort_task(struct sas_task *task)
 
 	} else if (task->task_proto & SAS_PROTOCOL_SATA ||
 		task->task_proto & SAS_PROTOCOL_STP) {
-		if (SATA_DEV == dev->dev_type) {
+		if (SAS_SATA_DEV == dev->dev_type) {
 			struct mvs_slot_info *slot = task->lldd_task;
 			u32 slot_idx = (u32)(slot - mvi->slot_info);
 			mv_dprintk("mvs_abort_task() mvi=%p task=%p "

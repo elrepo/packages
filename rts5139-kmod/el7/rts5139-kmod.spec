@@ -2,16 +2,17 @@
 %define kmod_name rts5139
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-229.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-327.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 1.04
-Release: 2%{?dist}
+Release: 3%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
 URL:     http://www.kernel.org/
 
+BuildRequires: perl
 BuildRequires: redhat-rpm-config
 ExclusiveArch: x86_64
 
@@ -46,13 +47,29 @@ KSRC=%{_usrsrc}/kernels/%{kversion}
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
-# Set the module(s) to be executable, so that they will be stripped when packaged.
-find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
+
+# strip the modules(s)
+find %{buildroot} -type f -name \*.ko -exec %{__strip} --strip-debug \{\} \;
+
+# Sign the modules(s)
+%if %{?_with_modsign:1}%{!?_with_modsign:0}
+# If the module signing keys are not defined, define them here.
+%{!?privkey: %define privkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.priv}
+%{!?pubkey: %define pubkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.der}
+for module in $(find %{buildroot} -type f -name \*.ko);
+do %{__perl} /usr/src/kernels/%{kversion}/scripts/sign-file \
+sha256 %{privkey} %{pubkey} $module;
+done
+%endif
 
 %clean
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Mar 01 2016 Philip J Perry <phil@elrepo.org> - 1.04-3
+- Rebuilt against RHEL 7.2 kernel
+- Sign module with Secure Boot key
+
 * Thu Mar 05 2015 Philip J Perry <phil@elrepo.org> - 1.04-2
 - Rebuilt against RHEL 7.1 kernel
 

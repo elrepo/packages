@@ -44,6 +44,7 @@
 #include <scsi/scsi_tcq.h>
 #include <scsi/sas_ata.h>
 #include "mv_defs.h"
+#include "mvsas_rhel6_7.h"
 
 #define DRV_NAME		"mvsas"
 #define DRV_VERSION		"0.8.16"

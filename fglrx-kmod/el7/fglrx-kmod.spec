@@ -12,7 +12,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 15.12
-Release: 2%{?dist}
+Release: 3%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: AMD %{kmod_name} kernel module(s)
@@ -100,6 +100,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Mon Mar 28 2016 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.12-3.el7.elrepo
+- Bump version to keep in sync with fglrx-x11-drv
+
 * Sun Mar 27 2016 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.12-2.el7.elrepo
 - Bump version to keep in sync with fglrx-x11-drv
 
