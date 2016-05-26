@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 2.6.32-573.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 361.28
+Version: 361.45.11
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -80,6 +80,12 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed May 25 2016 Philip J Perry <phil@elrepo.org> - 361.45.11-1
+- Updated to version 361.45.11
+
+* Thu Mar 31 2016 Philip J Perry <phil@elrepo.org> - 361.42-1
+- Updated to version 361.42
+
 * Tue Mar 01 2016 Philip J Perry <phil@elrepo.org> - 361.28-1
 - Updated to version 361.28
 - Adds nvidia-modeset kernel module
