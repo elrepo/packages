@@ -29,7 +29,7 @@
 #include "nvidia-detect.h"
 
 #define PROGRAM_NAME		"nvidia-detect"
-#define NVIDIA_VERSION		361.45
+#define NVIDIA_VERSION		"361.45.11"
 
 #ifndef PCI_VENDOR_ID_INTEL
 #define PCI_VENDOR_ID_INTEL	0x8086
@@ -107,7 +107,7 @@ static struct option longopts[] = {
 
 static void version(void)
 {
-	printf("Version: %3.2f\n", NVIDIA_VERSION);
+	printf("Version: %s\n", NVIDIA_VERSION);
 }
 
 static void usage(void)
@@ -121,7 +121,7 @@ static void usage(void)
 	printf("Detect NVIDIA graphics cards and determine the correct NVIDIA driver.\n\n");
 	printf("%s will return the following codes:\n\n", PROGRAM_NAME);
 	printf("0: No supported devices found\n");
-	printf("1: Device supported by the current %3.2f NVIDIA driver\n", NVIDIA_VERSION);
+	printf("1: Device supported by the current %s NVIDIA driver\n", NVIDIA_VERSION);
 	printf("2: Device supported by the legacy   96.xx NVIDIA driver\n");
 	printf("3: Device supported by the legacy  173.xx NVIDIA driver\n");
 	printf("4: Device supported by the legacy  304.xx NVIDIA driver\n");
@@ -140,7 +140,7 @@ static void list_all_nvidia_devices(void)
 {
 	size_t i;
 
-	printf("\n*** These devices are supported by the current %3.2f NVIDIA "
+	printf("\n*** These devices are supported by the current %s NVIDIA "
 		"driver %s ***\n\n", NVIDIA_VERSION, KMOD_NVIDIA);
 	for (i = 0; i < ARRAY_SIZE(nv_current_pci_ids); i++) {
 		name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
@@ -199,7 +199,7 @@ static int nv_lookup_device_id(u_int16_t device_id)
 	for (i = 0; i < ARRAY_SIZE(nv_current_pci_ids); i++) {
 		if (device_id == nv_current_pci_ids[i]) {
 			if (opt_verbose) {
-				printf("This device requires the current %3.2f NVIDIA "
+				printf("This device requires the current %s NVIDIA "
 					"driver %s\n", NVIDIA_VERSION, KMOD_NVIDIA);
 			}
 			return NVIDIA_CURRENT;
