@@ -6,7 +6,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 4%{?dist}
+Release: 5%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -68,6 +68,11 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Jun 11 2016 Philip J Perry <phil@elrepo.org> - 0.0-5
+- Update to kernel-4.1.26
+- rtlwifi: pci: use dev_kfree_skb_irq instead of kfree_skb in rtl_pci_reset_trx_ring
+- rtlwifi: Fix logic error in enter/exit power-save mode
+
 * Mon Mar 28 2016 Philip J Perry <phil@elrepo.org> - 0.0-4
 - Update to kernel-4.1.20
 - rtlwifi: fix memory leak for USB device
