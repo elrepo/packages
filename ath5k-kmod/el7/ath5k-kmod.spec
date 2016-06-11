@@ -6,7 +6,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 8%{?dist}
+Release: 9%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -68,6 +68,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Jun 11 2016 Philip J Perry <phil@elrepo.org> - 0.0-9
+- Update to kernel-4.1.26
+- Change led pin configuration for compaq c700 laptop
+
 * Wed Nov 25 2015 Philip J Perry <phil@elrepo.org> - 0.0-8
 - Backported from kernel-4.1.13 for RHEL-7.2
 
