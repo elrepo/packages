@@ -2,11 +2,11 @@
 %define kmod_name it87
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-358.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-642.el6.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 1.1
-Release: 12%{?dist}
+Release: 13%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -59,6 +59,10 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Jun 11 2016 Philip J Perry <phil@elrepo.org> - 1.1-13
+- Rebase to kernel-4.4.13.
+- Adds support for IT8603E, IT8623E, IT8781F, IT8786E, IT8790E, IT8620E and IT8732F.
+
 * Wed Aug 28 2013 Philip J Perry <phil@elrepo.org> - 1.1-12
 - Rebase to kernel-3.10.9.
 - Adds support for IT8782F, IT8783E/F, IT8771E and IT8772E.
