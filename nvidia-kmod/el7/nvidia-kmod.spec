@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-327.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 361.45.11
+Version: 367.27
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -41,6 +41,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -q -c -T
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "override %{kmod_name}-drm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 echo "override %{kmod_name}-modeset * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 echo "override %{kmod_name}-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 sh %{SOURCE0} --extract-only --target nvidiapkg
@@ -56,6 +57,7 @@ popd
 %{__install} -d %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 pushd _kmod_build_/kernel
 %{__install} %{kmod_name}.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
+%{__install} %{kmod_name}-drm.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 %{__install} %{kmod_name}-modeset.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 %{__install} %{kmod_name}-uvm.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 popd
@@ -79,6 +81,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Jun 14 2016 Philip J Perry <phil@elrepo.org> - 367.27-1
+- Updated to version 367.27
+- Adds nvidia-drm kernel module
+
 * Wed May 25 2016 Philip J Perry <phil@elrepo.org> - 361.45.11-1
 - Updated to version 361.45.11
 

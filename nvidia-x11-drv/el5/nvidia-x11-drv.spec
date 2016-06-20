@@ -5,7 +5,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	361.45.11
+Version:	367.27
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -137,6 +137,9 @@ pushd nvidiapkg
 # Install OpenCL Vendor file
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/
 %{__install} -p -m 0644 nvidia.icd $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/nvidia.icd
+# Install vulkan icd file
+%{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/vulkan/icd.d/
+%{__install} -p -m 0644 nvidia_icd.json $RPM_BUILD_ROOT%{_sysconfdir}/vulkan/icd.d/nvidia_icd.json
 
 # Install GL, tls and vdpau libs
 %{__mkdir_p} $RPM_BUILD_ROOT%{_libdir}/vdpau/
@@ -159,6 +162,8 @@ pushd nvidiapkg
 %{__install} -p -m 0755 libnvidia-compiler.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libnvidia-eglcore.so in 340.24 driver
 %{__install} -p -m 0755 libnvidia-eglcore.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
+# Added libnvidia-egl-wayland.so in 367.27 driver. Not supported on RHEL
+# %{__install} -p -m 0755 libnvidia-egl-wayland.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libnvidia-encode.so in 310.19 driver
 %{__install} -p -m 0755 libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libnvidia-fatbinaryloader.so in 361.28 driver
@@ -434,6 +439,7 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %config %{_sysconfdir}/ld.so.conf.d/nvidia.conf
 %config %{_sysconfdir}/udev/makedev.d/60-nvidia.nodes
 %{_sysconfdir}/OpenCL/vendors/nvidia.icd
+%{_sysconfdir}/vulkan/icd.d/nvidia_icd.json
 
 # now the libs
 %dir %{nvidialibdir}
@@ -460,6 +466,9 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %endif
 
 %changelog
+* Tue Jun 14 2016 Philip J Perry <phil@elrepo.org> - 367.27-1
+- Updated to version 367.27
+
 * Wed May 25 2016 Philip J Perry <phil@elrepo.org> - 361.45.11-1
 - Updated to version 361.45.11
 

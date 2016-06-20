@@ -6,7 +6,7 @@
 %{!?kversion: %define kversion 2.6.18-398.el5}
 
 Name:    %{kmod_name}-kmod
-Version: 361.45.11
+Version: 367.27
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -56,6 +56,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 %setup -q -c -T
 echo "/usr/lib/rpm/redhat/find-requires | %{__sed} -e '/^ksym.*/d'" > filter-requires.sh
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "override %{kmod_name}-drm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 echo "override %{kmod_name}-modeset * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 %ifarch x86_64
 echo "override %{kmod_name}-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
@@ -98,6 +99,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Jun 14 2016 Philip J Perry <phil@elrepo.org> - 367.27-1
+- Updated to version 367.27
+- Adds nvidia-drm kernel module
+
 * Wed May 25 2016 Philip J Perry <phil@elrepo.org> - 361.45.11-1
 - Updated to version 361.45.11
 
