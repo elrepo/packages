@@ -66,6 +66,12 @@
 #include <linux/ethtool.h>
 #include <linux/if_vlan.h>
 
+/* Compatibiliy fixes for RHEL7_2 */
+#if (RHEL_MAJOR == 7 && RHEL_MINOR >= 2)
+#define vlan_tx_tag_get skb_vlan_tag_get
+#define vlan_tx_tag_present skb_vlan_tag_present
+#endif
+
 #define BAR_0		0
 #define BAR_1		1
 #define BAR_5		5

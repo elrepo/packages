@@ -79,6 +79,11 @@
 
 #include "via-velocity.h"
 
+/* Compatibiliy fixes for RHEL7_2 */
+#if (RHEL_MAJOR == 7 && RHEL_MINOR >= 2)
+#define vlan_tx_tag_get skb_vlan_tag_get
+#define vlan_tx_tag_present skb_vlan_tag_present
+#endif
 
 static int velocity_nics;
 static int msglevel = MSG_LEVEL_INFO;

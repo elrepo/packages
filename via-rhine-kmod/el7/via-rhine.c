@@ -139,14 +139,12 @@ MODULE_PARM_DESC(avoid_D3, "Avoid power state D3 (work-around for broken BIOSes)
 #define MCAM_SIZE	32
 #define VCAM_SIZE	32
 
-/* Compatibiliy fixes for 3.10.0-327.22.2.el7 */
-#if !defined(vlan_tx_tag_get) && defined(skb_vlan_tag_get)
-# define vlan_tx_tag_get skb_vlan_tag_get
-# define vlan_tx_tag_present skb_vlan_tag_present
-#endif
-#if !defined(u64_stats_fetch_begin_bh)
-# define u64_stats_fetch_begin_bh u64_stats_fetch_begin_irq
-# define u64_stats_fetch_retry_bh u64_stats_fetch_retry_irq
+/* Compatibiliy fixes for RHEL7_2 */
+#if (RHEL_MAJOR == 7 && RHEL_MINOR >= 2)
+#define vlan_tx_tag_get skb_vlan_tag_get
+#define vlan_tx_tag_present skb_vlan_tag_present
+#define u64_stats_fetch_begin_bh u64_stats_fetch_begin_irq
+#define u64_stats_fetch_retry_bh u64_stats_fetch_retry_irq
 #endif
 
 /*

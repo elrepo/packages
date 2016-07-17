@@ -126,6 +126,12 @@ static const int multicast_filter_limit = 32;
 
 #include "typhoon.h"
 
+/* Compatibiliy fixes for RHEL7_2 */
+#if (RHEL_MAJOR == 7 && RHEL_MINOR >= 2)
+#define vlan_tx_tag_get skb_vlan_tag_get
+#define vlan_tx_tag_present skb_vlan_tag_present
+#endif
+
 MODULE_AUTHOR("David Dillow <dave@thedillows.org>");
 MODULE_VERSION("1.0");
 MODULE_LICENSE("GPL");
