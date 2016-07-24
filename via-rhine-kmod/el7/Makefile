@@ -31,6 +31,8 @@ else
 
 # Called from kernel build system -- just declare the module(s).
 
+ccflags-y += -DCONFIG_VIA_RHINE_MMIO
+
 obj-m := via-rhine.o
 
 endif

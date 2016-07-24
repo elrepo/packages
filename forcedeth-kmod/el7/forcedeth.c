@@ -67,6 +67,7 @@
 #include <linux/prefetch.h>
 #include <linux/u64_stats_sync.h>
 #include <linux/io.h>
+#include <linux/version.h>
 
 #include <asm/irq.h>
 

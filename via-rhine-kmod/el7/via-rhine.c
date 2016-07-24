@@ -35,8 +35,6 @@
 #define DRV_VERSION	"1.5.1"
 #define DRV_RELDATE	"2010-10-09"
 
-#define CONFIG_VIA_RHINE_MMIO
-
 #include <linux/types.h>
 
 /* A few user-configurable values.
@@ -113,6 +111,7 @@ static const int multicast_filter_limit = 32;
 #include <asm/irq.h>
 #include <asm/uaccess.h>
 #include <linux/dmi.h>
+#include <linux/version.h>
 
 /* These identify the driver base version and may not be removed. */
 static const char version[] =

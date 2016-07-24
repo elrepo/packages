@@ -76,6 +76,7 @@
 #include <linux/udp.h>
 #include <linux/crc-ccitt.h>
 #include <linux/crc32.h>
+#include <linux/version.h>
 
 #include "via-velocity.h"
 

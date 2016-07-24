@@ -123,6 +123,7 @@ static const int multicast_filter_limit = 32;
 #include <linux/in6.h>
 #include <linux/dma-mapping.h>
 #include <linux/firmware.h>
+#include <linux/version.h>
 
 #include "typhoon.h"
 

@@ -65,6 +65,7 @@
 
 #include <linux/ethtool.h>
 #include <linux/if_vlan.h>
+#include <linux/version.h>
 
 /* Compatibiliy fixes for RHEL7_2 */
 #if (RHEL_MAJOR == 7 && RHEL_MINOR >= 2)

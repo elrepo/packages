@@ -2,11 +2,11 @@
 %define kmod_name typhoon
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-123.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-327.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 1.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -66,6 +66,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Jul 24 2016 Philip J Perry <phil@elrepo.org> - 1.0-2
+- Build fixes for RHEL 7.2
+- Backported from kernel-3.10.102
+
 * Wed Nov 19 2014 Philip J Perry <phil@elrepo.org> - 1.0-1
 - Initial el7 build of the kmod package.
 - Backported from kernel-3.10.60.
