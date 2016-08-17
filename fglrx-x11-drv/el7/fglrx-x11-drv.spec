@@ -12,13 +12,15 @@
   %define atiarch x86_64
   %define xorgver xpic_64a
 %endif
-
+#filter out from autoprovides the Qt libs
+%global __requires_exclude libQt
+%global __provides_exclude_from ^%{_datarootdir}/ati/lib64/.*$
 # built for RHEL7
 
 
 Name:		fglrx-x11-drv
 Version:	15.12
-Release:	3%{?dist}
+Release:	4%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Proprietary 
 Summary:	AMD's proprietary driver for ATI graphic cards
@@ -419,6 +421,9 @@ mv -f %{_libdir}/xorg/modules/extensions/libglx.so.elrepo %{_libdir}/xorg/module
 %{_includedir}/ATI/GL/*.h
 
 %changelog
+* Sun Aug 14 2016 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.12-4.el7.elrepo
+- filter out autoprovides which conflict with stock Qt libraries
+
 * Mon Mar 28 2016 Manuel "lonely wolf" Wolfshant <wolfy@fedoraproject.org> - 15.12-3.el7.elrepo
 - fix typo. thanks NedSlider for spotting it
 
