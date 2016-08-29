@@ -5,7 +5,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	367.35
+Version:	367.44
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -466,6 +466,9 @@ test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display e
 %endif
 
 %changelog
+* Sat Aug 27 2016 Philip J Perry <phil@elrepo.org> - 367.44-1
+- Updated to version 367.44
+
 * Sat Jul 16 2016 Philip J Perry <phil@elrepo.org> - 367.35-1
 - Updated to version 367.35
 

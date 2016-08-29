@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-327.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 367.35
+Version: 367.44
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -81,6 +81,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Aug 27 2016 Philip J Perry <phil@elrepo.org> - 367.44-1
+- Updated to version 367.44
+
 * Sat Jul 16 2016 Philip J Perry <phil@elrepo.org> - 367.35-1
 - Updated to version 367.35
 
