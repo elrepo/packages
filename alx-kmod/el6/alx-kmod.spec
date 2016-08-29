@@ -6,7 +6,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 9%{?dist}
+Release: 10%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -57,6 +57,10 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Mon Aug 29 2016 Philip J Perry <phil@elrepo.org> - 0.0-10
+- Backported from kernel-3.10.103
+- Work around the DMA RX overflow issue [2016-08-27]
+
 * Wed Mar 04 2015 Philip J Perry <phil@elrepo.org> - 0.0-9
 - Backported from kernel-3.10.70
 - Fix alx_poll() [2015-01-27]
