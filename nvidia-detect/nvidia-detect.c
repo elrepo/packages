@@ -39,14 +39,14 @@
 #endif
 
 /* Only recommend elrepo drivers on RHEL*/
-#if (RHEL_MAJOR == 5 || RHEL_MAJOR == 6 || RHEL_MAJOR == 7)
-#define KMOD_NVIDIA		"kmod-nvidia"
+#if (RHEL_MAJOR == 6 || RHEL_MAJOR == 7)
+#define KMOD_NVIDIA			"kmod-nvidia"
 #define KMOD_NVIDIA_340XX	"kmod-nvidia-340xx"
 #define KMOD_NVIDIA_304XX	"kmod-nvidia-304xx"
-#define KMOD_NVIDIA_173XX	"kmod-nvidia-173xx"
-#define KMOD_NVIDIA_96XX	"kmod-nvidia-96xx"
+#define KMOD_NVIDIA_173XX	""	/* No longer supported on RHEL */
+#define KMOD_NVIDIA_96XX	""	/* No longer supported on RHEL */
 #else	/* make no specific package recommendation */
-#define KMOD_NVIDIA		""
+#define KMOD_NVIDIA			""
 #define KMOD_NVIDIA_340XX	""
 #define KMOD_NVIDIA_304XX	""
 #define KMOD_NVIDIA_173XX	""
@@ -89,7 +89,7 @@ static struct pci_dev *dev;
 static bool opt_list = 0;
 static bool opt_xorg = 0;
 /* We can only return package names on RHEL */
-#if (RHEL_MAJOR == 5 || RHEL_MAJOR == 6 || RHEL_MAJOR == 7)
+#if (RHEL_MAJOR == 6 || RHEL_MAJOR == 7)
 static bool opt_verbose = 0;
 #else	/* do generic verbose output */
 static bool opt_verbose = 1;
