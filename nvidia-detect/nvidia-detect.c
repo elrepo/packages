@@ -271,14 +271,6 @@ static int terse_output(void)
 	else if (ret == NVIDIA_LEGACY_304XX) {
 		printf("%s\n", KMOD_NVIDIA_304XX);
 		return 0;
-	}
-	else if (ret == NVIDIA_LEGACY_173XX) {
-		printf("%s\n", KMOD_NVIDIA_173XX);
-		return 0;
-	}
-	else if (ret == NVIDIA_LEGACY_96XX) {
-		printf("%s\n", KMOD_NVIDIA_96XX);
-		return 0;
 	} else {
 	return 0;
 	}
