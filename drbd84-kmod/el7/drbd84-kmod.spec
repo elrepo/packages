@@ -6,7 +6,7 @@
 %{!?kversion: %define kversion 3.10.0-327.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 8.4.7
+Version: 8.4.8
 %define  original_release 1
 Release: %{original_release}_1%{?dist}
 Group:   System Environment/Kernel
@@ -69,6 +69,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Oct  5 2016 Hiroshi Fujishima <h-fujishima@sakura.ad.jp> - 8.4.8-1_1
+- Updated to version 8.4.8-1.
+
 * Mon Jan  4 2016 Hiroshi Fujishima <h-fujishima@sakura.ad.jp> - 8.4.7-1_1
 - Updated to version 8.4.7-1.
 
