@@ -14,6 +14,7 @@ BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: flex
 BuildRequires: udev
 BuildRequires: libxslt
+BuildRequires: xmlto
 
 Requires: udev
 Requires(post):   systemd-units
@@ -153,6 +154,7 @@ fi
 %changelog
 * Wed Oct  5 2016 Hiroshi Fujishima <h-fujishima@sakura.ad.jp> - 8.9.6-1
 - Update to version 8.9.6.
+- BuildRequires: xmlto added by A. Yagi for building in mock.
 
 * Mon Jan  4 2016 Hiroshi Fujishima <h-fujishima@sakura.ad.jp> - 8.9.5-1
 - Update to version 8.9.5.
