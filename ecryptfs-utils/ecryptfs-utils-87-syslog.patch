@@ -1,0 +1,368 @@
+diff -up ecryptfs-utils-108/src/include/ecryptfs.h.syslog ecryptfs-utils-108/src/include/ecryptfs.h
+--- ecryptfs-utils-108/src/include/ecryptfs.h.syslog	2015-08-11 14:44:02.641814020 +0200
++++ ecryptfs-utils-108/src/include/ecryptfs.h	2015-08-11 14:44:02.643814015 +0200
+@@ -137,7 +137,7 @@
+ #define ECRYPTFS_TAG_67_PACKET 0x43
+ 
+ #define ecryptfs_syslog(type, fmt, arg...) \
+-	syslog(type, "%s: " fmt, __FUNCTION__, ## arg);
++	syslog(type, "ecryptfs: %s: " fmt, __FUNCTION__, ## arg);
+ 
+ #define ECRYPTFS_MAX_NUM_CIPHERS 64
+ #define ECRYPTFS_ECHO_ON 1
+diff -up ecryptfs-utils-108/src/pam_ecryptfs/pam_ecryptfs.c.syslog ecryptfs-utils-108/src/pam_ecryptfs/pam_ecryptfs.c
+--- ecryptfs-utils-108/src/pam_ecryptfs/pam_ecryptfs.c.syslog	2015-08-11 14:44:02.640814023 +0200
++++ ecryptfs-utils-108/src/pam_ecryptfs/pam_ecryptfs.c	2015-08-11 14:44:02.643814015 +0200
+@@ -93,7 +93,7 @@ static int wrap_passphrase_if_necessary(
+ 
+ 	rc = asprintf(&unwrapped_pw_filename, "/dev/shm/.ecryptfs-%s", username);
+ 	if (rc == -1) {
+-		syslog(LOG_ERR, "pam_ecryptfs: Unable to allocate memory\n");
++		ecryptfs_syslog(LOG_ERR, "pam_ecryptfs: Unable to allocate memory\n");
+ 		return -ENOMEM;
+ 	}
+ 	/* If /dev/shm/.ecryptfs-$USER exists and owned by the user
+@@ -105,7 +105,7 @@ static int wrap_passphrase_if_necessary(
+ 	    passphrase != NULL && *passphrase != '\0' &&
+ 	    username != NULL && *username != '\0') {
+ 		if ((rc = setuid(uid))<0 || ((rc = ecryptfs_wrap_passphrase_file(wrapped_pw_filename, passphrase, salt, unwrapped_pw_filename)) != 0)) {
+-			syslog(LOG_ERR, "pam_ecryptfs: Error wrapping cleartext password; " "rc = [%d]\n", rc);
++			ecryptfs_syslog(LOG_ERR, "pam_ecryptfs: Error wrapping cleartext password; " "rc = [%d]\n", rc);
+ 		}
+ 		return rc;
+ 	}
+@@ -149,7 +149,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_h
+ 	struct ecryptfs_pam_data *epd;
+ 
+ 	if ((epd = calloc(1, sizeof(struct ecryptfs_pam_data))) == NULL) {
+-		syslog(LOG_ERR,"Memory allocation failed");
++		ecryptfs_syslog(LOG_ERR,"Memory allocation failed");
+ 		rc = -ENOMEM;
+ 		goto out;
+ 	}
+@@ -168,7 +168,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_h
+ 		} else rc = errno;
+ 	}
+ 	if (!epd->homedir) {
+-		syslog(LOG_ERR, "pam_ecryptfs: Error getting passwd info for user; rc = [%ld]\n", rc);
++		ecryptfs_syslog(LOG_ERR, "pam_ecryptfs: Error getting passwd info for user; rc = [%ld]\n", rc);
+ 		goto out;
+ 	}
+ 
+@@ -176,7 +176,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_h
+ 		goto out;
+ 	private_mnt = ecryptfs_fetch_private_mnt(epd->homedir);
+ 	if (ecryptfs_private_is_mounted(NULL, private_mnt, NULL, 1)) {
+-		syslog(LOG_DEBUG, "pam_ecryptfs: %s: %s is already mounted\n", __FUNCTION__, epd->homedir);
++		ecryptfs_syslog(LOG_DEBUG, "pam_ecryptfs: %s: %s is already mounted\n", __FUNCTION__, epd->homedir);
+ 		/* If private/home is already mounted, then we can skip
+ 		   costly loading of keys */
+ 		goto out;
+@@ -186,7 +186,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_h
+ 	else
+ 		rc = pam_get_item(pamh, PAM_AUTHTOK, (const void **)&epd->passphrase);
+ 	if (rc != PAM_SUCCESS) {
+-		syslog(LOG_ERR, "pam_ecryptfs: Error retrieving passphrase; rc = [%ld]\n",
++		ecryptfs_syslog(LOG_ERR, "pam_ecryptfs: Error retrieving passphrase; rc = [%ld]\n",
+ 		       rc);
+ 		goto out;
+ 	}
+@@ -198,7 +198,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_h
+ 		from_hex(epd->salt, salt_hex, ECRYPTFS_SALT_SIZE);
+ 	epd->unwrap = ((argc == 1) && (memcmp(argv[0], "unwrap\0", 7) == 0));
+ 	if ((rc=pam_set_data(pamh, ECRYPTFS_PAM_DATA, epd, pam_free_ecryptfsdata)) != PAM_SUCCESS) {
+-		syslog(LOG_ERR, "Unable to store ecryptfs pam data : %s", pam_strerror(pamh, rc));
++		ecryptfs_syslog(LOG_ERR, "Unable to store ecryptfs pam data : %s", pam_strerror(pamh, rc));
+ 		goto out;
+ 	}
+ 
+@@ -222,12 +222,12 @@ static struct passwd *fetch_pwd(pam_hand
+ 
+ 	rc = pam_get_user(pamh, &username, NULL);
+ 	if (rc != PAM_SUCCESS || username == NULL) {
+-		syslog(LOG_ERR, "pam_ecryptfs: Error getting passwd info for user [%s]; rc = [%ld]\n", username, rc);
++		ecryptfs_syslog(LOG_ERR, "pam_ecryptfs: Error getting passwd info for user [%s]; rc = [%ld]\n", username, rc);
+ 		return NULL;
+ 	}
+ 	pwd = getpwnam(username);
+ 	if (pwd == NULL) {
+-		syslog(LOG_ERR, "pam_ecryptfs: Error getting passwd info for user [%s]; rc = [%ld]\n", username, rc);
++		ecryptfs_syslog(LOG_ERR, "pam_ecryptfs: Error getting passwd info for user [%s]; rc = [%ld]\n", username, rc);
+ 		return NULL;
+ 	}
+ 	return pwd;
+@@ -258,13 +258,13 @@ static int private_dir(pam_handle_t *pam
+ 	if (
+ 	    (asprintf(&autofile, "%s/.ecryptfs/%s", pwd->pw_dir, a) < 0)
+ 	     || autofile == NULL) {
+-		syslog(LOG_ERR, "pam_ecryptfs: Error allocating memory for autofile name");
++		ecryptfs_syslog(LOG_ERR, "pam_ecryptfs: Error allocating memory for autofile name");
+ 		return 1;
+         }
+         if (
+ 	    (asprintf(&sigfile, "%s/.ecryptfs/%s.sig", pwd->pw_dir,
+ 	     PRIVATE_DIR) < 0) || sigfile == NULL) {
+-		syslog(LOG_ERR, "pam_ecryptfs: Error allocating memory for sigfile name");
++		ecryptfs_syslog(LOG_ERR, "pam_ecryptfs: Error allocating memory for sigfile name");
+ 		return 1;
+         }
+ 	if (stat(sigfile, &s) != 0) {
+@@ -276,7 +276,7 @@ static int private_dir(pam_handle_t *pam
+ 		goto out;
+ 	}
+ 	if ((pid = fork()) < 0) {
+-		syslog(LOG_ERR, "pam_ecryptfs: Error setting up private mount");
++		ecryptfs_syslog(LOG_ERR, "pam_ecryptfs: Error setting up private mount");
+ 		return 1;
+ 	}
+ 	if (pid == 0) {
+@@ -284,7 +284,7 @@ static int private_dir(pam_handle_t *pam
+ 		        if ((asprintf(&recorded,
+ 			    "%s/.ecryptfs/.wrapped-passphrase.recorded",
+ 			    pwd->pw_dir) < 0) || recorded == NULL) {
+-				syslog(LOG_ERR, "pam_ecryptfs: Error allocating memory for recorded name");
++				ecryptfs_syslog(LOG_ERR, "pam_ecryptfs: Error allocating memory for recorded name");
+ 				_exit(255);
+ 			}
+ 			if (stat(recorded, &s) != 0 && stat("/usr/share/ecryptfs-utils/ecryptfs-record-passphrase", &s) == 0) {
+@@ -297,12 +297,12 @@ static int private_dir(pam_handle_t *pam
+ 			}
+ 			if (stat(autofile, &s) != 0) {
+ 				/* User does not want to auto-mount */
+-				syslog(LOG_DEBUG, "pam_ecryptfs: Skipping automatic eCryptfs mount");
++				ecryptfs_syslog(LOG_DEBUG, "pam_ecryptfs: Skipping automatic eCryptfs mount");
+ 				_exit(0);
+ 			}
+ 			clearenv();
+ 			if (initgroups(pwd->pw_name, pwd->pw_gid) != 0) {
+-				syslog(LOG_ERR, "Unable to set user's groups : %m");
++				ecryptfs_syslog(LOG_ERR, "Unable to set user's groups : %m");
+ 				_exit(-1);
+ 			}
+ 			/* run mount.ecryptfs_private as the user */
+@@ -310,16 +310,16 @@ static int private_dir(pam_handle_t *pam
+ 				_exit(-1);
+ 			execl("/sbin/mount.ecryptfs_private",
+ 			      "mount.ecryptfs_private", NULL);
+-			syslog(LOG_ERR, "unable to execute mount.ecryptfs_private : %m");
++			ecryptfs_syslog(LOG_ERR, "unable to execute mount.ecryptfs_private : %m");
+ 		} else {
+ 			if (stat(autofile, &s) != 0) {
+ 				/* User does not want to auto-unmount */
+-				syslog(LOG_DEBUG, "pam_ecryptfs: Skipping automatic eCryptfs unmount");
++				ecryptfs_syslog(LOG_DEBUG, "pam_ecryptfs: Skipping automatic eCryptfs unmount");
+ 				_exit(0);
+ 			}
+ 			clearenv();
+ 			if (initgroups(pwd->pw_name, pwd->pw_gid) != 0) {
+-				syslog(LOG_ERR, "Unable to set user's groups : %m");
++				ecryptfs_syslog(LOG_ERR, "Unable to set user's groups : %m");
+ 				_exit(-1);
+ 			}
+ 			/* run umount.ecryptfs_private as the user */
+@@ -327,7 +327,7 @@ static int private_dir(pam_handle_t *pam
+ 				_exit(-1);
+ 			execl("/sbin/umount.ecryptfs_private",
+ 			      "umount.ecryptfs_private", "-d", NULL);
+-			syslog(LOG_ERR, "unable to execute umount.ecryptfs_private : %m");
++			ecryptfs_syslog(LOG_ERR, "unable to execute umount.ecryptfs_private : %m");
+ 			_exit(1);
+ 		}
+ 		_exit(1);
+@@ -362,24 +362,24 @@ static int fill_keyring(pam_handle_t *pa
+ 	
+ 	if ((rc=pam_get_data(pamh, ECRYPTFS_PAM_DATA, (const void **)&epd)) != PAM_SUCCESS)
+ 	{
+-		syslog(LOG_ERR,"Unable to get ecryptfs pam data : %s", pam_strerror(pamh, rc));
++		ecryptfs_syslog(LOG_ERR,"Unable to get ecryptfs pam data : %s", pam_strerror(pamh, rc));
+ 		return -EINVAL;
+ 	}
+   
+ 	oeuid = geteuid();
+ 	oegid = getegid();
+ 	if ((ngids = getgroups(sizeof(groups)/sizeof(gid_t), groups)) < 0) {
+-		syslog(LOG_ERR, "pam_ecryptfs: geteuid error");
++		ecryptfs_syslog(LOG_ERR, "pam_ecryptfs: geteuid error");
+ 		goto outnouid;
+ 	}
+ 
+ 	if (setegid(epd->gid) < 0 || setgroups(1, &epd->gid) < 0 || seteuid(epd->uid) < 0) {
+-		syslog(LOG_ERR, "pam_ecryptfs: seteuid error");
++		ecryptfs_syslog(LOG_ERR, "pam_ecryptfs: seteuid error");
+ 		goto out;
+ 	}
+ 
+ 	if (!auth_tok_sig) {
+-		syslog(LOG_ERR, "Out of memory\n");
++		ecryptfs_syslog(LOG_ERR, "Out of memory\n");
+ 		return -ENOMEM;
+ 	}
+   
+@@ -387,7 +387,7 @@ static int fill_keyring(pam_handle_t *pa
+ 		/* temp regain uid 0 to drop privs */
+ 		if (seteuid(oeuid) < 0)
+ 		{
+-			syslog(LOG_ERR, "pam_ecryptfs: seteuid error");
++			ecryptfs_syslog(LOG_ERR, "pam_ecryptfs: seteuid error");
+ 			goto out_child;
+ 		}
+ 		/* setgroups() already called */
+@@ -395,12 +395,12 @@ static int fill_keyring(pam_handle_t *pa
+ 			goto out_child;
+ 	  
+ 		if (epd->passphrase == NULL) {
+-			syslog(LOG_ERR, "NULL passphrase; aborting\n");
++			ecryptfs_syslog(LOG_ERR, "NULL passphrase; aborting\n");
+ 			rc = -EINVAL;
+ 			goto out_child;
+ 		}
+ 		if ((rc = ecryptfs_validate_keyring())) {
+-			syslog(LOG_WARNING,
++			ecryptfs_syslog(LOG_WARNING,
+ 			       "Cannot validate keyring integrity\n");
+ 		}
+ 		rc = 0;
+@@ -412,18 +412,18 @@ static int fill_keyring(pam_handle_t *pa
+ 				epd->homedir,
+ 				ECRYPTFS_DEFAULT_WRAPPED_PASSPHRASE_FILENAME);
+ 			if (rc == -1) {
+-				syslog(LOG_ERR, "Unable to allocate memory\n");
++				ecryptfs_syslog(LOG_ERR, "Unable to allocate memory\n");
+ 				rc = -ENOMEM;
+ 				goto out_child;
+ 			}
+ 			if (wrap_passphrase_if_necessary(epd->username, epd->uid, wrapped_pw_filename, epd->passphrase, epd->salt) == 0) {
+-				syslog(LOG_INFO, "Passphrase file wrapped");
++				ecryptfs_syslog(LOG_INFO, "Passphrase file wrapped");
+ 			} else {
+ 				goto out_child;
+ 			}
+ 			if (rewrap_passphrase_if_necessary(wrapped_pw_filename, epd->passphrase, epd->salt)) {
+ 				/* Non fatal condition. Log a warning. */
+-				syslog(LOG_WARNING, "pam_ecryptfs: Unable to rewrap passphrase file\n");
++				ecryptfs_syslog(LOG_WARNING, "pam_ecryptfs: Unable to rewrap passphrase file\n");
+ 			}
+ 			rc = ecryptfs_insert_wrapped_passphrase_into_keyring(
+ 				auth_tok_sig, wrapped_pw_filename, epd->passphrase,
+@@ -437,7 +437,7 @@ static int fill_keyring(pam_handle_t *pa
+ 			goto out_child;
+ 		}
+ 		if (rc) {
+-			syslog(LOG_ERR, "Error adding passphrase key token to "
++			ecryptfs_syslog(LOG_ERR, "Error adding passphrase key token to "
+ 			       "user session keyring; rc = [%d]\n", rc);
+ 			goto out_child;
+ 		}
+@@ -447,7 +447,7 @@ out_child:
+ 	}
+ 	tmp_pid = waitpid(child_pid, NULL, 0);
+ 	if (tmp_pid == -1)
+-		syslog(LOG_WARNING,
++		ecryptfs_syslog(LOG_WARNING,
+ 		       "waitpid() returned with error condition\n"); 
+ out:
+ 	rc = seteuid(oeuid);
+@@ -506,33 +506,33 @@ PAM_EXTERN int pam_sm_chauthtok(pam_hand
+ 			homedir = pwd->pw_dir;
+ 		}
+ 	} else {
+-		syslog(LOG_ERR, "pam_ecryptfs: Error getting passwd info for user [%s]; rc = [%d]\n", username, rc);
++		ecryptfs_syslog(LOG_ERR, "pam_ecryptfs: Error getting passwd info for user [%s]; rc = [%d]\n", username, rc);
+ 		goto out;
+ 	}
+ 
+ 	oeuid = geteuid();
+ 	oegid = getegid();
+ 	if ((ngids = getgroups(sizeof(groups)/sizeof(gid_t), groups)) < 0) {
+-		syslog(LOG_ERR, "pam_ecryptfs: geteuid error");
++		ecryptfs_syslog(LOG_ERR, "pam_ecryptfs: geteuid error");
+ 		goto outnouid;
+ 	}
+ 
+ 	if (setegid(gid) < 0 || setgroups(1, &gid) < 0 || seteuid(uid) < 0) {
+-		syslog(LOG_ERR, "pam_ecryptfs: seteuid error");
++		ecryptfs_syslog(LOG_ERR, "pam_ecryptfs: seteuid error");
+ 		goto out;
+ 	}
+ 
+ 	if ((rc = pam_get_item(pamh, PAM_OLDAUTHTOK,
+ 			       (const void **)&old_passphrase))
+ 	    != PAM_SUCCESS) {
+-		syslog(LOG_ERR, "pam_ecryptfs: Error retrieving old passphrase; rc = [%d]\n", rc);
++		ecryptfs_syslog(LOG_ERR, "pam_ecryptfs: Error retrieving old passphrase; rc = [%d]\n", rc);
+ 		goto out;
+ 	}
+ 	/* On the first pass, do nothing except check that we have a password */
+ 	if ((flags & PAM_PRELIM_CHECK)) {
+ 		if (!old_passphrase)
+ 		{
+-			syslog(LOG_WARNING, "pam_ecryptfs: PAM passphrase change module retrieved a NULL passphrase; nothing to do\n");
++			ecryptfs_syslog(LOG_WARNING, "pam_ecryptfs: PAM passphrase change module retrieved a NULL passphrase; nothing to do\n");
+ 			rc = PAM_AUTHTOK_RECOVER_ERR;
+ 		}
+ 		goto out;
+@@ -540,13 +540,13 @@ PAM_EXTERN int pam_sm_chauthtok(pam_hand
+ 	if ((rc = pam_get_item(pamh, PAM_AUTHTOK,
+ 			       (const void **)&new_passphrase))
+ 	    != PAM_SUCCESS) {
+-		syslog(LOG_ERR, "pam_ecryptfs: Error retrieving new passphrase; rc = [%d]\n", rc);
++		ecryptfs_syslog(LOG_ERR, "pam_ecryptfs: Error retrieving new passphrase; rc = [%d]\n", rc);
+ 		goto out;
+ 	}
+ 	if ((rc = asprintf(&wrapped_pw_filename, "%s/.ecryptfs/%s", homedir,
+ 			   ECRYPTFS_DEFAULT_WRAPPED_PASSPHRASE_FILENAME))
+ 	    == -1) {
+-		syslog(LOG_ERR, "pam_ecryptfs: Unable to allocate memory\n");
++		ecryptfs_syslog(LOG_ERR, "pam_ecryptfs: Unable to allocate memory\n");
+ 		rc = -ENOMEM;
+ 		goto out;
+ 	}
+@@ -556,13 +556,13 @@ PAM_EXTERN int pam_sm_chauthtok(pam_hand
+ 		from_hex(salt, salt_hex, ECRYPTFS_SALT_SIZE);
+ 	}
+ 	if (wrap_passphrase_if_necessary(username, uid, wrapped_pw_filename, new_passphrase, salt) == 0) {
+-		syslog(LOG_DEBUG, "pam_ecryptfs: Passphrase file wrapped");
++		ecryptfs_syslog(LOG_DEBUG, "pam_ecryptfs: Passphrase file wrapped");
+ 	} else {
+ 		goto out;
+ 	}
+ 
+ 	if (!old_passphrase || !new_passphrase || *new_passphrase == '\0') {
+-		syslog(LOG_WARNING, "pam_ecryptfs: PAM passphrase change module retrieved at least one NULL passphrase; nothing to do\n");
++		ecryptfs_syslog(LOG_WARNING, "pam_ecryptfs: PAM passphrase change module retrieved at least one NULL passphrase; nothing to do\n");
+ 		rc = PAM_AUTHTOK_RECOVER_ERR;
+ 		goto out;
+ 	}
+@@ -572,7 +572,7 @@ PAM_EXTERN int pam_sm_chauthtok(pam_hand
+ 
+ 		/* temp regain uid 0 to drop privs */
+ 		if (seteuid(oeuid) < 0) {
+-			syslog(LOG_ERR, "pam_ecryptfs: seteuid error");
++			ecryptfs_syslog(LOG_ERR, "pam_ecryptfs: seteuid error");
+ 			goto out_child;
+ 		}
+ 		/* setgroups() already called */
+@@ -582,20 +582,20 @@ PAM_EXTERN int pam_sm_chauthtok(pam_hand
+ 		if ((rc = ecryptfs_unwrap_passphrase(passphrase,
+ 						     wrapped_pw_filename,
+ 						     old_passphrase, salt))) {
+-			syslog(LOG_ERR, "pam_ecryptfs: Error attempting to unwrap passphrase; rc = [%d]\n", rc);
++			ecryptfs_syslog(LOG_ERR, "pam_ecryptfs: Error attempting to unwrap passphrase; rc = [%d]\n", rc);
+ 			goto out_child;
+ 		}
+ 		if ((rc = ecryptfs_wrap_passphrase(wrapped_pw_filename,
+ 						   new_passphrase, salt,
+ 						   passphrase))) {
+-			syslog(LOG_ERR, "pam_ecryptfs: Error attempting to wrap passphrase; rc = [%d]", rc);
++			ecryptfs_syslog(LOG_ERR, "pam_ecryptfs: Error attempting to wrap passphrase; rc = [%d]", rc);
+ 			goto out_child;
+ 		}
+ out_child:
+ 		_exit(0);
+ 	}
+ 	if ((tmp_pid = waitpid(child_pid, NULL, 0)) == -1)
+-		syslog(LOG_WARNING, "pam_ecryptfs: waitpid() returned with error condition\n");
++		ecryptfs_syslog(LOG_WARNING, "pam_ecryptfs: waitpid() returned with error condition\n");
+ 	free(wrapped_pw_filename);
+ out:
+ 

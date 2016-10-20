@@ -1,0 +1,528 @@
+diff -up ecryptfs-utils-108/src/include/ecryptfs.h.nozombies ecryptfs-utils-108/src/include/ecryptfs.h
+--- ecryptfs-utils-108/src/include/ecryptfs.h.nozombies	2015-03-11 16:07:01.000000000 +0100
++++ ecryptfs-utils-108/src/include/ecryptfs.h	2015-08-11 14:44:00.122820656 +0200
+@@ -532,10 +532,6 @@ int ecryptfs_validate_keyring(void);
+ #define ECRYPTFS_SHM_KEY 0x3c81b7f5
+ #define ECRYPTFS_SEM_KEY 0x3c81b7f6
+ #define ECRYPTFS_SHM_SIZE 4096
+-#define ECRYPTFS_ZOMBIE_SLEEP_SECONDS 300
+-int ecryptfs_set_zombie_session_placeholder(void);
+-int ecryptfs_kill_and_clear_zombie_session_placeholder(void);
+-int ecryptfs_list_zombie_session_placeholders(void);
+ int ecryptfs_build_linear_subgraph_from_nvp(struct transition_node **trans_node,
+ 					    struct ecryptfs_key_mod *key_mod);
+ int ecryptfs_build_linear_subgraph(struct transition_node **trans_node,
+diff -up ecryptfs-utils-108/src/libecryptfs/main.c.nozombies ecryptfs-utils-108/src/libecryptfs/main.c
+--- ecryptfs-utils-108/src/libecryptfs/main.c.nozombies	2015-03-26 14:28:59.000000000 +0100
++++ ecryptfs-utils-108/src/libecryptfs/main.c	2015-08-11 14:44:00.122820656 +0200
+@@ -384,495 +384,6 @@ out:
+ 	return rc;
+ }
+ 
+-static int zombie_semaphore_get(void)
+-{
+-	int sem_id;
+-	struct semid_ds semid_ds;
+-	struct sembuf sb;
+-	int i;
+-	int rc;
+-
+-	sem_id = semget(ECRYPTFS_SEM_KEY, 1, (0666 | IPC_EXCL | IPC_CREAT));
+-	if (sem_id >= 0) {
+-		sb.sem_op = 1;
+-		sb.sem_flg = 0;
+-		sb.sem_num = 0;
+-
+-		rc = semop(sem_id, &sb, 1);
+-		if (rc == -1) {
+-			semctl(sem_id, 0, IPC_RMID);
+-			syslog(LOG_ERR, "Error initializing semaphore\n");
+-			rc = -1;
+-			goto out;
+-		}
+-	} else if (errno == EEXIST) {
+-		int initialized = 0;
+-
+-		sem_id = semget(ECRYPTFS_SEM_KEY, 1, 0);
+-		if (sem_id < 0) {
+-			syslog(LOG_ERR, "Error getting existing semaphore");
+-			rc = -1;
+-			goto out;
+-		}
+-#define RETRY_LIMIT 3
+-		for (i = 0; i < RETRY_LIMIT; i++) {
+-			semctl(sem_id, 0, IPC_STAT, &semid_ds);
+-			if (semid_ds.sem_otime != 0) {
+-				initialized = 1;
+-				break;
+-			} else
+-				sleep(1);
+-		}
+-		if (!initialized) {
+-			syslog(LOG_ERR, "Waited too long for initialized "
+-			       "semaphore; something's wrong\n");
+-			rc = -1;
+-			goto out;
+-		}
+-	} else {
+-		syslog(LOG_ERR, "Error attempting to get semaphore\n");
+-		rc = -1;
+-		goto out;
+-	}
+-	rc = sem_id;
+-out:
+-	return rc;
+-}
+-
+-static void zombie_semaphore_lock(int sem_id)
+-{
+-	struct sembuf sb;
+-	int i;
+-	int rc;
+-
+-	sb.sem_num = 0;
+-	sb.sem_op = -1;
+-	sb.sem_flg = IPC_NOWAIT;
+-	for (i = 0; i < RETRY_LIMIT; i++) {
+-		rc = semop(sem_id, &sb, 1);
+-		if (rc == -1 && errno == EAGAIN) {
+-			sleep(1);
+-		} else if (rc == -1) {
+-			syslog(LOG_ERR, "Error locking semaphore; errno "
+-			       "string = [%m]\n");
+-			goto out;
+-		} else
+-			goto out;
+-	}
+-	syslog(LOG_ERR, "Error locking semaphore; hit max retries\n");
+-out:
+-	return;
+-}
+-
+-static void zombie_semaphore_unlock(int sem_id)
+-{
+-	struct sembuf sb;
+-	int rc;
+-
+-	sb.sem_num = 0;
+-	sb.sem_op = 1;
+-	sb.sem_flg = 0;
+-	rc = semop(sem_id, &sb, 1);
+-	if (rc == -1) {
+-		syslog(LOG_ERR, "Error unlocking semaphore\n");
+-		goto out;
+-	}
+-out:
+-	return;
+-}
+-
+-static int get_zombie_shared_mem_locked(int *shm_id, int *sem_id)
+-{
+-	int rc;
+-	
+-	(*sem_id) = zombie_semaphore_get();
+-	if ((*sem_id) == -1) {
+-		syslog(LOG_ERR, "Error attempting to get zombie semaphore\n");
+-		rc = -EIO;
+-		goto out;
+-	}
+-	zombie_semaphore_lock((*sem_id));
+-	rc = shmget(ECRYPTFS_SHM_KEY, ECRYPTFS_SHM_SIZE, (0666 | IPC_CREAT
+-							  | IPC_EXCL));
+-	if (rc == -1 && errno == EEXIST)
+-		rc = shmget(ECRYPTFS_SHM_KEY, ECRYPTFS_SHM_SIZE, 0);
+-	else {
+-		char *shm_virt;
+-
+-		if (rc == -1) {
+-			syslog(LOG_ERR, "Error allocating shared memory; "
+-				"errno string = [%m]\n");
+-			rc = -EIO;
+-			zombie_semaphore_unlock((*sem_id));
+-			goto out;
+-		}
+-
+-		(*shm_id) = rc;
+-		shm_virt = shmat((*shm_id), NULL, 0);
+-		if (shm_virt == (void *)-1) {
+-			syslog(LOG_ERR, "Error attaching to newly allocated "
+-			       "shared memory; errno string = [%m]\n");
+-			rc = -EIO;
+-			zombie_semaphore_unlock((*sem_id));
+-			goto out;
+-		}
+-		memset(shm_virt, 0, ECRYPTFS_SHM_SIZE);
+-		if ((rc = shmdt(shm_virt))) {
+-			rc = -EIO;
+-			zombie_semaphore_unlock((*sem_id));
+-			goto out;
+-		}
+-		rc = shmget(ECRYPTFS_SHM_KEY, ECRYPTFS_SHM_SIZE, 0);
+-	}
+-	if (rc == -1) {
+-		syslog(LOG_ERR, "Error attempting to get identifier for "
+-		       "shared memory with key [0x%.8x]\n", ECRYPTFS_SHM_KEY);
+-		rc = -EIO;
+-		zombie_semaphore_unlock((*sem_id));
+-		goto out;
+-	}
+-	(*shm_id) = rc;
+-	rc = 0;
+-out:
+-	return rc;
+-}
+-
+-static int list_pid_sid_pairs(int shm_id)
+-{
+-	pid_t sid_tmp;
+-	pid_t pid_tmp;
+-	char *shm_virt;
+-	int i;
+-	int rc;
+-
+-	if (sizeof(pid_t) != sizeof(uint32_t)) {
+-		syslog(LOG_ERR, "sizeof(pid_t) != sizeof(uint32_t); the code "
+-		       "needs some tweaking to work on this architecture\n");
+-		rc = -EINVAL;
+-		goto out;
+-	}
+-	shm_virt = shmat(shm_id, NULL, 0);
+-	if (shm_virt == (void *)-1) {
+-		rc = -EIO;
+-		goto out;
+-	}
+-	i = 0;
+-	memcpy(&sid_tmp, &shm_virt[i], sizeof(pid_t));
+-	i += sizeof(pid_t);
+-	sid_tmp = ntohl(sid_tmp); /* uint32_t */
+-	memcpy(&pid_tmp, &shm_virt[i], sizeof(pid_t));
+-	i += sizeof(pid_t);
+-	pid_tmp = ntohl(pid_tmp); /* uint32_t */
+-	while (!(sid_tmp == 0 && pid_tmp == 0)) {
+-		if ((i + (2 * sizeof(pid_t))) > ECRYPTFS_SHM_SIZE)
+-			break;
+-		memcpy(&sid_tmp, &shm_virt[i], sizeof(pid_t));
+-		i += sizeof(pid_t);
+-		sid_tmp = ntohl(sid_tmp); /* uint32_t */
+-		memcpy(&pid_tmp, &shm_virt[i], sizeof(pid_t));
+-		i += sizeof(pid_t);
+-		pid_tmp = ntohl(pid_tmp); /* uint32_t */
+-	}
+-	if ((rc = shmdt(shm_virt)))
+-		rc = -EIO;
+-out:
+-	return rc;
+-}
+-
+-static int find_pid_for_this_sid(pid_t *pid, int shm_id)
+-{
+-	pid_t sid_tmp;
+-	pid_t sid;
+-	pid_t pid_tmp;
+-	pid_t this_pid;
+-	char *shm_virt;
+-	int i;
+-	int rc;
+-
+-	(*pid) = 0;
+-	if (sizeof(pid_t) != sizeof(uint32_t)) {
+-		syslog(LOG_ERR, "sizeof(pid_t) != sizeof(uint32_t); the code "
+-		       "needs some tweaking to work on this architecture\n");
+-		rc = -EINVAL;
+-		goto out;
+-	}
+-	shm_virt = shmat(shm_id, NULL, 0);
+-	if (shm_virt == (void *)-1) {
+-		rc = -EIO;
+-		goto out;
+-	}
+-	i = 0;
+-	memcpy(&sid_tmp, &shm_virt[i], sizeof(pid_t));
+-	i += sizeof(pid_t);
+-	sid_tmp = ntohl(sid_tmp); /* uint32_t */
+-	memcpy(&pid_tmp, &shm_virt[i], sizeof(pid_t));
+-	i += sizeof(pid_t);
+-	pid_tmp = ntohl(pid_tmp); /* uint32_t */
+-	this_pid = getpid();
+-	sid = getsid(this_pid);
+-	while (!(sid_tmp == 0 && pid_tmp == 0)) {
+-		if (sid_tmp == sid) {
+-			(*pid) = pid_tmp;
+-			goto end_search;
+-		}
+-		if ((i + (2 * sizeof(pid_t))) > ECRYPTFS_SHM_SIZE)
+-			break;
+-		memcpy(&sid_tmp, &shm_virt[i], sizeof(pid_t));
+-		i += sizeof(pid_t);
+-		sid_tmp = ntohl(sid_tmp); /* uint32_t */
+-		memcpy(&pid_tmp, &shm_virt[i], sizeof(pid_t));
+-		i += sizeof(pid_t);
+-		pid_tmp = ntohl(pid_tmp); /* uint32_t */
+-	}
+-end_search:
+-	if ((rc = shmdt(shm_virt))) {
+-		rc = -EIO;
+-		(*pid) = 0;
+-	}
+-out:
+-	return rc;
+-}
+-
+-static int remove_pid_for_this_sid(int shm_id)
+-{
+-	pid_t sid_tmp;
+-	pid_t sid;
+-	pid_t pid_tmp;
+-	pid_t pid;
+-	pid_t this_pid;
+-	char *shm_virt;
+-	int i;
+-	int rc;
+-
+-	pid = 0;
+-	if (sizeof(pid_t) != sizeof(uint32_t)) {
+-		syslog(LOG_ERR, "sizeof(pid_t) != sizeof(uint32_t); the code "
+-		       "needs some tweaking to work on this architecture\n");
+-		rc = -EINVAL;
+-		goto out;
+-	}
+-	shm_virt = shmat(shm_id, NULL, 0);
+-	if (shm_virt == (void *)-1) {
+-		rc = -EIO;
+-		goto out;
+-	}
+-	i = 0;
+-	memcpy(&sid_tmp, &shm_virt[i], sizeof(pid_t));
+-	i += sizeof(pid_t);
+-	sid_tmp = ntohl(sid_tmp); /* uint32_t */
+-	memcpy(&pid_tmp, &shm_virt[i], sizeof(pid_t));
+-	i += sizeof(pid_t);
+-	pid_tmp = ntohl(pid_tmp); /* uint32_t */
+-	this_pid = getpid();
+-	sid = getsid(this_pid);
+-	while (!(sid_tmp == 0 && pid_tmp == 0)) {
+-		if (sid_tmp == sid) {
+-			pid = pid_tmp;
+-			break;
+-		}
+-		if ((i + (2 * sizeof(pid_t))) > ECRYPTFS_SHM_SIZE)
+-			break;
+-		memcpy(&sid_tmp, &shm_virt[i], sizeof(pid_t));
+-		i += sizeof(pid_t);
+-		sid_tmp = ntohl(sid_tmp); /* uint32_t */
+-		memcpy(&pid_tmp, &shm_virt[i], sizeof(pid_t));
+-		i += sizeof(pid_t);
+-		pid_tmp = ntohl(pid_tmp); /* uint32_t */
+-	}
+-	if (pid != 0) {
+-		char *tmp;
+-		int remainder = (ECRYPTFS_SHM_SIZE - i);
+-
+-		if (remainder != 0) {
+-			if ((tmp = malloc(remainder)) == NULL) {
+-				rc = -ENOMEM;
+-				shmdt(shm_virt);
+-				goto out;
+-			}
+-			memcpy(tmp, &shm_virt[i], remainder);
+-			i -= (2 * sizeof(pid_t));
+-			memcpy(&shm_virt[i], tmp, remainder);
+-			i += remainder;
+-		} else
+-			i -= (2 * sizeof(pid_t));
+-		memset(&shm_virt[i], 0, (2 * sizeof(pid_t)));
+-		if (remainder != 0)
+-			free(tmp);
+-	}
+-	if ((rc = shmdt(shm_virt)))
+-		rc = -EIO;
+-out:
+-	return rc;
+-}
+-
+-static int add_sid_pid_pair_to_shm(int shm_id)
+-{
+-	pid_t sid_tmp;
+-	pid_t sid;
+-	pid_t pid_tmp;
+-	pid_t pid;
+-	char *shm_virt;
+-	int i;
+-	int rc;
+-
+-	if (sizeof(pid_t) != sizeof(uint32_t)) {
+-		syslog(LOG_ERR, "sizeof(pid_t) != sizeof(uint32_t); the code "
+-		       "needs some tweaking to work on this architecture\n");
+-		rc = -EINVAL;
+-		goto out;
+-	}
+-	shm_virt = shmat(shm_id, NULL, 0);
+-	if (shm_virt == (void *)-1) {
+-		syslog(LOG_ERR, "Error attaching to shared memory; error "
+-		       "string = [%m]\n");
+-		shm_virt = shmat(shm_id, NULL, 0);
+-		if (shm_virt == (void *)-1) {
+-			syslog(LOG_ERR, "Error attaching to shared memory; error "
+-			       "string = [%m]\n");
+-			rc = -EIO;
+-			goto out;
+-		}
+-		rc = -EIO;
+-		goto out;
+-	}
+-	i = 0;
+-	memcpy(&sid_tmp, &shm_virt[i], sizeof(pid_t));
+-	i += sizeof(pid_t);
+-	sid_tmp = ntohl(sid_tmp); /* uint32_t */
+-	memcpy(&pid_tmp, &shm_virt[i], sizeof(pid_t));
+-	i += sizeof(pid_t);
+-	pid_tmp = ntohl(pid_tmp); /* uint32_t */
+-	while (!(sid_tmp == 0 && pid_tmp == 0)) {
+-		if ((i + (2 * sizeof(pid_t))) > ECRYPTFS_SHM_SIZE) {
+-			syslog(LOG_ERR,
+-			       "No space left in shared memory region\n");
+-			rc = -ENOMEM;
+-			shmdt(shm_virt);
+-			goto out;
+-		}
+-		memcpy(&sid_tmp, &shm_virt[i], sizeof(pid_t));
+-		i += sizeof(pid_t);
+-		sid_tmp = ntohl(sid_tmp); /* uint32_t */
+-		memcpy(&pid_tmp, &shm_virt[i], sizeof(pid_t));
+-		i += sizeof(pid_t);
+-		pid_tmp = ntohl(pid_tmp); /* uint32_t */
+-	}
+-	pid = getpid();
+-	sid = getsid(pid);
+-	sid = htonl(sid);
+-	pid = htonl(pid);
+-	i -= (2 * sizeof(pid_t));
+-	memcpy(&shm_virt[i], &sid, sizeof(pid_t));
+-	i += sizeof(pid_t);
+-	memcpy(&shm_virt[i], &pid, sizeof(pid_t));
+-	i += sizeof(pid_t);
+-	if ((i + (2 * sizeof(pid_t))) <= ECRYPTFS_SHM_SIZE)
+-		memset(&shm_virt[i], 0, (i + (2 * sizeof(pid_t))));
+-	if ((rc = shmdt(shm_virt))) {
+-		syslog(LOG_ERR, "Error detaching from shared memory\n");
+-		rc = -EIO;
+-	}
+-out:
+-	return rc;
+-}
+-
+-int ecryptfs_set_zombie_session_placeholder(void)
+-{
+-	int shm_id;
+-	int sem_id;
+-	int rc = 0;
+-
+-	if ((rc = get_zombie_shared_mem_locked(&shm_id, &sem_id))) {
+-		syslog(LOG_ERR,
+-		       "Error getting shared memory segment\n");
+-		goto out;
+-	}
+-	if ((rc = add_sid_pid_pair_to_shm(shm_id))) {
+-		syslog(LOG_ERR, "Error adding sid/pid pair to shared memory "
+-		       "segment; rc = [%d]\n", rc);
+-		zombie_semaphore_unlock(sem_id);
+-		goto out;
+-	}
+-	zombie_semaphore_unlock(sem_id);
+-	sleep(ECRYPTFS_ZOMBIE_SLEEP_SECONDS);
+-	if ((rc = get_zombie_shared_mem_locked(&shm_id, &sem_id))) {
+-		syslog(LOG_ERR,
+-		       "Error getting shared memory segment\n");
+-		goto out;
+-	}
+-	if ((rc = remove_pid_for_this_sid(shm_id))) {
+-		syslog(LOG_ERR, "Error attempting to remove pid/sid "
+-		       "pair from shared memory segment; rc = [%d]\n",
+-		       rc);
+-		zombie_semaphore_unlock(sem_id);
+-		goto out;
+-	}
+-	zombie_semaphore_unlock(sem_id);
+-	exit(1);
+-out:
+-	return rc;
+-}
+-
+-int ecryptfs_kill_and_clear_zombie_session_placeholder(void)
+-{
+-	int shm_id;
+-	int sem_id;
+-	int pid;
+-	int rc = 0;
+-
+-	if ((rc = get_zombie_shared_mem_locked(&shm_id, &sem_id))) {
+-		syslog(LOG_ERR, "Error getting shared memory segment\n");
+-		goto out;
+-	}
+-	if ((rc = find_pid_for_this_sid(&pid, shm_id))) {
+-		syslog(LOG_ERR, "Error finding pid for sid in shared memory "
+-		       "segment; rc = [%d]\n", rc);
+-		zombie_semaphore_unlock(sem_id);
+-		goto out;
+-	}
+-	if (pid == 0) {
+-		syslog(LOG_WARNING, "No valid pid found for this sid\n");
+-	} else {
+-		if ((rc = kill(pid, SIGKILL))) {
+-			syslog(LOG_ERR, "Error attempting to kill process "
+-			       "[%d]; rc = [%d]; errno string = [%m]\n", pid,
+-			       rc);
+-		}
+-		if ((rc = remove_pid_for_this_sid(shm_id))) {
+-			syslog(LOG_ERR, "Error attempting to remove pid/sid "
+-			       "pair from shared memory segment; rc = [%d]\n",
+-			       rc);
+-			zombie_semaphore_unlock(sem_id);
+-			goto out;
+-		}
+-	}
+-	zombie_semaphore_unlock(sem_id);
+-out:
+-	return rc;
+-}
+-
+-int ecryptfs_list_zombie_session_placeholders(void)
+-{
+-	int shm_id;
+-	int sem_id;
+-	int rc = 0;
+-
+-	if ((rc = get_zombie_shared_mem_locked(&shm_id, &sem_id))) {
+-		syslog(LOG_ERR,
+-		       "Error getting shared memory segment\n");
+-		goto out;
+-	}
+-	if ((rc = list_pid_sid_pairs(shm_id))) {
+-		syslog(LOG_ERR, "Error listing sid/pid pairs in shared memory "
+-		       "segment; rc = [%d]\n", rc);
+-		zombie_semaphore_unlock(sem_id);
+-		goto out;
+-	}
+-	zombie_semaphore_unlock(sem_id);
+-out:
+-	return rc;
+-}
+-
+ static struct ecryptfs_ctx_ops ctx_ops;
+ 
+ struct ecryptfs_ctx_ops *cryptfs_get_ctx_opts (void)
+diff -up ecryptfs-utils-108/src/pam_ecryptfs/pam_ecryptfs.c.nozombies ecryptfs-utils-108/src/pam_ecryptfs/pam_ecryptfs.c
+--- ecryptfs-utils-108/src/pam_ecryptfs/pam_ecryptfs.c.nozombies	2015-08-11 14:44:00.120820661 +0200
++++ ecryptfs-utils-108/src/pam_ecryptfs/pam_ecryptfs.c	2015-08-11 14:44:00.122820656 +0200
+@@ -246,11 +246,6 @@ PAM_EXTERN int pam_sm_authenticate(pam_h
+ 			syslog(LOG_ERR, "pam_ecryptfs: Error adding passphrase key token to user session keyring; rc = [%ld]\n", rc);
+ 			goto out_child;
+ 		}
+-		if (fork() == 0) {
+-			if ((rc = ecryptfs_set_zombie_session_placeholder())) {
+-				syslog(LOG_ERR, "pam_ecryptfs: Error attempting to create and register zombie process; rc = [%ld]\n", rc);
+-			}
+-		}
+ out_child:
+ 		free(auth_tok_sig);
+ 		_exit(0);

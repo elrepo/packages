@@ -1,0 +1,21 @@
+diff -up ecryptfs-utils-108/src/utils/ecryptfs-setup-private.sudokeyring ecryptfs-utils-108/src/utils/ecryptfs-setup-private
+--- ecryptfs-utils-108/src/utils/ecryptfs-setup-private.sudokeyring	2015-08-11 14:44:05.213807245 +0200
++++ ecryptfs-utils-108/src/utils/ecryptfs-setup-private	2015-08-11 14:44:05.231807198 +0200
+@@ -427,8 +427,16 @@ if [ "$BOOTSTRAP" = "1" ]; then
+ 	else
+ 		sig_opt="ecryptfs_sig=$sig"
+ 	fi
++	# If we are running under sudo, the session keyring may not link
++	# to root's user keyring, where the auth tok is stored
++	# Need to join root's keyring, otherwise the mount will fail
++	if [ "$(keyctl describe @s | awk '{ print $3; }')" -ne 0 ]; then
++		_KEK_="keyctl session _uid.0"
++	else
++		_KEK_=
++	fi
+ 	# Do the mount, and provide some helpful symlinks
+-	mount -i -t ecryptfs -o "rw,$sig_opt,ecryptfs_cipher=$CIPHER,ecryptfs_key_bytes=$KEYBYTES" "$CRYPTDIR" "$MOUNTPOINT" || error "Could not mount"
++	$_KEK_ mount -i -t ecryptfs -o "rw,$sig_opt,ecryptfs_cipher=$CIPHER,ecryptfs_key_bytes=$KEYBYTES" "$CRYPTDIR" "$MOUNTPOINT" || error "Could not mount"
+ 	ln -sf $ECRYPTFS_DIR/$USER/.ecryptfs $MOUNTPOINT/.ecryptfs
+ 	ln -sf $ECRYPTFS_DIR/$USER/.$PRIVATE_DIR $MOUNTPOINT/.$PRIVATE_DIR
+ 	chown -R $USER:$GROUP $ECRYPTFS_DIR/$USER
