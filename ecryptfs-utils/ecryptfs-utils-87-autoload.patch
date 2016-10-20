@@ -1,0 +1,41 @@
+diff -up ecryptfs-utils-108/src/utils/ecryptfs-mount-private.autoload ecryptfs-utils-108/src/utils/ecryptfs-mount-private
+--- ecryptfs-utils-108/src/utils/ecryptfs-mount-private.autoload	2015-02-10 17:59:34.000000000 +0100
++++ ecryptfs-utils-108/src/utils/ecryptfs-mount-private	2015-08-11 14:43:55.946831655 +0200
+@@ -33,6 +33,9 @@ if /sbin/mount.ecryptfs_private >/dev/nu
+ 	exit 0
+ fi
+ 
++#load kernel module if it's missing, FNE support check would fail otherwise
++[ ! -e /sys/fs/ecryptfs/version ] && modinfo ecryptfs >/dev/null 2>&1 && /sbin/mount.ecryptfs_private --loadmodule
++
+ # Otherwise, interactively prompt for the user's password
+ if [ -f "$WRAPPED_PASSPHRASE_FILE" -a -f "$MOUNT_PASSPHRASE_SIG_FILE" ]; then
+ 	tries=0
+diff -up ecryptfs-utils-108/src/utils/ecryptfs-setup-private.autoload ecryptfs-utils-108/src/utils/ecryptfs-setup-private
+--- ecryptfs-utils-108/src/utils/ecryptfs-setup-private.autoload	2015-02-10 20:10:13.000000000 +0100
++++ ecryptfs-utils-108/src/utils/ecryptfs-setup-private	2015-08-11 14:43:55.946831655 +0200
+@@ -101,6 +101,7 @@ random_passphrase () {
+ }
+ 
+ filename_encryption_available() {
++	[ ! -e /sys/fs/ecryptfs/version ] && modinfo ecryptfs >/dev/null 2>&1 && /sbin/mount.ecryptfs_private --loadmodule
+ 	version=$(cat /sys/fs/ecryptfs/version 2>/dev/null)
+ 	[ -z "$version" ] && error "$(gettext 'Cannot get ecryptfs version, ecryptfs kernel module not loaded?')"
+ 	[ $(($version & 0x100)) -eq 0 ] && return 1
+diff -up ecryptfs-utils-108/src/utils/mount.ecryptfs_private.c.autoload ecryptfs-utils-108/src/utils/mount.ecryptfs_private.c
+--- ecryptfs-utils-108/src/utils/mount.ecryptfs_private.c.autoload	2015-08-05 23:37:17.000000000 +0200
++++ ecryptfs-utils-108/src/utils/mount.ecryptfs_private.c	2015-08-11 14:43:55.946831655 +0200
+@@ -577,6 +577,13 @@ int main(int argc, char *argv[]) {
+ 	char **sigs;
+ 	FILE *fh_counter = NULL;
+ 
++	if (argc == 2 && !strcmp(argv[1],"--loadmodule"))
++	{
++	  execl("/sbin/modprobe","modprobe","ecryptfs",NULL);
++	  perror("Unable to load ecryptfs module");
++	  return -1;
++	}
++	
+ 	uid = getuid();
+ 	gid = getgid();
+ 	/* Non-privileged effective uid is sufficient for all but the code

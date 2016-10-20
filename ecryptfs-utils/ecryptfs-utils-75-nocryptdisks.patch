@@ -1,0 +1,42 @@
+diff -up ecryptfs-utils-108/src/utils/ecryptfs-setup-swap.nocryptdisks ecryptfs-utils-108/src/utils/ecryptfs-setup-swap
+--- ecryptfs-utils-108/src/utils/ecryptfs-setup-swap.nocryptdisks	2015-08-04 17:41:39.000000000 +0200
++++ ecryptfs-utils-108/src/utils/ecryptfs-setup-swap	2015-08-11 14:43:51.787842611 +0200
+@@ -37,23 +37,20 @@ warn() {
+ usage() {
+ 	echo
+ 	echo `gettext "Usage:"`
+-	echo "  $0 [-f|--force] [-n|--no-reload]"
++	echo "  $0 [-f|--force]"
+ 	echo
+ 	exit 1
+ }
+ 
+ # Handle command line options
+ FORCE=0
++NO_RELOAD=1
+ while [ ! -z "$1" ]; do
+ 	case "$1" in
+ 		-f|--force)
+ 			FORCE=1
+ 			shift 1
+ 		;;
+-		-n|--no-reload)
+-			NO_RELOAD=1
+-			shift 1
+-		;;
+ 		*)
+ 			usage
+ 		;;
+@@ -188,7 +185,6 @@ for swap in $swaps; do
+ 	# Add fstab entry
+ 	echo "/dev/mapper/cryptswap$i none swap sw 0 0" >> /etc/fstab
+ done
+-
+ if [ "$NO_RELOAD" != 1 ]; then
+ 	# Turn swap off
+ 	swapoff -a
+@@ -201,3 +197,4 @@ if [ "$NO_RELOAD" != 1 ]; then
+ fi
+ 
+ info `gettext "Successfully encrypted swap!"`
++info "This will take effect after reboot"

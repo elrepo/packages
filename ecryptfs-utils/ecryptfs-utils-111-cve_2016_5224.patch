@@ -1,0 +1,21 @@
+=== modified file 'src/utils/ecryptfs-setup-swap'
+--- a/src/utils/ecryptfs-setup-swap	2015-08-04 15:42:02 +0000
++++ a/src/utils/ecryptfs-setup-swap	2016-07-06 22:31:21 +0000
+@@ -166,8 +166,14 @@
+ 	# If this is a GPT partition, mark it as no-auto mounting, to avoid
+ 	# auto-activating it on boot
+ 	if [ "$(blkid -p -s PART_ENTRY_SCHEME -o value "$swap")" = "gpt" ]; then
+-		drive="${swap%[0-9]*}"
+-		partno="${swap#$drive}"
++		# Correctly handle NVMe/MMC drives, as well as any similar physical
++		# block device that follow the "/dev/foo0p1" pattern (LP: #1597154)
++		if echo "$swap" | grep -qE "^/dev/.+[0-9]+p[0-9]+$"; then
++			drive=$(echo "$swap" | sed "s:\(.\+[0-9]\)p[0-9]\+:\1:")
++		else
++			drive=$(echo "$swap" | sed "s:\(.\+[^0-9]\)[0-9]\+:\1:")
++		fi
++		partno=$(echo "$swap" | sed "s:.\+[^0-9]\([0-9]\+\):\1:")
+ 		if [ -b "$drive" ]; then
+ 			if printf "x\np\n" | fdisk "$drive" | grep -q "^$swap .* GUID:.*\b63\b"; then
+ 				echo "$swap is already marked as no-auto"
+
