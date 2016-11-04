@@ -7,7 +7,7 @@
  * This work is part of the White Rabbit project, a research effort led
  * by CERN, the European Institute for Nuclear Research.
  */
-#include <linux/ipmi-fru.h>
+#include "ipmi-fru.h"
 
 /* Some internal helpers */
 static struct fru_type_length *

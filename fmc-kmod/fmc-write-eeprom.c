@@ -11,7 +11,7 @@
 #include <linux/string.h>
 #include <linux/firmware.h>
 #include <linux/init.h>
-#include <linux/fmc.h>
+#include "fmc.h"
 #include <asm/unaligned.h>
 
 /*

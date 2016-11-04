@@ -14,7 +14,7 @@
 #include <linux/fs.h>
 #include <linux/miscdevice.h>
 #include <linux/spinlock.h>
-#include <linux/fmc.h>
+#include "fmc.h"
 #include <linux/uaccess.h>
 
 static LIST_HEAD(fc_devices);

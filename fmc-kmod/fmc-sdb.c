@@ -9,10 +9,10 @@
  */
 #include <linux/module.h>
 #include <linux/slab.h>
-#include <linux/fmc.h>
-#include <linux/sdb.h>
+#include "fmc.h"
+#include "sdb.h"
 #include <linux/err.h>
-#include <linux/fmc-sdb.h>
+#include "fmc-sdb.h"
 #include <asm/byteorder.h>
 
 static uint32_t __sdb_rd(struct fmc_device *fmc, unsigned long address,
