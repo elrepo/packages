@@ -12,7 +12,7 @@
 #include <linux/slab.h>
 #include <linux/init.h>
 #include <linux/device.h>
-#include <linux/fmc.h>
+#include "fmc.h"
 
 static int fmc_check_version(unsigned long version, const char *name)
 {

@@ -16,7 +16,7 @@
 #include <linux/init.h>
 #include <linux/interrupt.h>
 #include <linux/gpio.h>
-#include <linux/fmc.h>
+#include "fmc.h"
 
 static struct fmc_driver t_drv; /* initialized later */
 

@@ -10,8 +10,8 @@
 #include <linux/kernel.h>
 #include <linux/moduleparam.h>
 #include <linux/device.h>
-#include <linux/fmc.h>
-#include <linux/fmc-sdb.h>
+#include "fmc.h"
+#include "fmc-sdb.h"
 
 static int fmc_must_dump_eeprom;
 module_param_named(dump_eeprom, fmc_must_dump_eeprom, int, 0644);

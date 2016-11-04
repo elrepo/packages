@@ -9,8 +9,8 @@
  */
 #include <linux/kernel.h>
 #include <linux/slab.h>
-#include <linux/fmc.h>
-#include <linux/ipmi-fru.h>
+#include "fmc.h"
+#include "ipmi-fru.h"
 
 /* The fru parser is both user and kernel capable: it needs alloc */
 void *fru_alloc(size_t size)
