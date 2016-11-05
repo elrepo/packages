@@ -2,11 +2,11 @@
 %define kmod_name nvidia
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-327.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-514.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 367.44
-Release: 1%{?dist}
+Version: 367.57
+Release: 2%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
@@ -81,6 +81,12 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Nov 03 2016 Philip J Perry <phil@elrepo.org> - 367.57-2
+- Rebuilt against RHEL 7.3 kernel
+
+* Tue Oct 11 2016 Philip J Perry <phil@elrepo.org> - 367.57-1
+- Updated to version 367.57
+
 * Sat Aug 27 2016 Philip J Perry <phil@elrepo.org> - 367.44-1
 - Updated to version 367.44
 
