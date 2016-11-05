@@ -1,0 +1,12 @@
+diff -up ecryptfs-utils-103/src/utils/mount.ecryptfs.c.memcpyfix ecryptfs-utils-103/src/utils/mount.ecryptfs.c
+--- ecryptfs-utils-103/src/utils/mount.ecryptfs.c.memcpyfix	2012-07-13 16:50:29.000000000 +0200
++++ ecryptfs-utils-103/src/utils/mount.ecryptfs.c	2013-01-28 17:22:53.769462509 +0100
+@@ -355,7 +355,7 @@ static int opts_str_contains_option(char
+ 			*end = '\0';
+ 			break;
+ 		}
+-		memcpy(opt, next_opt, end - next_opt);
++		memmove(opt, next_opt, end - next_opt);
+ 		end = end - (next_opt - opt);
+ 		*end = '\0';
+ 	}

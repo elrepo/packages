@@ -1,25 +1,24 @@
 # Define the kmod package name here.
-%define kmod_name drbd84
-%define real_name drbd
+%define kmod_name fmc
 
 # If kversion isn't defined on the rpmbuild line, define it here.
 %{!?kversion: %define kversion 3.10.0-327.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 8.4.8
-%define  original_release 1
-Release: %{original_release}_1%{?dist}
+Version: 0.0
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
-Summary: Distributed Redundant Block Device driver for Linux
-URL:     http://www.drbd.org/
+Summary: %{kmod_name} kernel module(s)
+URL:     http://www.kernel.org/
 
 BuildRequires: perl
 BuildRequires: redhat-rpm-config
 ExclusiveArch: x86_64
 
 # Sources.
-Source0:  http://oss.linbit.com/drbd/8.4/drbd-%{version}-%{original_release}.tar.gz
+Source0:  %{kmod_name}-%{version}.tar.bz2
+Source5:  GPL-v2.0.txt
 Source10: kmodtool-%{kmod_name}-el7.sh
 
 # Magic hidden here.
@@ -29,27 +28,25 @@ Source10: kmodtool-%{kmod_name}-el7.sh
 %define debug_package %{nil}
 
 %description
-DRBD is a distributed replicated block device. It mirrors a
-block device over the network to another machine. Think of it
-as networked raid 1. It is a building block for setting up
-high availability (HA) clusters.
+This package provides the %{kmod_name} kernel module(s).
+It is built to depend upon the specific ABI provided by a range of releases
+of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
-%setup -n %{real_name}-%{version}-%{original_release}
+%setup -q -n %{kmod_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
 KSRC=%{_usrsrc}/kernels/%{kversion}
-%{__make} %{?_smp_mflags} module KDIR=${KSRC} KVER=%{kversion}
+%{__make} -C "${KSRC}" %{?_smp_mflags} modules M=$PWD
 
 %install
 %{__install} -d %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
-%{__install} drbd/*.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
+%{__install} %{kmod_name}.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
-for file in ChangeLog COPYING README; do
-    %{__install} -Dp -m0644 $file %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/$file
-done
+%{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
+%{__install} %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 # strip the modules(s)
 find %{buildroot} -type f -name \*.ko -exec %{__strip} --strip-debug \{\} \;
@@ -69,14 +66,6 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
-* Wed Oct  5 2016 Hiroshi Fujishima <h-fujishima@sakura.ad.jp> - 8.4.8-1_1
-- Updated to version 8.4.8-1.
-
-* Mon Jan  4 2016 Hiroshi Fujishima <h-fujishima@sakura.ad.jp> - 8.4.7-1_1
-- Updated to version 8.4.7-1.
-
-* Thu Mar 05 2015 Philip J Perry <phil@elrepo.org> - 8.4.5-2
-- Rebuilt against RHEL 7.1 kernel
-
-* Sat Jul 19 2014 Philip J Perry <phil@elrepo.org> - 8.4.5-1
-- Initial el7 build of the kmod package.
+* Fri Nov 04 2016 Akemi Yagi<toracat@elrepo.org> - 0.0-1
+- Initial el7 build of the kmod package
+- Source code from kernel version 4.9-rc3
