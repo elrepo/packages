@@ -2,11 +2,11 @@
 %define kmod_name ath5k
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-327.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-514.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 9%{?dist}
+Release: 10%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -68,6 +68,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Nov 06 2016 Philip J Perry <phil@elrepo.org> - 0.0-10
+- Backported from kernel-4.7.10 for RHEL-7.3
+
 * Sat Jun 11 2016 Philip J Perry <phil@elrepo.org> - 0.0-9
 - Update to kernel-4.1.26
 - Change led pin configuration for compaq c700 laptop

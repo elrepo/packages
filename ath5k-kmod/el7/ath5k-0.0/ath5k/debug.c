@@ -722,7 +722,7 @@ static ssize_t read_file_ani(struct file *file, char __user *user_buf,
 			st->mib_intr);
 	len += snprintf(buf + len, sizeof(buf) - len,
 			"beacon RSSI average:\t%d\n",
-			(int)ewma_read(&ah->ah_beacon_rssi_avg));
+			(int)ewma_beacon_rssi_read(&ah->ah_beacon_rssi_avg));
 
 #define CC_PRINT(_struct, _field) \
 	_struct._field, \
@@ -1043,14 +1043,14 @@ ath5k_debug_dump_bands(struct ath5k_hw *ah)
 
 	BUG_ON(!ah->sbands);
 
-	for (b = 0; b < IEEE80211_NUM_BANDS; b++) {
+	for (b = 0; b < NUM_NL80211_BANDS; b++) {
 		struct ieee80211_supported_band *band = &ah->sbands[b];
 		char bname[6];
 		switch (band->band) {
-		case IEEE80211_BAND_2GHZ:
+		case NL80211_BAND_2GHZ:
 			strcpy(bname, "2 GHz");
 			break;
-		case IEEE80211_BAND_5GHZ:
+		case NL80211_BAND_5GHZ:
 			strcpy(bname, "5 GHz");
 			break;
 		default:
