@@ -1,7 +1,8 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# ftp://download.nvidia.com/XFree86/Linux-x86_64/367.57/README/minimumrequirements.html
-%define		max_xorg_ver	1.18.99
+# ftp://download.nvidia.com/XFree86/Linux-x86_64/375.20/README/minimumrequirements.html
+
+%define		max_xorg_ver	1.19.99
 
 %define		nvidialibdir	%{_libdir}/nvidia
 %define		nvidialib32dir	%{_prefix}/lib/nvidia
@@ -10,7 +11,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	367.57
+Version:	375.20
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -104,6 +105,7 @@ sh %{SOURCE0} --extract-only --target nvidiapkg
 # Lets just take care of all the docs here rather than during install
 pushd nvidiapkg
 %{__mv} LICENSE NVIDIA_Changelog pkg-history.txt README.txt html/
+%{__mv} nvidia-persistenced-init.tar.bz2 html/
 popd
 find nvidiapkg/html/ -type f | xargs chmod 0644
 
@@ -122,6 +124,7 @@ pushd nvidiapkg
 %{__install} -p -m 0755 nvidia-cuda-mps-server $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-debugdump $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-modprobe $RPM_BUILD_ROOT%{_bindir}/
+%{__install} -p -m 0755 nvidia-persistenced $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-settings $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-smi $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-xconfig $RPM_BUILD_ROOT%{_bindir}/
@@ -129,9 +132,11 @@ pushd nvidiapkg
 # Install OpenCL Vendor file
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/
 %{__install} -p -m 0644 nvidia.icd $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/nvidia.icd
-# Install vulkan icd file
+# Install vulkan and EGL loaders
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/vulkan/icd.d/
 %{__install} -p -m 0644 nvidia_icd.json $RPM_BUILD_ROOT%{_sysconfdir}/vulkan/icd.d/nvidia_icd.json
+%{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/
+%{__install} -p -m 0644 10_nvidia.json $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
 
 # Install GL, tls and vdpau libs
 %{__mkdir_p} $RPM_BUILD_ROOT%{_libdir}/vdpau/
@@ -146,7 +151,8 @@ pushd nvidiapkg
 %{__install} -p -m 0755 libGLESv2_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libGLESv2.so.2 $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libGL.la $RPM_BUILD_ROOT%{nvidialibdir}/
-%{__install} -p -m 0755 libGL.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
+%{__install} -p -m 0755 libGL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/
+%{__install} -p -m 0755 libGLX.so.0 $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libnvcuvid.so in 260.xx series driver
 %{__install} -p -m 0755 libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
@@ -198,7 +204,8 @@ pushd nvidiapkg
 %{__install} -p -m 0755 32/libGLESv2_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libGLESv2.so.2 $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libGL.la $RPM_BUILD_ROOT%{nvidialib32dir}/
-%{__install} -p -m 0755 32/libGL.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
+%{__install} -p -m 0755 32/libGL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialib32dir}/
+%{__install} -p -m 0755 32/libGLX.so.0 $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libnvidia-compiler.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
@@ -239,8 +246,9 @@ pushd nvidiapkg
 %{__ln_s} libGLESv1_CM.so.1 $RPM_BUILD_ROOT%{nvidialibdir}/libGLESv1_CM.so
 %{__ln_s} libGLESv2_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libGLESv2_nvidia.so.2
 %{__ln_s} libGLESv2.so.2 $RPM_BUILD_ROOT%{nvidialibdir}/libGLESv2.so
-%{__ln_s} libGL.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libGL.so
-%{__ln_s} libGL.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libGL.so.1
+%{__ln_s} libGL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libGL.so
+%{__ln_s} libGL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libGL.so.1
+%{__ln_s} libGLX.so.0 $RPM_BUILD_ROOT%{nvidialibdir}/libGLX.so
 %{__ln_s} libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libGLX_nvidia.so.0
 %{__ln_s} libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libGLX_indirect.so.0
 # Added libnvcuvid.so in 260.xx series driver
@@ -282,8 +290,9 @@ pushd nvidiapkg
 %{__ln_s} libGLESv1_CM.so.1 $RPM_BUILD_ROOT%{nvidialib32dir}/libGLESv1_CM.so
 %{__ln_s} libGLESv2_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libGLESv2_nvidia.so.2
 %{__ln_s} libGLESv2.so.2 $RPM_BUILD_ROOT%{nvidialib32dir}/libGLESv2.so
-%{__ln_s} libGL.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libGL.so
-%{__ln_s} libGL.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libGL.so.1
+%{__ln_s} libGL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialib32dir}/libGL.so
+%{__ln_s} libGL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialib32dir}/libGL.so.1
+%{__ln_s} libGLX.so.0 $RPM_BUILD_ROOT%{nvidialib32dir}/libGLX.so
 %{__ln_s} libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libGLX_nvidia.so.0
 %{__ln_s} libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libGLX_indirect.so.0
 %{__ln_s} libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libnvcuvid.so
@@ -306,7 +315,7 @@ pushd nvidiapkg
 
 # Install man pages
 %{__mkdir_p} $RPM_BUILD_ROOT%{_mandir}/man1/
-%{__install} -p -m 0644 nvidia-{cuda-mps-control,modprobe,settings,smi,xconfig}.1.gz $RPM_BUILD_ROOT%{_mandir}/man1/
+%{__install} -p -m 0644 nvidia-{cuda-mps-control,modprobe,persistenced,settings,smi,xconfig}.1.gz $RPM_BUILD_ROOT%{_mandir}/man1/
 
 # Install pixmap for the desktop entry
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/pixmaps/
@@ -431,6 +440,7 @@ fi ||:
 %{_mandir}/man1/nvidia*.*
 %{_datadir}/pixmaps/nvidia-settings.png
 %{_datadir}/applications/*nvidia-settings.desktop
+%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
 %dir %{_datadir}/nvidia
 %{_datadir}/nvidia/nvidia-application-profiles-*
 %{_datadir}/X11/xorg.conf.d/nvidia-drm-outputclass.conf
@@ -439,6 +449,7 @@ fi ||:
 %{_bindir}/nvidia-cuda-mps-server
 %{_bindir}/nvidia-debugdump
 %attr(4755, root, root) %{_bindir}/nvidia-modprobe
+%{_bindir}/nvidia-persistenced
 %{_bindir}/nvidia-settings
 %{_bindir}/nvidia-smi
 %{_bindir}/nvidia-xconfig
@@ -469,6 +480,12 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Sat Nov 19 2016 Philip J Perry <phil@elrepo.org> - 375.20-1
+- Updated to version 375.20
+- Adds support for Xorg 1.19 (Video Driver ABI 23)
+- Enable GLVND
+- Install nvidia-persistenced
+
 * Tue Oct 11 2016 Philip J Perry <phil@elrepo.org> - 367.57-1
 - Updated to version 367.57
 
