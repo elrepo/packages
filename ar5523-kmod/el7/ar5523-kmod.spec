@@ -2,11 +2,11 @@
 %define kmod_name ar5523
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-327.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-514.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 4%{?dist}
+Release: 5%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -68,6 +68,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Nov 06 2016 Philip J Perry <phil@elrepo.org> - 0.0-5
+- Backported from kernel-4.7.10 for RHEL-7.3
+
 * Wed Nov 25 2015 Philip J Perry <phil@elrepo.org> - 0.0-4
 - Backported from kernel-4.1.13 for RHEL-7.2
 
