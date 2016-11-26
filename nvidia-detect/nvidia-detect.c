@@ -53,7 +53,11 @@
 #define KMOD_NVIDIA_96XX	""
 #endif
 
-/* Define the max Xorg Video Driver ABI supported by each NVIDIA driver */
+/* 
+ * Define the max Xorg Video Driver ABI supported by each NVIDIA driver
+ * ABI_VIDEODRV_VERSION for Xorg is defined in:
+ * http://cgit.freedesktop.org/xorg/xserver/tree/hw/xfree86/common/xf86Module.h
+ */
 #define XORG_ABI_CURRENT	23	/* 375.20; Xorg 1.19 */
 #define XORG_ABI_96XX		12	/* 96.43.23 */
 #define XORG_ABI_173XX		15	/* 173.14.39 */
