@@ -2,11 +2,11 @@
 %define kmod_name i2c-i801
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-327.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-514.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -66,6 +66,11 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Dec 03 2016 Philip J Perry <phil@elrepo.org> - 0.0-3
+- Updated to kernel-4.4.36
+- Built against RHEL7.3 kernel
+- Backports support for Braswell and Wildcat Point ICH's
+
 * Sat Jan 16 2016 Philip J Perry <phil@elrepo.org> - 0.0-2
 - Updated to kernel-4.1.15
 
