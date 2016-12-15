@@ -5,7 +5,7 @@
 
 Summary: Management utilities for DRBD
 Name: drbd84-utils
-Version: 8.9.5
+Version: 8.9.8
 Release: 1%{?dist}
 License: GPLv2+
 Group: System Environment/Kernel
@@ -17,6 +17,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: flex
 BuildRequires: udev
 BuildRequires: libxslt
+BuildRequires: xmlto
 Requires: chkconfig
 Requires: udev
 
@@ -149,6 +150,10 @@ fi
 %{_sysconfdir}/xen/scripts/block-drbd
 
 %changelog
+* Tue Dec 13 2016 Akemi Yagi <toracat@elrepo.org> - 8.9.8-1
+- Updated to version 8.9.8.
+- Add in BuildRequires: xmlto to allow building in mock.
+
 * Sun Jan  3 2016 Hiroshi Fujishima <h-fujishima@sakura.ad.jp> - 8.9.5-1
 - Updated to version 8.9.5.
 
