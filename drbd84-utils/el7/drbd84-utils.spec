@@ -1,7 +1,7 @@
 %define real_name drbd-utils
 
 Name:    drbd84-utils
-Version: 8.9.6
+Version: 8.9.8
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
@@ -9,6 +9,8 @@ Summary: Management utilities for DRBD
 URL:     http://www.drbd.org/
 
 Source0:   http://oss.linbit.com/drbd/drbd-utils-%{version}.tar.gz
+
+Patch1: elrepo-selinux-bug695.patch
 
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: flex
@@ -61,6 +63,7 @@ It is not required when the init system used is systemd.
 
 %prep
 %setup -n %{real_name}-%{version}
+%patch1 -p1
 
 %build
 %configure \
@@ -104,7 +107,7 @@ fi
 %config(noreplace) %{_sysconfdir}/drbd.conf
 %dir %{_sysconfdir}/drbd.d/
 %config(noreplace) %{_sysconfdir}/drbd.d/global_common.conf
-%config %{_unitdir}/drbd.service
+%config %attr(644, root, root) %{_unitdir}/drbd.service
 %dir %{_localstatedir}/lib/drbd/
 %dir /lib/drbd/
 /lib/drbd/drbd
@@ -152,6 +155,10 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Sat Dec  3 2016 Akemi Yagi <toracat@elrepo.org> - 8.9.8-1
+- update to version 8.9.8.
+- Bug fix (elrepo bug #695)
+
 * Wed Oct  5 2016 Hiroshi Fujishima <h-fujishima@sakura.ad.jp> - 8.9.6-1
 - Update to version 8.9.6.
 - BuildRequires: xmlto added by A. Yagi for building in mock.
