@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 2.6.32-573.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 375.20
+Version: 375.26
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -81,6 +81,9 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Dec 15 2016 Philip J Perry <phil@elrepo.org> - 375.26-1
+- Updated to version 375.26
+
 * Sat Nov 19 2016 Philip J Perry <phil@elrepo.org> - 375.20-1
 - Updated to version 375.20
 

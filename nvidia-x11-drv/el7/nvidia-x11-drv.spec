@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# ftp://download.nvidia.com/XFree86/Linux-x86_64/375.20/README/minimumrequirements.html
+# ftp://download.nvidia.com/XFree86/Linux-x86_64/375.26/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.19.99
 
@@ -11,7 +11,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	375.20
+Version:	375.26
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -480,6 +480,9 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Thu Dec 15 2016 Philip J Perry <phil@elrepo.org> - 375.26-1
+- Updated to version 375.26
+
 * Sat Nov 19 2016 Philip J Perry <phil@elrepo.org> - 375.20-1
 - Updated to version 375.20
 - Adds support for Xorg 1.19 (Video Driver ABI 23)
