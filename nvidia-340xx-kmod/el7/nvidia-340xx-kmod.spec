@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-514.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 340.98
+Version: 340.101
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -78,6 +78,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Dec 17 2016 Philip J Perry <phil@elrepo.org> - 340.101-1
+- Updated to version 340.101
+
 * Tue Nov 08 2016 Philip J Perry <phil@elrepo.org> - 340.98-1
 - Updated to version 340.98
 - Rebuilt against RHEL 7.3 kernel
