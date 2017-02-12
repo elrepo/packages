@@ -415,6 +415,7 @@ if [ "$1" -eq "0" ]; then # uninstall
     if [ -f %{_sysconfdir}/default/grub ]; then
       %{__perl} -pi -e 's|(GRUB_CMDLINE_LINUX=.*) nouveau\.modeset=0|$1|g' %{_sysconfdir}/default/grub
       %{__perl} -pi -e 's|(GRUB_CMDLINE_LINUX=.*) rd\.driver\.blacklist=nouveau|$1|g' %{_sysconfdir}/default/grub
+      %{__perl} -pi -e 's|(GRUB_CMDLINE_LINUX=.*) plymouth\.ignore-udev|$1|g' %{_sysconfdir}/default/grub
     fi
     if [ -x /usr/sbin/grubby ]; then
       # get installed kernels
@@ -422,7 +423,7 @@ if [ "$1" -eq "0" ]; then # uninstall
         VMLINUZ="/boot/vmlinuz-"$KERNEL
         if [[ -e "$VMLINUZ" ]]; then
           /usr/sbin/grubby --update-kernel="$VMLINUZ" \
-            --remove-args='nouveau.modeset=0 rd.driver.blacklist=nouveau' &>/dev/null
+            --remove-args='nouveau.modeset=0 rd.driver.blacklist=nouveau plymouth.ignore-udev' &>/dev/null
         fi
       done
     fi
@@ -480,6 +481,8 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+- Use plymouth.ignore-udev to allow test mode booting [David Bell]
+
 * Thu Dec 15 2016 Philip J Perry <phil@elrepo.org> - 375.26-1
 - Updated to version 375.26
 
