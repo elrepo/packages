@@ -383,7 +383,7 @@ if [ "$1" -eq "1" ]; then # new install
       cp -p %{_sysconfdir}/X11/nvidia-xorg.conf %{_sysconfdir}/X11/xorg.conf &>/dev/null
     # Disable the nouveau driver
     [ -f %{_sysconfdir}/default/grub ] && \
-      %{__perl} -pi -e 's|(GRUB_CMDLINE_LINUX=".*)"|$1 nouveau\.modeset=0 rd\.driver\.blacklist=nouveau"|g' \
+      %{__perl} -pi -e 's|(GRUB_CMDLINE_LINUX=".*)"|$1 nouveau\.modeset=0 rd\.driver\.blacklist=nouveau plymouth\.ignore-udev"|g' \
         %{_sysconfdir}/default/grub
     if [ -x /usr/sbin/grubby ]; then
       # get installed kernels
@@ -394,7 +394,7 @@ if [ "$1" -eq "1" ]; then # new install
           if [[ "$KERNEL" == "$KABI" && -e "$VMLINUZ" ]]; then
             /usr/bin/dracut --add-drivers nvidia -f /boot/initramfs-$KERNEL.img $KERNEL
             /usr/sbin/grubby --update-kernel="$VMLINUZ" \
-              --args='nouveau.modeset=0 rd.driver.blacklist=nouveau' &>/dev/null
+              --args='nouveau.modeset=0 rd.driver.blacklist=nouveau plymouth.ignore-udev' &>/dev/null
           fi
         done
       done
