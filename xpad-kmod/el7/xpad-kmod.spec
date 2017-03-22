@@ -2,11 +2,11 @@
 %define kmod_name xpad
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-229.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-514.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 0.0.6
-Release: 3%{?dist}
+Release: 4%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -65,6 +65,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Mar 21 2017 Andrew Simpson <andrew.simpson@navy.mil> - 0.0.6-4
+- Backported from Kernel-4.11-rc3
+- Rebuilt against RHEL 7.3 kernel
+
 * Thu Mar 05 2015 Philip J Perry <phil@elrepo.org> - 0.0.6-3
 - Rebuilt against RHEL 7.1 kernel
 
