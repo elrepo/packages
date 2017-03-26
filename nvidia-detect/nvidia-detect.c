@@ -40,13 +40,13 @@
 
 /* Only recommend elrepo drivers on RHEL*/
 #if (RHEL_MAJOR == 6 || RHEL_MAJOR == 7)
-#define KMOD_NVIDIA			"kmod-nvidia"
+#define KMOD_NVIDIA		"kmod-nvidia"
 #define KMOD_NVIDIA_340XX	"kmod-nvidia-340xx"
 #define KMOD_NVIDIA_304XX	"kmod-nvidia-304xx"
 #define KMOD_NVIDIA_173XX	""	/* No longer supported on RHEL */
 #define KMOD_NVIDIA_96XX	""	/* No longer supported on RHEL */
 #else	/* make no specific package recommendation */
-#define KMOD_NVIDIA			""
+#define KMOD_NVIDIA		""
 #define KMOD_NVIDIA_340XX	""
 #define KMOD_NVIDIA_304XX	""
 #define KMOD_NVIDIA_173XX	""
@@ -135,9 +135,7 @@ static void usage(void)
 
 static void has_optimus(void)
 {
-	fprintf(stderr, "Optimus hardware detected: An Intel display controller was detected\n");
-	fprintf(stderr, "Either disable the Intel display controller in the BIOS\n");
-	fprintf(stderr, "or use the bumblebee driver to support Optimus hardware\n");
+	fprintf(stderr, "An Intel display controller was also detected\n");
 }
 
 static void list_all_nvidia_devices(void)
@@ -414,6 +412,7 @@ int main(int argc, char *argv[])
 			/* 
 			 * Find Intel device for simplistic detection
 			 * of Optimus hardware configurations
+			 * Some Dell desktops also expose the Intel on-chip controller
 			 */
 			if (dev->vendor_id == PCI_VENDOR_ID_INTEL)
 				has_intel = true;
