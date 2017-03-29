@@ -2,11 +2,11 @@
 %define kmod_name nvidia
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-514.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-514.10.2.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 375.39
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
@@ -81,6 +81,13 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+- Blacklist GRID K1/K2/K340/K520 based devices no longer
+  supported by the 375.xx driver
+  [https://elrepo.org/bugs/view.php?id=724]
+
+* Fri Mar 03 2017 Philip J Perry <phil@elrepo.org> - 375.39-2
+- Rebuilt against kernel-3.10.0-514.10.2.el7 for kABI breakage
+
 * Wed Feb 22 2017 Philip J Perry <phil@elrepo.org> - 375.39-1
 - Updated to version 375.39
 

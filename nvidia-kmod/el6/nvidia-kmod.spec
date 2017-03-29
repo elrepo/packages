@@ -81,6 +81,10 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+- Blacklist GRID K1/K2/K340/K520 based devices no longer
+  supported by the 375.xx driver
+  [https://elrepo.org/bugs/view.php?id=724]
+
 * Wed Feb 22 2017 Philip J Perry <phil@elrepo.org> - 375.39-1
 - Updated to version 375.39
 
