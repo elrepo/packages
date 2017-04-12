@@ -153,6 +153,7 @@ get_rpmtemplate ()
     cat <<EOF
 Provides:         kernel-modules >= ${verrel_dep}${dotvariant}
 Provides:         ${kmod_name}-kmod = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:         kernel >= 3.10.0-327.el7
 Requires(post):   /usr/sbin/depmod
 Requires(postun): /usr/sbin/depmod
 EOF
@@ -189,6 +190,9 @@ if [ -x "/sbin/weak-modules" ]; then
     printf '%s\n' "\${modules[@]}" | /sbin/weak-modules --add-modules
 fi
 echo "Done."
+if [ -x "/usr/sbin/tpe-setfattr-whitelist.sh" ]; then
+    /usr/sbin/tpe-setfattr-whitelist.sh > /dev/null || :
+fi
 echo "Please (re)load the 'tpe' module with modprobe or reboot the system"
 EOF
 
@@ -211,15 +215,24 @@ fi
 echo "Done."
 EOF
 
+cat <<EOF
+%triggerin -n kmod-${kmod_name}${dashvariant} -- cheese, empathy, firefox, gjs, gnome-contacts, control-center, gnome-initial-setup, gnome-session, gnome-shell, ibus, kde-runtime, libreoffice-core, thunderbird, totem, yelp
+if [ -x "/usr/sbin/tpe-setfattr-whitelist.sh" ]; then
+    /usr/sbin/tpe-setfattr-whitelist.sh > /dev/null || :
+fi
+EOF
+
 echo "%files         -n kmod-${kmod_name}${dashvariant}"
 if [ "" == "$override_filelist" ];
 then
     echo "%defattr(644,root,root,755)"
     echo "/lib/modules/${verrel}${dotvariant}/"
+    echo "%config /etc/sysconfig/tpe-*-whitelist"
     echo "%attr(755,root,root) /etc/sysconfig/modules/${kmod_name}.modules"
     echo "%config /etc/depmod.d/kmod-${kmod_name}.conf"
     echo "%config /etc/modprobe.d/${kmod_name}.conf"
     echo "%config(noreplace) /etc/sysctl.d/${kmod_name}.conf"
+    echo "%attr(755,root,root) /usr/sbin/tpe-setfattr-whitelist.sh"
     echo "%doc /usr/share/doc/kmod-${kmod_name}-%{version}/"
 else
     cat "$override_filelist" | get_filelist

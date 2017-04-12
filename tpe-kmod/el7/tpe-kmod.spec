@@ -3,11 +3,11 @@
 %define src_name tpe-lkm
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-123.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-514.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 1.1.0
-Release: 1%{?dist}
+Version: 2.0.1
+Release: 3.20170406git%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -48,10 +48,14 @@ KSRC=%{_usrsrc}/kernels/%{kversion}
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d/
 %{__install} -p conf/tpe.modprobe.conf %{buildroot}%{_sysconfdir}/modprobe.d/tpe.conf
+%{__install} -d %{buildroot}%{_sysconfdir}/sysconfig/
+%{__install} -p conf/tpe-mmap-whitelist %{buildroot}%{_sysconfdir}/sysconfig/tpe-mmap-whitelist
 %{__install} -d %{buildroot}%{_sysconfdir}/sysconfig/modules/
 %{__install} -p conf/tpe.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/modules/tpe.modules
 %{__install} -d %{buildroot}%{_sysconfdir}/sysctl.d/
 %{__install} -p conf/tpe.sysctl %{buildroot}%{_sysconfdir}/sysctl.d/tpe.conf
+%{__install} -d %{buildroot}%{_sbindir}/
+%{__install} -p scripts/tpe-setfattr-whitelist.sh %{buildroot}%{_sbindir}/tpe-setfattr-whitelist.sh
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -p {FAQ,GPL,INSTALL,LICENSE,README} \
     %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
@@ -74,6 +78,35 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Apr 06 2017 Philip J Perry <phil@elrepo.org> - 2.0.1-3.20170406git
+- Whitelist more programs
+- Update %%triggerin list
+
+* Tue Apr 04 2017 Philip J Perry <phil@elrepo.org> - 2.0.1-2.20170404git
+- Add tpe.xattr_soften to sysctl conf file
+
+* Mon Apr 03 2017 Philip J Perry <phil@elrepo.org> - 2.0.1-1.20170403git
+- Update to 2.0.1
+
+* Sat Apr 01 2017 Philip J Perry <phil@elrepo.org> - 2.0.0-5.20170401git
+- Quiet down the gnome-helper
+- Silence tpe-setfattr-whitelist script
+
+* Sat Apr 01 2017 Philip J Perry <phil@elrepo.org> - 2.0.0-4.20170401git
+- Upstream fixes to setfattr.
+- Added %%triggerin script for packages on the whitelist
+
+* Fri Mar 31 2017 Philip J Perry <phil@elrepo.org> - 2.0.0-3.20170331git
+- Add security.tpe extended attribute support to soften checks
+
+* Mon Mar 27 2017 Philip J Perry <phil@elrepo.org> - 2.0.0-2.20170327git
+- More upstream updates, adds tpe.extras
+- Add requires for kernel >= 3.10.0-327.el7
+
+* Sat Mar 25 2017 Philip J Perry <phil@elrepo.org> - 2.0.0-1.20170325git
+- Update to 2.0.0
+- Complete rewrite to use kernel ftrace framework
+
 * Mon Sep 01 2014 Philip J Perry <phil@elrepo.org> - 1.1.0-1
 - Update to 1.1.0
 
