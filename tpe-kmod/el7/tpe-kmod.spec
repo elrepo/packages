@@ -6,8 +6,8 @@
 %{!?kversion: %define kversion 3.10.0-514.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 2.0.1
-Release: 3.20170406git%{?dist}
+Version: 2.0.2
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -78,6 +78,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Apr 23 2017 Philip J Perry <phil@elrepo.org> - 2.0.2-1
+- Update to 2.0.2
+
 * Thu Apr 06 2017 Philip J Perry <phil@elrepo.org> - 2.0.1-3.20170406git
 - Whitelist more programs
 - Update %%triggerin list
