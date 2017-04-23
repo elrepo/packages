@@ -1,6 +1,6 @@
 Name:    nvidia-detect
 Version: 375.39
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group:   Applications/System
 License: GPLv2
 Summary: NVIDIA graphics card detection utility
@@ -37,6 +37,10 @@ A utility to detect NVIDIA graphics cards.
 %{_bindir}/nvidia-detect
 
 %changelog
+* Sun Apr 23 2017 Philip J Perry <phil@elrepo.org> - 375.39-2
+- Add support for 367.xx legacy package
+- Change Optimus text [https://www.centos.org/forums/viewtopic.php?f=49&t=61853]
+
 * Wed Feb 22 2017 Philip J Perry <phil@elrepo.org> - 375.39-1
 - Add support for detection of devices added to 375.39 driver release
 
