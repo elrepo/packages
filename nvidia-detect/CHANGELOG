@@ -1,3 +1,9 @@
+23 Apr 2017
+	Add support for 367.xx legacy driver
+
+1 Oct 2016
+	Drop support for RHEL5
+
 16 Feb 2015
 	Return only one package name 
 
