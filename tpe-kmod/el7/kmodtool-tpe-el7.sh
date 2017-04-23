@@ -216,7 +216,7 @@ echo "Done."
 EOF
 
 cat <<EOF
-%triggerin -n kmod-${kmod_name}${dashvariant} -- cheese, empathy, firefox, gjs, gnome-contacts, control-center, gnome-initial-setup, gnome-session, gnome-shell, ibus, kde-runtime, libreoffice-core, thunderbird, totem, yelp
+%triggerin -n kmod-${kmod_name}${dashvariant} -- cheese, empathy, firefox, gedit, gjs, gnome-contacts, control-center, gnome-initial-setup, gnome-session, gnome-shell, ibus, kde-runtime, libreoffice-core, seahorse, thunderbird, totem, yelp
 if [ -x "/usr/sbin/tpe-setfattr-whitelist.sh" ]; then
     /usr/sbin/tpe-setfattr-whitelist.sh > /dev/null || :
 fi
