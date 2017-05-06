@@ -6,7 +6,7 @@
 %{!?kversion: %define kversion 3.10.0-514.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 2.0.2
+Version: 2.0.3
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -78,6 +78,12 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed May 03 2017 Philip J Perry <phil@elrepo.org> - 2.0.3-1
+- Update to 2.0.3
+
+* Tue Apr 25 2017 Philip J Perry <phil@elrepo.org> - 2.0.2-2.20170425git
+- Fix race condition on module insert
+
 * Sun Apr 23 2017 Philip J Perry <phil@elrepo.org> - 2.0.2-1
 - Update to 2.0.2
 
