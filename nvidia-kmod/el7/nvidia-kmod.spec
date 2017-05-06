@@ -84,6 +84,8 @@ done
 - Blacklist GRID K1/K2/K340/K520 based devices no longer
   supported by the 375.xx driver
   [https://elrepo.org/bugs/view.php?id=724]
+- Add provides for better compatibility with CUDA
+  [http://elrepo.org/bugs/view.php?id=735]
 
 * Fri Mar 03 2017 Philip J Perry <phil@elrepo.org> - 375.39-2
 - Rebuilt against kernel-3.10.0-514.10.2.el7 for kABI breakage
