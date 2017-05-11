@@ -7,7 +7,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 2.0.3
-Release: 1%{?dist}
+Release: 3.20170507git%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -49,7 +49,7 @@ KSRC=%{_usrsrc}/kernels/%{kversion}
 %{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d/
 %{__install} -p conf/tpe.modprobe.conf %{buildroot}%{_sysconfdir}/modprobe.d/tpe.conf
 %{__install} -d %{buildroot}%{_sysconfdir}/sysconfig/
-%{__install} -p conf/tpe-mmap-whitelist %{buildroot}%{_sysconfdir}/sysconfig/tpe-mmap-whitelist
+%{__install} -p conf/tpe-*-whitelist %{buildroot}%{_sysconfdir}/sysconfig/
 %{__install} -d %{buildroot}%{_sysconfdir}/sysconfig/modules/
 %{__install} -p conf/tpe.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/modules/tpe.modules
 %{__install} -d %{buildroot}%{_sysconfdir}/sysctl.d/
@@ -78,6 +78,13 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun May 07 2017 Philip J Perry <phil@elrepo.org> - 2.0.3-3.20170507git
+- Add all tpe whitelist files
+
+* Sun May 07 2017 Philip J Perry <phil@elrepo.org> - 2.0.3-2.20170507git
+- Fix soften regression with tpe.extras
+- Add requires for setfattr
+
 * Wed May 03 2017 Philip J Perry <phil@elrepo.org> - 2.0.3-1
 - Update to 2.0.3
 
