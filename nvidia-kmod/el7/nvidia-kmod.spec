@@ -5,8 +5,8 @@
 %{!?kversion: %define kversion 3.10.0-514.10.2.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 375.39
-Release: 2%{?dist}
+Version: 375.66
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
@@ -81,6 +81,8 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed May 10 2017 Philip J Perry <phil@elrepo.org> - 375.66-1
+- Updated to version 375.66
 - Blacklist GRID K1/K2/K340/K520 based devices no longer
   supported by the 375.xx driver
   [https://elrepo.org/bugs/view.php?id=724]

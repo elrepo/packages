@@ -11,7 +11,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	375.39
+Version:	375.66
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -481,6 +481,9 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Wed May 10 2017 Philip J Perry <phil@elrepo.org> - 375.66-1
+- Updated to version 375.66
+
 * Wed Feb 22 2017 Philip J Perry <phil@elrepo.org> - 375.39-1
 - Updated to version 375.39
 - Use plymouth.ignore-udev to allow text mode booting [David Bell]
