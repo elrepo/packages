@@ -3,10 +3,10 @@
 %define real_name drbd
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-229.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-514.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 9.0.0
+Version: 9.0.7
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -68,5 +68,8 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Jun 10 2017 Akemi Yagi <toracat@elrepo.org> - 9.0.7-1
+- Updated to 9.0.7
+
 * Wed Jun 24 2015 Hiroshi Fujishima <h-fujishima@sakura.ad.jp> - 9.0.0-1
 - Initial el7 build of the kmod package.

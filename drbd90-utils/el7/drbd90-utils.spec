@@ -1,7 +1,7 @@
 %define real_name drbd-utils
 
 Name:    drbd90-utils
-Version: 8.9.3
+Version: 9.0.0
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
@@ -9,6 +9,8 @@ Summary: Management utilities for DRBD
 URL:     http://www.drbd.org/
 
 Source0:   http://oss.linbit.com/drbd/drbd-utils-%{version}.tar.gz
+
+Patch1: elrepo-selinux-bug695.patch
 
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: flex
@@ -62,6 +64,7 @@ It is not required when the init system used is systemd.
 
 %prep
 %setup -n %{real_name}-%{version}
+%patch1 -p1
 
 %build
 %configure \
@@ -126,6 +129,7 @@ fi
 %{_sbindir}/drbdmeta
 %{_sbindir}/drbdsetup
 %{_sbindir}/drbd-overview
+%{_sbindir}/drbdmon
 %dir %{_prefix}/lib/drbd/
 %{_prefix}/lib/drbd/notify-out-of-sync.sh
 %{_prefix}/lib/drbd/notify-split-brain.sh
@@ -150,6 +154,9 @@ fi
 %{_prefix}/lib/drbd/crm-fence-peer.sh
 %{_prefix}/lib/drbd/crm-unfence-peer.sh
 %{_prefix}/lib/ocf/resource.d/linbit/drbd
+%{_prefix}/lib/drbd/crm-fence-peer.9.sh
+%{_prefix}/lib/drbd/crm-unfence-peer.9.sh
+%{_prefix}/lib/ocf/resource.d/linbit/drbd.shellfuncs.sh
 
 ### rgmanager / rhcs
 %{_datadir}/cluster/drbd.sh
@@ -164,5 +171,23 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Mon Jun 12 2017 Akemi Yagi <toracat@elrepo.org> - 9.0.0-1
+- Updated to 9.0.0
+- xmlto replaced with docbook-style-xsl
+
+* Sat Dec  3 2016 Akemi Yagi <toracat@elrepo.org> - 8.9.8-1
+- update to version 8.9.8.
+- Bug fix (elrepo bug #695)
+
+* Wed Oct  5 2016 Hiroshi Fujishima <h-fujishima@sakura.ad.jp> - 8.9.6-1
+- Update to version 8.9.6.
+- BuildRequires: xmlto added by A. Yagi for building in mock.
+
+* Mon Jan  4 2016 Hiroshi Fujishima <h-fujishima@sakura.ad.jp> - 8.9.5-1
+- Update to version 8.9.5.
+
+* Sat Aug 15 2015 Akemi Yagi <toracat@elrepo.org> - 8.9.3-1.1
+- Patch drbd.ocf to the version from 8.9.3-2 (bugs #578 and #589)
+
 * Wed Jun 24 2015 Hiroshi Fujishima <h-fujishima@sakura.ad.jp> - 8.9.3-1
 - Initial package for RHEL7.
