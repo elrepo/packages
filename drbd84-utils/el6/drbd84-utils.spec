@@ -5,7 +5,7 @@
 
 Summary: Management utilities for DRBD
 Name: drbd84-utils
-Version: 8.9.8
+Version: 9.0.0
 Release: 1%{?dist}
 License: GPLv2+
 Group: System Environment/Kernel
@@ -17,7 +17,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: flex
 BuildRequires: udev
 BuildRequires: libxslt
-BuildRequires: xmlto
+BuildRequires: docbook-style-xsl
 Requires: chkconfig
 Requires: udev
 
@@ -131,6 +131,9 @@ fi
 %{_prefix}/lib/drbd/snapshot-resync-target-lvm.sh
 %{_prefix}/lib/drbd/stonith_admin-fence-peer.sh
 %{_prefix}/lib/drbd/unsnapshot-resync-target-lvm.sh
+%{_prefix}/lib/drbd/crm-fence-peer.9.sh
+%{_prefix}/lib/drbd/crm-unfence-peer.9.sh
+%{_prefix}/lib/ocf/resource.d/linbit/drbd.shellfuncs.sh
 
 ### heartbeat
 %{_sysconfdir}/ha.d/resource.d/drbddisk
@@ -150,6 +153,10 @@ fi
 %{_sysconfdir}/xen/scripts/block-drbd
 
 %changelog
+* Mon Jun 12 2017 Akemi Yagi <toracat@elrepo.org> - 9.0.0-1
+- Updated to version 9.0.0.
+- xmlto replaced with docbook-style-xsl [git PR #155]
+
 * Tue Dec 13 2016 Akemi Yagi <toracat@elrepo.org> - 8.9.8-1
 - Updated to version 8.9.8.
 - Add in BuildRequires: xmlto to allow building in mock.

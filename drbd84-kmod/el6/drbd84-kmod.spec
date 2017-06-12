@@ -11,7 +11,7 @@
 
 Summary: Distributed Redundant Block Device driver for Linux
 Name: %{kmod_name}-kmod
-Version: 8.4.9
+Version: 8.4.10
 %define original_release 1
 Release: %{original_release}%{?dist}
 License: GPL
@@ -64,6 +64,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Jun 11 2017 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1
+- Updated to version 8.4.10.
+
 * Tue Dec 13 2016 Akemi Yagi <toracat@elrepo.org> - 8.4.9-1
 - Updated to version 8.4.9.
 
