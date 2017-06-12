@@ -14,6 +14,7 @@ BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: flex
 BuildRequires: udev
 BuildRequires: libxslt
+BuildRequires: docbook-style-xsl
 
 Requires: udev
 Requires(post):   systemd-units
