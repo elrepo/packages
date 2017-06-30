@@ -2,11 +2,11 @@
 %define kmod_name joydev
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-123.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-514.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 1%{?dist}
+Release: 3%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -66,6 +66,14 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Jun 30 2017 Philip J Perry <phil@elrepo.org> - 0.0-3
+- Backported from kernel-3.10.107
+- Do not report stale values on first open [2017-06-20]
+
+* Sat Feb 04 2017 Philip J Perry <phil@elrepo.org> - 0.0-2
+- Rebuild against RHEL7.3 kernel
+  [https://elrepo.org/bugs/view.php?id=715]
+
 * Mon Jan 05 2015 Philip J Perry <phil@elrepo.org> - 0.0-1
 - Initial el7 build of the kmod package.
 - Backported from kernel-3.10.63
