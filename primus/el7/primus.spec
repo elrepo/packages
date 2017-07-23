@@ -1,19 +1,20 @@
+# Filter the provides for libGL.so.1
+# see bug http://elrepo.org/bugs/view.php?id=759
+%global __provides_exclude ^libGL\\.so.*$
+
 Name:           primus
 Version:        20150328
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Faster OpenGL offloading for Bumblebee
 License:        HPND
 Group:          Hardware/Other
 Url:            https://github.com/amonakov/primus
 Source0:        %{name}-master.zip
-Source1:        primusrun
-Source2:        baselibs.conf
 BuildRequires:  mesa-libGL-devel
-BuildRequires:  gcc-c++
 BuildRequires:  libX11-devel
-BuildRequires:  unzip
 Requires:       bumblebee
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+ExclusiveArch:	x86_64
 
 %description
 Primus is a shared library that provides OpenGL and GLX APIs and
@@ -26,24 +27,33 @@ place.
 
 %prep
 %setup -q -n primus-master
-cp -p %{SOURCE1} .
 
 %build
 export CXXFLAGS="%{optflags}"
-make %{?_smp_mflags}
+export LIBDIR=lib64
+%{__make} %{?_smp_mflags}
 
 %install
-install -D "%{_builddir}/%{name}-master/lib/libGL.so.1" "%{buildroot}%{_libdir}/primus/libGL.so.1"
-install -D "%{_builddir}/%{name}-master/primusrun" "%{buildroot}%{_bindir}/primusrun"
+%{__install} -D %{_libdir}/libGL.so.1 %{buildroot}%{_libdir}/primus/libGL.so.1
+%{__install} -D primusrun %{buildroot}%{_bindir}/primusrun
 
 %files
 %defattr(-,root,root)
-%doc LICENSE.txt README.md
-%{_libdir}/primus
+%doc LICENSE.txt README.md technotes.md
+%dir %{_libdir}/primus
 %{_libdir}/primus/libGL.so.1
 %{_bindir}/primusrun
 
 %changelog
+* Fri Jul 21 2017 Philip J Perry <phil@elrepo.org> - 20150328-2
+- Filter the provides for libGL.so.1 [http://elrepo.org/bugs/view.php?id=759]
+- Install technotes.md to docs
+- Remove Source1, duplicate of primusrun in Source0
+- Remove Source2, not used.
+- Remove BR for gcc-c++ and unzip
+- export LIBDIR for x86_64
+- Clean up SPEC file
+
 * Thu May 18 2017 Akemi Yagi <toracat@elrepo.org> - 20150328-1
 - Rebuilt for ELRepo.
 - Updated to version 20150328.
