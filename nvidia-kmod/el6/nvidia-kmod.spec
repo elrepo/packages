@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 2.6.32-573.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 375.66
+Version: 384.59
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -81,6 +81,10 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Jul 25 2017 Philip J Perry <phil@elrepo.org> - 384.59-1
+- Updated to version 384.59
+- Reinstate support for GRID K520
+
 * Wed May 10 2017 Philip J Perry <phil@elrepo.org> - 375.66-1
 - Updated to version 375.66
 - Blacklist GRID K1/K2/K340/K520 based devices no longer

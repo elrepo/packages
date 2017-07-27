@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# ftp://download.nvidia.com/XFree86/Linux-x86_64/375.26/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/384.59/README/minimumrequirements.html
 %define		max_xorg_ver	1.19.99
 
 %define		nvidialibdir	%{_libdir}/nvidia
@@ -10,7 +10,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	375.66
+Version:	384.59
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -21,8 +21,8 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 ExclusiveArch:	i686 x86_64
 
 # Sources.
-Source0:	ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}.run
-Source1:	ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+Source0:	http://us.download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}.run
+Source1:	http://us.download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 
 NoSource: 0
 NoSource: 1
@@ -36,16 +36,6 @@ Source7:    nvidia-provides.sh
 
 # Define for nvidia-provides
 %define __find_provides %{SOURCE7}
-
-# Fix broken SONAME dependency chain
-%ifarch i686
-Provides: libnvcuvid.so
-Provides: libGL.so
-%endif
-%ifarch x86_64
-Provides: libnvcuvid.so()(64bit)
-Provides: libGL.so()(64bit)
-%endif
 
 %ifarch x86_64
 # Provides for CUDA
@@ -72,6 +62,8 @@ Requires(post):	 grubby
 Requires(preun): grubby
 
 # elrepo
+Conflicts:	nvidia-x11-drv-367xx
+Conflicts:	nvidia-x11-drv-367xx-32bit
 Conflicts:	nvidia-x11-drv-340xx
 Conflicts:	nvidia-x11-drv-340xx-32bit
 Conflicts:	nvidia-x11-drv-304xx
@@ -94,6 +86,7 @@ Conflicts:	xorg-x11-drv-nvidia-96xx
 Conflicts:	xorg-x11-drv-nvidia-173xx
 Conflicts:	xorg-x11-drv-nvidia-304xx
 Conflicts:	xorg-x11-drv-nvidia-340xx
+Conflicts:	xorg-x11-drv-nvidia-367xx
 
 %description
 This package provides the proprietary NVIDIA OpenGL X11 display driver files.
@@ -103,9 +96,6 @@ Summary:	Compatibility 32-bit files for the 64-bit Proprietary NVIDIA driver
 Group:		User Interface/X Hardware Support
 Requires:	%{name} = %{version}-%{release}
 Requires(post):	/sbin/ldconfig
-# Fix broken SONAME dependency chain
-Provides: libnvcuvid.so
-Provides: libGL.so
 
 %description 32bit
 Compatibility 32-bit files for the 64-bit Proprietary NVIDIA driver.
@@ -153,9 +143,11 @@ pushd nvidiapkg
 %{__install} -p -m 0644 nvidia.icd $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/nvidia.icd
 # Install vulkan and EGL loaders
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/vulkan/icd.d/
-%{__install} -p -m 0644 nvidia_icd.json $RPM_BUILD_ROOT%{_sysconfdir}/vulkan/icd.d/nvidia_icd.json
+%{__install} -p -m 0644 nvidia_icd.json.template $RPM_BUILD_ROOT%{_sysconfdir}/vulkan/icd.d/nvidia_icd.json
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/
 %{__install} -p -m 0644 10_nvidia.json $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
+%{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/
+%{__install} -p -m 0644 10_nvidia_wayland.json $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/10_nvidia_wayland.json
 
 # Install GL, tls and vdpau libs
 %{__mkdir_p} $RPM_BUILD_ROOT%{_libdir}/vdpau/
@@ -270,6 +262,8 @@ pushd nvidiapkg
 %{__ln_s} libGLX.so.0 $RPM_BUILD_ROOT%{nvidialibdir}/libGLX.so
 %{__ln_s} libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libGLX_nvidia.so.0
 %{__ln_s} libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libGLX_indirect.so.0
+# Fixes bug http://elrepo.org/bugs/view.php?id=714
+%{__ln_s} libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libGLX_indirect.so.0
 # Added libnvcuvid.so in 260.xx series driver
 %{__ln_s} libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvcuvid.so
 %{__ln_s} libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvcuvid.so.1
@@ -315,6 +309,8 @@ pushd nvidiapkg
 %{__ln_s} libGLX.so.0 $RPM_BUILD_ROOT%{nvidialib32dir}/libGLX.so
 %{__ln_s} libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libGLX_nvidia.so.0
 %{__ln_s} libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libGLX_indirect.so.0
+# Fixes bug http://elrepo.org/bugs/view.php?id=714
+%{__ln_s} libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/libGLX_indirect.so.0
 %{__ln_s} libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libnvcuvid.so
 %{__ln_s} libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libnvcuvid.so.1
 %{__ln_s} libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libnvidia-encode.so
@@ -397,14 +393,6 @@ popd
 %clean
 %{__rm} -rf $RPM_BUILD_ROOT
 
-%pre
-# Warn on libglamoregl
-if [ -e /usr/share/X11/xorg.conf.d/glamor.conf ]; then
-    echo "WARNING: libglamoregl conflicts with NVIDIA drivers"
-    echo "         Disable glamoregl or uninstall xorg-x11-glamor"
-    echo "         See: http://elrepo.org/tiki/kmod-nvidia (Known Issues) for more information"
-fi
-
 %post
 if [ "$1" -eq "1" ]; then
     # Check if xorg.conf exists, if it does, backup and remove [BugID # 0000127]
@@ -469,6 +457,7 @@ fi ||:
 %{_mandir}/man1/nvidia*.*
 %{_datadir}/pixmaps/nvidia-settings.png
 %{_datadir}/applications/*nvidia-settings.desktop
+%{_datadir}/egl/egl_external_platform.d/10_nvidia_wayland.json
 %{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
 %dir %{_datadir}/nvidia
 %{_datadir}/nvidia/nvidia-application-profiles-*
@@ -495,6 +484,7 @@ fi ||:
 %{nvidialibdir}/alternate-install*
 %dir %{nvidialibdir}/tls
 %{nvidialibdir}/tls/lib*
+%{_libdir}/libGLX_indirect.so.0
 %{_libdir}/vdpau/libvdpau_nvidia.*
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 %dir %{_libdir}/xorg/modules/extensions/nvidia
@@ -508,10 +498,19 @@ fi ||:
 %{nvidialib32dir}/lib*
 %dir %{nvidialib32dir}/tls
 %{nvidialib32dir}/tls/lib*
+%{_prefix}/lib/libGLX_indirect.so.0
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 %endif
 
 %changelog
+* Tue Jul 25 2017 Philip J Perry <phil@elrepo.org> - 384.59-1
+- Updated to version 384.59
+- Reinstate support for GRID K520
+- Fix bug http://elrepo.org/bugs/view.php?id=714
+- Add conflicts for legacy 367xx packages
+- Remove obsolete checks for glamoregl
+- Remove obsolete broken SONAME fix
+
 * Wed May 10 2017 Philip J Perry <phil@elrepo.org> - 375.66-1
 - Updated to version 375.66
 
