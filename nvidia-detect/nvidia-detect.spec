@@ -1,5 +1,5 @@
 Name:    nvidia-detect
-Version: 375.66
+Version: 384.59
 Release: 1%{?dist}
 Group:   Applications/System
 License: GPLv2
@@ -37,6 +37,9 @@ A utility to detect NVIDIA graphics cards.
 %{_bindir}/nvidia-detect
 
 %changelog
+* Thu Jul 27 2017 Philip J Perry <phil@elrepo.org> - 384.59-1
+- Add support for detection of devices added to 384.59 driver release
+
 * Thu May 11 2017 Philip J Perry <phil@elrepo.org> - 375.66-1
 - Add support for detection of devices added to 375.66 driver release
 - Reinstate support for GRID K520 to latest driver

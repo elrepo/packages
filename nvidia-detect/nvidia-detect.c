@@ -29,7 +29,7 @@
 #include "nvidia-detect.h"
 
 #define PROGRAM_NAME		"nvidia-detect"
-#define NVIDIA_VERSION		"375.66"
+#define NVIDIA_VERSION		"384.59"
 
 #ifndef PCI_VENDOR_ID_INTEL
 #define PCI_VENDOR_ID_INTEL	0x8086
@@ -40,7 +40,7 @@
 
 /* Only recommend elrepo drivers on RHEL*/
 #if (RHEL_MAJOR == 6 || RHEL_MAJOR == 7)
-#define KMOD_NVIDIA		"kmod-nvidia"
+#define KMOD_NVIDIA			"kmod-nvidia"
 #define KMOD_NVIDIA_367XX	"kmod-nvidia-367xx"
 #define KMOD_NVIDIA_340XX	"kmod-nvidia-340xx"
 #define KMOD_NVIDIA_304XX	"kmod-nvidia-304xx"
@@ -71,7 +71,7 @@
 #define XORG_LOG_FILE	"/var/log/Xorg.0.log"
 
 /* Define strings to search for in Xorg log file */
-#define ABI_CLASS	"ABI class: X.Org Video Driver"
+#define ABI_CLASS		"ABI class: X.Org Video Driver"
 #define XORG_VID_DRV	"X.Org Video Driver:"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
