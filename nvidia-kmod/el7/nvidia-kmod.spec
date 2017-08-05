@@ -2,11 +2,11 @@
 %define kmod_name nvidia
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-514.26.2.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-693.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 384.59
-Release: 1%{?dist}
+Release: 2.el7_4.elrepo
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
@@ -81,6 +81,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Aug 01 2017 Philip J Perry <phil@elrepo.org> - 384.59-2
+- Rebuilt against RHEL 7.4 kernel
+
 * Tue Jul 25 2017 Philip J Perry <phil@elrepo.org> - 384.59-1
 - Updated to version 384.59
 - Reinstate support for GRID K520
