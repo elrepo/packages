@@ -11,7 +11,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	384.59
+Version:	384.69
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -23,6 +23,7 @@ ExclusiveArch:	x86_64
 
 # Sources.
 Source0:	http://us.download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+
 NoSource: 0
 
 Source1:	nvidia-xorg.conf
@@ -135,6 +136,10 @@ pushd nvidiapkg
 %{__install} -p -m 0644 10_nvidia.json $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/
 %{__install} -p -m 0644 10_nvidia_wayland.json $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/10_nvidia_wayland.json
+
+# Set vulkan icd file name
+%{__perl} -pi -e 's|__NV_VK_ICD__|libGLX_nvidia.so.0|' \
+    $RPM_BUILD_ROOT%{_sysconfdir}/vulkan/icd.d/nvidia_icd.json
 
 # Install GL, tls and vdpau libs
 %{__mkdir_p} $RPM_BUILD_ROOT%{_libdir}/vdpau/
@@ -273,7 +278,6 @@ pushd nvidiapkg
 # %{__ln_s} libnvidia-vgxcfg.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-vgxcfg.so.1
 # Added libnvidia-opencl.so in 304.xx series driver
 %{__ln_s} libnvidia-opencl.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-opencl.so.1
-%{__ln_s} libnvidia-ptxjitcompiler.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-ptxjitcompiler.so.1
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so.1
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so.1.0
@@ -479,7 +483,14 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
-- Add missing symlink for libnvidia-ptxjitcompiler.so.1
+* Sat Sep 02 2017 Akemi Yagi <toracat@elrepo.org> - 384.69-1
+- Updated to version 384.69
+
+* Thu Aug 31 2017 Akemi Yagi <toracat@elrepo.org> - 384.66-1
+- Updated to version 384.66
+
+* Fri Aug 18 2017 Akemi Yagi <toracat@elrepo.org> - 384.59-2
+- Set vulkan icd file name (http://elrepo.org/bugs/view.php?id=770)
 
 * Tue Jul 25 2017 Philip J Perry <phil@elrepo.org> - 384.59-1
 - Updated to version 384.59
