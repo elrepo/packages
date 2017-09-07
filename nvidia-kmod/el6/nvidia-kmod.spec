@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 2.6.32-573.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 384.59
+Version: 384.69
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -81,6 +81,9 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Sep 02 2017 Akemi Yagi <toracat@elrepo.org> - 384.69-1
+- Updated to version 384.69
+
 * Tue Jul 25 2017 Philip J Perry <phil@elrepo.org> - 384.59-1
 - Updated to version 384.59
 - Reinstate support for GRID K520

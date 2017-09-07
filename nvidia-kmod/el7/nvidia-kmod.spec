@@ -5,8 +5,8 @@
 %{!?kversion: %define kversion 3.10.0-693.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 384.59
-Release: 2.el7_4.elrepo
+Version: 384.69
+Release: 1.el7_4.elrepo
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
@@ -81,6 +81,12 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Sep 02 2017 Akemi Yagi <toracat@elrepo.org> - 384.69-1
+- Updated to version 384.69
+
+* Thu Aug 31 2017 Akemi Yagi <toracat@elrepo.org> - 384.66-1
+- Updated to version 384.66
+
 * Tue Aug 01 2017 Philip J Perry <phil@elrepo.org> - 384.59-2
 - Rebuilt against RHEL 7.4 kernel
 
