@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/384.59/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/384.69/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.19.99
 
@@ -12,7 +12,7 @@
 
 Name:		nvidia-x11-drv
 Version:	384.69
-Release:	1%{?dist}
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -23,7 +23,6 @@ ExclusiveArch:	x86_64
 
 # Sources.
 Source0:	http://us.download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
-
 NoSource: 0
 
 Source1:	nvidia-xorg.conf
@@ -31,6 +30,8 @@ Source2:	99-nvidia.conf
 Source3:	nvidia.ld.so.conf
 Source4:	alternate-install-present
 Source5:    nvidia-provides.sh
+Source6:	nvidia.sh
+Source7:	nvidia.csh
 
 # Define for nvidia-provides
 %define __find_provides %{SOURCE5}
@@ -129,6 +130,8 @@ pushd nvidiapkg
 # Install OpenCL Vendor file
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/
 %{__install} -p -m 0644 nvidia.icd $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/nvidia.icd
+# Set lib in vulkan icd template
+%{__perl} -pi -e 's|__NV_VK_ICD__|libGLX_nvidia.so.0|' nvidia_icd.json.template
 # Install vulkan and EGL loaders
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/vulkan/icd.d/
 %{__install} -p -m 0644 nvidia_icd.json.template $RPM_BUILD_ROOT%{_sysconfdir}/vulkan/icd.d/nvidia_icd.json
@@ -136,10 +139,6 @@ pushd nvidiapkg
 %{__install} -p -m 0644 10_nvidia.json $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/
 %{__install} -p -m 0644 10_nvidia_wayland.json $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/10_nvidia_wayland.json
-
-# Set vulkan icd file name
-%{__perl} -pi -e 's|__NV_VK_ICD__|libGLX_nvidia.so.0|' \
-    $RPM_BUILD_ROOT%{_sysconfdir}/vulkan/icd.d/nvidia_icd.json
 
 # Install GL, tls and vdpau libs
 %{__mkdir_p} $RPM_BUILD_ROOT%{_libdir}/vdpau/
@@ -254,8 +253,6 @@ pushd nvidiapkg
 %{__ln_s} libGLX.so.0 $RPM_BUILD_ROOT%{nvidialibdir}/libGLX.so
 %{__ln_s} libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libGLX_nvidia.so.0
 %{__ln_s} libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libGLX_indirect.so.0
-# Fixes bug http://elrepo.org/bugs/view.php?id=714
-%{__ln_s} libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libGLX_indirect.so.0
 # Added libnvcuvid.so in 260.xx series driver
 %{__ln_s} libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvcuvid.so
 %{__ln_s} libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvcuvid.so.1
@@ -278,6 +275,7 @@ pushd nvidiapkg
 # %{__ln_s} libnvidia-vgxcfg.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-vgxcfg.so.1
 # Added libnvidia-opencl.so in 304.xx series driver
 %{__ln_s} libnvidia-opencl.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-opencl.so.1
+%{__ln_s} libnvidia-ptxjitcompiler.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-ptxjitcompiler.so.1
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so.1
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so.1.0
@@ -300,8 +298,6 @@ pushd nvidiapkg
 %{__ln_s} libGLX.so.0 $RPM_BUILD_ROOT%{nvidialib32dir}/libGLX.so
 %{__ln_s} libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libGLX_nvidia.so.0
 %{__ln_s} libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libGLX_indirect.so.0
-# Fixes bug http://elrepo.org/bugs/view.php?id=714
-%{__ln_s} libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/libGLX_indirect.so.0
 %{__ln_s} libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libnvcuvid.so
 %{__ln_s} libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libnvcuvid.so.1
 %{__ln_s} libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libnvidia-encode.so
@@ -366,6 +362,10 @@ desktop-file-install \
 # Install alternate-install-present file
 # This file tells the NVIDIA installer that a packaged version of the driver is already present on the system
 %{__install} -p -m 0644 %{SOURCE4} $RPM_BUILD_ROOT%{nvidialibdir}/alternate-install-present
+# Install profile.d files
+%{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/
+%{__install} -p -m 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/nvidia.sh
+%{__install} -p -m 0644 %{SOURCE7} $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/nvidia.csh
 
 popd
 
@@ -457,6 +457,8 @@ fi ||:
 %config %{_sysconfdir}/X11/nvidia-xorg.conf
 %config %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 %config %{_sysconfdir}/ld.so.conf.d/nvidia.conf
+%config(noreplace) %{_sysconfdir}/profile.d/nvidia.csh
+%config(noreplace) %{_sysconfdir}/profile.d/nvidia.sh
 %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %{_sysconfdir}/vulkan/icd.d/nvidia_icd.json
 
@@ -466,7 +468,6 @@ fi ||:
 %{nvidialibdir}/alternate-install*
 %dir %{nvidialibdir}/tls
 %{nvidialibdir}/tls/lib*
-%{_libdir}/libGLX_indirect.so.0
 %{_libdir}/vdpau/libvdpau_nvidia.*
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 %dir %{_libdir}/xorg/modules/extensions/nvidia
@@ -479,10 +480,15 @@ fi ||:
 %{nvidialib32dir}/lib*
 %dir %{nvidialib32dir}/tls
 %{nvidialib32dir}/tls/lib*
-%{_prefix}/lib/libGLX_indirect.so.0
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Sun Sep 10 2017 Philip J Perry <phil@elrepo.org> - 384.69-2
+- Add missing symlink for libnvidia-ptxjitcompiler.so.1
+  [http://elrepo.org/bugs/view.php?id=765]
+- Install profile.d scripts to set GLX vendor name, revised fix for
+  [http://elrepo.org/bugs/view.php?id=714]
+
 * Sat Sep 02 2017 Akemi Yagi <toracat@elrepo.org> - 384.69-1
 - Updated to version 384.69
 
