@@ -1,0 +1,38 @@
+legacy340.patch (modified for ELRepo)
+
+Ref: https://devtalk.nvidia.com/default/topic/1021871/304-135-fails-to-build-load-on-rhel-7-4-kernel-3-10-0-693/
+
+Post by r0b0:
+ 08/14/2017 04:15 AM
+
+the above is the correct solution for redhat 7.4 using the 3.10.0-693 kernel. To provide more detailed steps, I've found the following works for the 340.102 driver and 304.135 (use patch appropriate for version)
+
+1. make sure no nvidia.so file exists under /lib/modules/3.10.0-693.el7.x86_64 --if so, remove it
+2. boot system into multi user mode from grub to the update 693 kernel (add systemd.unit=multi-user.target to boot line)
+3. apply patch to nvidia installer; ./NVIDIA-Linux-x86_64-304.135.run --apply-patch legacy304.patch --add-this-kernel
+4. install driver using new custom installer ./NVIDIA-Linux-x86_64-304.135-custom.run
+
+if using the 340 driver, obviously use the 340 installer and the 340 patch file
+
+Post by selrahc55:
+08/14/2017 04:49 PM
+
+To remove nvidia.ko, do not just delete it or rename.
+
+sh ./NVIDIA-Linux-x86_64-###.###.run --no-opengl-files add a –z if you have Nouveau bits that have not been blacklisted, < you have to specify no-opengl there are other files associated, so if it is still mentioned in /var/log/xorg.0.log you did not remove it correctly.
+
+When it is no longer mention in the /var/log/xorg.0.log file you have successfully removed the nvidia.ko and associated files.
+
+Applied-by: Akemi Yagi <toracat@elrepo.org>
+
+--- a/nvidiapkg/kernel/nv-drm.c	2017-01-16 12:15:32.000000000 -0800
++++ b/nvidiapkg/kernel/nv-drm.c	2017-08-17 19:59:32.132321451 -0700
+@@ -115,7 +115,7 @@ static const struct file_operations nv_d
+ };
+ 
+ static struct drm_driver nv_drm_driver = {
+-    .driver_features = DRIVER_GEM | DRIVER_PRIME,
++    .driver_features = DRIVER_GEM | DRIVER_PRIME | DRIVER_LEGACY,
+     .load = nv_drm_load,
+     .unload = nv_drm_unload,
+     .fops = &nv_drm_fops,
