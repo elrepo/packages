@@ -6,7 +6,7 @@
 
 Name:	 %{kmod_name}-kmod
 Version: 304.135
-Release: 3.el7_4.elrepo
+Release: 4.el7_4.elrepo
 Group:	 System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
@@ -20,6 +20,8 @@ ExclusiveArch: x86_64
 Source0:  ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 Source1:  blacklist-nouveau.conf
 Source10: kmodtool-%{kmod_name}-el7.sh
+
+Patch0: legacy304.patch
 
 NoSource: 0
 
@@ -38,6 +40,9 @@ of the same variant of the Linux kernel and not on any one specific build.
 %setup -q -c -T
 echo "override nvidia * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 sh %{SOURCE0} --extract-only --target nvidiapkg
+
+%patch0 -p1
+
 %{__cp} -a nvidiapkg _kmod_build_
 
 %build
@@ -71,6 +76,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Sep 16 2017 Philip J Perry <phil@elrepo.org> - 304.135-4
+- Patch to fix compilation issue applied
+  [http://elrepo.org/bugs/view.php?id=780]
+
 * Sat Aug 05 2017 Philip J Perry <phil@elrepo.org> - 304.135-3
 - Rebuilt against RHEL 7.4 kernel
 
