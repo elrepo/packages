@@ -29,7 +29,7 @@
 #include "nvidia-detect.h"
 
 #define PROGRAM_NAME		"nvidia-detect"
-#define NVIDIA_VERSION		"384.59"
+#define NVIDIA_VERSION		"384.90"
 
 #ifndef PCI_VENDOR_ID_INTEL
 #define PCI_VENDOR_ID_INTEL	0x8086
@@ -65,7 +65,7 @@
 #define XORG_ABI_173XX		15	/* 173.14.39 */
 #define XORG_ABI_304XX		23	/* 304.134; Xorg 1.19 */
 #define XORG_ABI_340XX		23	/* 340.101; Xorg 1.19 */
-#define XORG_ABI_367XX		23	/* 367.44; Xorg 1.19 */
+#define XORG_ABI_367XX		20	/* 367.44; Xorg 1.18 */
 
 /* Change the default Xorg log file here if it's different */
 #define XORG_LOG_FILE	"/var/log/Xorg.0.log"

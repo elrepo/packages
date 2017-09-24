@@ -1,5 +1,5 @@
 Name:    nvidia-detect
-Version: 384.59
+Version: 384.90
 Release: 1%{?dist}
 Group:   Applications/System
 License: GPLv2
@@ -8,7 +8,7 @@ URL:     https://github.com/elrepo/packages/tree/master/nvidia-detect
 
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 
-Source0:  %{name}-%{version}.tar.bz2
+Source0:  %{name}-%{version}.tar.gz
 
 Requires:	hwdata
 Requires:	pciutils
@@ -37,6 +37,10 @@ A utility to detect NVIDIA graphics cards.
 %{_bindir}/nvidia-detect
 
 %changelog
+* Thu Jul 27 2017 Philip J Perry <phil@elrepo.org> - 384.90-1
+- Add support for detection of devices added to 384.90 driver release
+- Fix Xorg Video Driver ABI for 367xx driver
+
 * Thu Jul 27 2017 Philip J Perry <phil@elrepo.org> - 384.59-1
 - Add support for detection of devices added to 384.59 driver release
 
