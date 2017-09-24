@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/384.69/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/384.90/README/minimumrequirements.html
 %define		max_xorg_ver	1.19.99
 
 %define		nvidialibdir	%{_libdir}/nvidia
@@ -10,8 +10,8 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	384.69
-Release:	2%{?dist}
+Version:	384.90
+Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -510,6 +510,9 @@ fi ||:
 %endif
 
 %changelog
+* Sat Sep 23 2017 Philip J Perry <phil@elrepo.org> - 384.90-1
+- Updated to version 384.90
+
 * Sun Sep 10 2017 Philip J Perry <phil@elrepo.org> - 384.69-2
 - Add missing symlink for libnvidia-ptxjitcompiler.so.1
   [http://elrepo.org/bugs/view.php?id=765]
