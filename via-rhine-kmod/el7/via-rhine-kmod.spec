@@ -2,11 +2,11 @@
 %define kmod_name via-rhine
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-327.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-693.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 1.5.1
-Release: 2%{?dist}
+Release: 3.el7_4.elrepo
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -17,7 +17,7 @@ BuildRequires: redhat-rpm-config
 ExclusiveArch: x86_64
 
 # Sources.
-Source0:  %{kmod_name}-%{version}.tar.bz2
+Source0:  %{kmod_name}-%{version}.tar.gz
 Source5:  GPL-v2.0.txt
 Source10: kmodtool-%{kmod_name}-el7.sh
 
@@ -66,6 +66,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Sep 30 2017 Philip J Perry <phil@elrepo.org> - 1.5.1-3
+- Build fixes for RHEL 7.4
+- Replace trans_start with netif_trans_update() helper
+
 * Sun Jul 24 2016 Philip J Perry <phil@elrepo.org> - 1.5.1-2
 - Build fixes for RHEL 7.2
 - Backported from kernel-3.10.102
