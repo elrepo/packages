@@ -2,11 +2,11 @@
 %define kmod_name ne2k-pci
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-123.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-693.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 1.03
-Release: 2%{?dist}
+Release: 3.el7_4.elrepo
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -17,7 +17,7 @@ BuildRequires: redhat-rpm-config
 ExclusiveArch: x86_64
 
 # Sources.
-Source0:  %{kmod_name}-%{version}.tar.bz2
+Source0:  %{kmod_name}-%{version}.tar.gz
 Source5:  GPL-v2.0.txt
 Source10: kmodtool-%{kmod_name}-el7.sh
 
@@ -68,6 +68,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Mon Oct 02 2017 Philip J Perry <phil@elrepo.org> - 1.03-3
+- Fix build issues on RHEL 7.4
+
 * Mon Jan 05 2015 Philip J Perry <phil@elrepo.org> - 1.03-2
 - Fix missing symbols.
 
