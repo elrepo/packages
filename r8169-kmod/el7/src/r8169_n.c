@@ -3762,7 +3762,7 @@ static int rtl8169_start_xmit(struct sk_buff *skb, struct net_device *dev)
         wmb();
         txd->opts1 = cpu_to_le32(status);
 
-        dev->trans_start = jiffies;
+        netif_trans_update(dev);
 
         tp->cur_tx += frags + 1;
 
