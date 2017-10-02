@@ -2,11 +2,11 @@
 %define kmod_name xpad
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-514.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-693.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 0.0.6
-Release: 4%{?dist}
+Release: 6.el7_4.elrepo
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -16,7 +16,7 @@ BuildRequires: redhat-rpm-config, perl
 ExclusiveArch: x86_64
 
 # Sources.
-Source0:  %{kmod_name}-%{version}.tar.bz2
+Source0:  %{kmod_name}-%{version}.tar.gz
 Source5:  GPL-v2.0.txt
 Source10: kmodtool-%{kmod_name}-el7.sh
 
@@ -65,6 +65,14 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Mon Oct 02 2017 Philip J Perry <phil@elrepo.org> - 0.0.6-6
+- Update to Kernel-4.12.14
+- Rebuilt against RHEL 7.4 kernel [http://elrepo.org/bugs/view.php?id=789]
+
+* Thu May 04 2017 Philip J Perry <phil@elrepo.org> - 0.0.6-5
+- Update to Kernel-4.11
+- Add support for Razer Wildcat gamepad
+
 * Tue Mar 21 2017 Andrew Simpson <andrew.simpson@navy.mil> - 0.0.6-4
 - Backported from Kernel-4.11-rc3
 - Rebuilt against RHEL 7.3 kernel
