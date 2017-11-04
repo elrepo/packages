@@ -1,7 +1,7 @@
 /*
  *  nvidia-detect.h - PCI device_ids for NVIDIA graphics cards
  *
- *  Copyright (C) 2013-2016 Philip J Perry <phil@elrepo.org>
+ *  Copyright (C) 2013-2017 Philip J Perry <phil@elrepo.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
 #ifndef _NVIDIA_DETECT_H
@@ -130,7 +130,7 @@ static const u_int16_t nv_current_pci_ids[] = {
 	0x1C60, 0x13B4, 0x15F7, 0x15F8, 0x15F9, 0x1B30, 0x1B38, 0x1B84, 0x1BB0, 0x1BB3,
 	0x1C81, 0x1C82, 0x13B6, 0x1436, 0x15F0, 0x1BB1, 0x1C21, 0x1C22, 0x1C30, 0x1C61,
 	0x1C62, 0x1C8C, 0x1C8D, 0x1CB1, 0x1CB2, 0x1CB3, 0x137B, 0x1B02, 0x1B06, 0x1B87,
-	0x1C07, 0x1D01, 0x1D10, 0x1D12, 0x1BB4, 0x1BB5,
+	0x1C07, 0x1D01, 0x1D10, 0x1D12, 0x1BB4, 0x1BB5, 0x1BC7, 0x1C09, 0x1DB1, 0x1DB4,
 };
 
 #endif	/* _NVIDIA_DETECT_H */

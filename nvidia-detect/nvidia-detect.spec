@@ -1,5 +1,5 @@
 Name:    nvidia-detect
-Version: 384.90
+Version: 384.98
 Release: 1%{?dist}
 Group:   Applications/System
 License: GPLv2
@@ -37,6 +37,9 @@ A utility to detect NVIDIA graphics cards.
 %{_bindir}/nvidia-detect
 
 %changelog
+* Fri Nov 03 2017 Philip J Perry <phil@elrepo.org> - 384.98-1
+- Add support for detection of devices added to 384.98 driver release
+
 * Thu Jul 27 2017 Philip J Perry <phil@elrepo.org> - 384.90-1
 - Add support for detection of devices added to 384.90 driver release
 - Fix Xorg Video Driver ABI for 367xx driver
