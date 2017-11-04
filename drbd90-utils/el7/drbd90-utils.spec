@@ -1,7 +1,7 @@
 %define real_name drbd-utils
 
 Name:    drbd90-utils
-Version: 9.0.0
+Version: 9.1.0
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
@@ -171,6 +171,9 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Thu Sep 14 2017 Akemi Yagi <toracat@elrepo.org> - 9.1.0-1
+- Updated to 9.1.0
+
 * Mon Jun 12 2017 Akemi Yagi <toracat@elrepo.org> - 9.0.0-1
 - Updated to 9.0.0
 - xmlto replaced with docbook-style-xsl
