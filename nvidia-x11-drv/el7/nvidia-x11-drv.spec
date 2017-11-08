@@ -12,7 +12,7 @@
 
 Name:		nvidia-x11-drv
 Version:	384.98
-Release:	1%{?dist}
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -485,6 +485,7 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Tue Nov 07 2017 Philip J Perry <phil@elrepo.org> - 384.98-2
 - Add CUDA provides for nvidia-drivers
 
 * Fri Nov 03 2017 Philip J Perry <phil@elrepo.org> - 384.98-1
