@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/384.90/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/384.98/README/minimumrequirements.html
 %define		max_xorg_ver	1.19.99
 
 %define		nvidialibdir	%{_libdir}/nvidia
@@ -10,8 +10,8 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	384.90
-Release:	1%{?dist}
+Version:	384.98
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -43,6 +43,7 @@ Source9:	nvidia.csh
 # Provides for CUDA
 Provides:	cuda-driver = %{version}
 Provides:	cuda-drivers = %{version}
+Provides:	nvidia-drivers = %{version}
 %endif
 
 # provides desktop-file-install
@@ -510,6 +511,12 @@ fi ||:
 %endif
 
 %changelog
+* Tue Nov 07 2017 Philip J Perry <phil@elrepo.org> - 384.98-2
+- Add CUDA provides for nvidia-drivers
+
+* Fri Nov 03 2017 Philip J Perry <phil@elrepo.org> - 384.98-1
+- Updated to version 384.98
+
 * Sat Sep 23 2017 Philip J Perry <phil@elrepo.org> - 384.90-1
 - Updated to version 384.90
 
