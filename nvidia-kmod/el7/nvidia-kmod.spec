@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-693.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 384.90
+Version: 384.98
 Release: 1.el7_4.elrepo
 Group:   System Environment/Kernel
 License: Proprietary
@@ -50,7 +50,7 @@ sh %{SOURCE0} --extract-only --target nvidiapkg
 %build
 export SYSSRC=%{_usrsrc}/kernels/%{kversion}
 pushd _kmod_build_/kernel
-%{__make} module
+%{__make} %{?_smp_mflags} module
 popd
 
 %install
@@ -81,6 +81,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Nov 03 2017 Philip J Perry <phil@elrepo.org> - 384.98-1
+- Updated to version 384.98
+
 * Sat Sep 23 2017 Philip J Perry <phil@elrepo.org> - 384.90-1
 - Updated to version 384.90
 
