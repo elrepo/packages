@@ -3493,10 +3493,12 @@ static int niu_process_rx_pkt(struct napi_struct *napi, struct niu *np,
 
 	rh = (struct rx_pkt_hdr1 *) skb->data;
 	if (np->dev->features & NETIF_F_RXHASH)
-		skb->rxhash = ((u32)rh->hashval2_0 << 24 |
+		skb_set_hash(skb,
+			      ((u32)rh->hashval2_0 << 24 |
 			       (u32)rh->hashval2_1 << 16 |
 			       (u32)rh->hashval1_1 << 8 |
-			       (u32)rh->hashval1_2 << 0);
+			       (u32)rh->hashval1_2 << 0),
+				  PKT_HASH_TYPE_L3);
 	skb_pull(skb, sizeof(*rh));
 
 	rp->rx_packets++;
@@ -6431,7 +6433,7 @@ static int niu_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 
 static void niu_netif_stop(struct niu *np)
 {
-	np->dev->trans_start = jiffies;	/* prevent tx timeout */
+	netif_trans_update(np->dev);	/* prevent tx timeout */
 
 	niu_disable_napi(np);
 
