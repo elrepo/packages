@@ -1,0 +1,40 @@
+With the update of RHEL7.3 to RHEL7.4 the perf sub-system
+of the stable linux-4.4.X branch fails to build.
+
+tools/perf/bench/futex.h:36:10: error: 'SYS_futex' undeclared
+tools/perf/tests/mmap-thread-lookup.c:42:20: error: 'SYS_gettid' undeclared
+
+Fix by inserting two conditional hash-defines.
+
+Signed-off-by: Alan Bartlett <ajb@elrepo.org>
+Cc: Akemi Yagi <toracat@elrepo.org>
+Cc: Philip J Perry <phil@elrepo.org>
+
+diff -Npru a/tools/perf/bench/futex.h b/tools/perf/bench/futex.h
+--- a/tools/perf/bench/futex.h	2017-11-02 04:40:50.000000000 -0400
++++ b/tools/perf/bench/futex.h	2017-11-05 19:59:35.063971553 -0500
+@@ -12,6 +12,10 @@
+ #include <sys/types.h>
+ #include <linux/futex.h>
+ 
++#ifndef SYS_futex
++#define SYS_futex __NR_futex
++#endif
++
+ /**
+  * futex() - SYS_futex syscall wrapper
+  * @uaddr:	address of first futex
+diff -Npru a/tools/perf/tests/tests.h b/tools/perf/tests/tests.h
+--- a/tools/perf/tests/tests.h	2017-11-02 04:40:50.000000000 -0400
++++ b/tools/perf/tests/tests.h	2017-11-05 20:00:59.702007286 -0500
+@@ -1,6 +1,10 @@
+ #ifndef TESTS_H
+ #define TESTS_H
+ 
++#ifndef SYS_gettid
++#define SYS_gettid __NR_gettid
++#endif
++
+ #define TEST_ASSERT_VAL(text, cond)					 \
+ do {									 \
+ 	if (!(cond)) {							 \
