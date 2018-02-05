@@ -5,8 +5,8 @@
 %{!?kversion: %define kversion 3.10.0-693.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 340.102
-Release: 4.el7_4.elrepo
+Version: 340.106
+Release: 1.el7_4.elrepo
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
@@ -21,7 +21,7 @@ Source0:  ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux
 Source1:  blacklist-nouveau.conf
 Source10: kmodtool-%{kmod_name}-el7.sh
 
-Patch0: legacy340.patch
+# Patch0: legacy340.patch
 
 NoSource: 0
 
@@ -42,7 +42,7 @@ echo "override nvidia * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 echo "override nvidia-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 sh %{SOURCE0} --extract-only --target nvidiapkg
 
-%patch0 -p1
+# %patch0 -p1
 
 %{__cp} -a nvidiapkg _kmod_build_
 
@@ -83,6 +83,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Feb 02 2018 Philip J Perry <phil@elrepo.org> - 340.106-1
+- Updated to version 340.106
+
 * Thu Aug 17 2017 Akemi Yagi <toracat@elrepo.org> - 340.102-4
 - Patch to fix compilation issue applied
   [http://elrepo.org/bugs/view.php?id=768]

@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# ftp://download.nvidia.com/XFree86/Linux-x86_64/340.101/README/minimumrequirements.html
+# ftp://download.nvidia.com/XFree86/Linux-x86_64/340.106/README/minimumrequirements.html
 %define		max_xorg_ver	1.19.99
 
 %define		nvidialibdir	%{_libdir}/nvidia
@@ -9,7 +9,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv-340xx
-Version:	340.101
+Version:	340.106
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -35,6 +35,7 @@ Provides: libGL.so()(64bit)
 # Provides for CUDA
 Provides:	cuda-driver = %{version}
 Provides:	cuda-drivers = %{version}
+Provides:	nvidia-drivers = %{version}
 
 # provides desktop-file-install
 BuildRequires:	desktop-file-utils
@@ -328,7 +329,7 @@ if [ "$1" -eq "1" ]; then # new install
       cp -p %{_sysconfdir}/X11/nvidia-xorg.conf %{_sysconfdir}/X11/xorg.conf &>/dev/null
     # Disable the nouveau driver
     [ -f %{_sysconfdir}/default/grub ] && \
-      %{__perl} -pi -e 's|(GRUB_CMDLINE_LINUX=".*)"|$1 nouveau\.modeset=0 rd\.driver\.blacklist=nouveau"|g' \
+      %{__perl} -pi -e 's|(GRUB_CMDLINE_LINUX=".*)"|$1 nouveau\.modeset=0 rd\.driver\.blacklist=nouveau plymouth\.ignore-udev"|g' \
         %{_sysconfdir}/default/grub
     if [ -x /usr/sbin/grubby ]; then
       # get installed kernels
@@ -339,7 +340,7 @@ if [ "$1" -eq "1" ]; then # new install
           if [[ "$KERNEL" == "$KABI" && -e "$VMLINUZ" ]]; then
             /usr/bin/dracut --add-drivers nvidia -f /boot/initramfs-$KERNEL.img $KERNEL
             /usr/sbin/grubby --update-kernel="$VMLINUZ" \
-              --args='nouveau.modeset=0 rd.driver.blacklist=nouveau' &>/dev/null
+              --args='nouveau.modeset=0 rd.driver.blacklist=nouveau plymouth.ignore-udev' &>/dev/null
           fi
         done
       done
@@ -360,6 +361,7 @@ if [ "$1" -eq "0" ]; then # uninstall
     if [ -f %{_sysconfdir}/default/grub ]; then
       %{__perl} -pi -e 's|(GRUB_CMDLINE_LINUX=.*) nouveau\.modeset=0|$1|g' %{_sysconfdir}/default/grub
       %{__perl} -pi -e 's|(GRUB_CMDLINE_LINUX=.*) rd\.driver\.blacklist=nouveau|$1|g' %{_sysconfdir}/default/grub
+      %{__perl} -pi -e 's|(GRUB_CMDLINE_LINUX=.*) plymouth\.ignore-udev|$1|g' %{_sysconfdir}/default/grub
     fi
     if [ -x /usr/sbin/grubby ]; then
       # get installed kernels
@@ -367,7 +369,7 @@ if [ "$1" -eq "0" ]; then # uninstall
         VMLINUZ="/boot/vmlinuz-"$KERNEL
         if [[ -e "$VMLINUZ" ]]; then
           /usr/sbin/grubby --update-kernel="$VMLINUZ" \
-            --remove-args='nouveau.modeset=0 rd.driver.blacklist=nouveau' &>/dev/null
+            --remove-args='nouveau.modeset=0 rd.driver.blacklist=nouveau plymouth.ignore-udev' &>/dev/null
         fi
       done
     fi
@@ -420,6 +422,14 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Fri Feb 02 2018 Philip J Perry <phil@elrepo.org> - 340.106-1
+- Updated to version 340.106
+- Add CUDA provides for nvidia-drivers
+
+* Sat Feb 25 2017 Philip J Perry <phil@elrepo.org> - 340.102-1
+- Updated to version 340.102
+- Use plymouth.ignore-udev to allow text mode booting [David Bell]
+
 * Sat Dec 17 2016 Philip J Perry <phil@elrepo.org> - 340.101-1
 - Updated to version 340.101
 - Adds support for Xorg 1.19 (Video Driver ABI 23)
