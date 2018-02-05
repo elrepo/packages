@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/384.98/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/390.25/README/minimumrequirements.html
 %define		max_xorg_ver	1.19.99
 
 %define		nvidialibdir	%{_libdir}/nvidia
@@ -10,7 +10,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	384.111
+Version:	390.25
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -511,6 +511,9 @@ fi ||:
 %endif
 
 %changelog
+* Tue Jan 30 2018 Philip J Perry <phil@elrepo.org> - 390.25-1
+- Updated to version 390.25
+
 * Fri Jan 05 2018 Philip J Perry <phil@elrepo.org> - 384.111-1
 - Updated to version 384.111
 
