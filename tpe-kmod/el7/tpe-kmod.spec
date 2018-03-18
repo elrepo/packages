@@ -3,11 +3,11 @@
 %define src_name tpe-lkm
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-514.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-693.21.1.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 2.0.3
-Release: 3.20170507git%{?dist}
+Release: 5.20170731git.el7_4.elrepo
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -78,6 +78,13 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Mar 18 2018 Philip J Perry <phil@elrepo.org> - 2.0.3-5.20170731git
+- Rebuilt against latest kernel for retpoline support
+
+* Wed Aug 02 2017 Philip J Perry <phil@elrepo.org> - 2.0.3-4.20170731git
+- Update tpe-mmap-whitelist for KDE apps
+- Rebuilt against RHEL 7.4 kernel
+
 * Sun May 07 2017 Philip J Perry <phil@elrepo.org> - 2.0.3-3.20170507git
 - Add all tpe whitelist files
 
