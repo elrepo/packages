@@ -2,10 +2,10 @@
 %define kmod_name nvidia
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-693.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-693.21.1.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 390.25
+Version: 390.42
 Release: 1.el7_4.elrepo
 Group:   System Environment/Kernel
 License: Proprietary
@@ -81,6 +81,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Mar 16 2018 Philip J Perry <phil@elrepo.org> - 390.42-1
+- Updated to version 390.42
+- Built against latest kernel for retpoline support
+
 * Tue Jan 30 2018 Philip J Perry <phil@elrepo.org> - 390.25-1
 - Updated to version 390.25
 

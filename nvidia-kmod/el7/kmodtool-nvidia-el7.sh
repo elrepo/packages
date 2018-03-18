@@ -156,7 +156,7 @@ Provides:         ${kmod_name}-kmod = %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:         ${kmod_name}-kmod%{_isa} = %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:         ${kmod_name}-uvm-kmod = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:         ${kmod_name}-x11-drv = %{?epoch:%{epoch}:}%{version}
-Requires:         kernel >= 3.10.0-693.el7
+Requires:         kernel >= 3.10.0-693.21.1.el7
 Requires(post):   /usr/sbin/depmod
 Requires(postun): /usr/sbin/depmod
 EOF
