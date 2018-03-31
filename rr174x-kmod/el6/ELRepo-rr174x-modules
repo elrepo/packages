@@ -1,0 +1,3 @@
+#!/bin/sh
+
+modprobe rr174x >/dev/null 2>&1
