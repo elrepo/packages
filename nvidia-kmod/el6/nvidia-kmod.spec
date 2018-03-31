@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 2.6.32-696.23.1.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 390.42
+Version: 390.48
 Release: 1.el6_9.elrepo
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -81,6 +81,9 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Mar 30 2018 Philip J Perry <phil@elrepo.org> - 390.48-1
+- Updated to version 390.48
+
 * Fri Mar 16 2018 Philip J Perry <phil@elrepo.org> - 390.42-1
 - Updated to version 390.42
 - Built against latest kernel for retpoline supported
