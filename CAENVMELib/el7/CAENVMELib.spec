@@ -1,11 +1,19 @@
 Name:		CAENVMELib
 Version:	2.50
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Set of functions for the control and the use of CAEN VME Bridges
 Group:		Development/Libraries
 License:	Other
 URL:		http://www.caen.it/jsp/Template2/CaenProd.jsp?parent=43&idmod=689
 Source0:	CAENVMELib-2.50.tgz
+
+# Fix broken SONAME dependency chain
+%ifarch i686
+Provides:	libCAENVME.so
+%endif
+%ifarch x86_64
+Provides:	libCAENVME.so()(64bit)
+%endif
 
 Requires:	glibc >= 2.12
 
@@ -35,15 +43,24 @@ rm -rf %{buildroot}
 %{__mkdir_p} %{buildroot}%{_includedir}
 install -D -m 0644 include/* %{buildroot}/%{_includedir}
 
-if [[ "%{__isa}" == 'x86-64' ]]; then
+%{__mkdir_p} %{buildroot}%{_libdir}
+%ifarch x86_64
 install -D -m 0755 lib/x64/libCAENVME.so.2.50 %{buildroot}/%{_libdir}/libCAENVME.so.2.50
-else
+%endif
+%ifarch i686
 install -D -m 0755 lib/x86/libCAENVME.so.2.50 %{buildroot}/%{_libdir}/libCAENVME.so.2.50
-fi
+%endif
 
-(cd %{buildroot}/%{_libdir} ; ln -sf libCAENVME.so.2.50 libCAENVME.so)
+pushd %{buildroot}/%{_libdir}
+%{__ln_s} libCAENVME.so.2.50 libCAENVME.so
+popd
+
+%clean
+rm -rf %{buildroot}
 
 %post -p /sbin/ldconfig
+
+%postun -p /sbin/ldconfig
 
 %files
 %defattr(0644,root,root,0755)
@@ -52,5 +69,8 @@ fi
 %attr(0755,root,root) %{_libdir}/*
 
 %changelog
+* Wed Apr 04 2018 Philip J Perry <phil@elrepo.org> - 2.50-2
+- Fix circular dependency [https://elrepo.org/bugs/view.php?id=837]
+
 * Thu Jul 27 2017 Akemi Yagi <toracat@elrepo.org> - 2.50-1
 - Initial build for el7.
