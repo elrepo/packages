@@ -1,3 +1,7 @@
+14 Apr 2018
+	Fix error handling for unclassified device_class
+	[http://elrepo.org/bugs/view.php?id=839]
+
 23 Apr 2017
 	Add support for 367.xx legacy driver
 

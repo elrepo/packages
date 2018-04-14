@@ -417,12 +417,6 @@ int main(int argc, char *argv[])
 	/* Iterate over all devices */
 	for (dev=pacc->devices; dev; dev=dev->next) {
 
-		if (!dev->device_class) {
-			fprintf(stderr, "Error getting device_class\n");
-			ret = -1;
-			goto exit;
-		}
-
 		if ((dev->device_class & 0xff00) == 0x0300) {
 
 			/* Get the name of the device */

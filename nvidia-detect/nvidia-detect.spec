@@ -1,6 +1,6 @@
 Name:    nvidia-detect
 Version: 390.48
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group:   Applications/System
 License: GPLv2
 Summary: NVIDIA graphics card detection utility
@@ -37,6 +37,9 @@ A utility to detect NVIDIA graphics cards.
 %{_bindir}/nvidia-detect
 
 %changelog
+* Sat Apr 14 2018 Philip J Perry <phil@elrepo.org> - 390.48-2
+- Fix error handling [http://elrepo.org/bugs/view.php?id=839]
+
 * Sat Mar 31 2018 Philip J Perry <phil@elrepo.org> - 390.48-1
 - Add support for detection of devices added to 390.48 driver release
 
