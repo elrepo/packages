@@ -1,0 +1,43 @@
+ELRepo patch via-rhine.patch
+
+Original patch, ethernetbuild_v4.diff, was written by pgreco to fix build
+errors for centosplus kernel 7.5.
+
+--- a/via-rhine.c	2017-09-30 07:03:48.035794232 -0700
++++ b/via-rhine.c	2018-04-12 10:50:35.704816835 -0700
+@@ -512,7 +512,7 @@ static irqreturn_t rhine_interrupt(int i
+ static void rhine_tx(struct net_device *dev);
+ static int rhine_rx(struct net_device *dev, int limit);
+ static void rhine_set_rx_mode(struct net_device *dev);
+-static struct rtnl_link_stats64 *rhine_get_stats64(struct net_device *dev,
++static void rhine_get_stats64(struct net_device *dev,
+ 	       struct rtnl_link_stats64 *stats);
+ static int netdev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
+ static const struct ethtool_ops netdev_ethtool_ops;
+@@ -864,7 +864,7 @@ static const struct net_device_ops rhine
+ 	.ndo_start_xmit		 = rhine_start_tx,
+ 	.ndo_get_stats64	 = rhine_get_stats64,
+ 	.ndo_set_rx_mode	 = rhine_set_rx_mode,
+-	.ndo_change_mtu		 = eth_change_mtu,
++	.ndo_change_mtu_rh74		 = eth_change_mtu,
+ 	.ndo_validate_addr	 = eth_validate_addr,
+ 	.ndo_set_mac_address 	 = eth_mac_addr,
+ 	.ndo_do_ioctl		 = netdev_ioctl,
+@@ -2048,7 +2048,7 @@ out_unlock:
+ 	mutex_unlock(&rp->task_lock);
+ }
+ 
+-static struct rtnl_link_stats64 *
++static void
+ rhine_get_stats64(struct net_device *dev, struct rtnl_link_stats64 *stats)
+ {
+ 	struct rhine_private *rp = netdev_priv(dev);
+@@ -2071,8 +2071,6 @@ rhine_get_stats64(struct net_device *dev
+ 		stats->tx_packets = rp->tx_stats.packets;
+ 		stats->tx_bytes = rp->tx_stats.bytes;
+ 	} while (u64_stats_fetch_retry_bh(&rp->tx_stats.syncp, start));
+-
+-	return stats;
+ }
+ 
+ static void rhine_set_rx_mode(struct net_device *dev)
