@@ -2,11 +2,11 @@
 %define kmod_name e100
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-693.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-862.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 3.5.24
-Release: 2.el7_4.elrepo
+Release: 3.el7_5.elrepo
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -19,6 +19,9 @@ ExclusiveArch: x86_64
 Source0:  %{kmod_name}-%{version}.tar.bz2
 Source5:  GPL-v2.0.txt
 Source10: kmodtool-%{kmod_name}-el7.sh
+
+# Patches.
+Patch1: e100-rh75.patch
 
 # Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
@@ -34,6 +37,8 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -q -n %{kmod_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+
+%patch1 -p1
 
 %build
 KSRC=%{_usrsrc}/kernels/%{kversion}
@@ -65,6 +70,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Apr 10 2018 Philip J Perry <phil@elrepo.org> - 3.5.24-3
+- Rebuilt against RHEL 7.5 kernel
+- Apply patch
+
 * Sat Sep 16 2017 Philip J Perry <phil@elrepo.org> - 3.5.24-2
 - Rebuilt against RHEL7.4 kernel.
 
