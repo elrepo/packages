@@ -1,7 +1,7 @@
 %define real_name drbd-utils
 
 Name:    drbd84-utils
-Version: 8.9.8
+Version: 9.3.1
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
@@ -16,7 +16,7 @@ BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: flex
 BuildRequires: udev
 BuildRequires: libxslt
-BuildRequires: xmlto
+BuildRequires: docbook-style-xsl
 
 Requires: udev
 Requires(post):   systemd-units
@@ -98,10 +98,13 @@ fi
 
 %files
 %defattr(-, root, root, 0755)
-%doc ChangeLog COPYING README scripts/drbd.conf.example
+%doc ChangeLog COPYING README.md scripts/drbd.conf.example
 %doc %{_mandir}/man5/drbd.conf.5*
 %doc %{_mandir}/man5/drbd.conf-*
 %doc %{_mandir}/man8/drbd*
+%doc %{_mandir}/ja/man5/drbd.conf.5*
+%doc %{_mandir}/ja/man5/drbd.conf-*
+%doc %{_mandir}/ja/man8/drbd*
 %config %{_sysconfdir}/bash_completion.d/drbdadm
 %config %{_prefix}/lib/udev/rules.d/65-drbd.rules
 %config(noreplace) %{_sysconfdir}/drbd.conf
@@ -117,6 +120,7 @@ fi
 %{_sbindir}/drbdmeta
 %{_sbindir}/drbdsetup
 %{_sbindir}/drbd-overview
+%{_sbindir}/drbdmon
 %dir %{_prefix}/lib/drbd/
 %{_prefix}/lib/drbd/notify-out-of-sync.sh
 %{_prefix}/lib/drbd/notify-split-brain.sh
@@ -132,6 +136,9 @@ fi
 %{_prefix}/lib/drbd/stonith_admin-fence-peer.sh
 %{_prefix}/lib/drbd/unsnapshot-resync-target-lvm.sh
 %{_prefix}/lib/tmpfiles.d/drbd.conf
+%{_prefix}/lib/drbd/crm-fence-peer.9.sh
+%{_prefix}/lib/drbd/crm-unfence-peer.9.sh
+%{_prefix}/lib/ocf/resource.d/linbit/drbd.shellfuncs.sh
 
 ### heartbeat
 %{_sysconfdir}/ha.d/resource.d/drbddisk
@@ -155,6 +162,16 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Thu Apr 26 2018 Akemi Yagi <toracat@elrepo.org> - 9.3.1-1
+- Updated to 9.3.1
+
+* Fri Sep 15 2017 Akemi Yagi <toracat@elrepo.org> - 9.1.0-1
+- Updated to 9.1.0
+
+* Mon Jun 12 2017 Akemi Yagi <toracat@elrepo.org> - 9.0.0-1
+- Updated to 9.0.0
+- xmlto replaced with docbook-style-xsl [git PR #155]
+
 * Sat Dec  3 2016 Akemi Yagi <toracat@elrepo.org> - 8.9.8-1
 - update to version 8.9.8.
 - Bug fix (elrepo bug #695)
