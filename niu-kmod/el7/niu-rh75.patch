@@ -1,0 +1,41 @@
+diff -Naurp a/niu.c b/niu.c
+--- a/niu.c	2017-11-23 20:28:12.000000000 +0000
++++ b/niu.c	2018-04-14 22:40:57.394935204 +0100
+@@ -34,6 +34,10 @@
+ 
+ #include "niu.h"
+ 
++#ifndef attr_name
++#define attr_name(_attr) (_attr).attr.name
++#endif
++
+ #define DRV_MODULE_NAME		"niu"
+ #define DRV_MODULE_VERSION	"1.1"
+ #define DRV_MODULE_RELDATE	"Apr 22, 2010"
+@@ -6296,7 +6300,7 @@ no_rings:
+ 	stats->tx_errors = errors;
+ }
+ 
+-static struct rtnl_link_stats64 *niu_get_stats(struct net_device *dev,
++static void niu_get_stats(struct net_device *dev,
+ 					       struct rtnl_link_stats64 *stats)
+ {
+ 	struct niu *np = netdev_priv(dev);
+@@ -6305,8 +6309,6 @@ static struct rtnl_link_stats64 *niu_get
+ 		niu_get_rx_stats(np, stats);
+ 		niu_get_tx_stats(np, stats);
+ 	}
+-
+-	return stats;
+ }
+ 
+ static void niu_load_hash_xmac(struct niu *np, u16 *hash)
+@@ -9698,7 +9700,7 @@ static const struct net_device_ops niu_n
+ 	.ndo_set_mac_address	= niu_set_mac_addr,
+ 	.ndo_do_ioctl		= niu_ioctl,
+ 	.ndo_tx_timeout		= niu_tx_timeout,
+-	.ndo_change_mtu		= niu_change_mtu,
++	.ndo_change_mtu_rh74	= niu_change_mtu,
+ };
+ 
+ static void niu_assign_netdev_ops(struct net_device *dev)
