@@ -1,0 +1,1 @@
+Rename *_shipped to remove appended _shipped.
