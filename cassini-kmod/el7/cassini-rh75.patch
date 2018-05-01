@@ -1,0 +1,11 @@
+--- a/cassini.c	2014-12-16 17:09:56.000000000 +0000
++++ b/cassini.c	2018-04-14 20:35:42.973846486 +0100
+@@ -4908,7 +4908,7 @@ static const struct net_device_ops cas_n
+ 	.ndo_set_rx_mode	= cas_set_multicast,
+ 	.ndo_do_ioctl		= cas_ioctl,
+ 	.ndo_tx_timeout		= cas_tx_timeout,
+-	.ndo_change_mtu		= cas_change_mtu,
++	.ndo_change_mtu_rh74	= cas_change_mtu,
+ 	.ndo_set_mac_address	= eth_mac_addr,
+ 	.ndo_validate_addr	= eth_validate_addr,
+ #ifdef CONFIG_NET_POLL_CONTROLLER
