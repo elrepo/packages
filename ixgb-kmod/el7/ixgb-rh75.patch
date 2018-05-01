@@ -1,0 +1,11 @@
+--- a/ixgb_main.c	2015-04-29 09:34:22.000000000 +0100
++++ b/ixgb_main.c	2018-04-14 20:57:08.584705421 +0100
+@@ -370,7 +370,7 @@ static const struct net_device_ops ixgb_
+ 	.ndo_set_rx_mode	= ixgb_set_multi,
+ 	.ndo_validate_addr	= eth_validate_addr,
+ 	.ndo_set_mac_address	= ixgb_set_mac,
+-	.ndo_change_mtu		= ixgb_change_mtu,
++	.ndo_change_mtu_rh74	= ixgb_change_mtu,
+ 	.ndo_tx_timeout		= ixgb_tx_timeout,
+ 	.ndo_vlan_rx_add_vid	= ixgb_vlan_rx_add_vid,
+ 	.ndo_vlan_rx_kill_vid	= ixgb_vlan_rx_kill_vid,
