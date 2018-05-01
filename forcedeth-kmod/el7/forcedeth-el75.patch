@@ -1,0 +1,43 @@
+ELRepo patch forcedeth-el75.patch
+
+Original patch, ethernetbuild_v4.diff, submitted by pgreco 
+for the centosplus kernel-plus-3.10.0-862.el7.centos.plus.x86_64
+
+--- a/forcedeth.c	2018-01-15 13:45:04.000000000 -0300
++++ b/forcedeth.c	2018-01-29 10:39:01.130527988 -0300
+@@ -1735,7 +1735,7 @@ static void nv_update_stats(struct net_d
+  * Called with read_lock(&dev_base_lock) held for read -
+  * only synchronized against unregister_netdevice.
+  */
+-static struct rtnl_link_stats64*
++static void
+ nv_get_stats64(struct net_device *dev, struct rtnl_link_stats64 *storage)
+ 	__acquires(&netdev_priv(dev)->hwstats_lock)
+ 	__releases(&netdev_priv(dev)->hwstats_lock)
+@@ -1795,8 +1795,6 @@ nv_get_stats64(struct net_device *dev, s
+ 
+ 		spin_unlock_bh(&np->hwstats_lock);
+ 	}
+-
+-	return storage;
+ }
+ 
+ /*
+@@ -5564,7 +5562,7 @@ static const struct net_device_ops nv_ne
+ 	.ndo_get_stats64	= nv_get_stats64,
+ 	.ndo_start_xmit		= nv_start_xmit,
+ 	.ndo_tx_timeout		= nv_tx_timeout,
+-	.ndo_change_mtu		= nv_change_mtu,
++	.ndo_change_mtu_rh74	= nv_change_mtu,
+ 	.ndo_fix_features	= nv_fix_features,
+ 	.ndo_set_features	= nv_set_features,
+ 	.ndo_validate_addr	= eth_validate_addr,
+@@ -5581,7 +5579,7 @@ static const struct net_device_ops nv_ne
+ 	.ndo_get_stats64	= nv_get_stats64,
+ 	.ndo_start_xmit		= nv_start_xmit_optimized,
+ 	.ndo_tx_timeout		= nv_tx_timeout,
+-	.ndo_change_mtu		= nv_change_mtu,
++	.ndo_change_mtu_rh74	= nv_change_mtu,
+ 	.ndo_fix_features	= nv_fix_features,
+ 	.ndo_set_features	= nv_set_features,
+ 	.ndo_validate_addr	= eth_validate_addr,

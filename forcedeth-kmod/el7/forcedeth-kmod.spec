@@ -2,11 +2,11 @@
 %define kmod_name forcedeth
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-327.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-862.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 0.64
-Release: 2%{?dist}
+Release: 3.el7_5.elrepo
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -20,6 +20,9 @@ ExclusiveArch: x86_64
 Source0:  %{kmod_name}-%{version}.tar.bz2
 Source5:  GPL-v2.0.txt
 Source10: kmodtool-%{kmod_name}-el7.sh
+
+# Patches.
+Patch1: forcedeth-el75.patch
 
 # Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
@@ -35,6 +38,8 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -q -n %{kmod_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+
+%patch1 -p1
 
 %build
 KSRC=%{_usrsrc}/kernels/%{kversion}
@@ -66,6 +71,12 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Apr 11 2018 Akemi Yagi <toracat@elrepo.org> - 0.64.el7_5.elrepo-3
+- Rebuilt against RHEL 7.5 kernel
+
+* Wed Aug 09 2017 Akemi Yagi <toracat@elrepo.org> - 0.64-3
+- Built against EL 7.4
+
 * Sun Jul 24 2016 Philip J Perry <phil@elrepo.org> - 0.64-2
 - Build fixes for RHEL 7.2
 - Backported from kernel-3.10.102
