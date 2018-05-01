@@ -1,0 +1,16 @@
+ELRepo patch sis190-rh75.patch
+
+Original patch, ethernetbuild_v4.diff, was written by pgreco to fix build
+errors for centosplus kernel 7.5.
+
+--- a/sis190.c	2014-10-09 12:18:54.000000000 -0700
++++ b/sis190.c	2018-04-12 17:01:20.365476537 -0700
+@@ -1836,7 +1836,7 @@ static const struct net_device_ops sis19
+ 	.ndo_start_xmit		= sis190_start_xmit,
+ 	.ndo_tx_timeout		= sis190_tx_timeout,
+ 	.ndo_set_rx_mode	= sis190_set_rx_mode,
+-	.ndo_change_mtu		= eth_change_mtu,
++	.ndo_change_mtu_rh74		= eth_change_mtu,
+ 	.ndo_set_mac_address	= sis190_mac_addr,
+ 	.ndo_validate_addr	= eth_validate_addr,
+ #ifdef CONFIG_NET_POLL_CONTROLLER
