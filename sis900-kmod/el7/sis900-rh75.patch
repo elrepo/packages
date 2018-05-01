@@ -1,0 +1,16 @@
+ELRepo patch sis900-rh75.patch
+
+Original patch, ethernetbuild_v4.diff, was written by pgreco to fix build
+errors for centosplus kernel 7.5.
+
+--- a/sis900.c.orig	2017-10-02 12:39:55.477414286 -0700
++++ b/sis900.c	2018-04-12 11:39:30.336970250 -0700
+@@ -399,7 +399,7 @@ static const struct net_device_ops sis90
+ 	.ndo_start_xmit		= sis900_start_xmit,
+ 	.ndo_set_config		= sis900_set_config,
+ 	.ndo_set_rx_mode	= set_rx_mode,
+-	.ndo_change_mtu		= eth_change_mtu,
++	.ndo_change_mtu_rh74		= eth_change_mtu,
+ 	.ndo_validate_addr	= eth_validate_addr,
+ 	.ndo_set_mac_address 	= eth_mac_addr,
+ 	.ndo_do_ioctl		= mii_ioctl,
