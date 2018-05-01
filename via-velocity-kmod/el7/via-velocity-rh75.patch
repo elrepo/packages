@@ -1,0 +1,16 @@
+ELRepo patch via-velocity.patch
+
+Original patch, ethernetbuild_v4.diff, was written by pgreco to fix build
+errors for centosplus kernel 7.5.
+
+--- a/via-velocity.c	2016-07-24 11:40:16.000000000 -0700
++++ b/via-velocity.c	2018-04-12 11:03:30.599845917 -0700
+@@ -2623,7 +2623,7 @@ static const struct net_device_ops veloc
+ 	.ndo_validate_addr	= eth_validate_addr,
+ 	.ndo_set_mac_address	= eth_mac_addr,
+ 	.ndo_set_rx_mode	= velocity_set_multi,
+-	.ndo_change_mtu		= velocity_change_mtu,
++	.ndo_change_mtu_rh74		= velocity_change_mtu,
+ 	.ndo_do_ioctl		= velocity_ioctl,
+ 	.ndo_vlan_rx_add_vid	= velocity_vlan_rx_add_vid,
+ 	.ndo_vlan_rx_kill_vid	= velocity_vlan_rx_kill_vid,
