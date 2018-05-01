@@ -1,0 +1,23 @@
+diff -Naurp a/nvidiapkg/kernel/nv-linux.h b/nvidiapkg/kernel/nv-linux.h
+--- a/nvidiapkg/kernel/nv-linux.h	2018-01-09 22:00:12.000000000 +0000
++++ b/nvidiapkg/kernel/nv-linux.h	2018-04-10 20:57:44.861248998 +0100
+@@ -2102,6 +2102,7 @@ static inline NvU64 nv_node_end_pfn(int
+  *    2016 Dec 14:5b56d49fc31dbb0487e14ead790fc81ca9fb2c99
+  */
+ 
++#if RHEL_MAJOR == 8
+ #if defined(NV_GET_USER_PAGES_REMOTE_PRESENT)
+     #if defined(NV_GET_USER_PAGES_HAS_WRITE_AND_FORCE_ARGS)
+         #define NV_GET_USER_PAGES           get_user_pages
+@@ -2162,5 +2163,11 @@ static inline NvU64 nv_node_end_pfn(int
+ 
+     #define NV_GET_USER_PAGES_REMOTE    get_user_pages
+ #endif
++/* RHEL7 */
++#else
++	#define NV_GET_USER_PAGES(start, nr_pages, write, force, pages, vmas) \
++        get_user_pages(current, current->mm, start, nr_pages, write, force, pages, vmas)
++	#define NV_GET_USER_PAGES_REMOTE    get_user_pages_remote
++#endif
+ 
+ #endif  /* _NV_LINUX_H_ */
