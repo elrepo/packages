@@ -234,4 +234,16 @@ module_exit(__driver##_exit);
 #define sysfs_attr_init(attr) do {} while (0)
 #endif
 
+#ifndef __ATTR_RO
+#define __ATTR_RO(_name) {						\
+	.attr   = { .name = __stringify(_name), .mode = 0444 },		\
+	.show   = _name##_show,						\
+}
+#endif
+
+#ifndef DEVICE_ATTR_RO
+#define DEVICE_ATTR_RO(_name) \
+	struct device_attribute dev_attr_##_name = __ATTR_RO(_name)
+#endif
+
 #endif /* __COMPAT_H */
