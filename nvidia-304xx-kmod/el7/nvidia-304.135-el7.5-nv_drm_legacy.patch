@@ -1,0 +1,20 @@
+diff -Naurp a/nvidiapkg/kernel/nv-drm.c b/nvidiapkg/kernel/nv-drm.c
+--- a/nvidiapkg/kernel/nv-drm.c	2017-01-17 23:26:31.000000000 +0000
++++ b/nvidiapkg/kernel/nv-drm.c	2018-04-10 21:34:03.651076815 +0100
+@@ -94,7 +94,7 @@ int __init nv_drm_init(
+ {
+     int ret = 0;
+ #if defined(NV_DRM_AVAILABLE)
+-    ret = drm_pci_init(&nv_drm_driver, pci_driver);
++    ret = drm_legacy_pci_init(&nv_drm_driver, pci_driver);
+ #endif
+     return ret;
+ }
+@@ -104,6 +104,6 @@ void nv_drm_exit(
+ )
+ {
+ #if defined(NV_DRM_AVAILABLE)
+-    drm_pci_exit(&nv_drm_driver, pci_driver);
++    drm_legacy_pci_exit(&nv_drm_driver, pci_driver);
+ #endif
+ }
