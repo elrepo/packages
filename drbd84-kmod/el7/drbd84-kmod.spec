@@ -3,12 +3,12 @@
 %define real_name drbd
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-514.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-862.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 8.4.9
+Version: 8.4.11
 %define  original_release 1
-Release: %{original_release}%{?dist}
+Release: %{original_release}.el7_5.elrepo
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: Distributed Redundant Block Device driver for Linux
@@ -21,6 +21,8 @@ ExclusiveArch: x86_64
 # Sources.
 Source0:  http://oss.linbit.com/drbd/8.4/drbd-%{version}-%{original_release}.tar.gz
 Source10: kmodtool-%{kmod_name}-el7.sh
+
+#Patches
 
 # Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
@@ -47,7 +49,7 @@ KSRC=%{_usrsrc}/kernels/%{kversion}
 %{__install} drbd/*.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
-for file in ChangeLog COPYING README; do
+for file in ChangeLog COPYING README.md; do
     %{__install} -Dp -m0644 $file %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/$file
 done
 
@@ -69,6 +71,17 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Apr 26 2018 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1
+- Built against RHEL 7.5 kernel 3.10.0-862.el7
+- Updated to version 8.4.11
+
+* Fri Sep 15 2017 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1_2
+- Built against RHEL 7.4 kernel 3.10.0-693.el7
+- Add patch from git [elrepo bug 781]
+
+* Mon Jun 12 2017 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1
+- Updated to version 8.4.10.
+
 * Sat Dec  3 2016 Akemi Yagi <toracat@elrepo.org> - 8.4.9-1
 - Updated to version 8.4.9-1.
 
