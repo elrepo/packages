@@ -2,11 +2,11 @@
 %define kmod_name 3c59x
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-693.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-862.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 3%{?dist}
+Release: 4.el7_5.elrepo
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -66,6 +66,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Apr 10 2018 Philip J Perry <phil@elrepo.org> - 0.0-4
+- Rebuilt against RHEL 7.5 kernel
+
 * Mon Oct 02 2017 Philip J Perry <phil@elrepo.org> - 0.0-3
 - Fix build issues on RHEL 7.4
 
