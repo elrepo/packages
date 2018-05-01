@@ -3,11 +3,11 @@
 %define real_name drbd
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-693.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-862.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 9.0.9
-Release: 1.el7_4.elrepo
+Version: 9.0.13
+Release: 1.el7_5.elrepo
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: Distributed Redundant Block Device driver for Linux
@@ -47,7 +47,7 @@ KSRC=%{_usrsrc}/kernels/%{kversion}
 %{__install} drbd/*.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
-for file in ChangeLog COPYING README; do
+for file in ChangeLog COPYING README.md; do
     %{__install} -Dp -m0644 $file %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/$file
 done
 
@@ -69,6 +69,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Apr 18 2018 Akemi Yagi <toracat@elrepo.org> - 9.0.13-1.el7_5
+- Updated to 9.0.13
+- Rebuild against RHEL 7.5 kernel
+
 * Thu Sep 14 2017 Akemi Yagi <toracat@elrepo.org> - 9.0.9-1
 - Updated to 9.0.9
 - Built against EL7.4 kernel
