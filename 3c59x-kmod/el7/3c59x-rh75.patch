@@ -1,0 +1,25 @@
+elrepo patch
+
+Original patch, ethernetbuild_v4.diff, was written by pgreco for the centosplus
+kernel to fix compilation errors of 7.5 kernel.
+ 
+--- a/3c59x.c	2018-01-15 13:45:04.000000000 -0300
++++ b/3c59x.c	2018-01-29 16:54:49.242638705 -0300
+@@ -1063,7 +1063,7 @@ static const struct net_device_ops boomr
+ 	.ndo_do_ioctl 		= vortex_ioctl,
+ #endif
+ 	.ndo_set_rx_mode	= set_rx_mode,
+-	.ndo_change_mtu		= eth_change_mtu,
++	.ndo_change_mtu_rh74	= eth_change_mtu,
+ 	.ndo_set_mac_address 	= eth_mac_addr,
+ 	.ndo_validate_addr	= eth_validate_addr,
+ #ifdef CONFIG_NET_POLL_CONTROLLER
+@@ -1081,7 +1081,7 @@ static const struct net_device_ops vorte
+ 	.ndo_do_ioctl 		= vortex_ioctl,
+ #endif
+ 	.ndo_set_rx_mode	= set_rx_mode,
+-	.ndo_change_mtu		= eth_change_mtu,
++	.ndo_change_mtu_rh74	= eth_change_mtu,
+ 	.ndo_set_mac_address 	= eth_mac_addr,
+ 	.ndo_validate_addr	= eth_validate_addr,
+ #ifdef CONFIG_NET_POLL_CONTROLLER
