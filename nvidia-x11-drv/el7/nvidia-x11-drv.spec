@@ -1,8 +1,8 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/390.48/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/390.59/README/minimumrequirements.html
 
-%define		max_xorg_ver	1.19.99
+%define		max_xorg_ver	1.20.99
 
 %define		nvidialibdir	%{_libdir}/nvidia
 %define		nvidialib32dir	%{_prefix}/lib/nvidia
@@ -11,8 +11,8 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	390.48
-Release:	1.el7_4.elrepo
+Version:	390.59
+Release:	1.el7_5.elrepo
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -491,6 +491,10 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Fri May 18 2018 Philip J Perry <phil@elrepo.org> - 390.59-1
+- Updated to version 390.59
+- Adds support for Xorg 1.20 (Video Driver ABI 24)
+
 * Fri Mar 30 2018 Philip J Perry <phil@elrepo.org> - 390.48-1
 - Updated to version 390.48
 
