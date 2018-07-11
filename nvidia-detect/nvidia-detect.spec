@@ -1,5 +1,5 @@
 Name:    nvidia-detect
-Version: 390.59
+Version: 390.67
 Release: 1%{?dist}
 Group:   Applications/System
 License: GPLv2
@@ -37,6 +37,9 @@ A utility to detect NVIDIA graphics cards.
 %{_bindir}/nvidia-detect
 
 %changelog
+* Wed Jul 11 2018 Philip J Perry <phil@elrepo.org> - 390.67-1
+- Add support for detection of devices added to 390.67 driver release
+
 * Sun May 20 2018 Philip J Perry <phil@elrepo.org> - 390.59-1
 - Add support for detection of devices added to 390.59 driver release
 - Update Xorg Video Driver ABI versions
