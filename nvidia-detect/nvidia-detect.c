@@ -64,7 +64,7 @@
 #define XORG_ABI_96XX		12	/* 96.43.23 */
 #define XORG_ABI_173XX		15	/* 173.14.39 */
 #define XORG_ABI_304XX		23	/* 304.134; Xorg 1.19 */
-#define XORG_ABI_340XX		23	/* 340.101; Xorg 1.19 */
+#define XORG_ABI_340XX		24	/* 340.107; Xorg 1.20 */
 #define XORG_ABI_367XX		20	/* 367.44; Xorg 1.18 */
 
 /* Change the default Xorg log file here if it's different */
