@@ -2,10 +2,10 @@
 %define	 kmod_name nvidia-340xx
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-573.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-754.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 340.106
+Version: 340.107
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -79,6 +79,11 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Jul 12 2018 Philip J Perry <phil@elrepo.org> - 340.107-1.el6.elrepo
+- Updated to version 340.107
+- Adds support for Xorg 1.20 (Video Driver ABI 24)
+- Rebuilt against RHEL-6.10 kernel
+
 * Fri Feb 02 2018 Philip J Perry <phil@elrepo.org> - 340.106-1.el6.elrepo
 - Updated to version 340.106
 

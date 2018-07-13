@@ -5,8 +5,8 @@
 %{!?kversion: %define kversion 3.10.0-862.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 340.106
-Release: 2.el7_5.elrepo
+Version: 340.107
+Release: 1.el7_5.elrepo
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
@@ -22,7 +22,7 @@ Source1:  blacklist-nouveau.conf
 Source10: kmodtool-%{kmod_name}-el7.sh
 
 # Patch0: legacy340.patch
-Patch1:   nvidia-340.106-el7.5-get-user-pages.patch
+# Patch1:   nvidia-340.106-el7.5-get-user-pages.patch
 
 NoSource: 0
 
@@ -44,7 +44,7 @@ echo "override nvidia-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 sh %{SOURCE0} --extract-only --target nvidiapkg
 
 # %patch0 -p1
-%patch1 -p1
+# %patch1 -p1
 
 %{__cp} -a nvidiapkg _kmod_build_
 
@@ -85,6 +85,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Jul 12 2018 Philip J Perry <phil@elrepo.org> - 340.107-1
+- Updated to version 340.107
+- Adds support for Xorg 1.20 (Video Driver ABI 24)
+
 * Tue Apr 10 2018 Philip J Perry <phil@elrepo.org> - 340.106-2
 - Rebuilt against RHEL 7.5 kernel
 - Fix get_user_pages and get_user_pages_remote compile errors

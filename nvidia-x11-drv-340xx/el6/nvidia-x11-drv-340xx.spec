@@ -1,7 +1,7 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# ftp://download.nvidia.com/XFree86/Linux-x86_64/340.106/README/minimumrequirements.html
-%define		max_xorg_ver	1.19.99
+# ftp://download.nvidia.com/XFree86/Linux-x86_64/340.107/README/minimumrequirements.html
+%define		max_xorg_ver	1.20.99
 
 %define		nvidialibdir	%{_libdir}/nvidia
 %define		nvidialib32dir	%{_prefix}/lib/nvidia
@@ -9,7 +9,7 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv-340xx
-Version:	340.106
+Version:	340.107
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -461,6 +461,10 @@ fi ||:
 %endif
 
 %changelog
+* Thu Jul 12 2018 Philip J Perry <phil@elrepo.org> - 340.107-1.el6.elrepo
+- Updated to version 340.107
+- Adds support for Xorg 1.20 (Video Driver ABI 24)
+
 * Fri Feb 02 2018 Philip J Perry <phil@elrepo.org> - 340.106-1.el6.elrepo
 - Updated to version 340.106
 - Add CUDA provides for nvidia-drivers
