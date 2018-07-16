@@ -6,7 +6,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 7.0
-Release: 2.el7_5.elrepo
+Release: 3.el7_5.elrepo
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -17,7 +17,7 @@ BuildRequires: redhat-rpm-config
 ExclusiveArch: x86_64
 
 # Sources.
-Source0:  %{kmod_name}-%{version}.tar.bz2
+Source0:  %{kmod_name}-%{version}.tar.gz
 Source5:  GPL-v2.0.txt
 Source10: kmodtool-%{kmod_name}-el7.sh
 
@@ -66,6 +66,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Mon Jul 16 2018 Philip J Perry <phil@elrepo.org> - 7.0-3
+- Fix build issues on RHEL 7.5 kernel
+
 * Tue Apr 10 2018 Philip J Perry <phil@elrepo.org> - 7.0-2
 - Rebuilt against RHEL 7.5 kernel
 
