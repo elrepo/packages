@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-862.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 390.67
+Version: 390.77
 Release: 1.el7_5.elrepo
 Group:   System Environment/Kernel
 License: Proprietary
@@ -81,6 +81,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Jul 17 2018 Philip J Perry <phil@elrepo.org> - 390.77-1
+- Updated to version 390.77
+
 * Wed Jun 06 2018 Philip J Perry <phil@elrepo.org> - 390.67-1
 - Updated to version 390.67
 
