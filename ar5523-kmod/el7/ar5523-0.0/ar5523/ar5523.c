@@ -706,10 +706,8 @@ static int ar5523_alloc_rx_bufs(struct ar5523 *ar)
 
 		data->ar = ar;
 		data->urb = usb_alloc_urb(0, GFP_KERNEL);
-		if (!data->urb) {
-			ar5523_err(ar, "could not allocate rx data urb\n");
+		if (!data->urb)
 			goto err;
-		}
 		list_add_tail(&data->list, &ar->rx_data_free);
 		atomic_inc(&ar->rx_data_free_cnt);
 	}
@@ -824,7 +822,6 @@ static void ar5523_tx_work_locked(struct ar5523 *ar)
 
 		urb = usb_alloc_urb(0, GFP_KERNEL);
 		if (!urb) {
-			ar5523_err(ar, "Failed to allocate TX urb\n");
 			ieee80211_free_txskb(ar->hw, skb);
 			continue;
 		}
@@ -832,8 +829,8 @@ static void ar5523_tx_work_locked(struct ar5523 *ar)
 		data->ar = ar;
 		data->urb = urb;
 
-		desc = (struct ar5523_tx_desc *)skb_push(skb, sizeof(*desc));
-		chunk = (struct ar5523_chunk *)skb_push(skb, sizeof(*chunk));
+		desc = skb_push(skb, sizeof(*desc));
+		chunk = skb_push(skb, sizeof(*chunk));
 
 		chunk->seqnum = 0;
 		chunk->flags = UATH_CFLAGS_FINAL;
@@ -949,10 +946,8 @@ static int ar5523_alloc_tx_cmd(struct ar5523 *ar)
 	init_completion(&cmd->done);
 
 	cmd->urb_tx = usb_alloc_urb(0, GFP_KERNEL);
-	if (!cmd->urb_tx) {
-		ar5523_err(ar, "could not allocate urb\n");
+	if (!cmd->urb_tx)
 		return -ENOMEM;
-	}
 	cmd->buf_tx = usb_alloc_coherent(ar->dev, AR5523_MAX_TXCMDSZ,
 					 GFP_KERNEL,
 					 &cmd->urb_tx->transfer_dma);
@@ -1694,6 +1689,8 @@ static int ar5523_probe(struct usb_interface *intf,
 	if (error)
 		goto out_cancel_rx_cmd;
 
+	wiphy_ext_feature_set(hw->wiphy, NL80211_EXT_FEATURE_CQM_RSSI_LIST);
+
 	usb_set_intfdata(intf, hw);
 
 	error = ieee80211_register_hw(hw);
@@ -1752,7 +1749,7 @@ static void ar5523_disconnect(struct usb_interface *intf)
 	{ USB_DEVICE((vendor), (device) + 1), \
 		.driver_info = AR5523_FLAG_ABG|AR5523_FLAG_PRE_FIRMWARE }
 
-static struct usb_device_id ar5523_id_table[] = {
+static const struct usb_device_id ar5523_id_table[] = {
 	AR5523_DEVICE_UG(0x168c, 0x0001),	/* Atheros / AR5523 */
 	AR5523_DEVICE_UG(0x0cf3, 0x0001),	/* Atheros2 / AR5523_1 */
 	AR5523_DEVICE_UG(0x0cf3, 0x0003),	/* Atheros2 / AR5523_2 */
