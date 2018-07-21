@@ -2,11 +2,11 @@
 %define kmod_name zd1211rw
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-514.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-862.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 1.0
-Release: 4%{?dist}
+Release: 6.el7_5.elrepo
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -16,7 +16,7 @@ BuildRequires: redhat-rpm-config, perl
 ExclusiveArch: x86_64
 
 # Sources.
-Source0:  %{kmod_name}-%{version}.tar.bz2
+Source0:  %{kmod_name}-%{version}.tar.gz
 Source5:  GPL-v2.0.txt
 Source10: kmodtool-%{kmod_name}-el7.sh
 
@@ -65,6 +65,12 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Jul 21 2018 Philip J Perry <phil@elrepo.org> - 1.0-6
+- Backported from kernel-4.14.56 for RHEL-7.5
+
+* Sun Jul 30 2017 Philip J Perry <phil@elrepo.org> - 1.0-5
+- Backported from kernel-4.11.12 for RHEL-7.4
+
 * Sun Nov 06 2016 Philip J Perry <phil@elrepo.org> - 1.0-4
 - Backported from kernel-4.7.10 for RHEL-7.3
 
