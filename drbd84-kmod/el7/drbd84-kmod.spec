@@ -8,7 +8,7 @@
 Name:    %{kmod_name}-kmod
 Version: 8.4.11
 %define  original_release 1
-Release: %{original_release}.el7_5.elrepo
+Release: %{original_release}%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: Distributed Redundant Block Device driver for Linux

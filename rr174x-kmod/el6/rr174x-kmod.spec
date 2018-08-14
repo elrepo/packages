@@ -13,7 +13,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 2.4
-Release: 2.el6_9.elrepo
+Release: 2%{?dist}
 Group:   System Environment/Kernel
 License: Open Source but Proprietary
 Summary: %{kmod_name} kernel module(s)

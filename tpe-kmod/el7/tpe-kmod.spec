@@ -7,7 +7,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 2.0.3
-Release: 6.20170731git.el7_5.elrepo
+Release: 6.20170731git%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)

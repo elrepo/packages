@@ -6,7 +6,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 340.107
-Release: 1.el7_5.elrepo
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module

@@ -6,7 +6,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 1.08.10
-Release: 2.el7_5.elrepo
+Release: 2%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)

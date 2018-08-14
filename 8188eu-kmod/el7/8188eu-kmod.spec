@@ -6,7 +6,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 4.1.4_6773.20130222
-Release: 4.el7_5.elrepo
+Release: 4%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)

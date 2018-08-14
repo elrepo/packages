@@ -12,7 +12,7 @@
 
 Name:		nvidia-x11-drv
 Version:	390.77
-Release:	1.el7_5.elrepo
+Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files

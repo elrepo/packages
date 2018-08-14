@@ -7,7 +7,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 9.0.13
-Release: 1.el7_5.elrepo
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: Distributed Redundant Block Device driver for Linux

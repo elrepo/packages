@@ -9,7 +9,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 8.045.08
-Release: 1.el7_4.elrepo
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
