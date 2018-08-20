@@ -97,7 +97,7 @@ static struct pci_dev *dev;
 static bool opt_list = 0;
 static bool opt_xorg = 0;
 /* We can only return package names on RHEL */
-#if (RHEL_MAJOR == 6 || RHEL_MAJOR == 7)
+#ifdef RHEL_MAJOR
 static bool opt_verbose = 0;
 #else	/* do generic verbose output */
 static bool opt_verbose = 1;
