@@ -417,9 +417,8 @@ int main(int argc, char *argv[])
 
 	pci_scan_bus(pacc);		/* Scan the bus for devices */
 
-	if (opt_verbose) {
+	if (opt_verbose)
 		printf("Probing for supported NVIDIA devices...\n");
-	}
 
 	/* Iterate over all devices */
 	for (dev=pacc->devices; dev; dev=dev->next) {
@@ -455,9 +454,8 @@ int main(int argc, char *argv[])
 	}		/* End iteration of devices */
 
 	/* Print package name */
-	if (!opt_verbose) {
+	if (!opt_verbose)
 		terse_output();
-	}
 
 	/* Check Xorg ABI compatibility */
 	if (ret > 0) {
