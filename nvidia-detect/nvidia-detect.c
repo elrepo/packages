@@ -41,6 +41,7 @@
 /* Only recommend elrepo drivers on RHEL*/
 #if RHEL_MAJOR == 7
 #define KMOD_NVIDIA			"kmod-nvidia"
+#define KMOD_NVIDIA_390XX	"kmod-nvidia-390xx"
 #define KMOD_NVIDIA_367XX	""	/* No longer supported on RHEL */
 #define KMOD_NVIDIA_340XX	"kmod-nvidia-340xx"
 #define KMOD_NVIDIA_304XX	"kmod-nvidia-304xx"
@@ -48,6 +49,7 @@
 #define KMOD_NVIDIA_96XX	""	/* No longer supported on RHEL */
 #elif RHEL_MAJOR == 6
 #define KMOD_NVIDIA			"kmod-nvidia"
+#define KMOD_NVIDIA_390XX	"kmod-nvidia-390xx"
 #define KMOD_NVIDIA_367XX	""	/* No longer supported on RHEL */
 #define KMOD_NVIDIA_340XX	"kmod-nvidia-340xx"
 #define KMOD_NVIDIA_304XX	"kmod-nvidia-304xx"
@@ -55,6 +57,7 @@
 #define KMOD_NVIDIA_96XX	""	/* No longer supported on RHEL */
 #else	/* make no specific package recommendation */
 #define KMOD_NVIDIA		""
+#define KMOD_NVIDIA_390XX	""
 #define KMOD_NVIDIA_367XX	""
 #define KMOD_NVIDIA_340XX	""
 #define KMOD_NVIDIA_304XX	""
@@ -73,6 +76,7 @@
 #define XORG_ABI_304XX		23	/* 304.134; Xorg 1.19 */
 #define XORG_ABI_340XX		24	/* 340.107; Xorg 1.20 */
 #define XORG_ABI_367XX		20	/* 367.44; Xorg 1.18 */
+#define XORG_ABI_390XX		24	/* 390.59; Xorg 1.20 */
 
 /* Change the default Xorg log file here if it's different */
 #define XORG_LOG_FILE	"/var/log/Xorg.0.log"
@@ -93,6 +97,7 @@ enum {
 	NVIDIA_LEGACY_304XX,
 	NVIDIA_LEGACY_340XX,
 	NVIDIA_LEGACY_367XX,
+	NVIDIA_LEGACY_390XX,
 };
 
 static int ret = 0;
@@ -141,7 +146,8 @@ static void usage(void)
 	printf("3: Device supported by the legacy  173.xx NVIDIA driver\n");
 	printf("4: Device supported by the legacy  304.xx NVIDIA driver\n");
 	printf("5: Device supported by the legacy  340.xx NVIDIA driver\n");
-	printf("6: Device supported by the legacy  367.xx NVIDIA driver\n\n");
+	printf("6: Device supported by the legacy  367.xx NVIDIA driver\n");
+	printf("7: Device supported by the legacy  390.xx NVIDIA driver\n\n");
 	printf("Please report bugs at http://elrepo.org/bugs\n");
 }
 
@@ -162,6 +168,16 @@ static void list_all_nvidia_devices(void)
 			PCI_VENDOR_ID_NVIDIA, nv_current_pci_ids[i]);
 
 		printf("[10de:%04x] %s\n", nv_current_pci_ids[i], name);
+	}
+
+	printf("\n*** Devices supported by the legacy 390.xx NVIDIA driver %s ***\n\n",
+		KMOD_NVIDIA_390XX);
+	for (i = 0; i < ARRAY_SIZE(nv_390xx_pci_ids); i++) {
+		name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
+			PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
+			PCI_VENDOR_ID_NVIDIA, nv_390xx_pci_ids[i]);
+
+		printf("[10de:%04x] %s\n", nv_390xx_pci_ids[i], name);
 	}
 
 	printf("\n*** Devices supported by the legacy 367.xx NVIDIA driver %s ***\n\n",
@@ -227,6 +243,17 @@ static int nv_lookup_device_id(u_int16_t device_id)
 					"driver %s\n", NVIDIA_VERSION, KMOD_NVIDIA);
 			}
 			return NVIDIA_CURRENT;
+		}
+	}
+
+	/** Find devices supported by the 390xx legacy driver **/
+	for (i = 0; i < ARRAY_SIZE(nv_390xx_pci_ids); i++) {
+		if (device_id == nv_390xx_pci_ids[i]) {
+			if (opt_verbose) {
+				printf("This device requires the legacy 390.xx NVIDIA "
+					"driver %s\n", KMOD_NVIDIA_390XX);
+			}
+			return NVIDIA_LEGACY_390XX;
 		}
 	}
 
@@ -299,6 +326,10 @@ static int terse_output(void)
 		printf("%s\n", KMOD_NVIDIA);
 		return 0;
 	}
+	else if (ret == NVIDIA_LEGACY_390XX) {
+		printf("%s\n", KMOD_NVIDIA_390XX);
+		return 0;
+	}
 	else if (ret == NVIDIA_LEGACY_340XX) {
 		printf("%s\n", KMOD_NVIDIA_340XX);
 		return 0;
@@ -366,6 +397,8 @@ static bool check_xorg_abi_compat(int driver)
 		else if (driver == NVIDIA_LEGACY_340XX && abi <= XORG_ABI_340XX )
 			return 1;
 		else if (driver == NVIDIA_LEGACY_367XX && abi <= XORG_ABI_367XX )
+			return 1;
+		else if (driver == NVIDIA_LEGACY_390XX && abi <= XORG_ABI_390XX )
 			return 1;
 		else
 			return 0;
