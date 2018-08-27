@@ -71,12 +71,12 @@
  * http://cgit.freedesktop.org/xorg/xserver/tree/hw/xfree86/common/xf86Module.h
  */
 #define XORG_ABI_CURRENT	24	/* 390.59; Xorg 1.20 */
-#define XORG_ABI_96XX		12	/* 96.43.23 */
-#define XORG_ABI_173XX		15	/* 173.14.39 */
-#define XORG_ABI_304XX		23	/* 304.134; Xorg 1.19 */
-#define XORG_ABI_340XX		24	/* 340.107; Xorg 1.20 */
-#define XORG_ABI_367XX		20	/* 367.44; Xorg 1.18 */
 #define XORG_ABI_390XX		24	/* 390.59; Xorg 1.20 */
+#define XORG_ABI_367XX		20	/* 367.44; Xorg 1.18 */
+#define XORG_ABI_340XX		24	/* 340.107; Xorg 1.20 */
+#define XORG_ABI_304XX		23	/* 304.134; Xorg 1.19 */
+#define XORG_ABI_173XX		15	/* 173.14.39 */
+#define XORG_ABI_96XX		12	/* 96.43.23 */
 
 /* Change the default Xorg log file here if it's different */
 #define XORG_LOG_FILE	"/var/log/Xorg.0.log"
@@ -388,17 +388,17 @@ static bool check_xorg_abi_compat(int driver)
 	if (abi > 0) {
 		if (driver == NVIDIA_CURRENT && abi <= XORG_ABI_CURRENT )
 			return 1;
-		else if (driver == NVIDIA_LEGACY_96XX && abi <= XORG_ABI_96XX )
-			return 1;
-		else if (driver == NVIDIA_LEGACY_173XX && abi <= XORG_ABI_173XX )
-			return 1;
-		else if (driver == NVIDIA_LEGACY_304XX && abi <= XORG_ABI_304XX )
-			return 1;
-		else if (driver == NVIDIA_LEGACY_340XX && abi <= XORG_ABI_340XX )
+		else if (driver == NVIDIA_LEGACY_390XX && abi <= XORG_ABI_390XX )
 			return 1;
 		else if (driver == NVIDIA_LEGACY_367XX && abi <= XORG_ABI_367XX )
 			return 1;
-		else if (driver == NVIDIA_LEGACY_390XX && abi <= XORG_ABI_390XX )
+		else if (driver == NVIDIA_LEGACY_340XX && abi <= XORG_ABI_340XX )
+			return 1;
+		else if (driver == NVIDIA_LEGACY_304XX && abi <= XORG_ABI_304XX )
+			return 1;
+		else if (driver == NVIDIA_LEGACY_173XX && abi <= XORG_ABI_173XX )
+			return 1;
+		else if (driver == NVIDIA_LEGACY_96XX && abi <= XORG_ABI_96XX )
 			return 1;
 		else
 			return 0;
