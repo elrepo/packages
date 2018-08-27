@@ -135,8 +135,4 @@ static const u_int16_t nv_390xx_pci_ids[] = {
 	0x1DB7, 0x1DBA, 0x1BB9, 0x1BBB, 0x1CBA, 0x1CBB, 0x1CBC, 0x1DB3, 0x1B83, 0x1C83,
 };
 
-/* PCI device_ids supported by the current driver */
-static const u_int16_t nv_current_pci_ids[] = {
-};
-
 #endif	/* _NVIDIA_DETECT_X86_H */

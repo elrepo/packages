@@ -165,6 +165,7 @@ static void list_all_nvidia_devices(void)
 {
 	size_t i;
 
+#ifndef __i386__
 	printf("\n*** Devices supported by the current %s NVIDIA driver %s ***\n\n",
 		NVIDIA_VERSION, KMOD_NVIDIA);
 	for (i = 0; i < ARRAY_SIZE(nv_current_pci_ids); i++) {
@@ -174,8 +175,9 @@ static void list_all_nvidia_devices(void)
 
 		printf("[10de:%04x] %s\n", nv_current_pci_ids[i], name);
 	}
+#endif /* __i386__ */
 
-printf("\n*** Devices supported by the legacy 390.xx NVIDIA driver %s ***\n\n",
+	printf("\n*** Devices supported by the legacy 390.xx NVIDIA driver %s ***\n\n",
 		KMOD_NVIDIA_390XX);
 	for (i = 0; i < ARRAY_SIZE(nv_390xx_pci_ids); i++) {
 		name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
@@ -240,6 +242,7 @@ static int nv_lookup_device_id(u_int16_t device_id)
 {
 	size_t i;
 
+#ifndef __i386__
 	/** Find devices supported by the current driver **/
 	for (i = 0; i < ARRAY_SIZE(nv_current_pci_ids); i++) {
 		if (device_id == nv_current_pci_ids[i]) {
@@ -250,6 +253,7 @@ static int nv_lookup_device_id(u_int16_t device_id)
 			return NVIDIA_CURRENT;
 		}
 	}
+#endif /* __i386__ */
 
 	/** Find devices supported by the 390xx legacy driver **/
 	for (i = 0; i < ARRAY_SIZE(nv_390xx_pci_ids); i++) {
