@@ -1,5 +1,6 @@
 27 Aug 2018
 	Add support for 390.xx legacy driver
+	Drop support for 32-bit operating systems
 
 14 Apr 2018
 	Fix error handling for unclassified device_class

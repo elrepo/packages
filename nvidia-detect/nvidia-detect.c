@@ -26,7 +26,12 @@
 #include <pci/pci.h>
 #include <linux/version.h>
 
+/* NVIDIA dropped 32-bit OS support in their 396.xx driver release */
+#ifdef __i386__
+#include "nvidia-detect_x86.h"
+#else
 #include "nvidia-detect.h"
+#endif
 
 #define PROGRAM_NAME		"nvidia-detect"
 #define NVIDIA_VERSION		"390.77"
@@ -170,7 +175,7 @@ static void list_all_nvidia_devices(void)
 		printf("[10de:%04x] %s\n", nv_current_pci_ids[i], name);
 	}
 
-	printf("\n*** Devices supported by the legacy 390.xx NVIDIA driver %s ***\n\n",
+printf("\n*** Devices supported by the legacy 390.xx NVIDIA driver %s ***\n\n",
 		KMOD_NVIDIA_390XX);
 	for (i = 0; i < ARRAY_SIZE(nv_390xx_pci_ids); i++) {
 		name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
