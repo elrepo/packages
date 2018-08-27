@@ -1,3 +1,6 @@
+27 Aug 2018
+	Add support for 390.xx legacy driver
+
 14 Apr 2018
 	Fix error handling for unclassified device_class
 	[http://elrepo.org/bugs/view.php?id=839]

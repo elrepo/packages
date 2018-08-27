@@ -63,6 +63,7 @@ nvidia-detect may be run from within a script and will return the following code
 4: Device supported by the legacy 304.xx NVIDIA driver
 5: Device supported by the legacy 340.xx NVIDIA driver
 6: Device supported by the legacy 367.xx NVIDIA driver
+7: Device supported by the legacy 390.xx NVIDIA driver
 
 For a full list of supported devices, see:
 ftp://download.nvidia.com/XFree86/Linux-x86_64/390.77/README/supportedchips.html
