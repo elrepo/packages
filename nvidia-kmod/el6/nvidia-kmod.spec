@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 2.6.32-754.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 390.77
+Version: 390.87
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -81,6 +81,9 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Mon Aug 27 2018 Philip J Perry <phil@elrepo.org> - 390.87-1
+- Updated to version 390.87
+
 * Tue Jul 17 2018 Philip J Perry <phil@elrepo.org> - 390.77-1
 - Updated to version 390.77
 - Built against RHEL-6.10 kernel

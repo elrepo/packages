@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/390.77/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/390.87/README/minimumrequirements.html
 %define		max_xorg_ver	1.20.99
 
 %define		nvidialibdir	%{_libdir}/nvidia
@@ -10,7 +10,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	390.77
+Version:	390.87
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -65,6 +65,8 @@ Requires(post):	 grubby
 Requires(preun): grubby
 
 # elrepo
+Conflicts:	nvidia-x11-drv-390xx
+Conflicts:	nvidia-x11-drv-390xx-32bit
 Conflicts:	nvidia-x11-drv-367xx
 Conflicts:	nvidia-x11-drv-367xx-32bit
 Conflicts:	nvidia-x11-drv-340xx
@@ -517,6 +519,9 @@ fi ||:
 %endif
 
 %changelog
+* Mon Aug 27 2018 Philip J Perry <phil@elrepo.org> - 390.87-1
+- Updated to version 390.87
+
 * Tue Jul 17 2018 Philip J Perry <phil@elrepo.org> - 390.77-1
 - Updated to version 390.77
 
