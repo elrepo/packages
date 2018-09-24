@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-862.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 396.54
+Version: 410.57
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -81,6 +81,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Sep 22 2018 Philip J Perry <phil@elrepo.org> - 410.57-1
+- Updated to version 410.57 beta driver
+
 * Mon Sep 17 2018 Philip J Perry <phil@elrepo.org> - 396.54-1
 - Updated to version 396.54
 
