@@ -7,11 +7,11 @@
 
 ### BEWARE: The kernel version is also mentioned in kmodtool !
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion:%define kversion 2.6.32-573.el6.%{_target_cpu}}
+%{!?kversion:%define kversion 2.6.32-754.el6.%{_target_cpu}}
 
 Summary: Distributed Redundant Block Device driver for Linux
 Name: %{kmod_name}-kmod
-Version: 8.4.10
+Version: 8.4.11
 %define original_release 1
 Release: %{original_release}%{?dist}
 License: GPL
@@ -19,7 +19,7 @@ Group: System Environment/Kernel
 URL: http://www.drbd.org/
 
 # Sources.
-Source0: http://oss.linbit.com/drbd/8.4/drbd-%{version}-%{original_release}.tar.gz
+Source0: http://www.linbit.com/downloads/drbd/8.4/drbd-%{version}-%{original_release}.tar.gz
 Source10: kmodtool-%{kmod_name}.sh
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 
@@ -52,7 +52,7 @@ ksrc="%{_usrsrc}/kernels/%{kversion}"
 %{__install} drbd/*.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
-for file in ChangeLog COPYING README; do
+for file in ChangeLog COPYING README.md; do
     %{__install} -Dp -m0644 $file %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/$file
 done
 # Set the module(s) to be executable, so that they will be stripped when packaged.
@@ -64,6 +64,9 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Sep 27 2018 Hiroshi Fujishima <h-fujishima@sakura.ad.jp> - 8.4.11-1
+- Updated to version 8.4.11.
+
 * Sun Jun 11 2017 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1
 - Updated to version 8.4.10.
 
