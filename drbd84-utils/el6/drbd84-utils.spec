@@ -5,13 +5,13 @@
 
 Summary: Management utilities for DRBD
 Name: drbd84-utils
-Version: 9.0.0
+Version: 9.5.0
 Release: 1%{?dist}
 License: GPLv2+
 Group: System Environment/Kernel
 URL: http://www.drbd.org/
 
-Source: http://oss.linbit.com/drbd/drbd-utils-%{version}.tar.gz
+Source: http://www.linbit.com/downloads/drbd/utils/drbd-utils-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 BuildRequires: flex
@@ -89,7 +89,7 @@ fi
 
 %files
 %defattr(-, root, root, 0755)
-%doc ChangeLog COPYING README scripts/drbd.conf.example
+%doc ChangeLog COPYING README.md scripts/drbd.conf.example
 %doc %{_mandir}/man5/drbd.conf.5*
 %doc %{_mandir}/man5/drbd.conf-*
 %doc %{_mandir}/man8/drbd.8*
@@ -101,6 +101,17 @@ fi
 %doc %{_mandir}/man8/drbdmeta-*
 %doc %{_mandir}/man8/drbdsetup.8*
 %doc %{_mandir}/man8/drbdsetup-*
+%doc %{_mandir}/ja/man5/drbd.conf.5*
+%doc %{_mandir}/ja/man5/drbd.conf-*
+%doc %{_mandir}/ja/man8/drbd.8*
+%doc %{_mandir}/ja/man8/drbd-*
+%doc %{_mandir}/ja/man8/drbdadm.8*
+%doc %{_mandir}/ja/man8/drbdadm-*
+%doc %{_mandir}/ja/man8/drbddisk-*
+%doc %{_mandir}/ja/man8/drbdmeta.8*
+%doc %{_mandir}/ja/man8/drbdmeta-*
+%doc %{_mandir}/ja/man8/drbdsetup.8*
+%doc %{_mandir}/ja/man8/drbdsetup-*
 %config %{_initrddir}/drbd
 %config %{_sysconfdir}/bash_completion.d/drbdadm*
 %config(noreplace) %{_sysconfdir}/drbd.conf
@@ -153,6 +164,9 @@ fi
 %{_sysconfdir}/xen/scripts/block-drbd
 
 %changelog
+* Thu Sep 27 2018 Hiroshi Fujishima <h-fujishima@sakura.ad.jp> - 9.5.0-1
+- Updated to version 9.5.0.
+
 * Mon Jun 12 2017 Akemi Yagi <toracat@elrepo.org> - 9.0.0-1
 - Updated to version 9.0.0.
 - xmlto replaced with docbook-style-xsl [git PR #155]
