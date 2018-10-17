@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 2.6.32-754.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 390.87
+Version: 410.66
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -14,16 +14,14 @@ URL:	 http://www.nvidia.com/
 
 BuildRequires:	redhat-rpm-config
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
-ExclusiveArch:	i686 x86_64
+ExclusiveArch:	x86_64
 
 # Sources.
-Source0:  ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}.run
-Source1:  ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+Source0:  ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 Source10: kmodtool-%{kmod_name}-el6.sh
 Source15: nvidia-provides.sh
 
 NoSource: 0
-NoSource: 1
 
 # Magic hidden here.
 %define kmodtool sh %{SOURCE10}
@@ -45,18 +43,8 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 echo "override %{kmod_name}-drm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 echo "override %{kmod_name}-modeset * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
-%ifarch x86_64
 echo "override %{kmod_name}-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
-%endif
-
-%ifarch i686
 sh %{SOURCE0} --extract-only --target nvidiapkg
-%endif
-
-%ifarch x86_64
-sh %{SOURCE1} --extract-only --target nvidiapkg
-%endif
-
 %{__cp} -a nvidiapkg _kmod_build_
 
 %build
@@ -81,6 +69,16 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Oct 16 2018 Philip J Perry <phil@elrepo.org> - 410.66-1
+- Updated to version 410.66
+
+* Sat Sep 22 2018 Philip J Perry <phil@elrepo.org> - 410.57-1
+- Updated to version 410.57 beta driver
+- Remove 32-bit OS support
+
+* Mon Sep 17 2018 Philip J Perry <phil@elrepo.org> - 396.54-1
+- Updated to version 396.54
+
 * Mon Aug 27 2018 Philip J Perry <phil@elrepo.org> - 390.87-1
 - Updated to version 390.87
 

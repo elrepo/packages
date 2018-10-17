@@ -1,6 +1,7 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/390.87/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/410.66/README/minimumrequirements.html
+
 %define		max_xorg_ver	1.20.99
 
 %define		nvidialibdir	%{_libdir}/nvidia
@@ -10,7 +11,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	390.87
+Version:	410.66
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -18,14 +19,11 @@ Summary:	NVIDIA OpenGL X11 display driver files
 URL:		http://www.nvidia.com/
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
-ExclusiveArch:	i686 x86_64
+ExclusiveArch:	x86_64
 
 # Sources.
-Source0:	http://us.download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}.run
-Source1:	http://us.download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
-
+Source0:	http://us.download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 NoSource: 0
-NoSource: 1
 
 Source2:	nvidia-config-display
 Source3:	blacklist-nouveau.conf
@@ -39,12 +37,10 @@ Source9:	nvidia.csh
 # Define for nvidia-provides
 %define __find_provides %{SOURCE7}
 
-%ifarch x86_64
 # Provides for CUDA
 Provides:	cuda-driver = %{version}
 Provides:	cuda-drivers = %{version}
 Provides:	nvidia-drivers = %{version}
-%endif
 
 # provides desktop-file-install
 BuildRequires:	desktop-file-utils
@@ -107,14 +103,7 @@ Compatibility 32-bit files for the 64-bit Proprietary NVIDIA driver.
 
 %prep
 %setup -q -c -T
-
-%ifarch i686
 sh %{SOURCE0} --extract-only --target nvidiapkg
-%endif
-
-%ifarch x86_64
-sh %{SOURCE1} --extract-only --target nvidiapkg
-%endif
 
 # Lets just take care of all the docs here rather than during install
 pushd nvidiapkg
@@ -174,6 +163,8 @@ pushd nvidiapkg
 %{__install} -p -m 0755 libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libnvcuvid.so in 260.xx series driver
 %{__install} -p -m 0755 libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
+# Added libnvidia-cbl.so in 410.57 beta driver
+%{__install} -p -m 0755 libnvidia-cbl.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libnvidia-cfg.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libnvidia-compiler.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libnvidia-eglcore.so in 340.24 driver
@@ -189,6 +180,8 @@ pushd nvidiapkg
 %{__install} -p -m 0755 libnvidia-glcore.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libnvidia-glsi.so in 340.24 driver
 %{__install} -p -m 0755 libnvidia-glsi.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
+# Added in 396.18 driver
+%{__install} -p -m 0755 libnvidia-glvkspirv.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added in 346.35 driver
 %{__install} -p -m 0755 libnvidia-gtk2.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libnvidia-ifr.so in 325.15 driver
@@ -201,14 +194,17 @@ pushd nvidiapkg
 %{__install} -p -m 0755 libnvidia-opencl.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libnvidia-ptxjitcompiler.so in 361.28 driver
 %{__install} -p -m 0755 libnvidia-ptxjitcompiler.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
+# Added libnvidia-rtcore.so in 410.57 beta drivers
+%{__install} -p -m 0755 libnvidia-rtcore.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libnvidia-tls.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 tls/*.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/tls/
+# Added libnvoptix.so in 410.57 beta drivers
+%{__install} -p -m 0755 libnvoptix.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libOpenGL.so in 361.28 driver
 %{__install} -p -m 0755 libOpenGL.so.0 $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/vdpau/
 
-%ifarch x86_64
 # Install 32bit compat GL, tls and vdpau libs
 %{__mkdir_p} $RPM_BUILD_ROOT%{_prefix}/lib/vdpau/
 %{__mkdir_p} $RPM_BUILD_ROOT%{nvidialib32dir}/
@@ -237,6 +233,8 @@ pushd nvidiapkg
 %{__install} -p -m 0755 32/libnvidia-glcore.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 # Added libnvidia-glsi in 331.20 driver
 %{__install} -p -m 0755 32/libnvidia-glsi.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
+# Added in 396.18 driver
+%{__install} -p -m 0755 32/libnvidia-glvkspirv.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libnvidia-ifr.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libnvidia-opencl.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
@@ -247,13 +245,13 @@ pushd nvidiapkg
 %{__install} -p -m 0755 32/libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libOpenGL.so.0 $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/vdpau/
-%endif
+
 
 # Install X driver and extension 
 %{__mkdir_p} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
 %{__mkdir_p} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/
 %{__install} -p -m 0755 nvidia_drv.so $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
-%{__install} -p -m 0755 libglx.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/
+%{__install} -p -m 0755 libglxserver_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/
 
 # Create the symlinks
 %{__ln_s} libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libcuda.so
@@ -295,15 +293,16 @@ pushd nvidiapkg
 # Added libnvidia-opencl.so in 304.xx series driver
 %{__ln_s} libnvidia-opencl.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-opencl.so.1
 %{__ln_s} libnvidia-ptxjitcompiler.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-ptxjitcompiler.so.1
+# Added libnvoptix.so in 410.57 beta drivers
+%{__ln_s} libnvoptix.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvoptix.so.1
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so.1
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so.1.0
 %{__ln_s} libOpenGL.so.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenGL.so
-%{__ln_s} libglx.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/libglx.so
+%{__ln_s} libglxserver_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/libglxserver_nvidia.so
 %{__ln_s} libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/vdpau/libvdpau_nvidia.so
 %{__ln_s} libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/vdpau/libvdpau_nvidia.so.1
 
-%ifarch x86_64
 # Create the 32-bit symlinks
 %{__ln_s} libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libcuda.so
 %{__ln_s} libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libcuda.so.1
@@ -339,7 +338,6 @@ pushd nvidiapkg
 %{__ln_s} libOpenGL.so.0 $RPM_BUILD_ROOT%{nvidialib32dir}/libOpenGL.so
 %{__ln_s} libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/vdpau/libvdpau_nvidia.so
 %{__ln_s} libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/vdpau/libvdpau_nvidia.so.1
-%endif
 
 # Install man pages
 %{__mkdir_p} $RPM_BUILD_ROOT%{_mandir}/man1/
@@ -399,10 +397,8 @@ desktop-file-install \
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
 echo %{nvidialibdir} > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia.conf
 echo %{_libdir}/vdpau >> $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia.conf
-%ifarch x86_64
 echo %{nvidialib32dir} >> $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia.conf
 echo %{_prefix}/lib/vdpau >> $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia.conf
-%endif
 
 popd
 
@@ -505,10 +501,9 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.*
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 %dir %{_libdir}/xorg/modules/extensions/nvidia
-%{_libdir}/xorg/modules/extensions/nvidia/libglx.*
+%{_libdir}/xorg/modules/extensions/nvidia/libglxserver_nvidia.*
 
 # 32-bit compatibility libs
-%ifarch x86_64
 %files 32bit
 %defattr(-,root,root,-)
 %dir %{nvidialib32dir}
@@ -516,9 +511,20 @@ fi ||:
 %dir %{nvidialib32dir}/tls
 %{nvidialib32dir}/tls/lib*
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
-%endif
 
 %changelog
+* Tue Oct 16 2018 Philip J Perry <phil@elrepo.org> - 410.66-1
+- Updated to version 410.66
+
+* Sat Oct 06 2018 Philip J Perry <phil@elrepo.org> - 410.57-2
+- Remove 32-bit OS support
+
+* Sat Sep 22 2018 Philip J Perry <phil@elrepo.org> - 410.57-1
+- Updated to version 410.57 beta driver
+
+* Mon Sep 17 2018 Philip J Perry <phil@elrepo.org> - 396.54-1
+- Updated to version 396.54
+
 * Mon Aug 27 2018 Philip J Perry <phil@elrepo.org> - 390.87-1
 - Updated to version 390.87
 
