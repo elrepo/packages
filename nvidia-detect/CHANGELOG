@@ -26,7 +26,7 @@
 	Add support for RHEL 7
 	Fix Xorg detection
 
-05 Mar 2013
+05 Mar 2014
 	Add mask to device_class to detect all display classes
 	[http://elrepo.org/bugs/view.php?id=462]
 
