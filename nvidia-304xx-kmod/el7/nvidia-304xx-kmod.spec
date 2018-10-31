@@ -2,11 +2,11 @@
 %define	 kmod_name nvidia-304xx
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-862.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-957.el7.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
 Version: 304.135
-Release: 5%{?dist}
+Release: 6%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
@@ -80,6 +80,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Oct 30 2018 Philip J Perry <phil@elrepo.org> - 304.135-6
+- Rebuilt against RHEL 7.6 kernel
+
 * Tue Apr 10 2018 Philip J Perry <phil@elrepo.org> - 304.135-5
 - Rebuilt against RHEL 7.5 kernel
 - Fix get_user_pages and get_user_pages_remote compile errors
