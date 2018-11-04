@@ -3,10 +3,10 @@
 %define real_name drbd
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-862.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-957.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 9.0.13
+Version: 9.0.16
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -69,6 +69,13 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Nov 03 2018 Akemi Yagi <toracat@elrepo.org> - 9.0.16-1.el7_6
+- Updated to 9.0.16
+- Rebuild against RHEL 7.6 kernel
+
+* Thu May 03 2018 Akemi Yagi <toracat@elrepo.org> - 9.0.14-1.el7_5
+- Updated to 9.0.14
+
 * Wed Apr 18 2018 Akemi Yagi <toracat@elrepo.org> - 9.0.13-1.el7_5
 - Updated to 9.0.13
 - Rebuild against RHEL 7.5 kernel

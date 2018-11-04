@@ -1,7 +1,7 @@
 %define real_name drbd-utils
 
 Name:    drbd90-utils
-Version: 9.3.1
+Version: 9.6.0
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
@@ -131,7 +131,6 @@ fi
 %{_sbindir}/drbdadm
 %{_sbindir}/drbdmeta
 %{_sbindir}/drbdsetup
-%{_sbindir}/drbd-overview
 %{_sbindir}/drbdmon
 %dir %{_prefix}/lib/drbd/
 %{_prefix}/lib/drbd/notify-out-of-sync.sh
@@ -174,6 +173,9 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Sat Nov 03 2018 Akemi Yagi <toracat@elrepo.org> - 9.6.0-1
+- Updated to 9.6.0
+
 * Wed Apr 18 2018 Akemi Yagi <toracat@elrepo.org> - 9.3.1-1
 - Updated to 9.3.1
 

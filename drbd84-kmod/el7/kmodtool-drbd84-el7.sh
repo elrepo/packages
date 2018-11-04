@@ -157,7 +157,7 @@ Requires(post):   /usr/sbin/depmod
 Requires(postun): /usr/sbin/depmod
 
 Requires: drbd84-utils >= %{?epoch:%{epoch}:}%{version}
-Requires: kernel >= 3.10.0-862.el7
+Requires: kernel >= 3.10.0-957.el7
 
 ### We cannot obsolete all Linbit drbd-km-%{kversion} variants
 Conflicts: kmod-drbd < 8.4
