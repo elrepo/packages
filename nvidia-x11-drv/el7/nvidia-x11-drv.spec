@@ -351,7 +351,9 @@ desktop-file-install \
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
 # Install alternate-install-present file
 # This file tells the NVIDIA installer that a packaged version of the driver is already present on the system
-%{__install} -p -m 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_libdir}/alternate-install-present
+# The location is hardcoded in the NVIDIA.run installer as /user/lib/nvidia/
+%{__mkdir_p} $RPM_BUILD_ROOT%{_prefix}/lib/nvidia/
+%{__install} -p -m 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_prefix}/lib/nvidia/alternate-install-present
 # Install profile.d files
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/
 %{__install} -p -m 0644 %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/nvidia.sh
@@ -449,10 +451,11 @@ fi ||:
 %config(noreplace) %{_sysconfdir}/profile.d/nvidia.sh
 %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %{_sysconfdir}/vulkan/icd.d/nvidia_icd.json
+%dir %{_prefix}/lib/nvidia/
+%{_prefix}/lib/nvidia/alternate-install*
 
 # now the libs
 %{_libdir}/lib*
-%{_libdir}/alternate-install*
 %{_libdir}/vdpau/libvdpau_nvidia.*
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 %{_libdir}/xorg/modules/extensions/libglxserver_nvidia.*
@@ -467,6 +470,7 @@ fi ||:
 * Thu Oct 25 2018 Philip J Perry <phil@elrepo.org> - 410.73-2
 - Use RHEL7 glvnd package
 - Use %%{_libdir} for libs now conflicts are resolved
+- Add wayland components, now supported on RHEL as a tech preview
 
 * Thu Oct 25 2018 Philip J Perry <phil@elrepo.org> - 410.73-1
 - Updated to version 410.73

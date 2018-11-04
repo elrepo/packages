@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/410.66/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/410.73/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 
@@ -11,7 +11,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	410.66
+Version:	410.73
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -386,7 +386,9 @@ desktop-file-install \
 
 # Install alternate-install-present file
 # This file tells the NVIDIA installer that a packaged version of the driver is already present on the system
-%{__install} -p -m 0644 %{SOURCE5} $RPM_BUILD_ROOT%{nvidialibdir}/alternate-install-present
+# The location is hardcoded in the NVIDIA.run installer as /user/lib/nvidia
+%{__mkdir_p} $RPM_BUILD_ROOT%{_prefix}/lib/nvidia/
+%{__install} -p -m 0644 %{SOURCE5} $RPM_BUILD_ROOT%{_prefix}/lib/nvidia/alternate-install-present
 
 # Install profile.d files
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/
@@ -491,11 +493,12 @@ fi ||:
 %config %{_sysconfdir}/udev/makedev.d/60-nvidia.nodes
 %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %{_sysconfdir}/vulkan/icd.d/nvidia_icd.json
+%dir %{_prefix}/lib/nvidia/
+%{_prefix}/lib/nvidia/alternate-install*
 
 # now the libs
 %dir %{nvidialibdir}
 %{nvidialibdir}/lib*
-%{nvidialibdir}/alternate-install*
 %dir %{nvidialibdir}/tls
 %{nvidialibdir}/tls/lib*
 %{_libdir}/vdpau/libvdpau_nvidia.*
@@ -513,6 +516,9 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Thu Oct 25 2018 Philip J Perry <phil@elrepo.org> - 410.73-1
+- Updated to version 410.73
+
 * Tue Oct 16 2018 Philip J Perry <phil@elrepo.org> - 410.66-1
 - Updated to version 410.66
 
