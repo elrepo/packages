@@ -3,12 +3,12 @@
 %define real_name drbd
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-862.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-957.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 8.4.11
 %define  original_release 1
-Release: %{original_release}%{?dist}
+Release: %{original_release}.1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: Distributed Redundant Block Device driver for Linux
@@ -71,6 +71,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Nov 02 2018 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1.1.el7_6
+- Built against RHEL 7.6 kernel 3.10.0-957.el7
+
 * Thu Apr 26 2018 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1
 - Built against RHEL 7.5 kernel 3.10.0-862.el7
 - Updated to version 8.4.11
