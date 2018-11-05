@@ -149,9 +149,10 @@ pushd nvidiapkg
 # Set lib in vulkan icd template
 %{__perl} -pi -e 's|__NV_VK_ICD__|libGLX_nvidia.so.0|' nvidia_icd.json.template
 # Install vulkan and EGL loaders
+%{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/vulkan/icd.d/
+%{__install} -p -m 0644 nvidia_icd.json.template $RPM_BUILD_ROOT%{_datadir}/vulkan/icd.d/nvidia_icd.json
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/
 %{__install} -p -m 0644 10_nvidia.json $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
-%{__install} -p -m 0644 nvidia_icd.json.template $RPM_BUILD_ROOT%{_datadir}/vulkan/icd.d/nvidia_icd.json
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/
 %{__install} -p -m 0644 10_nvidia_wayland.json $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/10_nvidia_wayland.json
 
