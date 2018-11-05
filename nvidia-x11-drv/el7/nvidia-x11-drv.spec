@@ -9,7 +9,7 @@
 
 Name:		nvidia-x11-drv
 Version:	410.73
-Release:	2.glvnd%{?dist}
+Release:	2.glvnd.1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -162,7 +162,6 @@ pushd nvidiapkg
 %{__install} -p -m 0755 libEGL_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libGLESv1_CM_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libGLESv2_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
-%{__install} -p -m 0755 libGL.la $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 # Added libnvcuvid.so in 260.xx series driver
 %{__install} -p -m 0755 libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
@@ -211,7 +210,6 @@ pushd nvidiapkg
 %{__install} -p -m 0755 32/libEGL_nvidia.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/
 %{__install} -p -m 0755 32/libGLESv1_CM_nvidia.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/
 %{__install} -p -m 0755 32/libGLESv2_nvidia.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/
-%{__install} -p -m 0755 32/libGL.la $RPM_BUILD_ROOT%{_prefix}/lib/
 %{__install} -p -m 0755 32/libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/
 %{__install} -p -m 0755 32/libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/
 %{__install} -p -m 0755 32/libnvidia-compiler.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/
@@ -254,7 +252,6 @@ pushd nvidiapkg
 # Added libnvcuvid.so in 260.xx series driver
 %{__ln_s} libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvcuvid.so
 %{__ln_s} libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvcuvid.so.1
-%{__ln_s} libnvidia-cfg.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-cfg.so
 %{__ln_s} libnvidia-cfg.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-cfg.so.1
 # Added libnvidia-egl-wayland.so in 367.27 driver
 %{__ln_s} libnvidia-egl-wayland.so.1.1.0 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so
@@ -280,7 +277,6 @@ pushd nvidiapkg
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{_libdir}/libOpenCL.so.1
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{_libdir}/libOpenCL.so.1.0
 %{__ln_s} libglxserver_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/libglxserver_nvidia.so
-%{__ln_s} libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/vdpau/libvdpau_nvidia.so
 %{__ln_s} libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/vdpau/libvdpau_nvidia.so.1
 
 # Create the 32-bit symlinks for the 32-bit compat package
@@ -306,7 +302,6 @@ pushd nvidiapkg
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{_prefix}/lib/libOpenCL.so
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{_prefix}/lib/libOpenCL.so.1
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{_prefix}/lib/libOpenCL.so.1.0
-%{__ln_s} libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/vdpau/libvdpau_nvidia.so
 %{__ln_s} libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/vdpau/libvdpau_nvidia.so.1
 
 # Install man pages
