@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 2.6.32-754.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 410.66
+Version: 410.73
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -69,6 +69,9 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Oct 25 2018 Philip J Perry <phil@elrepo.org> - 410.73-1
+- Updated to version 410.73
+
 * Tue Oct 16 2018 Philip J Perry <phil@elrepo.org> - 410.66-1
 - Updated to version 410.66
 
