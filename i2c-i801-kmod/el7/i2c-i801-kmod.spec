@@ -2,11 +2,11 @@
 %define kmod_name i2c-i801
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-514.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-957.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 3%{?dist}
+Release: 5%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -66,6 +66,12 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Nov 11 2018 Akemi Yagi <toracat@elrepo.org> - 0.0-5.el7_6.elrepo
+- Rebuilt against RHEL 7.6 kernel
+
+* Fri Jun 15 2018 Akemi Yagi <toracat@elrepo.org> - 0.0-4.el7_5.elrepo
+- Rebuilt against RHEL 7.5 kernel
+
 * Sat Dec 03 2016 Philip J Perry <phil@elrepo.org> - 0.0-3
 - Updated to kernel-4.4.36
 - Built against RHEL7.3 kernel
