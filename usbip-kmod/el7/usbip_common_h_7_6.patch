@@ -1,0 +1,14 @@
+--- a/usbip_common.h	2018-11-11 22:17:30.478174953 -0800
++++ b/usbip_common.h.new	2018-11-11 22:20:11.404417647 -0800
+@@ -33,6 +33,11 @@
+ 
+ #define USBIP_VERSION "1.0.0"
+ 
++/* The following line was in include/linux/usb.h in RHEL 7.5 but not in 7.6
++ * so add it here.
++ */
++#define URB_NO_FSBR             0x0020  /* UHCI-specific */
++
+ #undef pr_fmt
+ 
+ #ifdef DEBUG
