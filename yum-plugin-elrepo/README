@@ -1,0 +1,17 @@
+A yum plugin to exclude kmod packages from the yum transaction set which
+require kernels that are not yet available.
+
+Elrepo.org provide kmod packages for RHEL and compatible distros. RHEL point
+releases sometimes break kABI compatibility requiring a rebuild of the kmod
+package against the latest RHEL kernel.
+
+When this occurs at a RHEL point release, compatible distros such as CentOS and
+Scientific Linux often have yet to release their corresponding kernels which
+causes unresolved dependancy errors in yum.
+
+This plugin seeks to determine the kernel version that any given kmod package
+is built against and then determine if the corresponding kernel is available.
+If the corresponding kernel is not available, the kmod package will be excluded
+from the yum transaction set until the required kernel becomes available.
+
+Bugs should be reported at http://elrepo.org/bugs
