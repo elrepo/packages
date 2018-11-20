@@ -14,4 +14,7 @@ is built against and then determine if the corresponding kernel is available.
 If the corresponding kernel is not available, the kmod package will be excluded
 from the yum transaction set until the required kernel becomes available.
 
+Note: CentOS users will need to enable the CentOS Vault repositories to make
+previous kernels available to yum otherwise older kmod packages may be excluded.
+
 Bugs should be reported at http://elrepo.org/bugs

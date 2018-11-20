@@ -57,18 +57,6 @@ def exclude_hook(conduit):
         if not (kmod.release).endswith(".elrepo"):
             return
 
-        # CentOS and SL do not keep older kernels available in their yum repos,
-        # so we can not simply check each kmod for a matching kernel as this would 
-        # exclude kmods built against older kernels no longer available in the repo.
-        # We simply ignore older kmod packages here to prevent them being excluded.
-        if (kmod.release).endswith(".el7.elrepo") or \
-           (kmod.release).endswith(".el7_1.elrepo") or \
-           (kmod.release).endswith(".el7_2.elrepo") or \
-           (kmod.release).endswith(".el7_3.elrepo") or \
-           (kmod.release).endswith(".el7_4.elrepo") or \
-           (kmod.release).endswith(".el7_5.elrepo"):
-             return
-
         for req in requires:
             for kernel in kernels:
                 if fnmatch.fnmatch(kernel, req):
