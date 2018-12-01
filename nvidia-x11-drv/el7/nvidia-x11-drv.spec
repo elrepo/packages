@@ -8,8 +8,8 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	410.73
-Release:	3.glvnd%{?dist}
+Version:	410.78
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -466,6 +466,9 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Sat Dec 01 2018 Philip J Perry <phil@elrepo.org> - 410.78-2
+- Updated to version 410.78
+
 * Sat Dec 01 2018 Philip J Perry <phil@elrepo.org> - 410.73-3
 - Make arch-specific nvidia-x11-drv-libs packages
 

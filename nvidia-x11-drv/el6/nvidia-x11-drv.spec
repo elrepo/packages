@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/410.73/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/410.78/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 
@@ -11,7 +11,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	410.73
+Version:	410.78
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -294,7 +294,7 @@ pushd nvidiapkg
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so.1
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so.1.0
 %{__ln_s} libOpenGL.so.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenGL.so
-%{__ln_s} libglxserver_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/libglxserver_nvidia.so
+%{__ln_s} libglxserver_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/libglxserver_nvidia.so
 %{__ln_s} libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/vdpau/libvdpau_nvidia.so.1
 
 # Create the 32-bit symlinks
@@ -508,6 +508,9 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Thu Nov 15 2018 Philip J Perry <phil@elrepo.org> - 410.78-1
+- Updated to version 410.78
+
 * Thu Oct 25 2018 Philip J Perry <phil@elrepo.org> - 410.73-1
 - Updated to version 410.73
 
