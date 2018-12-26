@@ -2,7 +2,7 @@
 %define kmod_driver_version	3.4.2.1
 %define kmod_rpm_release	1
 %define kmod_kernel_version	4.18.0-32.el8
-%define kmod_headers_version    %(rpm -qa kernel-devel | sed 's/^kernel-devel-//')
+%define kmod_headers_version    %{kmod_kernel_version}.%{_target_cpu}
 %define kmod_kbuild_dir         .
 %define kmod_dependencies       %{nil}
 %define kmod_build_dependencies	%{nil}
