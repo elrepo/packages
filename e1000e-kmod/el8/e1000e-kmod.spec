@@ -34,7 +34,7 @@ ExclusiveArch:	x86_64
 %global kernel_source() /usr/src/kernels/%{kmod_headers_version}
 
 %global _use_internal_dependency_generator 0
-Provides:	kernel-modules = %kmod_kernel_version.%{_target_cpu}
+Provides:	kernel-modules = %{kmod_kernel_version}.%{_target_cpu}
 Provides:	kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires(post):	%{_sbindir}/weak-modules
 Requires(postun):	%{_sbindir}/weak-modules
