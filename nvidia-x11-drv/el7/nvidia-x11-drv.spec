@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/410.73/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/410.93/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 
@@ -8,8 +8,8 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	410.78
-Release:	3%{?dist}
+Version:	410.93
+Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -390,6 +390,9 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Sat Jan 05 2019 Philip J Perry <phil@elrepo.org> - 410.93-1
+- Updated to version 410.93
+
 * Sat Dec 08 2018 Philip J Perry <phil@elrepo.org> - 410.78-3
 - Add conflicts for opencl-filesystem
 - Clean up installation of libs and symlinks
