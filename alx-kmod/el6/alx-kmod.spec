@@ -2,11 +2,11 @@
 %define kmod_name alx
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 2.6.32-504.el6.%{_target_cpu}}
+%{!?kversion: %define kversion 2.6.32-754.el6.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 10%{?dist}
+Release: 11%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -16,7 +16,7 @@ BuildRequires: redhat-rpm-config
 ExclusiveArch: i686 x86_64
 
 # Sources.
-Source0:  %{kmod_name}-%{version}.tar.bz2
+Source0:  %{kmod_name}-%{version}.tar.gz
 Source5:  GPL-v2.0.txt
 Source10: kmodtool-%{kmod_name}-el6.sh
 
@@ -57,6 +57,10 @@ find %{buildroot} -type f -name \*.ko -exec %{__chmod} u+x \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Jan 10 2019 Philip J Perry <phil@elrepo.org> - 0.0-11
+- Backport support for Killer E2400 and E2500 Ethernet controllers
+  [https://elrepo.org/bugs/view.php?id=891]
+
 * Mon Aug 29 2016 Philip J Perry <phil@elrepo.org> - 0.0-10
 - Backported from kernel-3.10.103
 - Work around the DMA RX overflow issue [2016-08-27]
