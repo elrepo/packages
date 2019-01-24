@@ -1,0 +1,26 @@
+ELRepo patch
+Copied from centosplis kernel.
+
+Building reiserfs.ko under EL7.1 produces error:
+
+In file included from fs/reiserfs/bitmap.c:7:0:
+fs/reiserfs/reiserfs.h:1957:0: error: "U32_MAX" redefined [-Werror]
+ #define U32_MAX (~(__u32)0)
+
+Solution:
+
+In EL7.1 kernels (>= 210), U32_MAX is defined in include/linux/kernel.h
+This define now needs to be deleted from reiserfs.h
+
+Applied-by: Akemi Yagi <toracat@centos.org>
+
+--- a/reiserfs.h	2014-11-24 14:38:58.000000000 -0800
++++ b/reiserfs.h	2015-01-12 15:34:40.187297040 -0800
+@@ -1954,7 +1954,6 @@ struct treepath var = {.path_length = IL
+ #define MAX_US_INT 0xffff
+ 
+ // reiserfs version 2 has max offset 60 bits. Version 1 - 32 bit offset
+-#define U32_MAX (~(__u32)0)
+ 
+ static inline loff_t max_reiserfs_offset(struct inode *inode)
+ {
