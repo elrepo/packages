@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/390.87/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/390.116/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 
@@ -8,8 +8,8 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv-390xx
-Version:	390.87
-Release:	2%{?dist}
+Version:	390.116
+Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -375,8 +375,12 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Sun Feb 24 2019 Philip J Perry <phil@elrepo.org> - 390.116-1
+- Updated to version 390.116
+
 * Sat Jan 12 2019 Philip J Perry <phil@elrepo.org> - 390.87-2
 - Fix compatibility with GLVND for RHEL7.6
+  [https://elrepo.org/bugs/view.php?id=889]
 
 * Fri Sep 07 2018 Philip J Perry <phil@elrepo.org> - 390.87-1
 - Updated to version 390.87
