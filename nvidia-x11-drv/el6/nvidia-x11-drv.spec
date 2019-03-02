@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/410.93/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/418.43/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 
@@ -11,7 +11,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	410.93
+Version:	418.43
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -149,7 +149,6 @@ pushd nvidiapkg
 # Install GL, tls and vdpau libs
 %{__mkdir_p} $RPM_BUILD_ROOT%{_libdir}/vdpau/
 %{__mkdir_p} $RPM_BUILD_ROOT%{nvidialibdir}/
-%{__mkdir_p} $RPM_BUILD_ROOT%{nvidialibdir}/tls/
 %{__install} -p -m 0755 libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libEGL_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libEGL.so.1.1.0 $RPM_BUILD_ROOT%{nvidialibdir}/
@@ -191,12 +190,12 @@ pushd nvidiapkg
 %{__install} -p -m 0755 libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libnvidia-opencl.so in 304.xx series driver
 %{__install} -p -m 0755 libnvidia-opencl.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
+%{__install} -p -m 0755 libnvidia-opticalflow.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libnvidia-ptxjitcompiler.so in 361.28 driver
 %{__install} -p -m 0755 libnvidia-ptxjitcompiler.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libnvidia-rtcore.so in 410.57 beta drivers
 %{__install} -p -m 0755 libnvidia-rtcore.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libnvidia-tls.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
-%{__install} -p -m 0755 tls/*.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/tls/
 # Added libnvoptix.so in 410.57 beta drivers
 %{__install} -p -m 0755 libnvoptix.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/
@@ -207,7 +206,6 @@ pushd nvidiapkg
 # Install 32bit compat GL, tls and vdpau libs
 %{__mkdir_p} $RPM_BUILD_ROOT%{_prefix}/lib/vdpau/
 %{__mkdir_p} $RPM_BUILD_ROOT%{nvidialib32dir}/
-%{__mkdir_p} $RPM_BUILD_ROOT%{nvidialib32dir}/tls/
 %{__install} -p -m 0755 32/libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libEGL_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libEGL.so.1.1.0 $RPM_BUILD_ROOT%{nvidialib32dir}/
@@ -237,10 +235,10 @@ pushd nvidiapkg
 %{__install} -p -m 0755 32/libnvidia-ifr.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libnvidia-opencl.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
+%{__install} -p -m 0755 32/libnvidia-opticalflow.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 # Added libnvidia-ptxjitcompiler.so in 361.28 driver
 %{__install} -p -m 0755 32/libnvidia-ptxjitcompiler.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libnvidia-tls.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
-%{__install} -p -m 0755 32/tls/*.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/tls/
 %{__install} -p -m 0755 32/libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libOpenGL.so.0 $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_prefix}/lib/vdpau/
@@ -287,6 +285,8 @@ pushd nvidiapkg
 %{__ln_s} libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-ml.so.1
 # Added libnvidia-opencl.so in 304.xx series driver
 %{__ln_s} libnvidia-opencl.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-opencl.so.1
+%{__ln_s} libnvidia-opticalflow.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-opticalflow.so
+%{__ln_s} libnvidia-opticalflow.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-opticalflow.so.1
 %{__ln_s} libnvidia-ptxjitcompiler.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-ptxjitcompiler.so.1
 # Added libnvoptix.so in 410.57 beta drivers
 %{__ln_s} libnvoptix.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvoptix.so.1
@@ -325,6 +325,8 @@ pushd nvidiapkg
 %{__ln_s} libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libnvidia-ml.so
 %{__ln_s} libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libnvidia-ml.so.1
 %{__ln_s} libnvidia-opencl.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libnvidia-opencl.so.1
+%{__ln_s} libnvidia-opticalflow.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libnvidia-opticalflow.so
+%{__ln_s} libnvidia-opticalflow.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libnvidia-opticalflow.so.1
 %{__ln_s} libnvidia-ptxjitcompiler.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/libnvidia-ptxjitcompiler.so.1
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialib32dir}/libOpenCL.so
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialib32dir}/libOpenCL.so.1
@@ -492,8 +494,6 @@ fi ||:
 # now the libs
 %dir %{nvidialibdir}
 %{nvidialibdir}/lib*
-%dir %{nvidialibdir}/tls
-%{nvidialibdir}/tls/lib*
 %{_libdir}/vdpau/libvdpau_nvidia.*
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 %{_libdir}/xorg/modules/extensions/libglxserver_nvidia.*
@@ -503,11 +503,12 @@ fi ||:
 %defattr(-,root,root,-)
 %dir %{nvidialib32dir}
 %{nvidialib32dir}/lib*
-%dir %{nvidialib32dir}/tls
-%{nvidialib32dir}/tls/lib*
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Sat Mar 02 2019 Philip J Perry <phil@elrepo.org> - 418.43-1
+- Updated to version 418.43
+
 * Sat Jan 05 2019 Philip J Perry <phil@elrepo.org> - 410.93-1
 - Updated to version 410.93
 

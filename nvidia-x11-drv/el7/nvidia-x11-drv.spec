@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/410.93/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/418.43/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 
@@ -8,7 +8,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	410.93
+Version:	418.43
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -172,7 +172,7 @@ pushd 32
 %{__install} -p -m 0755 libnvidia-compiler.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-eglcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %ifarch x86_64
-%{__install} -p -m 0755 libnvidia-egl-wayland.so.1.1.0 $RPM_BUILD_ROOT%{_libdir}/
+%{__install} -p -m 0755 libnvidia-egl-wayland.so.1.1.2 $RPM_BUILD_ROOT%{_libdir}/
 %endif
 %{__install} -p -m 0755 libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-fatbinaryloader.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
@@ -186,12 +186,12 @@ pushd 32
 %{__install} -p -m 0755 libnvidia-ifr.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-opencl.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
+%{__install} -p -m 0755 libnvidia-opticalflow.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-ptxjitcompiler.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %ifarch x86_64
 %{__install} -p -m 0755 libnvidia-rtcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %endif
 %{__install} -p -m 0755 libnvidia-tls.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
-%{__install} -p -m 0755 tls/*.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %ifarch x86_64
 %{__install} -p -m 0755 libnvoptix.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %endif
@@ -219,8 +219,8 @@ popd
 %{__ln_s} libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvcuvid.so.1
 %ifarch x86_64
 %{__ln_s} libnvidia-cfg.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-cfg.so.1
-%{__ln_s} libnvidia-egl-wayland.so.1.1.0 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so
-%{__ln_s} libnvidia-egl-wayland.so.1.1.0 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so.1
+%{__ln_s} libnvidia-egl-wayland.so.1.1.2 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so
+%{__ln_s} libnvidia-egl-wayland.so.1.1.2 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so.1
 %endif
 %{__ln_s} libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-encode.so
 %{__ln_s} libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-encode.so.1
@@ -231,6 +231,8 @@ popd
 %{__ln_s} libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ml.so
 %{__ln_s} libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ml.so.1
 %{__ln_s} libnvidia-opencl.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-opencl.so.1
+%{__ln_s} libnvidia-opticalflow.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-opticalflow.so
+%{__ln_s} libnvidia-opticalflow.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-opticalflow.so.1
 %{__ln_s} libnvidia-ptxjitcompiler.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ptxjitcompiler.so.1
 %ifarch x86_64
 %{__ln_s} libnvoptix.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvoptix.so.1
@@ -280,8 +282,6 @@ desktop-file-install \
 # Install the Xorg conf files
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/X11/
 %{__install} -p -m 0644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/nvidia-xorg.conf
-# Install ld.so.conf.d file
-%{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
 # Install alternate-install-present file
 # This file tells the NVIDIA installer that a packaged version of the driver is already present on the system
 # The location is hardcoded in the NVIDIA.run installer as /user/lib/nvidia/
@@ -390,6 +390,9 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Sat Mar 02 2019 Philip J Perry <phil@elrepo.org> - 418.43-1
+- Updated to version 418.43
+
 * Sat Jan 05 2019 Philip J Perry <phil@elrepo.org> - 410.93-1
 - Updated to version 410.93
 
