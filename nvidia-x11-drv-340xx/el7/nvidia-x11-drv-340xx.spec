@@ -10,7 +10,7 @@
 
 Name:		nvidia-x11-drv-340xx
 Version:	340.107
-Release:	1%{?dist}
+Release:	3%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -28,9 +28,9 @@ Source2:	99-nvidia.conf
 Source3:	nvidia.ld.so.conf
 Source4:	alternate-install-present
 
-# Fix broken SONAME dependency chain
-Provides: libnvcuvid.so()(64bit)
-Provides: libGL.so()(64bit)
+%filter_from_provides /^lib.*GL.*/d; /^libglx.*/d;
+%filter_from_requires /^lib.*GL.*/d; /^libglx.*/d;
+%filter_setup
 
 # Provides for CUDA
 Provides:	cuda-driver = %{version}
@@ -83,9 +83,6 @@ Summary:	Compatibility 32-bit files for the 64-bit Proprietary NVIDIA driver
 Group:		User Interface/X Hardware Support
 Requires:	%{name} = %{version}-%{release}
 Requires(post):	/sbin/ldconfig
-# Fix broken SONAME dependency chain
-Provides: libnvcuvid.so
-Provides: libGL.so
 
 %description 32bit
 Compatibility 32-bit files for the 64-bit Proprietary NVIDIA driver.
@@ -422,6 +419,13 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Sat Mar 08 2019 Philip J Perry <phil@elrepo.org> - 340.107-3
+- Revert previous GLVND commit
+- Filter requires and provides for libs that clash with GLVND in RHEL7.6
+
+* Sat Mar 02 2019 Philip J Perry <phil@elrepo.org> - 340.107-2
+- Fix compatibility with GLVND for RHEL7.6
+
 * Thu Jul 12 2018 Philip J Perry <phil@elrepo.org> - 340.107-1
 - Updated to version 340.107
 - Adds support for Xorg 1.20 (Video Driver ABI 24)
