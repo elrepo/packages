@@ -2,7 +2,7 @@
 %define kmod_name		forcedeth
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-32.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-80.el8}
 
 %{!?dist: %define dist .el8}
 
@@ -173,5 +173,5 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Sun Feb 03 2019 Akemi Yagi <toracat@elrepo.org> 0.0-1
-- Initial el8 build of the kmod package.
+* Tue May 07 2019 Akemi Yagi <toracat@elrepo.org> 0.0-1
+- Initial build for RHEL 8.0 
