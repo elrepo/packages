@@ -1,7 +1,7 @@
 %define kmod_name		e1000e
 %define kmod_driver_version	3.4.2.1
 %define kmod_rpm_release	1
-%define kmod_kernel_version	4.18.0-32.el8
+%define kmod_kernel_version	4.18.0-80.el8
 %define kmod_headers_version    %{kmod_kernel_version}.%{_target_cpu}
 %define kmod_kbuild_dir         .
 %define kmod_dependencies       %{nil}
@@ -26,9 +26,11 @@ BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildRequires:  elfutils-libelf-devel
 BuildRequires:  glibc
 BuildRequires:  kernel-devel >= %{kmod_kernel_version}
+BuildRequires:  kernel-abi-whitelists
+BuildRequires:  kernel-rpm-macros
+BuildRequires:  redhat-rpm-config
 
 BuildRequires:  libuuid-devel
-BuildRequires:  redhat-rpm-config
 ExclusiveArch:	x86_64
 
 %global kernel_source() /usr/src/kernels/%{kmod_headers_version}
@@ -36,6 +38,7 @@ ExclusiveArch:	x86_64
 %global _use_internal_dependency_generator 0
 Provides:	kernel-modules = %{kmod_kernel_version}.%{_target_cpu}
 Provides:	kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
+
 Requires(post):	%{_sbindir}/weak-modules
 Requires(postun):	%{_sbindir}/weak-modules
 Requires:       kernel >= %{kmod_kernel_version}
@@ -101,12 +104,6 @@ printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --dracut=/usr/bin/dracu
 ### mkdir obj
 
 %build
-### rm -rf obj
-### cp -r source obj
-### % {make_build} -C %{kernel_source} V=1 M=$PWD/obj/%{kmod_kbuild_dir} \
-### 	NOSTDINC_FLAGS="-I $PWD/obj/include -I $PWD/obj/include/uapi" \
-### 	EXTRA_CFLAGS="-mindirect-branch=thunk-inline -mindirect-branch-register" \
-### 	%{nil}
 
 pushd src >/dev/null
 %{make_build} -C %{kernel_source} V=1 M=$PWD \
@@ -154,17 +151,5 @@ install -m 644 -D greylist.txt $RPM_BUILD_ROOT/usr/share/doc/kmod-%{kmod_name}/g
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
-* Sun Dec 23 2018 Akemi Yagi <toracat@elrepo.org> 3.4.2.1
+* Tue May 07 2019 Akemi Yagi <toracat@elrepo.org> 3.4.2.1
 - Initial build for RHEL 8.0
-- Updated to version 3.4.2
-
-* Thu Mar 15 2018 Eugene Syromiatnikov <esyr@redhat.com> 2.1.14_k_dup7.4-2.1
-- Added modinfo flag for retpoline.
-- Resolves: #bz1549985
-
-* Thu Mar 01 2018 Eugene Syromiatnikov <esyr@redhat.com> 3.0.1_k_dup7.4-2
-- Rebuilt with -mindirect-branch=thunk-inline -mindirect-branch-register flags.
-
-* Tue Feb 27 2018 Eugene Syromiatnikov <esyr@redhat.com> 3.0.1_k_dup7.4-1
-- 141332170ff595319ce42a2cfc2944c2cbb11b4f
-- i40evf module for Driver Update Program
