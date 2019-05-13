@@ -1,6 +1,6 @@
 Name:    nvidia-detect
 Version: 418.74
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group:   Applications/System
 License: GPLv2
 Summary: NVIDIA graphics card detection utility
@@ -37,6 +37,9 @@ A utility to detect NVIDIA graphics cards.
 %{_bindir}/nvidia-detect
 
 %changelog
+* Sat May 11 2019 Philip J Perry <phil@elrepo.org> - 418.74-2
+- Fix device ID for RTX 2070
+
 * Sat May 11 2019 Philip J Perry <phil@elrepo.org> - 418.74-1
 - Add support for detection of devices added to 418.74 driver release
 
