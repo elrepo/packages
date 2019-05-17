@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-957.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 418.74
+Version: 430.14
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -81,6 +81,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue May 14 2019 Philip J Perry <phil@elrepo.org> - 430.14-1
+- Updated to version 430.14
+
 * Tue May 07 2019 Philip J Perry <phil@elrepo.org> - 418.74-1
 - Updated to version 418.74
 

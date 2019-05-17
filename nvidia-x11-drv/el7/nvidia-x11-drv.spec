@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/418.74/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/430.14/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 
@@ -8,7 +8,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	418.74
+Version:	430.14
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -116,8 +116,10 @@ sh %{SOURCE0} --extract-only --target nvidiapkg
 
 # Lets just take care of all the docs here rather than during install
 pushd nvidiapkg
+%{__mkdir_p} html/samples/systemd/
 %{__mv} LICENSE NVIDIA_Changelog pkg-history.txt README.txt html/
-%{__mv} nvidia-persistenced-init.tar.bz2 html/
+%{__mv} nvidia-persistenced-init.tar.bz2 html/samples/
+%{__mv} nvidia nvidia-sleep.sh nvidia-*.service html/samples/systemd/
 popd
 find nvidiapkg/html/ -type f | xargs chmod 0644
 
@@ -390,6 +392,10 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Tue May 14 2019 Philip J Perry <phil@elrepo.org> - 430.14-1
+- Updated to version 430.14
+- Install systemd samples
+
 * Tue May 07 2019 Philip J Perry <phil@elrepo.org> - 418.74-1
 - Updated to version 418.74
 
