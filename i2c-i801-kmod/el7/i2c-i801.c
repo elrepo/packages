@@ -243,6 +243,10 @@
 #define PCI_DEVICE_ID_INTEL_CANNONLAKE_H_SMBUS		0xa323
 #define PCI_DEVICE_ID_INTEL_COMETLAKE_SMBUS		0x02a3
 
+#ifndef IRQ_NOTCONNECTED
+#define IRQ_NOTCONNECTED	(1U << 31)
+#endif
+
 struct i801_mux_config {
 	char *gpio_chip;
 	unsigned values[3];
