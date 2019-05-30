@@ -6,7 +6,7 @@
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 5%{?dist}
+Release: 6%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -17,7 +17,7 @@ BuildRequires: redhat-rpm-config, perl
 ExclusiveArch: x86_64
 
 # Sources.
-Source0:  %{kmod_name}-%{version}.tar.bz2
+Source0:  %{kmod_name}-%{version}.tar.gz
 Source5:  GPL-v2.0.txt
 Source10: kmodtool-%{kmod_name}-el7.sh
 
@@ -66,6 +66,11 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu May 30 2019 Philip J Perry <phil@elrepo.org> - 0.0-6.el7_6.elrepo
+- Updated to kernel-4.19.46
+- Backports support for modern chipsets (Kaby Lake, Gemini Lake, Cannon Lake,
+  Cedar Fork, Ice Lake, Comet Lake)
+
 * Sun Nov 11 2018 Akemi Yagi <toracat@elrepo.org> - 0.0-5.el7_6.elrepo
 - Rebuilt against RHEL 7.6 kernel
 
