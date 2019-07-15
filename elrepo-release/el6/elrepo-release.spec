@@ -4,7 +4,7 @@
 Summary: ELRepo.org Community Enterprise Linux Repository release file
 Name: elrepo-release
 Version: 6
-Release: 8%{?dist}
+Release: 9%{?dist}
 License: GPLv2
 Group: System Environment/Base
 URL: http://elrepo.org/
@@ -43,6 +43,9 @@ This package contains yum configuration for the ELRepo.org Community Enterprise 
 %{_sysconfdir}/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
 
 %changelog
+* Mon Jul 15 2019 Philip J Perry <phil@elrepo.org> - 6-9
+- Remove stale mirror site.
+
 * Sun Jul 23 2017 Philip J Perry <phil@elrepo.org> - 6-8
 - Remove stale mirror site.
 

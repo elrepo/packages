@@ -7,7 +7,6 @@ baseurl=http://elrepo.org/linux/elrepo/el8/$basearch/
 	http://mirrors.coreix.net/elrepo/elrepo/el8/$basearch/
 	http://jur-linux.org/download/elrepo/elrepo/el8/$basearch/
 	http://repos.lax-noc.com/elrepo/elrepo/el8/$basearch/
-	http://mirror.ventraip.net.au/elrepo/elrepo/el8/$basearch/
 mirrorlist=http://mirrors.elrepo.org/mirrors-elrepo.el8
 enabled=1
 gpgcheck=1
@@ -20,7 +19,6 @@ baseurl=http://elrepo.org/linux/testing/el8/$basearch/
 	http://mirrors.coreix.net/elrepo/testing/el8/$basearch/
 	http://jur-linux.org/download/elrepo/testing/el8/$basearch/
 	http://repos.lax-noc.com/elrepo/testing/el8/$basearch/
-	http://mirror.ventraip.net.au/elrepo/testing/el8/$basearch/
 mirrorlist=http://mirrors.elrepo.org/mirrors-elrepo-testing.el8
 enabled=0
 gpgcheck=1
@@ -33,7 +31,6 @@ baseurl=http://elrepo.org/linux/kernel/el8/$basearch/
 	http://mirrors.coreix.net/elrepo/kernel/el8/$basearch/
 	http://jur-linux.org/download/elrepo/kernel/el8/$basearch/
 	http://repos.lax-noc.com/elrepo/kernel/el8/$basearch/
-	http://mirror.ventraip.net.au/elrepo/kernel/el8/$basearch/
 mirrorlist=http://mirrors.elrepo.org/mirrors-elrepo-kernel.el8
 enabled=0
 gpgcheck=1
@@ -46,7 +43,6 @@ baseurl=http://elrepo.org/linux/extras/el8/$basearch/
 	http://mirrors.coreix.net/elrepo/extras/el8/$basearch/
 	http://jur-linux.org/download/elrepo/extras/el8/$basearch/
 	http://repos.lax-noc.com/elrepo/extras/el8/$basearch/
-	http://mirror.ventraip.net.au/elrepo/extras/el8/$basearch/
 mirrorlist=http://mirrors.elrepo.org/mirrors-elrepo-extras.el8
 enabled=0
 gpgcheck=1

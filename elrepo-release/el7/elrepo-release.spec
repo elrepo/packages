@@ -4,7 +4,7 @@
 Summary: ELRepo.org Community Enterprise Linux Repository release file
 Name: elrepo-release
 Version: 7.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: GPLv2
 Group: System Environment/Base
 URL: http://elrepo.org/
@@ -47,6 +47,9 @@ This package contains yum configuration for the ELRepo.org Community Enterprise 
 %{_sysconfdir}/pki/elrepo/SECURE-BOOT-KEY-elrepo.org.der
 
 %changelog
+* Mon Jul 15 2019 Philip J Perry <phil@elrepo.org> - 7.0-4
+- Remove stale mirror site.
+
 * Sun Jul 23 2017 Philip J Perry <phil@elrepo.org> - 7.0-3
 - Remove stale mirror site.
 
