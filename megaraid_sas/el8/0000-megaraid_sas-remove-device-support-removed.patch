@@ -1,0 +1,17 @@
+Do not return error when unsupported hardware is detected.
+
+It probably makes sense to leave the check itself in place.
+
+Index: src/drivers/scsi/megaraid/megaraid_sas_base.c
+===================================================================
+--- megaraid_sas_base.c.orig    2019-03-13 11:04:53.000000000 +0000
++++ megaraid_sas_base.c 2019-06-16 15:13:52.441656797 +0100
+@@ -6515,7 +6515,7 @@
+ 
+	if (pci_device_support_removed(megasas_pci_table,
+				megasas_pci_ids_removed, pdev))
+-		return -ENODEV;
++		0; /* return -ENODEV; */
+ 
+	switch (pdev->device) {
+	case PCI_DEVICE_ID_LSI_AERO_10E1:
