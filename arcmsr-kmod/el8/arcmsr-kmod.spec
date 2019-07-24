@@ -7,8 +7,8 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	0.0
-Release:	1%{?dist}
+Version:	1.40.00.05
+Release:	20180309.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -175,6 +175,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sun Jun 23 2019 Philip J Perry <phil@elrepo.org> 1.40.00.05-20180309.1
+- Rebuilt using MODULE_VERSION for release
+
 * Fri Jun 14 2019 Philip J Perry <phil@elrepo.org> 0.0-1
 - Initial el8 build of the kmod package.
 - Backported from kernel-4.18.20
