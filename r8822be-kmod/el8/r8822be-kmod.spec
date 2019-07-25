@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -173,6 +173,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Jul 25 2019 Philip J Perry <phil@elrepo.org> 0.0-2
+- Fix potential NULL pointer dereference of kzalloc
+- Fix to avoid potential NULL pointer dereference
+
 * Wed Jul 24 2019 Philip J Perry <phil@elrepo.org> 0.0-1
 - Initial el8 build of the kmod package.
 - Backported from kernel-4.18.20 staging
