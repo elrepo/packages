@@ -37,6 +37,9 @@ A utility to detect NVIDIA graphics cards.
 %{_bindir}/nvidia-detect
 
 %changelog
+* Tue Jul 30 2019 Philip J Perry <phil@elrepo.org> - 430.40-1
+- Add support for detection of devices added to 430.40 driver release
+
 * Wed Jul 10 2019 Philip J Perry <phil@elrepo.org> - 430.34-1
 - Add support for detection of devices added to 430.34 driver release
 
