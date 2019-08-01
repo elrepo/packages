@@ -1,7 +1,7 @@
 %global __spec_install_pre %{___build_pre}
 
 # Define the version of the Linux Kernel Archive tarball.
-%define LKAver 4.4.111
+%define LKAver 4.4.186
 
 # Define the buildid, if required.
 #define buildid .
@@ -49,7 +49,7 @@
 %define with_headers 0
 %endif
 
-# Build only the 64-bit kernel-lt-headers & kernel-lt packages.
+# Build only the 64-bit kernel-lt-headers and kernel-lt packages.
 %ifarch x86_64
 %define with_nonpae 0
 %define with_doc 0
@@ -273,7 +273,7 @@ Provides: %{name}-headers = %{version}-%{release}
 Conflicts: kernel-headers < %{version}-%{release}
 %description headers
 This package provides the C header files that specify the interface
-between the Linux kernel and userspace libraries & programs. The
+between the Linux kernel and userspace libraries and programs. The
 header files define structures and constants that are needed when
 building most standard programs. They are also required when
 rebuilding the glibc package.
@@ -310,12 +310,12 @@ Python programming language to use the interface to manipulate perf events.
 
 pushd linux-%{version}-%{release}.%{_target_cpu} > /dev/null
 
+# Purge the source tree of all unrequired dot-files.
+/usr/bin/find -name '.[a-z]*' -type f | xargs --no-run-if-empty %{__rm} -f
+
 %{__cp} %{SOURCE1} .
 %{__cp} %{SOURCE2} .
 %{__cp} %{SOURCE3} .
-
-# Remove unnecessary files.
-/usr/bin/find . -type f \( -name .gitignore -o -name .mailmap \) | xargs --no-run-if-empty %{__rm} -f
 
 popd > /dev/null
 
@@ -334,10 +334,13 @@ BuildKernel() {
 
     %define KVRFA %{version}-%{release}${Flavour}.%{_target_cpu}
 
-    # Set the EXTRAVERSION string in the main Makefile.
-    %{__perl} -p -i -e "s/^EXTRAVERSION.*/EXTRAVERSION = -%{release}${Flavour}.%{_target_cpu}/" Makefile
+    # Set the EXTRAVERSION string in the top level Makefile.
+    %{__sed} -i "s/^EXTRAVERSION.*/EXTRAVERSION = -%{release}${Flavour}.%{_target_cpu}/" Makefile
+
+    %{__make} -s ARCH=%{buildarch} oldconfig
 
     %{__make} -s ARCH=%{buildarch} %{?_smp_mflags} bzImage
+
     %{__make} -s ARCH=%{buildarch} %{?_smp_mflags} modules
 
     # Install the results into the RPM_BUILD_ROOT directory.
@@ -363,7 +366,7 @@ BuildKernel() {
 
 %ifarch %{vdso_arches}
     %{__make} -s ARCH=%{buildarch} INSTALL_MOD_PATH=$RPM_BUILD_ROOT KERNELRELEASE=%{KVRFA} vdso_install
-    if grep '^CONFIG_XEN=y$' .config > /dev/null; then
+    if grep -q '^CONFIG_XEN=y$' .config; then
         echo > ldconfig-%{name}.conf "\
 # This directive teaches ldconfig to search in nosegneg subdirectories
 # and cache the DSOs there with extra bit 1 set in their hwcap match
@@ -384,7 +387,7 @@ hwcap 1 nosegneg"
     # This looks scary but the end result is supposed to be:
     #
     # - all arch relevant include/ files
-    # - all Makefile & Kconfig files
+    # - all Makefile and Kconfig files
     # - all script/ files
     #
     %{__rm} -f $RPM_BUILD_ROOT/lib/modules/%{KVRFA}/build
@@ -407,7 +410,7 @@ hwcap 1 nosegneg"
 
     %{__gzip} -c9 < Module.symvers > $RPM_BUILD_ROOT/boot/symvers-%{KVRFA}.gz
 
-    # . . . then drop all but the needed Makefiles & Kconfig files.
+    # . . . then drop all but the needed Makefiles and Kconfig files.
     %{__rm} -rf $RPM_BUILD_ROOT/lib/modules/%{KVRFA}/build/Documentation
     %{__rm} -rf $RPM_BUILD_ROOT/lib/modules/%{KVRFA}/build/scripts
     %{__rm} -rf $RPM_BUILD_ROOT/lib/modules/%{KVRFA}/build/include
@@ -432,6 +435,11 @@ hwcap 1 nosegneg"
     %{__cp} -a * $RPM_BUILD_ROOT/lib/modules/%{KVRFA}/build/include/
     popd > /dev/null
     %{__rm} -f $RPM_BUILD_ROOT/lib/modules/%{KVRFA}/build/include/Kbuild
+    # Ensure that objtool is present if CONFIG_STACK_VALIDATION is set.
+    if grep -q '^CONFIG_STACK_VALIDATION=y$' .config; then
+        %{__mkdir_p} $RPM_BUILD_ROOT/lib/modules/%{KVRFA}/build/tools/objtool
+        %{__cp} -a tools/objtool/objtool $RPM_BUILD_ROOT/lib/modules/%{KVRFA}/build/tools/objtool
+    fi
     # Ensure a copy of the version.h file is in the include/linux/ directory.
     %{__cp} usr/include/linux/version.h $RPM_BUILD_ROOT/lib/modules/%{KVRFA}/build/include/linux/
     # Copy the generated autoconf.h file to the include/linux/ directory.
@@ -513,18 +521,9 @@ BuildKernel NONPAE
 BuildKernel
 %endif
 
-%if %{with_doc}
-# Make the HTML and man pages.
-%{__make} -s %{?_smp_mflags} htmldocs 2> /dev/null
-%{__make} -s %{?_smp_mflags} mandocs 2> /dev/null
-
-# Sometimes non-world-readable files sneak into the kernel source tree.
-%{__chmod} -Rf a+rX,u+w,g-w,o-w Documentation
-%endif
-
 %if %{with_perf}
 %global perf_make \
-    %{__make} -s -C tools/perf %{?_smp_mflags} prefix=%{_prefix} lib=%{_lib} WERROR=0 HAVE_CPLUS_DEMANGLE=1 NO_GTK2=1 NO_LIBUNWIND=1 NO_PERF_READ_VDSO32=1 NO_PERF_READ_VDSOX32=1 NO_STRLCPY=1
+    %{__make} -s -C tools/perf %{?_smp_mflags} prefix=%{_prefix} lib=%{_lib} WERROR=0 HAVE_CPLUS_DEMANGLE=1 NO_GTK2=1 NO_LIBUNWIND=1 NO_LIBZSTD=1 NO_PERF_READ_VDSO32=1 NO_PERF_READ_VDSOX32=1 NO_STRLCPY=1
 
 %{perf_make} all
 %{perf_make} man
@@ -537,18 +536,13 @@ pushd linux-%{version}-%{release}.%{_target_cpu} > /dev/null
 
 %if %{with_doc}
 DOCDIR=$RPM_BUILD_ROOT%{_datadir}/doc/%{name}-doc-%{version}
-MAN9DIR=$RPM_BUILD_ROOT%{_datadir}/man/man9
+
+# Sometimes non-world-readable files sneak into the kernel source tree.
+%{__chmod} -Rf a+rX,u+w,go-w Documentation
 
 # Copy the documentation over.
 %{__mkdir_p} $DOCDIR
-%{__tar} -f - --exclude=man --exclude='.*' -c Documentation | %{__tar} xf - -C $DOCDIR
-
-# Install the man pages for the kernel API.
-%{__mkdir_p} $MAN9DIR
-/usr/bin/find Documentation/DocBook/man -type f -name '*.9.gz' -print0 \
-    | xargs -0 --no-run-if-empty %{__cp} -u -t $MAN9DIR
-/usr/bin/find $MAN9DIR -type f -name '*.9.gz' -print0 \
-    | xargs -0 --no-run-if-empty %{__chmod} 444
+%{__tar} -f - --exclude=man --exclude='.*' -c Documentation | %{__tar} -xf - -C $DOCDIR
 %endif
 
 %if %{with_headers}
@@ -557,7 +551,7 @@ MAN9DIR=$RPM_BUILD_ROOT%{_datadir}/man/man9
 
 # Do a headers_check but don't die if it fails.
 %{__make} -s ARCH=%{buildarch} INSTALL_HDR_PATH=$RPM_BUILD_ROOT/usr headers_check > hdrwarnings.txt || :
-if grep -q exist hdrwarnings.txt; then
+if grep -q 'exist' hdrwarnings.txt; then
     sed s:^$RPM_BUILD_ROOT/usr/include/:: hdrwarnings.txt
     # Temporarily cause a build failure if there are header inconsistencies.
     # exit 1
@@ -748,7 +742,6 @@ fi
 %{_datadir}/doc/%{name}-doc-%{version}/Documentation/*
 %dir %{_datadir}/doc/%{name}-doc-%{version}/Documentation
 %dir %{_datadir}/doc/%{name}-doc-%{version}
-%{_datadir}/man/man9/*
 %endif
 
 %if %{with_headers}
@@ -778,6 +771,329 @@ fi
 %endif
 
 %changelog
+* Sun Jul 21 2019 Alan Bartlett <ajb@elrepo.org> - 4.4.186-1
+- Updated with the 4.4.186 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.186]
+
+* Wed Jul 10 2019 Alan Bartlett <ajb@elrepo.org> - 4.4.185-1
+- Updated with the 4.4.185 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.185]
+
+* Thu Jun 27 2019 Alan Bartlett <ajb@elrepo.org> - 4.4.184-1
+- Updated with the 4.4.184 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.184]
+
+* Sat Jun 22 2019 Alan Bartlett <ajb@elrepo.org> - 4.4.183-1
+- Updated with the 4.4.183 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.183]
+
+* Mon Jun 17 2019 Alan Bartlett <ajb@elrepo.org> - 4.4.182-1
+- Updated with the 4.4.182 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.182]
+
+* Tue Jun 11 2019 Alan Bartlett <ajb@elrepo.org> - 4.4.181-1
+- Updated with the 4.4.181 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.181]
+- Added NO_LIBZSTD=1 directive to the %%global perf_make line.
+
+* Thu May 16 2019 Alan Bartlett <ajb@elrepo.org> - 4.4.180-1
+- Updated with the 4.4.180 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.180]
+- Purge the source tree of all unrequired dot-files.
+- [https://elrepo.org/bugs/view.php?id=912]
+
+* Sat Apr 27 2019 Alan Bartlett <ajb@elrepo.org> - 4.4.179-1
+- Updated with the 4.4.179 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.179]
+
+* Wed Apr 03 2019 Alan Bartlett <ajb@elrepo.org> - 4.4.178-1
+- Updated with the 4.4.178 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.178]
+
+* Sat Mar 23 2019 Alan Bartlett <ajb@elrepo.org> - 4.4.177-1
+- Updated with the 4.4.177 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.177]
+- CONFIG_SQUASHFS_LZ4=y [https://elrepo.org/bugs/view.php?id=908]
+
+* Sat Feb 23 2019 Alan Bartlett <ajb@elrepo.org> - 4.4.176-1
+- Updated with the 4.4.176 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.176]
+
+* Wed Feb 20 2019 Alan Bartlett <ajb@elrepo.org> - 4.4.175-1
+- Updated with the 4.4.175 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.175]
+
+* Fri Feb 08 2019 Alan Bartlett <ajb@elrepo.org> - 4.4.174-1
+- Updated with the 4.4.174 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.174]
+
+* Wed Feb 06 2019 Alan Bartlett <ajb@elrepo.org> - 4.4.173-1
+- Updated with the 4.4.173 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.173]
+
+* Sat Jan 26 2019 Alan Bartlett <ajb@elrepo.org> - 4.4.172-1
+- Updated with the 4.4.172 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.172]
+
+* Wed Jan 16 2019 Alan Bartlett <ajb@elrepo.org> - 4.4.171-1
+- Updated with the 4.4.171 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.171]
+
+* Sun Jan 13 2019 Alan Bartlett <ajb@elrepo.org> - 4.4.170-1
+- Updated with the 4.4.170 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.170]
+
+* Fri Dec 21 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.169-1
+- Updated with the 4.4.169 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.169]
+
+* Mon Dec 17 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.168-1
+- Updated with the 4.4.168 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.168]
+
+* Thu Dec 13 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.167-1
+- Updated with the 4.4.167 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.167]
+
+* Sat Dec 01 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.166-1
+- Updated with the 4.4.166 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.166]
+
+* Tue Nov 27 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.165-1
+- Updated with the 4.4.165 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.165]
+
+* Wed Nov 21 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.164-1
+- Updated with the 4.4.164 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.164]
+
+* Sat Nov 10 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.163-1
+- Updated with the 4.4.163 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.163]
+
+* Sat Oct 20 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.162-1
+- Updated with the 4.4.162 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.162]
+
+* Sat Oct 13 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.161-1
+- Updated with the 4.4.161 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.161]
+
+* Wed Oct 10 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.160-1
+- Updated with the 4.4.160 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.160]
+
+* Sat Sep 29 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.159-1
+- Updated with the 4.4.159 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.159]
+
+* Wed Sep 26 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.158-1
+- Updated with the 4.4.158 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.158]
+
+* Wed Sep 19 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.157-1
+- Updated with the 4.4.157 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.157]
+
+* Sat Sep 15 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.156-1
+- Updated with the 4.4.156 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.156]
+
+* Sun Sep 09 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.155-1
+- Updated with the 4.4.155 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.155]
+
+* Wed Sep 05 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.154-1
+- Updated with the 4.4.154 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.154]
+
+* Tue Aug 28 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.153-1
+- Updated with the 4.4.153 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.153]
+
+* Fri Aug 24 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.152-1
+- Updated with the 4.4.152 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.152]
+
+* Wed Aug 22 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.151-1
+- Updated with the 4.4.151 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.151]
+- CONFIG_NET_FOU_IP_TUNNELS=y
+- [https://elrepo.org/bugs/view.php?id=865]
+
+* Sat Aug 18 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.150-1
+- Updated with the 4.4.150 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.150]
+
+* Sat Aug 18 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.149-1
+- Updated with the 4.4.149 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.149]
+- Not released due to a source code defect.
+
+* Thu Aug 16 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.148-1
+- Updated with the 4.4.148 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.148]
+
+* Thu Aug 09 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.147-1
+- Updated with the 4.4.147 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.147]
+
+* Mon Aug 06 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.146-1
+- Updated with the 4.4.146 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.146]
+
+* Sat Jul 28 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.145-1
+- Updated with the 4.4.145 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.145]
+
+* Wed Jul 25 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.144-1
+- Updated with the 4.4.144 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.144]
+
+* Sun Jul 22 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.143-1
+- Updated with the 4.4.143 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.143]
+
+* Thu Jul 19 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.142-1
+- Updated with the 4.4.142 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.142]
+
+* Tue Jul 17 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.141-1
+- Updated with the 4.4.141 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.141]
+- Not released due to a source code defect.
+
+* Wed Jul 11 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.140-1
+- Updated with the 4.4.140 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.140]
+
+* Tue Jul 03 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.139-1
+- Updated with the 4.4.139 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.139]
+- CONFIG_DEVPTS_MULTIPLE_INSTANCES=y
+- [http://elrepo.org/bugs/view.php?id=862]
+
+* Sat Jun 16 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.138-1
+- Updated with the 4.4.138 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.138]
+
+* Wed Jun 13 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.137-1
+- Updated with the 4.4.137 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.137]
+
+* Wed Jun 06 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.136-1
+- Updated with the 4.4.136 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.136]
+- CONFIG_EFI_MIXED=y [https://elrepo.org/bugs/view.php?id=858]
+
+* Wed May 30 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.135-1
+- Updated with the 4.4.135 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.135]
+
+* Wed May 30 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.134-1
+- Updated with the 4.4.134 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.134]
+
+* Sat May 26 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.133-1
+- Updated with the 4.4.133 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.133]
+
+* Wed May 16 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.132-1
+- Updated with the 4.4.132 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.132]
+- CONFIG_MD_CLUSTER=m [https://elrepo.org/bugs/view.php?id=847]
+
+* Wed May 02  2018 Alan Bartlett <ajb@elrepo.org> - 4.4.131-1
+- Updated with the 4.4.131 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.131]
+
+* Sun Apr 29  2018 Alan Bartlett <ajb@elrepo.org> - 4.4.130-1
+- Updated with the 4.4.130 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.130]
+
+* Tue Apr 24  2018 Alan Bartlett <ajb@elrepo.org> - 4.4.129-1
+- Updated with the 4.4.129 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.129]
+
+* Fri Apr 13  2018 Alan Bartlett <ajb@elrepo.org> - 4.4.128-1
+- Updated with the 4.4.128 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.128]
+
+* Sun Apr 08  2018 Alan Bartlett <ajb@elrepo.org> - 4.4.127-1
+- Updated with the 4.4.127 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.127]
+
+* Sat Mar 31  2018 Alan Bartlett <ajb@elrepo.org> - 4.4.126-1
+- Updated with the 4.4.126 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.126]
+- CONFIG_STAGING_RDMA=m and CONFIG_INFINIBAND_HFI1=m
+- [https://elrepo.org/bugs/view.php?id=835]
+
+* Wed Mar 28 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.125-1
+- Updated with the 4.4.125 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.125]
+
+* Sun Mar 25 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.124-1
+- Updated with the 4.4.124 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.124]
+
+* Thu Mar 22 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.123-1
+- Updated with the 4.4.123 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.123]
+
+* Sun Mar 18 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.122-1
+- Updated with the 4.4.122 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.122]
+
+* Sun Mar 11 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.121-1
+- Updated with the 4.4.121 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.121]
+
+* Sun Mar 04 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.120-1
+- Updated with the 4.4.120 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.120]
+
+* Wed Feb 28 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.119-1
+- Updated with the 4.4.119 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.119]
+- CONFIG_CIFS_SMB2=y [https://elrepo.org/bugs/view.php?id=831]
+
+* Sun Feb 25 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.118-1
+- Updated with the 4.4.118 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.118]
+
+* Fri Feb 23 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.117-1
+- Updated with the 4.4.117 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.117]
+- Reverted "libxfs: pack the agfl header structure so XFS_AGFL_SIZE
+- is correct" [https://elrepo.org/bugs/view.php?id=829]
+
+* Sat Feb 17 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.116-1
+- Updated with the 4.4.116 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.116]
+- Ensure that objtool is present in the kernel-lt-devel package
+- if CONFIG_STACK_VALIDATION is set.
+- [https://elrepo.org/bugs/view.php?id=819]
+
+* Sun Feb 04 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.115-1
+- Updated with the 4.4.115 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.115]
+- CONFIG_BPF_JIT_ALWAYS_ON=y
+
+* Wed Jan 31 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.114-1
+- Updated with the 4.4.114 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.114]
+
+* Wed Jan 24 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.113-1
+- Updated with the 4.4.113 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.113]
+- CONFIG_RETPOLINE=y
+
+* Wed Jan 17 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.112-1
+- Updated with the 4.4.112 source tarball.
+- [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.112]
+- CONFIG_GENERIC_CPU_VULNERABILITIES=y
+
 * Wed Jan 10 2018 Alan Bartlett <ajb@elrepo.org> - 4.4.111-1
 - Updated with the 4.4.111 source tarball.
 - [https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.4.111]
@@ -1198,7 +1514,8 @@ fi
 * Fri Jan 10 2014 Alan Bartlett <ajb@elrepo.org> - 3.10.26-1
 - Updated with the 3.10.26 source tarball.
 - [https://www.kernel.org/pub/linux/kernel/v3.x/ChangeLog-3.10.26]
-- CONFIG_L2TP=m, CONFIG_PPPOL2TP=m [https://elrepo.org/bugs/view.php?id=443]
+- CONFIG_L2TP=m and CONFIG_PPPOL2TP=m
+- [https://elrepo.org/bugs/view.php?id=443]
 
 * Fri Dec 20 2013 Alan Bartlett <ajb@elrepo.org> - 3.10.25-1
 - Updated with the 3.10.25 source tarball.
@@ -1223,7 +1540,8 @@ fi
 * Thu Nov 21 2013 Alan Bartlett <ajb@elrepo.org> - 3.10.20-1
 - Updated with the 3.10.20 source tarball.
 - [https://www.kernel.org/pub/linux/kernel/v3.x/ChangeLog-3.10.20]
-- CONFIG_HFS_FS=m and CONFIG_HFSPLUS_FS=m [https://elrepo.org/bugs/view.php?id=427]
+- CONFIG_HFS_FS=m and CONFIG_HFSPLUS_FS=m
+- [https://elrepo.org/bugs/view.php?id=427]
 
 * Wed Nov 13 2013 Alan Bartlett <ajb@elrepo.org> - 3.10.19-1
 - Updated with the 3.10.19 source tarball.
