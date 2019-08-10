@@ -156,7 +156,7 @@ Provides:         ${kmod_name}-kmod = %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:         ${kmod_name}-kmod%{_isa} = %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:         ${kmod_name}-uvm-kmod = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:         nvidia-x11-drv-390xx = %{?epoch:%{epoch}:}%{version}
-Requires:         kernel >= 3.10.0-957.el7
+Requires:         kernel >= 3.10.0-1062.el7
 Requires(post):   /usr/sbin/depmod
 Requires(postun): /usr/sbin/depmod
 EOF
