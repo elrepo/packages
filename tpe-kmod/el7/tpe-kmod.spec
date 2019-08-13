@@ -3,11 +3,11 @@
 %define src_name tpe-lkm
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-862.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-1062.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 2.0.3
-Release: 6.20170731git%{?dist}
+Version: 2.0.4
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -78,6 +78,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Aug 13 2019 Philip J Perry <phil@elrepo.org> - 2.0.4-1
+- Update to 2.0.4
+- Rebuilt against RHEL 7.7 kernel
+
 * Tue Apr 10 2018 Philip J Perry <phil@elrepo.org> - 2.0.3-6.20170731git
 - Rebuilt against RHEL 7.5 kernel
 
