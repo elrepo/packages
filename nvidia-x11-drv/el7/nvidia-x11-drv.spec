@@ -97,7 +97,11 @@ This package provides the proprietary NVIDIA OpenGL X11 display driver files.
 %package libs
 Summary:	Libraries for the Proprietary NVIDIA driver
 Group:		User Interface/X Hardware Support
-Requires:	%{name} = %{?epoch:%{epoch}:}%{version}-%{release}
+## Remove requires for nvidia-x11-drv to allow installation of
+## nvidia-x11-drv-libs on headless systems. See bug 
+## https://elrepo.org/bugs/view.php?id=926
+## Requires:	%{name} = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:	xorg-x11-server-Xorg <= %{max_xorg_ver}
 Requires(post):	/sbin/ldconfig
 Obsoletes:	nvidia-x11-drv-32bit < %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:	libvdpau%{?_isa} >= 1.0
@@ -392,6 +396,9 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.*
 
 %changelog
+- Remove requires for nvidia-x11-drv from -libs 
+  [https://elrepo.org/bugs/view.php?id=926]
+
 * Tue Jul 30 2019 Philip J Perry <phil@elrepo.org> - 430.40-1
 - Updated to version 430.40
 
