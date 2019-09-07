@@ -1611,21 +1611,15 @@ static int rtw_wx_get_essid(struct net_device *dev,
 	if ((check_fwstate(pmlmepriv, _FW_LINKED)) ||
 	    (check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE))) {
 		len = pcur_bss->Ssid.SsidLength;
-
-		wrqu->essid.length = len;
-
 		memcpy(extra, pcur_bss->Ssid.Ssid, len);
-
-		wrqu->essid.flags = 1;
 	} else {
-		ret = -1;
-		goto exit;
+		len = 0;
+		*extra = 0;
 	}
+	wrqu->essid.length = len;
+	wrqu->essid.flags = 1;
 
 exit:
-
-	
-
 	return ret;
 }
 
@@ -5597,7 +5591,7 @@ static int rtw_hostapd_ioctl(struct net_device *dev, struct iw_point *p)
 		ret = rtw_ioctl_acl_remove_sta(dev, param, p->length);
 		break;
 	default:
-		DBG_88E("Unknown hostapd request: %d\n", param->cmd);
+		pr_info("Unknown hostapd request: %d\n", param->cmd);
 		ret = -EOPNOTSUPP;
 		break;
 	}
