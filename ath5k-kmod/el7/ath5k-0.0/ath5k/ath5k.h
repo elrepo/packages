@@ -30,6 +30,9 @@
 #include <linux/leds.h>
 #include <net/mac80211.h>
 #include <net/cfg80211.h>
+#define RX_FLAG_SHORTPRE (1<<8 )
+#define RX_FLAG_10MHZ (1<<28)
+#define RX_FLAG_5MHZ (1<<29)
 
 /* RX/TX descriptor hw structs
  * TODO: Driver part should only see sw structs */
@@ -1252,7 +1255,7 @@ struct ath5k_statistics {
 #define ATH5K_TXQ_LEN_MAX	(ATH_TXBUF / 4)		/* bufs per queue */
 #define ATH5K_TXQ_LEN_LOW	(ATH5K_TXQ_LEN_MAX / 2)	/* low mark */
 
-DECLARE_EWMA(beacon_rssi, 1024, 8)
+DECLARE_EWMA(beacon_rssi, 10, 8)
 
 /* Driver state associated with an instance of a device */
 struct ath5k_hw {
