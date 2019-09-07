@@ -2,11 +2,11 @@
 %define kmod_name ath5k
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-514.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-1062.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 10%{?dist}
+Release: 12%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -17,7 +17,7 @@ BuildRequires: redhat-rpm-config
 ExclusiveArch: x86_64
 
 # Sources.
-Source0:  %{kmod_name}-%{version}.tar.bz2
+Source0:  %{kmod_name}-%{version}.tar.gz
 Source5:  GPL-v2.0.txt
 Source10: kmodtool-%{kmod_name}-el7.sh
 
@@ -68,6 +68,13 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Sep 07 2019 Philip J Perry <phil@elrepo.org> - 0.0-12
+- Rebuilt against RHEL 7.7 kernel
+- Backported from kernel-4.14.142
+
+* Sun Jul 30 2017 Philip J Perry <phil@elrepo.org> - 0.0-11
+- Backported from kernel-4.11.12 for RHEL-7.4
+
 * Sun Nov 06 2016 Philip J Perry <phil@elrepo.org> - 0.0-10
 - Backported from kernel-4.7.10 for RHEL-7.3
 
