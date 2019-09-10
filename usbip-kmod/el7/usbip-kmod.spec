@@ -2,11 +2,11 @@
 %define kmod_name usbip
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-957.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-1062.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 1.0.1
-Release: 3%{?dist}
+Release: 4%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -77,6 +77,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Mon Sep 02 2019 Akemi Yagi <toracat@elrepo.org> - 1.0.1-4
+- Built against RHEL 7.7 kernel
+
 * Sun Nov 11 2018 Akemi Yagi <toracat@elrepo.org> - 1.0.1-3
 - Rebuilt against RHEL 7.6 kernel
 - Added usbip_common_h_7_6.patch
