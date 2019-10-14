@@ -1,0 +1,11 @@
+--- a/linit.c	2019-03-13 11:04:53.000000000 +0000
++++ b/linit.c	2019-10-10 20:10:36.443042882 +0100
+@@ -1680,7 +1680,7 @@ static int aac_probe_one(struct pci_dev
+ 
+ 	if (pci_device_support_removed(aac_pci_tbl,
+ 				aac_pci_ids_removed, pdev))
+-		return -ENODEV;
++		printk(KERN_DEBUG "aacraid: elrepo version supporting all pci ids\n");
+ 
+ 	/*
+ 	 * Only series 7 needs freset.
