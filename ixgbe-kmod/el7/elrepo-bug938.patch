@@ -1,0 +1,44 @@
+ELRepo patch [bug #938]
+
+commit 377228accbbb8b9738f615d791aa803f41c067e0
+Author: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+Date:   Wed Sep 4 08:07:11 2019 -0700
+
+    ixgbe: Prevent u8 wrapping of ITR value to something less than 10us
+    
+    There were a couple cases where the ITR value generated via the adaptive
+    ITR scheme could exceed 126. This resulted in the value becoming either 0
+    or something less than 10. Switching back and forth between a value less
+    than 10 and a value greater than 10 can cause issues as certain hardware
+    features such as RSC to not function well when the ITR value has dropped
+    that low.
+    
+    CC: stable@vger.kernel.org
+    Fixes: b4ded8327fea ("ixgbe: Update adaptive ITR algorithm")
+    Reported-by: Gregg Leventhal <gleventhal@janestreet.com>
+    Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+    Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+    Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+
+    Applied-by: Akemi Yagi <toracat@elrepo.org>
+
+--- a/src/ixgbe_main.c	2019-08-05 00:13:05.000000000 -0700
++++ b/src/ixgbe_main.c.new	2019-09-18 13:19:52.673861073 -0700
+@@ -2734,7 +2734,7 @@ static void ixgbe_update_itr(struct ixgb
+ 		/* 16K ints/sec to 9.2K ints/sec */
+ 		avg_wire_size *= 15;
+ 		avg_wire_size += 11452;
+-	} else if (avg_wire_size <= 1980) {
++	} else if (avg_wire_size < 1968) {
+ 		/* 9.2K ints/sec to 8K ints/sec */
+ 		avg_wire_size *= 5;
+ 		avg_wire_size += 22420;
+@@ -2762,6 +2762,8 @@ adjust_for_speed:
+ 	case IXGBE_LINK_SPEED_2_5GB_FULL:
+ 	case IXGBE_LINK_SPEED_1GB_FULL:
+ 	case IXGBE_LINK_SPEED_10_FULL:
++		if (avg_wire_size > 8064)
++			avg_wire_size = 8064;
+ 		itr += DIV_ROUND_UP(avg_wire_size,
+ 				    IXGBE_ITR_ADAPTIVE_MIN_INC * 64) *
+ 		       IXGBE_ITR_ADAPTIVE_MIN_INC;
