@@ -2,13 +2,13 @@
 %define kmod_name   3w-9xxx	
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-80.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-147.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	2.26.02.014
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -173,5 +173,8 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Nov 07 2019 Akemi Yagi <toracat@elrepo.org> 2.26.02.014-2
+- Rebuilt against RHEL 8.1 kernel
+
 * Fri Sep 27 2019 Akemi Yagi <toracat@elrepo.org> 2.26.02.014-1
 - Initial build for RHEL 8.0 
