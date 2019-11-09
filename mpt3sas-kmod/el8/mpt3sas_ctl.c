@@ -641,7 +641,6 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 	MPI2DefaultReply_t *mpi_reply;
 	Mpi26NVMeEncapsulatedRequest_t *nvme_encap_request = NULL;
 	struct _pcie_device *pcie_device = NULL;
-	u32 ioc_state;
 	u16 smid;
 	u8 timeout;
 	u8 issue_reset;
@@ -654,7 +653,6 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 	dma_addr_t data_in_dma = 0;
 	size_t data_in_sz = 0;
 	long ret;
-	u16 wait_state_count;
 	u16 device_handle = MPT3SAS_INVALID_DEVICE_HANDLE;
 	u8 tr_method = MPI26_SCSITASKMGMT_MSGFLAGS_PROTOCOL_LVL_RST_PCIE;
 
@@ -666,22 +664,9 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 		goto out;
 	}
 
-	wait_state_count = 0;
-	ioc_state = mpt3sas_base_get_iocstate(ioc, 1);
-	while (ioc_state != MPI2_IOC_STATE_OPERATIONAL) {
-		if (wait_state_count++ == 10) {
-			ioc_err(ioc, "%s: failed due to ioc not operational\n",
-				__func__);
-			ret = -EFAULT;
-			goto out;
-		}
-		ssleep(1);
-		ioc_state = mpt3sas_base_get_iocstate(ioc, 1);
-		ioc_info(ioc, "%s: waiting for operational state(count=%d)\n",
-			 __func__, wait_state_count);
-	}
-	if (wait_state_count)
-		ioc_info(ioc, "%s: ioc is operational\n", __func__);
+	ret = mpt3sas_wait_for_ioc(ioc,	IOC_OPERATIONAL_WAIT_COUNT);
+	if (ret)
+		goto out;
 
 	mpi_request = kzalloc(ioc->request_sz, GFP_KERNEL);
 	if (!mpi_request) {
@@ -744,8 +729,8 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 
 	/* obtain dma-able memory for data transfer */
 	if (data_out_sz) /* WRITE */ {
-		data_out = pci_alloc_consistent(ioc->pdev, data_out_sz,
-		    &data_out_dma);
+		data_out = dma_alloc_coherent(&ioc->pdev->dev, data_out_sz,
+				&data_out_dma, GFP_KERNEL);
 		if (!data_out) {
 			pr_err("failure at %s:%d/%s()!\n", __FILE__,
 			    __LINE__, __func__);
@@ -764,8 +749,8 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 	}
 
 	if (data_in_sz) /* READ */ {
-		data_in = pci_alloc_consistent(ioc->pdev, data_in_sz,
-		    &data_in_dma);
+		data_in = dma_alloc_coherent(&ioc->pdev->dev, data_in_sz,
+				&data_in_dma, GFP_KERNEL);
 		if (!data_in) {
 			pr_err("failure at %s:%d/%s()!\n", __FILE__,
 			    __LINE__, __func__);
@@ -1083,11 +1068,11 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 
 	/* free memory associated with sg buffers */
 	if (data_in)
-		pci_free_consistent(ioc->pdev, data_in_sz, data_in,
+		dma_free_coherent(&ioc->pdev->dev, data_in_sz, data_in,
 		    data_in_dma);
 
 	if (data_out)
-		pci_free_consistent(ioc->pdev, data_out_sz, data_out,
+		dma_free_coherent(&ioc->pdev->dev, data_out_sz, data_out,
 		    data_out_dma);
 
 	kfree(mpi_request);
@@ -1549,9 +1534,9 @@ _ctl_diag_register_2(struct MPT3SAS_ADAPTER *ioc,
 	if (request_data) {
 		request_data_dma = ioc->diag_buffer_dma[buffer_type];
 		if (request_data_sz != ioc->diag_buffer_sz[buffer_type]) {
-			pci_free_consistent(ioc->pdev,
-			    ioc->diag_buffer_sz[buffer_type],
-			    request_data, request_data_dma);
+			dma_free_coherent(&ioc->pdev->dev,
+					ioc->diag_buffer_sz[buffer_type],
+					request_data, request_data_dma);
 			request_data = NULL;
 		}
 	}
@@ -1559,8 +1544,8 @@ _ctl_diag_register_2(struct MPT3SAS_ADAPTER *ioc,
 	if (request_data == NULL) {
 		ioc->diag_buffer_sz[buffer_type] = 0;
 		ioc->diag_buffer_dma[buffer_type] = 0;
-		request_data = pci_alloc_consistent(
-			ioc->pdev, request_data_sz, &request_data_dma);
+		request_data = dma_alloc_coherent(&ioc->pdev->dev,
+				request_data_sz, &request_data_dma, GFP_KERNEL);
 		if (request_data == NULL) {
 			ioc_err(ioc, "%s: failed allocating memory for diag buffers, requested size(%d)\n",
 				__func__, request_data_sz);
@@ -1631,7 +1616,7 @@ _ctl_diag_register_2(struct MPT3SAS_ADAPTER *ioc,
  out:
 
 	if (rc && request_data)
-		pci_free_consistent(ioc->pdev, request_data_sz,
+		dma_free_coherent(&ioc->pdev->dev, request_data_sz,
 		    request_data, request_data_dma);
 
 	ioc->ctl_cmds.status = MPT3_CMD_NOT_USED;
@@ -1768,8 +1753,8 @@ _ctl_diag_unregister(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 
 	request_data_sz = ioc->diag_buffer_sz[buffer_type];
 	request_data_dma = ioc->diag_buffer_dma[buffer_type];
-	pci_free_consistent(ioc->pdev, request_data_sz,
-	    request_data, request_data_dma);
+	dma_free_coherent(&ioc->pdev->dev, request_data_sz,
+			request_data, request_data_dma);
 	ioc->diag_buffer[buffer_type] = NULL;
 	ioc->diag_buffer_status[buffer_type] = 0;
 	return 0;
@@ -3581,8 +3566,10 @@ mpt3sas_ctl_exit(ushort hbas_to_enumerate)
 			if ((ioc->diag_buffer_status[i] &
 			    MPT3_DIAG_BUFFER_IS_RELEASED))
 				continue;
-			pci_free_consistent(ioc->pdev, ioc->diag_buffer_sz[i],
-			ioc->diag_buffer[i], ioc->diag_buffer_dma[i]);
+			dma_free_coherent(&ioc->pdev->dev,
+					  ioc->diag_buffer_sz[i],
+					  ioc->diag_buffer[i],
+					  ioc->diag_buffer_dma[i]);
 			ioc->diag_buffer[i] = NULL;
 			ioc->diag_buffer_status[i] = 0;
 		}

@@ -67,6 +67,7 @@
 #include <scsi/scsi_eh.h>
 #include <linux/pci.h>
 #include <linux/poll.h>
+#include <linux/irq_poll.h>
 
 #include "mpt3sas_debug.h"
 #include "mpt3sas_trigger_diag.h"
@@ -75,9 +76,9 @@
 #define MPT3SAS_DRIVER_NAME		"mpt3sas"
 #define MPT3SAS_AUTHOR "Avago Technologies <MPT-FusionLinux.pdl@avagotech.com>"
 #define MPT3SAS_DESCRIPTION	"LSI MPT Fusion SAS 3.0 Device Driver"
-#define MPT3SAS_DRIVER_VERSION		"27.101.00.00"
-#define MPT3SAS_MAJOR_VERSION		27
-#define MPT3SAS_MINOR_VERSION		101
+#define MPT3SAS_DRIVER_VERSION		"28.100.00.00"
+#define MPT3SAS_MAJOR_VERSION		28
+#define MPT3SAS_MINOR_VERSION		100
 #define MPT3SAS_BUILD_VERSION		0
 #define MPT3SAS_RELEASE_VERSION	00
 
@@ -140,6 +141,9 @@
 #define DEFAULT_NUM_FWCHAIN_ELEMTS	8
 
 #define FW_IMG_HDR_READ_TIMEOUT	15
+
+#define IOC_OPERATIONAL_WAIT_COUNT	10
+
 /*
  * NVMe defines
  */
@@ -189,6 +193,9 @@ struct mpt3sas_nvme_cmd {
 
 #define SAS2_PCI_DEVICE_B0_REVISION	(0x01)
 #define SAS3_PCI_DEVICE_C0_REVISION	(0x02)
+
+/* Atlas PCIe Switch Management Port */
+#define MPI26_ATLAS_PCIe_SWITCH_DEVID	(0x00B2)
 
 /*
  * Intel HBA branding
@@ -876,6 +883,9 @@ struct _event_ack_list {
  * @reply_post_free: reply post base virt address
  * @name: the name registered to request_irq()
  * @busy: isr is actively processing replies on another cpu
+ * @os_irq: irq number
+ * @irqpoll: irq_poll object
+ * @irq_poll_scheduled: Tells whether irq poll is scheduled or not
  * @list: this list
 */
 struct adapter_reply_queue {
@@ -885,6 +895,10 @@ struct adapter_reply_queue {
 	Mpi2ReplyDescriptorsUnion_t *reply_post_free;
 	char			name[MPT_NAME_LENGTH];
 	atomic_t		busy;
+	u32			os_irq;
+	struct irq_poll         irqpoll;
+	bool			irq_poll_scheduled;
+	bool			irq_line_enable;
 	struct list_head	list;
 };
 
@@ -1010,7 +1024,12 @@ typedef void (*MPT3SAS_FLUSH_RUNNING_CMDS)(struct MPT3SAS_ADAPTER *ioc);
  * @msix_vector_count: number msix vectors
  * @cpu_msix_table: table for mapping cpus to msix index
  * @cpu_msix_table_sz: table size
+ * @total_io_cnt: Gives total IO count, used to load balance the interrupts
+ * @msix_load_balance: Enables load balancing of interrupts across
+ * the multiple MSIXs
  * @schedule_dead_ioc_flush_running_cmds: callback to flush pending commands
+ * @thresh_hold: Max number of reply descriptors processed
+ *				before updating Host Index
  * @scsi_io_cb_idx: shost generated commands
  * @tm_cb_idx: task management commands
  * @scsih_cb_idx: scsih internal commands
@@ -1186,6 +1205,9 @@ struct MPT3SAS_ADAPTER {
 	u32		ioc_reset_count;
 	MPT3SAS_FLUSH_RUNNING_CMDS schedule_dead_ioc_flush_running_cmds;
 	u32             non_operational_loop;
+	atomic64_t      total_io_cnt;
+	bool            msix_load_balance;
+	u16		thresh_hold;
 
 	/* internal commands, callback index */
 	u8		scsi_io_cb_idx;
@@ -1491,6 +1513,7 @@ mpt3sas_wait_for_commands_to_complete(struct MPT3SAS_ADAPTER *ioc);
 
 u8 mpt3sas_base_check_cmd_timeout(struct MPT3SAS_ADAPTER *ioc,
 	u8 status, void *mpi_request, int sz);
+int mpt3sas_wait_for_ioc(struct MPT3SAS_ADAPTER *ioc, int wait_count);
 
 /* scsih shared API */
 struct scsi_cmnd *mpt3sas_scsih_scsi_lookup_get(struct MPT3SAS_ADAPTER *ioc,
