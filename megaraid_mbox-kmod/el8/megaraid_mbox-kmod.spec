@@ -1,6 +1,5 @@
 # Define the kmod package name here.
-%define kmod_name	tpe
-%define src_name	tpe-lkm
+%define kmod_name	megaraid_mbox
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
 %{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-147.el8}
@@ -8,16 +7,16 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	2.0.4
+Version:	2.20.5.1
 Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
-URL:		https://github.com/cormander/tpe-lkm
+URL:		http://www.kernel.org/
 
 # Sources
-# https://github.com/cormander/tpe-lkm/releases/tag/2.0.4
-Source0: %{src_name}-%{version}.tar.gz
+Source0:	%{kmod_name}-%{version}.tar.gz
+Source5:	GPL-v2.0.txt
 
 # Source code patches
 
@@ -46,10 +45,9 @@ BuildRequires:	redhat-rpm-config
 Provides:	kernel-modules >= %{kmod_kernel_version}.%{_arch}
 Provides:	kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
 
-Requires(post):		%{_bindir}/setfattr
-Requires(post):		%{_sbindir}/weak-modules
+Requires(post):	%{_sbindir}/weak-modules
 Requires(postun):	%{_sbindir}/weak-modules
-Requires:			kernel >= %{kmod_kernel_version}
+Requires:	kernel >= %{kmod_kernel_version}
 
 %description
 This package provides the %{kmod_name} kernel module(s).
@@ -57,11 +55,11 @@ It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
-%setup -q -n %{src_name}-%{version}
+%setup -q -n %{kmod_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "override megaraid_mm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 
 # Apply patch(es)
-# % patch0 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD
@@ -77,35 +75,26 @@ sort -u greylist | uniq > greylist.txt
 
 %install
 %{__install} -d %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-%{__install} %{kmod_name}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+%{__install} megaraid_mbox.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+%{__install} megaraid_mm.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
-%{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d/
-%{__install} -m 0644 conf/tpe.modprobe.conf %{buildroot}%{_sysconfdir}/modprobe.d/tpe.conf
-%{__install} -d %{buildroot}%{_sysconfdir}/sysconfig/
-%{__install} -m 0644 conf/tpe-*-whitelist %{buildroot}%{_sysconfdir}/sysconfig/
-%{__install} -d %{buildroot}%{_sysconfdir}/sysconfig/modules/
-%{__install} -m 0755 conf/tpe.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/modules/tpe.modules
-%{__install} -d %{buildroot}%{_sysconfdir}/sysctl.d/
-%{__install} -m 0644 conf/tpe.sysctl %{buildroot}%{_sysconfdir}/sysctl.d/tpe.conf
-%{__install} -d %{buildroot}%{_sbindir}/
-%{__install} -m 0755 scripts/tpe-setfattr-whitelist.sh %{buildroot}%{_sbindir}/tpe-setfattr-whitelist.sh
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
+%{__install} -m 0644 %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
-%{__install} -m 0644 {FAQ,GPL,INSTALL,LICENSE,README} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 # strip the modules(s)
 find %{buildroot} -type f -name \*.ko -exec %{__strip} --strip-debug \{\} \;
 
 # Sign the modules(s)
 %if %{?_with_modsign:1}%{!?_with_modsign:0}
-# If the module signing keys are not defined, define them here.
-%{!?privkey: %define privkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.priv}
-%{!?pubkey: %define pubkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.der}
-for module in $(find %{buildroot} -type f -name \*.ko);
-do %{_usrsrc}/kernels/%{kmod_kernel_version}.%{_arch}/scripts/sign-file \
-sha256 %{privkey} %{pubkey} $module;
-done
+	# If the module signing keys are not defined, define them here.
+	%{!?privkey: %define privkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.priv}
+	%{!?pubkey: %define pubkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.der}
+	for module in $(find %{buildroot} -type f -name \*.ko);
+		do %{_usrsrc}/kernels/%{kmod_kernel_version}.%{_arch}/scripts/sign-file \
+		sha256 %{privkey} %{pubkey} $module;
+	done
 %endif
 
 %clean
@@ -117,10 +106,6 @@ printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-init
 
 mkdir -p "%{kver_state_dir}"
 touch "%{kver_state_file}"
-
-if [ -x "/usr/sbin/tpe-setfattr-whitelist.sh" ]; then
-    /usr/sbin/tpe-setfattr-whitelist.sh > /dev/null || :
-fi
 
 exit 0
 
@@ -182,31 +167,16 @@ rmdir "%{dup_state_dir}" 2> /dev/null
 
 exit 0
 
-%triggerin -n kmod-tpe -- cheese, empathy, firefox, gedit, gjs, gnome-contacts, control-center, gnome-initial-setup, gnome-session, gnome-shell, ibus, kde-runtime, libreoffice-core, seahorse, thunderbird, totem, yelp
-if [ -x "/usr/sbin/tpe-setfattr-whitelist.sh" ]; then
-    /usr/sbin/tpe-setfattr-whitelist.sh > /dev/null || :
-fi
-
 %files
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config /etc/sysconfig/tpe-*-whitelist
-%attr(755,root,root) /etc/sysconfig/modules/%{kmod_name}.modules
-%config /etc/modprobe.d/%{kmod_name}.conf
 %config /etc/depmod.d/kmod-%{kmod_name}.conf
-%config(noreplace) /etc/sysctl.d/%{kmod_name}.conf
-%attr(755,root,root) /usr/sbin/tpe-setfattr-whitelist.sh
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Thu Nov 07 2019 Philip J Perry <phil@elrepo.org> 2.0.4-2
+* Fri Nov 08 2019 Philip J Perry <phil@elrepo.org> 2.20.5.1-2
 - Rebuilt for RHEL8.1
 
-* Sat Jun 15 2019 Philip J Perry <phil@elrepo.org> 2.0.4-1
-- Update to version 2.0.4
-- Fixes __x64_sys_newuname on RHEL8 kernel.
-- Add %%triggerin script
-- Call tpe-setfattr-whitelist.sh script post install and triggerin
-
-* Thu Jun 13 2019 Philip J Perry <phil@elrepo.org> 2.0.3-1
+* Sun Sep 15 2019 Philip J Perry <phil@elrepo.org> 2.20.5.1-1
 - Initial el8 build of the kmod package.
+- Backported from kernel-4.18.20
