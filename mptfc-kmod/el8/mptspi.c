@@ -1245,11 +1245,7 @@ static struct spi_function_template mptspi_transport_functions = {
 
 static struct pci_device_id mptspi_pci_table[] = {
 	{ PCI_VENDOR_ID_LSI_LOGIC, MPI_MANUFACTPAGE_DEVID_53C1030,
-		PCI_ANY_ID, PCI_ANY_ID },
-	{ PCI_VENDOR_ID_ATTO, MPI_MANUFACTPAGE_DEVID_53C1030,
-		PCI_ANY_ID, PCI_ANY_ID },
-	{ PCI_VENDOR_ID_LSI_LOGIC, MPI_MANUFACTPAGE_DEVID_53C1035,
-		PCI_ANY_ID, PCI_ANY_ID },
+		PCI_VENDOR_ID_VMWARE, PCI_ANY_ID },
 	{0}	/* Terminating entry */
 };
 MODULE_DEVICE_TABLE(pci, mptspi_pci_table);
@@ -1540,6 +1536,10 @@ mptspi_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		    0, 0, 0, 0, 5);
 
 	scsi_scan_host(sh);
+
+	add_taint(TAINT_SUPPORT_REMOVED, LOCKDEP_STILL_OK);
+	pr_warn("MPTSPI MODULE IS NOT SUPPORTED\n");
+
 	return 0;
 
 out_mptspi_probe:
