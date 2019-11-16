@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	28.100.00.00
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -168,6 +168,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri Nov 15 2019 Philip J Perry <phil@elrepo.org> 28.100.00.00-2
+- Fix missing device ID
+
 * Sat Nov 09 2019 Philip J Perry <phil@elrepo.org> 28.100.00.00-1
 - Rebuilt for RHEL8.1
 - Source code updated from RHEL kernel-4.18.0-147.el8.x86_64
