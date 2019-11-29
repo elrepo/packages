@@ -1,22 +1,22 @@
 # Define the kmod package name here.
-%define kmod_name		forcedeth
+%define kmod_name hfsplus
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
 %{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-147.el8}
 
 %{!?dist: %define dist .el8}
 
-Name:		kmod-%{kmod_name}
-Version:	0.0
-Release:	3%{?dist}
-Summary:	%{kmod_name} kernel module(s)
-Group:		System Environment/Kernel
-License:	GPLv2
-URL:		http://www.kernel.org/
+Name:           kmod-%{kmod_name}
+Version:        0.0
+Release:        1%{?dist}
+Summary:        %{kmod_name} kernel module(s)
+Group:          System Environment/Kernel
+License:        GPLv2
+URL:            http://www.kernel.org/
 
-# Sources
-Source0:	%{kmod_name}-%{version}.tar.gz
-Source5:	GPL-v2.0.txt
+# Sources.
+Source0:  %{kmod_name}-%{version}.tar.gz
+Source5:  GPL-v2.0.txt
 
 # Source code patches
 
@@ -32,44 +32,44 @@ Source5:	GPL-v2.0.txt
 %global _use_internal_dependency_generator 0
 %global kernel_source() %{_usrsrc}/kernels/%{kmod_kernel_version}.%{_arch}
 
-BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
+BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
-ExclusiveArch:	x86_64
+ExclusiveArch:  x86_64
 
-BuildRequires:	elfutils-libelf-devel
-BuildRequires:	kernel-devel = %{kmod_kernel_version}
-BuildRequires:	kernel-abi-whitelists
-BuildRequires:	kernel-rpm-macros
-BuildRequires:	redhat-rpm-config
+BuildRequires:  elfutils-libelf-devel
+BuildRequires:  kernel-devel = %{kmod_kernel_version}
+BuildRequires:  kernel-abi-whitelists
+BuildRequires:  kernel-rpm-macros
+BuildRequires:  redhat-rpm-config
 
-Provides:	kernel-modules >= %{kmod_kernel_version}.%{_arch}
-Provides:	kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       kernel-modules >= %{kmod_kernel_version}.%{_arch}
+Provides:       kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
 
-Requires(post):	%{_sbindir}/weak-modules
-Requires(postun):	%{_sbindir}/weak-modules
-Requires:	kernel >= %{kmod_kernel_version}
+Requires(post): %{_sbindir}/weak-modules
+Requires(postun):       %{_sbindir}/weak-modules
+Requires:       kernel >= %{kmod_kernel_version}
 
 %description
 This package provides the %{kmod_name} kernel module(s).
 It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
+
 %prep
-%setup -n %{kmod_name}-%{version}
+%setup -q -n %{kmod_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
-# % patch0 -p1
 
 %build
-%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
+%{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD CONFIG_BE2NET=m
 
 whitelist="/lib/modules/kabi-current/kabi_whitelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
-	# update greylist
-	nm -u ./$modules.ko | sed 's/.*U //' |  sed 's/^\.//' | sort -u | while read -r symbol; do
-		grep -q "^\s*$symbol\$" $whitelist || echo "$symbol" >> ./greylist
-	done
+        # update greylist
+        nm -u ./$modules.ko | sed 's/.*U //' |  sed 's/^\.//' | sort -u | while read -r symbol; do
+                grep -q "^\s*$symbol\$" $whitelist || echo "$symbol" >> ./greylist
+        done
 done
 sort -u greylist | uniq > greylist.txt
 
@@ -79,7 +79,6 @@ sort -u greylist | uniq > greylist.txt
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
-%{__install} -m 0644 %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 # strip the modules(s)
@@ -87,13 +86,13 @@ find %{buildroot} -type f -name \*.ko -exec %{__strip} --strip-debug \{\} \;
 
 # Sign the modules(s)
 %if %{?_with_modsign:1}%{!?_with_modsign:0}
-# If the module signing keys are not defined, define them here.
-%{!?privkey: %define privkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.priv}
-%{!?pubkey: %define pubkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.der}
-for module in $(find %{buildroot} -type f -name \*.ko);
-do %{_usrsrc}/kernels/%{kmod_kernel_version}.%{_arch}/scripts/sign-file \
-sha256 %{privkey} %{pubkey} $module;
-done
+	# If the module signing keys are not defined, define them here.
+	%{!?privkey: %define privkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.priv}
+	%{!?pubkey: %define pubkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.der}
+	for module in $(find %{buildroot} -type f -name \*.ko);
+		do %{_usrsrc}/kernels/%{kmod_kernel_version}.%{_arch}/scripts/sign-file \
+		sha256 %{privkey} %{pubkey} $module;
+	done
 %endif
 
 %clean
@@ -112,30 +111,30 @@ exit 0
 # We have to re-implement part of weak-modules here because it doesn't allow
 # calling initramfs regeneration separately
 if [ -f "%{kver_state_file}" ]; then
-	kver_base="%{kmod_kernel_version}"
-	kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
+        kver_base="%{kmod_kernel_version}"
+        kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
 
-	for k_dir in $kvers; do
-		k="${k_dir#/lib/modules/}"
+        for k_dir in $kvers; do
+                k="${k_dir#/lib/modules/}"
 
-		tmp_initramfs="/boot/initramfs-$k.tmp"
-		dst_initramfs="/boot/initramfs-$k.img"
+                tmp_initramfs="/boot/initramfs-$k.tmp"
+                dst_initramfs="/boot/initramfs-$k.img"
 
-		# The same check as in weak-modules: we assume that the kernel present
-		# if the symvers file exists.
-		if [ -e "/boot/symvers-$k.gz" ]; then
-			/usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
-			cmp -s "$tmp_initramfs" "$dst_initramfs"
-			if [ "$?" = 1 ]; then
-				mv "$tmp_initramfs" "$dst_initramfs"
-			else
-				rm -f "$tmp_initramfs"
-			fi
-		fi
-	done
+                # The same check as in weak-modules: we assume that the kernel present
+                # if the symvers file exists.
+                if [ -e "/boot/symvers-$k.gz" ]; then
+                        /usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
+                        cmp -s "$tmp_initramfs" "$dst_initramfs"
+                        if [ "$?" = 1 ]; then
+                                mv "$tmp_initramfs" "$dst_initramfs"
+                        else
+                                rm -f "$tmp_initramfs"
+                        fi
+                fi
+        done
 
-	rm -f "%{kver_state_file}"
-	rmdir "%{kver_state_dir}" 2> /dev/null
+        rm -f "%{kver_state_file}"
+        rmdir "%{kver_state_dir}" 2> /dev/null
 fi
 
 rmdir "%{dup_state_dir}" 2> /dev/null
@@ -144,8 +143,8 @@ exit 0
 
 %preun
 if rpm -q --filetriggers kmod 2> /dev/null| grep -q "Trigger for weak-modules call on kmod removal"; then
-	mkdir -p "%{kver_state_dir}"
-	touch "%{kver_state_file}"
+        mkdir -p "%{kver_state_dir}"
+        touch "%{kver_state_file}"
 fi
 
 mkdir -p "%{dup_state_dir}"
@@ -153,9 +152,9 @@ rpm -ql kmod-%{kmod_name}-%{version}-%{release}.%{_arch} | grep '\.ko$' > "%{dup
 
 %postun
 if rpm -q --filetriggers kmod 2> /dev/null| grep -q "Trigger for weak-modules call on kmod removal"; then
-	initramfs_opt="--no-initramfs"
+        initramfs_opt="--no-initramfs"
 else
-	initramfs_opt=""
+        initramfs_opt=""
 fi
 
 modules=( $(cat "%{dup_module_list}") )
@@ -173,11 +172,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Fri Nov 22 2019 Akemi Yagi <toracat@elrepo.org> 0.0-3
-- Rebuilt against kernel-4.18.0-147.el8_1
+* Fri Nov 22 2019 Akemi Yagi <toracat@elrepo.org> - 0.0-2
+- Rebuilt against RHEL 8.1 kernel
 
-* Sun Jun 23 2019 Akemi Yagi <toracat@elrepo.org> 0.0-2
-- Rebuilt against kernel-4.18.0-80.4.2.el8_0
-
-* Tue May 07 2019 Akemi Yagi <toracat@elrepo.org> 0.0-1
-- Initial build for RHEL 8.0 
+* Mon Nov 18 2019 Akemi Yagi <toracat@elrepo.org> - 0.0-1
+- Initial build for EL8.0
+- Built from the source for kernel-4.18.0-80.
