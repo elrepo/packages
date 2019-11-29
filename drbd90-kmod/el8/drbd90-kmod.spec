@@ -8,8 +8,8 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	9.0.20
-Release:	2%{?dist}
+Version:	9.0.21
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -176,6 +176,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sun Nov 24 2019 Akemi Yagi <toracat@elrepo.org> - 9.0.21-1.el8_0
+- Updated to 9.0.21
+
 * Wed Nov 06 2019 Akemi Yagi <toracat@elrepo.org> - 9.0.20-2.el8_0
 - Initial el8 build of the kmod package.
   [https://elrepo.org/bugs/view.php?id=965]
