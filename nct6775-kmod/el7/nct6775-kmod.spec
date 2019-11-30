@@ -2,11 +2,11 @@
 %define kmod_name nct6775
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-862.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-1062.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 4.20180327git%{?dist}
+Release: 5%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -45,7 +45,7 @@ KSRC=%{_usrsrc}/kernels/%{kversion}
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
-%{__install} LICENSE README README.ASRock %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
+%{__install} nct6775.rst %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 # strip the modules(s)
 find %{buildroot} -type f -name \*.ko -exec %{__strip} --strip-debug \{\} \;
@@ -65,6 +65,11 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Nov 30 2019 Philip J Perry <phil@elrepo.org> - 0.0-5
+- Backported from kernel-5.4.1
+- Adds support for NCT6116
+- Rebuilt against RHEL 7.7 kernel
+
 * Tue Apr 10 2018 Philip J Perry <phil@elrepo.org> - 0.0-4.20180327git
 - Updated to latest upstream git snapshot.
 - Rebuilt against RHEL 7.5 kernel

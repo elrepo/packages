@@ -153,7 +153,7 @@ get_rpmtemplate ()
     cat <<EOF
 Provides:         kernel-modules >= ${verrel_dep}${dotvariant}
 Provides:         ${kmod_name}-kmod = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:         kernel >= 3.10.0-862.el7
+Requires:         kernel >= 3.10.0-1062.el7
 Requires(post):   /usr/sbin/depmod
 Requires(postun): /usr/sbin/depmod
 EOF
