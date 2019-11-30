@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/440.31/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/440.36/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 
@@ -8,7 +8,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	440.31
+Version:	440.36
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -400,6 +400,9 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Sat Nov 23 2019 Philip J Perry <phil@elrepo.org> - 440.36-1
+- Updated to version 440.36
+
 * Wed Nov 06 2019 Philip J Perry <phil@elrepo.org> - 440.31-1
 - Updated to version 440.31
 
