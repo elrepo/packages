@@ -1309,7 +1309,7 @@ nct6775_create_attr_group(struct device *dev,
 	if (attrs == NULL)
 		return ERR_PTR(-ENOMEM);
 
-	su = devm_kzalloc(dev, array3_size(repeat, count, sizeof(*su)),
+	su = devm_kzalloc(dev, sizeof(*su) * repeat * count,
 			       GFP_KERNEL);
 	if (su == NULL)
 		return ERR_PTR(-ENOMEM);
@@ -2817,7 +2817,6 @@ store_pwm_weight_temp_sel(struct device *dev, struct device_attribute *attr,
 		return err;
 	if (val > NUM_TEMP)
 		return -EINVAL;
-	val = array_index_nospec(val, NUM_TEMP + 1);
 	if (val && (!(data->have_temp & BIT(val - 1)) ||
 		    !data->temp_src[val - 1]))
 		return -EINVAL;
