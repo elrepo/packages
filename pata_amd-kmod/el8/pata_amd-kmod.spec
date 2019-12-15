@@ -2,13 +2,13 @@
 %define kmod_name pata_amd
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-80.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-147.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
 Version:        0.4.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -21,6 +21,7 @@ Source7:  scsi_transport_api.h
 
 # Source code patches
 Patch0:  elrepo-libata-eh.patch
+Patch1:  elrepo-libata.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -65,6 +66,7 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 
 # Apply patch(es)
 %patch0 -p1
+%patch1 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD CONFIG_PATA_AMD=m
@@ -177,5 +179,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat Dec 14 2019 Akemi Yagi <toracat@elrepo.org> - 0.4.1-2
+- Rebuilt for RHEL 8.1
+- Apply elrepo-libata.patch
+
 * Mon Dec 02 2019 Akemi Yagi <toracat@elrepo.org> - 0.4.1-1
 - Initial build for RHEL 8.0
