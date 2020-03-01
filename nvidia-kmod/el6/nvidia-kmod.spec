@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 2.6.32-754.el6.%{_target_cpu}}
 
 Name:	 %{kmod_name}-kmod
-Version: 440.59
+Version: 440.64
 Release: 1%{?dist}
 Group:	 System Environment/Kernel
 License: Proprietary
@@ -69,6 +69,9 @@ popd
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Mar 01 2020 Philip J Perry <phil@elrepo.org> - 440.64-1
+- Updated to version 440.64
+
 * Sat Feb 08 2020 Philip J Perry <phil@elrepo.org> - 440.59-1
 - Updated to version 440.59
 
