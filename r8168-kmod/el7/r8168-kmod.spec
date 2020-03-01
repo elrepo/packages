@@ -1,28 +1,31 @@
-# The current upstream tarball is named 0006-r8168-8.043.01.tar.bz2
+# The current upstream tarball is named 0012-r8168-8.046.00.tar.bz2
 # so we adjust the Source0 line, below.
 
 # Define the kmod package name here.
 %define kmod_name r8168
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-693.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-1062.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 8.045.08
+Version: 8.048.00
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
-URL:     http://www.realtek.com.tw/
+URL:     http://www.realtek.com/
 
 BuildRequires: redhat-rpm-config, perl
 ExclusiveArch: x86_64
 
 # Sources.
-Source0:  0010-%{kmod_name}-%{version}.tar.bz2
+Source0:  %{kmod_name}-%{version}.tar.bz2
 Source5:  GPL-v2.0.txt
 Source10: kmodtool-%{kmod_name}-el7.sh
 Source20: ELRepo-Makefile-%{kmod_name}
+
+# Patches.
+Patch0: ELRepo-r8168-%{version}.patch
 
 # Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
@@ -39,6 +42,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
 %setup -q -n %{kmod_name}-%{version}
+%patch0 -p1
 %{__rm} -f src/Makefile*
 %{__cp} -a %{SOURCE20} src/Makefile
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
@@ -77,6 +81,22 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Mar 01 2020 Philip J Perry <phil@elrepo.org> - 8.048.00-1
+- Updated to version 8.048.00
+
+* Fri Nov 22 2019 Akemi Yagi <toracat@elrepo.org> - 8.047.05-1
+- Updated to version 8.047.05
+
+* Thu Sep 26 2019 Akemi Yagi <toracat@elrepo.org> - 8.047.04-1
+- Updated to version 8.047.04
+- Built against RHEL 7.7 kernel
+
+* Thu Sep 06 2018 Alan Bartlett <ajb@elrepo.org> - 8.046.00-1
+- Updated to version 8.046.00
+
+* Sat May 12 2018 Akemi Yagi <toracat@elrepo.org> - 8.045.08-2
+- Rebuilt against RHEL 7.5 kernel.
+
 * Sun Sep 17 2017 Philip J Perry <phil@elrepo.org> - 8.045.08-1
 - Updated to version 8.045.08
 - Rebuilt against RHEL7.4 kernel.

@@ -9,7 +9,6 @@
 # Copyright (c) 2003-2010 Ville Skyttä <ville.skytta@iki.fi>,
 #                         Thorsten Leemhuis <fedora@leemhuis.info>
 #                         Jon Masters <jcm@redhat.com>
-# Copyright (c) 2012-2013 Jiri Benc <jbenc@redhat.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -43,33 +42,17 @@
 shopt -s extglob
 
 myprog="kmodtool"
-myver="0.10.10_kmp2"
+myver="rhel6-rh2"
 knownvariants=@(debug|kdump)
 kmod_name=
 kver=
 verrel=
 variant=
 
-get_kernel_release ()
-{
-  if [[ -z $1 ]]; then
-    uname -r
-    return
-  fi
-  local arch=$(arch)
-  local verrel=${1%.$arch}
-  local verprefix=${verrel%.*}
-  local versuffix=${verrel#$verprefix}
-  verrel=$(ls -Ud /usr/src/kernels/$verprefix*$versuffix.$arch | sort -V | tail -n 1)
-  verrel=${verrel##*/}
-  [[ -z $verrel ]] && verrel=$1.$arch
-  echo "$verrel"
-}
-
 get_verrel ()
 {
-  verrel=$(get_kernel_release "$1")
-  verrel=${verrel/%.$knownvariants/}
+  verrel=${1:-$(uname -r)}
+  verrel=${verrel%%$knownvariants}
 }
 
 print_verrel ()
@@ -78,17 +61,11 @@ print_verrel ()
   echo "${verrel}"
 }
 
-get_verrel_for_deps ()
-{
-  verrel_dep=${1:-$(uname -r)}
-  verrel_dep=${verrel_dep/%.$knownvariants/}
-}
-
 get_variant ()
 {
   get_verrel $@
-  variant=$(get_kernel_release "$1")
-  variant=${variant/#$verrel?(.)/}
+  variant=${1:-$(uname -r)}
+  variant=${variant##$verrel}
   variant=${variant:-'""'}
 }
 
@@ -151,14 +128,13 @@ get_rpmtemplate ()
     echo "%global _use_internal_dependency_generator 0"
 
     cat <<EOF
-Provides:         kernel-modules >= ${verrel_dep}${dotvariant}
+Provides:         kabi-modules = ${verrel}${dotvariant}
 Provides:         ${kmod_name}-kmod = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:         kernel >= 3.10.0-862.el7
-Requires(post):   /usr/sbin/depmod
-Requires(postun): /usr/sbin/depmod
+Requires(post):   /sbin/depmod
+Requires(postun): /sbin/depmod
 EOF
 
-    if [ "yes" != "$nobuildreqs" ]
+    if [ "no" != "$nobuildreqs" ]
     then
         echo "BuildRequires: kernel${dashvariant}-devel"
     fi
@@ -184,7 +160,7 @@ cat <<EOF
 %post          -n kmod-${kmod_name}${dashvariant}
 echo "Working. This may take some time ..."
 if [ -e "/boot/System.map-${verrel}${dotvariant}" ]; then
-    /usr/sbin/depmod -aeF "/boot/System.map-${verrel}${dotvariant}" "${verrel}${dotvariant}" > /dev/null || :
+    /sbin/depmod -aeF "/boot/System.map-${verrel}${dotvariant}" "${verrel}${dotvariant}" > /dev/null || :
 fi
 modules=( \$(find /lib/modules/${verrel}${dotvariant}/extra/${kmod_name} | grep '\.ko$') )
 if [ -x "/sbin/weak-modules" ]; then
@@ -202,7 +178,7 @@ cat <<EOF
 %postun        -n kmod-${kmod_name}${dashvariant}
 echo "Working. This may take some time ..."
 if [ -e "/boot/System.map-${verrel}${dotvariant}" ]; then
-    /usr/sbin/depmod -aeF "/boot/System.map-${verrel}${dotvariant}" "${verrel}${dotvariant}" > /dev/null || :
+    /sbin/depmod -aeF "/boot/System.map-${verrel}${dotvariant}" "${verrel}${dotvariant}" > /dev/null || :
 fi
 modules=( \$(cat /var/run/rpm-kmod-${kmod_name}${dashvariant}-modules) )
 rm /var/run/rpm-kmod-${kmod_name}${dashvariant}-modules
@@ -218,7 +194,7 @@ then
     echo "%defattr(644,root,root,755)"
     echo "/lib/modules/${verrel}${dotvariant}/"
     echo "%config /etc/depmod.d/kmod-${kmod_name}.conf"
-    echo "%config /usr/lib/modprobe.d/blacklist-r8169.conf"
+    echo "%config /etc/modprobe.d/blacklist-r8169.conf"
     echo "%doc /usr/share/doc/kmod-${kmod_name}-%{version}/"
 else
     cat "$override_filelist" | get_filelist
@@ -231,8 +207,6 @@ print_rpmtemplate ()
   shift
   kver="${1}"
   get_verrel "${1}"
-  get_verrel_for_deps "${1}"
-  [[ -z $kver ]] && kver=$verrel
   shift
   if [ -z "${kmod_name}" ] ; then
     echo "Please provide the kmodule-name as first parameter." >&2
