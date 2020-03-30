@@ -1,7 +1,7 @@
 /*
  *  nvidia-detect_x86.h - PCI device_ids for NVIDIA graphics cards
  *
- *  Copyright (C) 2013-2018 Philip J Perry <phil@elrepo.org>
+ *  Copyright (C) 2013-2020 Philip J Perry <phil@elrepo.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
