@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-1062.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 0.0.20200205
+Version: 1.0.20200401
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -65,6 +65,11 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Apr 1 2020 Joe Doss <joe@solidadmin.com> 1.0.20200401-1
+- Update to 1.0.20200401
+- compat: queueing: skb_reset_redirect change has been backported to 5.[45]
+- qemu: bump default kernel to 5.5.14
+
 * Fri Feb 14 2020 Akemi Yagi <toracat@elrepo.org> - 0.0.20200205-1
 - Initial el7 build. 
 - [http://elrepo.org/bugs/view.php?id=989]
