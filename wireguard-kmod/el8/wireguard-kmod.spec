@@ -1,5 +1,5 @@
 # Define the kmod package name here.
-%define kmod_name	wireguard	
+%define kmod_name wireguard	
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
 %{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-147.el8}
@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	0.0.20200205
+Version:	1.0.20200401
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -177,5 +177,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Apr 1 2020 Joe Doss <joe@solidadmin.com> 1.0.20200401-1
+- Update to 1.0.20200401
+- compat: queueing: skb_reset_redirect change has been backported to 5.[45]
+- qemu: bump default kernel to 5.5.14
+
 * Sat Feb 15 2020 Akemi Yagi <toracat@elrepo.org> 0.0.20200205-1
 - Initial build for RHEL 8.1
