@@ -15,8 +15,8 @@ License:	GPLv2
 URL:		https://git.zx2c4.com/wireguard-linux-compat/
 
 # Sources
-Source0:	%{kmod_name}-%{version}.tar.gz
-Source5:	GPL-v2.0.txt
+Source0:  https://git.zx2c4.com/wireguard-linux-compat/snapshot/wireguard-linux-compat-%{version}.tar.xz
+Source5:  https://raw.githubusercontent.com/elrepo/packages/master/wireguard-kmod/el8/GPL-v2.0.txt
 
 # Source code patches
 
@@ -55,7 +55,7 @@ It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
-%setup -n %{kmod_name}-%{version}
+%autosetup -p1 -n wireguard-linux-compat-%{version}
 echo "override %{kmod_name}-core * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 echo "override %{kmod_name}-host * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 echo "override %{kmod_name}-vudc * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
