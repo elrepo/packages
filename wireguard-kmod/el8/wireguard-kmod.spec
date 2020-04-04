@@ -56,10 +56,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
 %setup -n %{kmod_name}-%{version}
-echo "override %{kmod_name}-core * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
-echo "override %{kmod_name}-host * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
-echo "override %{kmod_name}-vudc * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
-echo "override vhci-hcd * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
 # % patch0 -p1
