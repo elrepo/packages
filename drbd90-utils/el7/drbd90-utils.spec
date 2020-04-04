@@ -1,7 +1,7 @@
 %define real_name drbd-utils
 
 Name:    drbd90-utils
-Version: 9.6.0
+Version: 9.10.0
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
@@ -17,6 +17,7 @@ BuildRequires: flex
 BuildRequires: udev
 BuildRequires: libxslt
 BuildRequires: docbook-style-xsl
+BuildRequires: po4a
 
 Requires: udev
 Requires(post):   systemd-units
@@ -173,6 +174,9 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Thu Oct 17 2019 Akemi Yagi <toracat@elrepo.org> - 9.10.0-1
+- Updated to 9.10.0
+
 * Sat Nov 03 2018 Akemi Yagi <toracat@elrepo.org> - 9.6.0-1
 - Updated to 9.6.0
 
