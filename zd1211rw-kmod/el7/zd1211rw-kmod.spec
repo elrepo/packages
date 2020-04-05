@@ -2,11 +2,11 @@
 %define kmod_name zd1211rw
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-1062.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-1127.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 1.0
-Release: 7%{?dist}
+Release: 8%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -65,6 +65,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Apr 04 2020 Philip J Perry <phil@elrepo.org> - 1.0-8
+- Rebuilt against RHEL 7.8 kernel
+- Backported from kernel-5.3.18
+
 * Sun Sep 15 2019 Akemi Yagi <toracat@elrepo.org> - 1.0-7
 - Rebuilt against RHEL 7.7 kernel
 
