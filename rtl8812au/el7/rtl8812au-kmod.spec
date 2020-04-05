@@ -2,11 +2,11 @@
 %define kmod_name rtl8812au
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-1062.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-1127.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 5.3.4
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -68,5 +68,8 @@ find %{buildroot} -type f -name \*.ko -exec %{__xz} \{\} \;
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Apr 04 2020 Philip J Perry <phil@elrepo.org> - 5.3.4-2
+- Rebuilt against RHEL 7.8 kernel
+
 * Thu Oct 31 2019 Philip J Perry <phil@elrepo.org> - 5.3.4-1
 - Initial el7 build of the kmod package.
