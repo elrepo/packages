@@ -2,11 +2,11 @@
 %define kmod_name mt7601u
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-1062.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-1127.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 4.14.108
-Release: 2%{?dist}
+Release: 3%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -65,6 +65,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Mon Apr 06 2020 Akemi Yagi <toracat@elrepo.org> - 4.14.108-3
+- Rebuilt against RHEL 7.8 kernel
+
 * Mon Sep 02 2019 Akemi Yagi <toracat@elrepo.org> - 4.14.108-2
 - Built against RHEL 7.7 kernel
 
