@@ -1,7 +1,7 @@
 %define real_name drbd-utils
 
 Name:    drbd90-utils
-Version: 9.10.0
+Version: 9.12.2
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
@@ -116,6 +116,7 @@ fi
 %doc %{_mandir}/ja/man5/drbd.conf.5*
 %doc %{_mandir}/ja/man5/drbd.conf-*
 %doc %{_mandir}/ja/man8/drbd*
+%doc %{_mandir}/man7/ocf_linbit_drbd.7.gz
 %config %{_sysconfdir}/bash_completion.d/drbdadm
 %config %{_prefix}/lib/udev/rules.d/65-drbd.rules
 %config(noreplace) %{_sysconfdir}/drbd.conf
@@ -174,6 +175,9 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Sat Apr 04 2020 Akemi Yagi <toracat@elrepo.org> - 9.12.2-1
+- Updated to 9.12.2
+
 * Thu Oct 17 2019 Akemi Yagi <toracat@elrepo.org> - 9.10.0-1
 - Updated to 9.10.0
 
