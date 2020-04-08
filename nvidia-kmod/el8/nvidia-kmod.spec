@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	440.64
+Version:	440.82
 Release:	1%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
@@ -212,6 +212,8 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Apr 08 2020 Philip J Perry <phil@elrepo.org> - 440.82-1
+- Updated to version 440.82
 - Update initramfs for all kABI compatible kernels
   [https://elrepo.org/bugs/view.php?id=999]
 
