@@ -164,7 +164,7 @@ fi
 rmdir "%{dup_state_dir}" 2> /dev/null
 
 # Update initramfs for all kABI compatible kernels
-if [ -x /usr/sbin/grubby ]; then
+if [ -x /usr/bin/dracut ]; then
 	# get installed kernels
 	for KERNEL in $(rpm -q --qf '%{v}-%{r}.%{arch}\n' kernel); do
 		VMLINUZ="/boot/vmlinuz-"$KERNEL
