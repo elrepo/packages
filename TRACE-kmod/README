@@ -1,0 +1,10 @@
+Fermilab Realtime kernel tracing RPM
+
+The Fermilab Realtime kernel tracing tool might be of use to folks looking to get individual stats on specific kernel calls or execution paths.
+
+The following packages are provided:
+
+kmod-TRACE
+TRACE-utils
+
+Contributed by Pat Riehecky. See https://elrepo.org/bugs/view.php?id=996 for details and source code.
