@@ -16,9 +16,9 @@ BuildRequires: redhat-rpm-config, perl
 ExclusiveArch: x86_64
 
 # Sources.
-Source0:  %{kmod_name}-%{version}.tar.gz
-Source5:  GPL-v2.0.txt
-Source10: kmodtool-%{kmod_name}-el7.sh
+Source0:  https://git.zx2c4.com/wireguard-linux-compat/snapshot/wireguard-linux-compat-%{version}.tar.xz
+Source5:  https://raw.githubusercontent.com/elrepo/packages/master/wireguard-kmod/el7/GPL-v2.0.txt
+Source10: https://raw.githubusercontent.com/elrepo/packages/master/wireguard-kmod/el7/kmodtool-%{kmod_name}-el7.sh
 
 # Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
@@ -32,7 +32,7 @@ It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
-%setup -q -n %{kmod_name}-%{version}
+%autosetup -p1 -n wireguard-linux-compat-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
