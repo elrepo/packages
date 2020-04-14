@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-1062.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 1.0.20200401
+Version: 1.0.20200413
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -65,6 +65,13 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Apr 14 2020 Joe Doss <joe@solidadmin.com> 1.0.20200413-1
+- Update to 1.0.20200413
+- compat: support latest suse 15.1 and 15.2
+- compat: support RHEL 7.8 faulty siphash backport
+- compat: error out if bc is missing
+- compat: backport hsiphash_1u32 for tests
+
 * Wed Apr 1 2020 Joe Doss <joe@solidadmin.com> 1.0.20200401-1
 - Update to 1.0.20200401
 - compat: queueing: skb_reset_redirect change has been backported to 5.[45]
