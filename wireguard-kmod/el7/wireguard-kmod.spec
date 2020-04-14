@@ -2,7 +2,7 @@
 %define kmod_name wireguard
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-1062.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-1127.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 1.0.20200413
@@ -12,7 +12,7 @@ License: GPLv2
 Summary: %{kmod_name} kernel module(s)
 URL:     https://git.zx2c4.com/wireguard-linux-compat/
 
-BuildRequires: redhat-rpm-config, perl
+BuildRequires: redhat-rpm-config, perl, bc
 ExclusiveArch: x86_64
 
 # Sources.
