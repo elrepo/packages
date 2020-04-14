@@ -30,9 +30,6 @@
 #include <linux/leds.h>
 #include <net/mac80211.h>
 #include <net/cfg80211.h>
-#define RX_FLAG_SHORTPRE (1<<8 )
-#define RX_FLAG_10MHZ (1<<28)
-#define RX_FLAG_5MHZ (1<<29)
 
 /* RX/TX descriptor hw structs
  * TODO: Driver part should only see sw structs */

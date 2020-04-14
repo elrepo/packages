@@ -2,11 +2,11 @@
 %define kmod_name 8188eu
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-1062.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-1127.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 5.2.2.4
-Release: 1.20190907git%{?dist}
+Release: 2.20190907git%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -64,6 +64,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Apr 04 2020 Philip J Perry <phil@elrepo.org> - 5.2.2.4-2.20190907git
+- Rebuilt against RHEL 7.8 kernel
+
 * Sat Sep 07 2019 Philip J Perry <phil@elrepo.org> - 5.2.2.4-1.20190907git
 - Updated to latest upstream git snapshot
 - Rebuilt against RHEL 7.7 kernel

@@ -2,11 +2,11 @@
 %define kmod_name ath5k
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-1062.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-1127.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 0.0
-Release: 12%{?dist}
+Release: 13%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -68,9 +68,15 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Apr 04 2020 Philip J Perry <phil@elrepo.org> - 0.0-13
+- Rebuilt against RHEL 7.8 kernel
+- Backported from kernel-5.3.18
+
 * Sat Sep 07 2019 Philip J Perry <phil@elrepo.org> - 0.0-12
 - Rebuilt against RHEL 7.7 kernel
 - Backported from kernel-4.14.142
+- Fix build issues on RHEL 7.7
+  [https://elrepo.org/bugs/view.php?id=931]
 
 * Sun Jul 30 2017 Philip J Perry <phil@elrepo.org> - 0.0-11
 - Backported from kernel-4.11.12 for RHEL-7.4
