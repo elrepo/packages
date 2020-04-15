@@ -34,17 +34,17 @@ def exclude_hook(conduit):
     for instpkg in instpkgs:
         if instpkg.name == "kernel":
             kernels.append('kernel-modules >= ' + instpkg.version + '-' + instpkg.release + '.' + instpkg.arch)
-            conduit.info(3, '[elrepo]: found installed kernel: %s' % instpkg)
+            conduit.info(4, '[elrepo]: found installed kernel: %s' % instpkg)
 
     # get available kernels
     pkgs = conduit.getPackages()
     for pkg in pkgs:
         if pkg.name == "kernel":
             kernels.append('kernel-modules >= ' + pkg.version + '-' + pkg.release + '.' + pkg.arch)
-            conduit.info(3, '[elrepo]: found kernel: %s' % pkg)
+            conduit.info(4, '[elrepo]: found kernel: %s' % pkg)
 
     if not kernels:
-        conduit.info(2, '[elrepo]: ERROR, no kernels found')
+        conduit.info(4, '[elrepo]: ERROR, no kernels found')
         return
 
     def find_matches(kmod, requires, matchfor=None):
@@ -62,7 +62,7 @@ def exclude_hook(conduit):
                 if fnmatch.fnmatch(kernel, req):
                     return
         # else no matching kernel, excluding package
-        conduit.info(2, '[elrepo]: excluding package: %s' % kmod)
+        conduit.info(4, '[elrepo]: excluding package: %s' % kmod)
         conduit.delPackage(kmod)
 
         # if kmod-nvidia, handle matching nvidia-x11-drv packages
@@ -70,7 +70,7 @@ def exclude_hook(conduit):
             for pkg in pkgs:
                 if (pkg.name).startswith("nvidia-x11-drv"):
                     if kmod.version == pkg.version and kmod.release == pkg.release:
-                        conduit.info(2, '[elrepo]: excluding package: %s' % pkg)
+                        conduit.info(4, '[elrepo]: excluding package: %s' % pkg)
                         conduit.delPackage(pkg)
 
 
