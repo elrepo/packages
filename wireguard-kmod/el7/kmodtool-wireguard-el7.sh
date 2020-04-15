@@ -170,8 +170,13 @@ EOF
 
 cat <<EOF
 %description   -n kmod-${kmod_name}${dashvariant}
-This package provides the ${kmod_name} kernel module(s) for HP Smart Array Controllers
-built for the Linux kernel using the %{_target_cpu} family of processors.
+WireGuard is a novel VPN that runs inside the Linux Kernel and uses
+state-of-the-art cryptography (the "Noise" protocol). It aims to be
+faster, simpler, leaner, and more useful than IPSec, while avoiding
+the massive headache. It intends to be considerably more performant
+than OpenVPN. WireGuard is designed as a general purpose VPN for
+running on embedded interfaces and super computers alike, fit for
+many different circumstances. It runs over UDP.
 EOF
 
 ##############################################################################
