@@ -168,6 +168,6 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Sun Apr 19 2012 Philip J Perry <phil@elrepo.org> 0.8-16-1
+* Sun Apr 19 2020 Philip J Perry <phil@elrepo.org> 0.8-16-1
 - Initial el8 build of the kmod package.
 - Backported from kernel-4.18.20
