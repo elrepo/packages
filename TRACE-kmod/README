@@ -8,3 +8,26 @@ kmod-TRACE
 TRACE-utils
 
 Contributed by Pat Riehecky. See https://elrepo.org/bugs/view.php?id=996 for details and source code.
+
+*** Original README ***
+
+To get started, see the doc/quick-start.txt file.
+
+Please note that using a version of gcc that supports the c11 and/or c++11
+standard is desirable.
+
+RPM packaging provided by Pat Riehecky on the Scientific Linux team.
+
+tar files with binaries at:
+  https://cdcvs.fnal.gov/redmine/projects/trace
+  http://oink.fnal.gov/distro/packages/TRACE/
+Public readonly GIT access via:
+  git clone http://cdcvs.fnal.gov/projects/trace-git trace
+Public svn export
+  svn export http://cdcvs.fnal.gov/subversion/trace-svn/trunk/ trace
+Authorized read-write SVN access via:
+  svn co svn+ssh://p-trace@cdcvs.fnal.gov:/cvs/projects/trace-svn/trunk trace
+
+cd trace
+make OUT=$PWD XTRA_CFLAGS=-std=c11 XTRA_CXXFLAGS=-std=c++11\
+  src_utility src_example_user modules 2>&1|tee make.out|egrep -iB4 'error|warn'

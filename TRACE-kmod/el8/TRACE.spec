@@ -54,21 +54,13 @@ Source0:  %{kmod_name}.tar.bz2
 # If I need a revision w/o svn: find . -name \*.[chs]* -o -name \*ake\* -o -name \*.spec | egrep -v '/.svn|~' | xargs grep -o 'Revision: [0-9]*' | awk '{print$2}' | sort -n | tail -1
 %if "x%{?trace_revision}" == "x"
 %define trace_revision r%(mkdir -p %{_builddir}/%{kmod_name}; cd  %{_builddir}/%{kmod_name} ; tar xf %{SOURCE0} ;\
-                          svn info 2>/dev/null |grep '^Revision: ' | awk '{print $2}';\
-                          rm -rf %{_builddir}/%{kmod_name})
-%endif
-
-# Determine if source repo is clean
-### untar the source, check and remove the untar'd copy
-%define repo_clean %(mkdir -p %{_builddir}/%{kmod_name}; cd  %{_builddir}/%{kmod_name} ; tar xf %{SOURCE0} ;\
-                     svn diff 2>&1 | wc -l; rm -rf %{_builddir}/%{kmod_name})
-%if "%repo_clean" != "0"
-%define unclean .WITHLOCALCHANGES
+				find . -name '*.[chs]*' -o -name '*ake*' -o -name '*.spec' | egrep -v '/.svn|~' | xargs grep -o 'Revision: [0-9]*' | awk '{print$2}' | sort -n | tail -1;\
+				rm -rf %{_builddir}/%{kmod_name})
 %endif
 
 Version: %{trace_version}
 # Add the ".1" as a place where you can increment a value to resolve a packaging issue
-Release: %{?trace_revision}.1%{?dist}%{?unclean}
+Release: r1309.1%{?dist}
 
 BuildRequires:  elfutils-libelf-devel
 BuildRequires:  kernel-devel = %{kmod_kernel_version}
@@ -285,6 +277,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri Apr 24 2020 Akemi Yagi <toracat@elrepo.org> - 3.15.09-r1309.1
+- Updated to r1309
+
 * Sat Apr 11 2020 Akemi Yagi <toracat@elrepo.org> - 3.15.07-r1293.1
 - Updated to r1293
 
