@@ -1,5 +1,5 @@
 # Define the kmod package name here.
-%define kmod_name wireguard	
+%define kmod_name wireguard
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
 %{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-147.el8}
@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	1.0.20200413
+Version:	1.0.20200426
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -174,6 +174,17 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Apr 27 2020 Joe Doss <joe@solidadmin.com> 1.0.20200426-1
+- Update to 1.0.20200426
+- crypto: do not export symbols
+- compat: include sch_generic.h header for skb_reset_tc
+- compat: import latest fixes for ptr_ring
+- compat: don't assume READ_ONCE barriers on old kernels
+- compat: kvmalloc_array is not required anyway
+- queueing: cleanup ptr_ring in error path of packet_queue_init
+- main: mark as in-tree
+- compat: prefix icmp[v6]_ndo_send with __compat
+
 * Tue Apr 14 2020 Joe Doss <joe@solidadmin.com> 1.0.20200413-1
 - Update to 1.0.20200413
 - compat: support latest suse 15.1 and 15.2
