@@ -65,7 +65,7 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
-* Tue Apr 27 2020 Joe Doss <joe@solidadmin.com> 1.0.20200426-1
+* Mon Apr 27 2020 Joe Doss <joe@solidadmin.com> 1.0.20200426-1
 - Update to 1.0.20200426
 - crypto: do not export symbols
 - compat: include sch_generic.h header for skb_reset_tc
