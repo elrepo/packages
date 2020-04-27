@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-1127.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 1.0.20200413
+Version: 1.0.20200426
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -65,6 +65,17 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Apr 27 2020 Joe Doss <joe@solidadmin.com> 1.0.20200426-1
+- Update to 1.0.20200426
+- crypto: do not export symbols
+- compat: include sch_generic.h header for skb_reset_tc
+- compat: import latest fixes for ptr_ring
+- compat: don't assume READ_ONCE barriers on old kernels
+- compat: kvmalloc_array is not required anyway
+- queueing: cleanup ptr_ring in error path of packet_queue_init
+- main: mark as in-tree
+- compat: prefix icmp[v6]_ndo_send with __compat
+
 * Tue Apr 14 2020 Joe Doss <joe@solidadmin.com> 1.0.20200413-1
 - Update to 1.0.20200413
 - compat: support latest suse 15.1 and 15.2
@@ -78,5 +89,5 @@ done
 - qemu: bump default kernel to 5.5.14
 
 * Fri Feb 14 2020 Akemi Yagi <toracat@elrepo.org> - 0.0.20200205-1
-- Initial el7 build. 
+- Initial el7 build.
 - [http://elrepo.org/bugs/view.php?id=989]
