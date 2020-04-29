@@ -43,4 +43,6 @@ iwl4965-objs		:= 4965.o 4965-mac.o 4965-rs.o 4965-calib.o 4965-debug.o
 obj-m			+= iwl3945.o
 iwl3945-objs		:= 3945-mac.o 3945.o 3945-rs.o 3945-debug.o
 
+ccflags-y += -DCONFIG_IWLEGACY_DEBUG -DCONFIG_IWLEGACY_DEBUGFS
+
 endif
