@@ -2,13 +2,13 @@
 %define kmod_name		sky2
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-80.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-193.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	1.30
-Release:	1%{?dist}
+Release:	3%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -171,6 +171,13 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Apr 28 2020 Philip J Perry <phil@elrepo.org> 1.30-3
+- Rebuilt for RHEL8.2
+- Remove explicit invocations of mmiowb()
+
+* Sat Jan 18 2020 Philip J Perry <phil@elrepo.org> 1.30-2
+- Rebuilt for RHEL8.1
+
 * Sun Nov 24 2019 Philip J Perry <phil@elrepo.org> 1.30-1
 - Initial el8 build of the kmod package.
 - Backported from kernel-4.18.20
