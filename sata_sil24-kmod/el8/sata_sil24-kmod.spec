@@ -2,12 +2,12 @@
 %define kmod_name sata_sil24
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-147.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-193.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
-Version:        0.0
+Version:        1.1
 Release:        1%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
@@ -177,6 +177,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Apr 28 2020 Akemi Yagi <toracat@elrepo.org> - 1.1-1
+- Rebuilt against RHEL 8.2 kernel
+- Source code from kernel-4.18.0-193
+
 * Tue Jan 28 2020 Akemi Yagi <toracat@elrepo.org> - 0.0-1
 - Built against RHEL 8.1 kernel
 - Source code from kernel-4.18.0-147
