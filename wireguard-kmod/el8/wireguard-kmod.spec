@@ -7,8 +7,8 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	1.0.20200426
-Release:	2%{?dist}
+Version:	1.0.20200429
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -174,6 +174,12 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Apr 30 2020 Joe Doss <joe@solidadmin.com> 1.0.20200429-1
+- Update to 1.0.20200429
+- receive: use tunnel helpers for decapsulating ECN markings
+- compat: ip6_dst_lookup_flow was backported to 3.16.83
+- compat: ip6_dst_lookup_flow was backported to 4.19.119
+
 * Tue Apr 28 2020 Philip J Perry <phil@elrepo.org> 1.0.20200426-2
 - Rebuilt for RHEL 8.2
 
