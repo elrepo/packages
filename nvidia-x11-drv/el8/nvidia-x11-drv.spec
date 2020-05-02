@@ -7,7 +7,7 @@
 
 Name:		nvidia-x11-drv
 Version:	440.82
-Release:	1%{?dist}
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -375,6 +375,9 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Sat May 02 2020 Philip J Perry <phil@elrepo.org> - 440.82-2
+- Rebuilt for RHEL 8.2
+
 * Wed Apr 08 2020 Philip J Perry <phil@elrepo.org> - 440.82-1
 - Updated to version 440.82
 
