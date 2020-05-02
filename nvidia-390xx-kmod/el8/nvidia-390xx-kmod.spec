@@ -135,33 +135,47 @@ exit 0
 # We have to re-implement part of weak-modules here because it doesn't allow
 # calling initramfs regeneration separately
 if [ -f "%{kver_state_file}" ]; then
-	kver_base="%{kmod_kernel_version}"
-	kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
-
-	for k_dir in $kvers; do
-		k="${k_dir#/lib/modules/}"
-
-		tmp_initramfs="/boot/initramfs-$k.tmp"
-		dst_initramfs="/boot/initramfs-$k.img"
-
-		# The same check as in weak-modules: we assume that the kernel present
-		# if the symvers file exists.
-		if [ -e "/boot/symvers-$k.gz" ]; then
-			/usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
-			cmp -s "$tmp_initramfs" "$dst_initramfs"
-			if [ "$?" = 1 ]; then
-				mv "$tmp_initramfs" "$dst_initramfs"
-			else
-				rm -f "$tmp_initramfs"
-			fi
-		fi
-	done
+#	kver_base="%{kmod_kernel_version}"
+#	kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
+#
+#	for k_dir in $kvers; do
+#		k="${k_dir#/lib/modules/}"
+#
+#		tmp_initramfs="/boot/initramfs-$k.tmp"
+#		dst_initramfs="/boot/initramfs-$k.img"
+#
+#		# The same check as in weak-modules: we assume that the kernel present
+#		# if the symvers file exists.
+#		if [ -e "/boot/symvers-$k.gz" ]; then
+#			/usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
+#			cmp -s "$tmp_initramfs" "$dst_initramfs"
+#			if [ "$?" = 1 ]; then
+#				mv "$tmp_initramfs" "$dst_initramfs"
+#			else
+#				rm -f "$tmp_initramfs"
+#			fi
+#		fi
+#	done
 
 	rm -f "%{kver_state_file}"
 	rmdir "%{kver_state_dir}" 2> /dev/null
 fi
 
 rmdir "%{dup_state_dir}" 2> /dev/null
+
+# Update initramfs for all kABI compatible kernels
+if [ -x /usr/bin/dracut ]; then
+	# get installed kernels
+	for KERNEL in $(rpm -q --qf '%{v}-%{r}.%{arch}\n' kernel); do
+		VMLINUZ="/boot/vmlinuz-"$KERNEL
+		# Check kABI compatibility
+		for KABI in $(find /lib/modules -name nvidia.ko | cut -d / -f 4); do
+			if [[ "$KERNEL" == "$KABI" && -e "$VMLINUZ" ]]; then
+				/usr/bin/dracut --add-drivers nvidia -f /boot/initramfs-$KERNEL.img $KERNEL
+			fi
+		done
+	done
+fi
 
 exit 0
 
@@ -198,5 +212,8 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+- Update initramfs for all kABI compatible kernels
+  [https://elrepo.org/bugs/view.php?id=999]
+
 * Mon Mar 30 2020 Philip J Perry <phil@elrepo.org> 390.132-1
 - Initial el8 build of the kmod package.
