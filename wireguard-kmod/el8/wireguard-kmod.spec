@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	1.0.20200429
+Version:	1.0.20200506
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -174,6 +174,19 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed May 06 2020 Joe Doss <joe@solidadmin.com> 1.0.20200506-1
+- Update to 1.0.20200506
+- compat: timeconst.h is a generated artifact
+- qemu: loop entropy adding until getrandom doesn't block
+- compat: detect Debian's backport of ip6_dst_lookup_flow into 4.19.118
+- compat: use bash instead of bc for HZ-->USEC calculation
+- qemu: use normal kernel stack size on ppc64
+- socket: remove errant restriction on looping to self
+- send: cond_resched() when processing tx ringbuffers
+- compat: Ubuntu 19.10 and 18.04-hwe backported skb_reset_redirect
+- selftests: initalize ipv6 members to NULL to squelch clang warning
+- send/receive: use explicit unlikely branch instead of implicit coalescing
+
 * Thu Apr 30 2020 Joe Doss <joe@solidadmin.com> 1.0.20200429-1
 - Update to 1.0.20200429
 - receive: use tunnel helpers for decapsulating ECN markings
