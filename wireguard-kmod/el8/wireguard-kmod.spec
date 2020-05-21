@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	1.0.20200506
+Version:	1.0.20200520
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -174,6 +174,21 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+
+%changelog
+* Thu May 21 2020 Philip J Perry <phil@elrepo.org> 1.0.20200520-1
+- Update to 1.0.20200520
+- qemu: use newer iproute2 for gcc-10
+- qemu: add -fcommon for compiling ping with gcc-10
+- noise: read preshared key while taking lock
+- queueing: preserve flow hash across packet scrubbing
+- noise: separate receive counter from send counter
+- compat: support RHEL 8 as 8.2, drop 8.1 support
+- compat: support CentOS 8 explicitly
+- compat: RHEL7 backported the skb hash renamings
+- compat: backport renamed/missing skb hash members
+- compat: ip6_dst_lookup_flow was backported to 4.14, 4.9, and 4.4
+
 * Wed May 06 2020 Joe Doss <joe@solidadmin.com> 1.0.20200506-1
 - Update to 1.0.20200506
 - compat: timeconst.h is a generated artifact
