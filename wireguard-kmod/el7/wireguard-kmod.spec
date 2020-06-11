@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-1127.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 1.0.20200520
+Version: 1.0.20200611
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -65,6 +65,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Jun 11 2020 Philip J Perry <phil@elrepo.org> 1.0.20200611-1
+- Update to 1.0.20200611
+
 * Thu May 21 2020 Philip J Perry <phil@elrepo.org> 1.0.20200520-1
 - Update to 1.0.20200520
 - qemu: use newer iproute2 for gcc-10

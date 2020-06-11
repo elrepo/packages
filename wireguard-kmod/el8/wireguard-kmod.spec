@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	1.0.20200520
+Version:	1.0.20200611
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -176,6 +176,9 @@ exit 0
 %changelog
 
 %changelog
+* Thu Jun 11 2020 Philip J Perry <phil@elrepo.org> 1.0.20200611-1
+- Update to 1.0.20200611
+
 * Thu May 21 2020 Philip J Perry <phil@elrepo.org> 1.0.20200520-1
 - Update to 1.0.20200520
 - qemu: use newer iproute2 for gcc-10
