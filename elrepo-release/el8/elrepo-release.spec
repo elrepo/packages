@@ -1,13 +1,13 @@
 ### Name: ELRepo.org Community Enterprise Linux Repository for el8
-### URL: http://elrepo.org/
+### URL: https://elrepo.org/
 
 Summary: ELRepo.org Community Enterprise Linux Repository release file
 Name: elrepo-release
-Version: 8.1
+Version: 8.2
 Release: 1%{?dist}
 License: GPLv2
 Group: System Environment/Base
-URL: http://elrepo.org/
+URL: https://elrepo.org/
 
 Source0: elrepo.repo
 Source1: RPM-GPG-KEY-elrepo.org
@@ -47,6 +47,9 @@ This package contains yum configuration for the ELRepo.org Community Enterprise 
 %{_sysconfdir}/pki/elrepo/SECURE-BOOT-KEY-elrepo.org.der
 
 %changelog
+* Mon Jun 15 2020 Philip J Perry <phil@elrepo.org> - 8.2-1
+- Replace stale mirror site.
+
 * Sun Feb 16 2020 Philip J Perry <phil@elrepo.org> - 8.1-1
 - Remove unknown configuration option protect = 0
 - Replace stale mirror site.
