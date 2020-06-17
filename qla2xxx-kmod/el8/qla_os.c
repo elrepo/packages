@@ -2516,12 +2516,102 @@ qla2x00_set_isp_flags(struct qla_hw_data *ha)
 {
 	ha->device_type = DT_EXTENDED_IDS;
 	switch (ha->pdev->device) {
+	case PCI_DEVICE_ID_QLOGIC_ISP2100:
+		ha->isp_type |= DT_ISP2100;
+		ha->device_type &= ~DT_EXTENDED_IDS;
+		ha->fw_srisc_address = RISC_START_ADDRESS_2100;
+		break;
+	case PCI_DEVICE_ID_QLOGIC_ISP2200:
+		ha->isp_type |= DT_ISP2200;
+		ha->device_type &= ~DT_EXTENDED_IDS;
+		ha->fw_srisc_address = RISC_START_ADDRESS_2100;
+		break;
+	case PCI_DEVICE_ID_QLOGIC_ISP2300:
+		ha->isp_type |= DT_ISP2300;
+		ha->device_type |= DT_ZIO_SUPPORTED;
+		ha->fw_srisc_address = RISC_START_ADDRESS_2300;
+		break;
+	case PCI_DEVICE_ID_QLOGIC_ISP2312:
+		ha->isp_type |= DT_ISP2312;
+		ha->device_type |= DT_ZIO_SUPPORTED;
+		ha->fw_srisc_address = RISC_START_ADDRESS_2300;
+		break;
+	case PCI_DEVICE_ID_QLOGIC_ISP2322:
+		ha->isp_type |= DT_ISP2322;
+		ha->device_type |= DT_ZIO_SUPPORTED;
+		if (ha->pdev->subsystem_vendor == 0x1028 &&
+		    ha->pdev->subsystem_device == 0x0170)
+			ha->device_type |= DT_OEM_001;
+		ha->fw_srisc_address = RISC_START_ADDRESS_2300;
+		break;
+	case PCI_DEVICE_ID_QLOGIC_ISP6312:
+		ha->isp_type |= DT_ISP6312;
+		ha->fw_srisc_address = RISC_START_ADDRESS_2300;
+		break;
+	case PCI_DEVICE_ID_QLOGIC_ISP6322:
+		ha->isp_type |= DT_ISP6322;
+		ha->fw_srisc_address = RISC_START_ADDRESS_2300;
+		break;
+	case PCI_DEVICE_ID_QLOGIC_ISP2422:
+		ha->isp_type |= DT_ISP2422;
+		ha->device_type |= DT_ZIO_SUPPORTED;
+		ha->device_type |= DT_FWI2;
+		ha->device_type |= DT_IIDMA;
+		ha->fw_srisc_address = RISC_START_ADDRESS_2400;
+		break;
+	case PCI_DEVICE_ID_QLOGIC_ISP2432:
+		ha->isp_type |= DT_ISP2432;
+		ha->device_type |= DT_ZIO_SUPPORTED;
+		ha->device_type |= DT_FWI2;
+		ha->device_type |= DT_IIDMA;
+		ha->fw_srisc_address = RISC_START_ADDRESS_2400;
+		break;
+	case PCI_DEVICE_ID_QLOGIC_ISP8432:
+		ha->isp_type |= DT_ISP8432;
+		ha->device_type |= DT_ZIO_SUPPORTED;
+		ha->device_type |= DT_FWI2;
+		ha->device_type |= DT_IIDMA;
+		ha->fw_srisc_address = RISC_START_ADDRESS_2400;
+		break;
+	case PCI_DEVICE_ID_QLOGIC_ISP5422:
+		ha->isp_type |= DT_ISP5422;
+		ha->device_type |= DT_FWI2;
+		ha->fw_srisc_address = RISC_START_ADDRESS_2400;
+		break;
+	case PCI_DEVICE_ID_QLOGIC_ISP5432:
+		ha->isp_type |= DT_ISP5432;
+		ha->device_type |= DT_FWI2;
+		ha->fw_srisc_address = RISC_START_ADDRESS_2400;
+		break;
 	case PCI_DEVICE_ID_QLOGIC_ISP2532:
 		ha->isp_type |= DT_ISP2532;
 		ha->device_type |= DT_ZIO_SUPPORTED;
 		ha->device_type |= DT_FWI2;
 		ha->device_type |= DT_IIDMA;
 		ha->fw_srisc_address = RISC_START_ADDRESS_2400;
+		break;
+	case PCI_DEVICE_ID_QLOGIC_ISP8001:
+		ha->isp_type |= DT_ISP8001;
+		ha->device_type |= DT_ZIO_SUPPORTED;
+		ha->device_type |= DT_FWI2;
+		ha->device_type |= DT_IIDMA;
+		ha->fw_srisc_address = RISC_START_ADDRESS_2400;
+		break;
+	case PCI_DEVICE_ID_QLOGIC_ISP8021:
+		ha->isp_type |= DT_ISP8021;
+		ha->device_type |= DT_ZIO_SUPPORTED;
+		ha->device_type |= DT_FWI2;
+		ha->fw_srisc_address = RISC_START_ADDRESS_2400;
+		/* Initialize 82XX ISP flags */
+		qla82xx_init_flags(ha);
+		break;
+	 case PCI_DEVICE_ID_QLOGIC_ISP8044:
+		ha->isp_type |= DT_ISP8044;
+		ha->device_type |= DT_ZIO_SUPPORTED;
+		ha->device_type |= DT_FWI2;
+		ha->fw_srisc_address = RISC_START_ADDRESS_2400;
+		/* Initialize 82XX ISP flags */
+		qla82xx_init_flags(ha);
 		break;
 	case PCI_DEVICE_ID_QLOGIC_ISP2031:
 		ha->isp_type |= DT_ISP2031;
@@ -2538,6 +2628,9 @@ qla2x00_set_isp_flags(struct qla_hw_data *ha)
 		ha->device_type |= DT_IIDMA;
 		ha->device_type |= DT_T10_PI;
 		ha->fw_srisc_address = RISC_START_ADDRESS_2400;
+		break;
+	case PCI_DEVICE_ID_QLOGIC_ISPF001:
+		ha->isp_type |= DT_ISPFX00;
 		break;
 	case PCI_DEVICE_ID_QLOGIC_ISP2071:
 		ha->isp_type |= DT_ISP2071;
@@ -2672,9 +2765,18 @@ qla2x00_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
 
 	bars = pci_select_bars(pdev, IORESOURCE_MEM | IORESOURCE_IO);
 	sht = &qla2xxx_driver_template;
-	if (pdev->device == PCI_DEVICE_ID_QLOGIC_ISP2532 ||
+	if (pdev->device == PCI_DEVICE_ID_QLOGIC_ISP2422 ||
+	    pdev->device == PCI_DEVICE_ID_QLOGIC_ISP2432 ||
+	    pdev->device == PCI_DEVICE_ID_QLOGIC_ISP8432 ||
+	    pdev->device == PCI_DEVICE_ID_QLOGIC_ISP5422 ||
+	    pdev->device == PCI_DEVICE_ID_QLOGIC_ISP5432 ||
+	    pdev->device == PCI_DEVICE_ID_QLOGIC_ISP2532 ||
+	    pdev->device == PCI_DEVICE_ID_QLOGIC_ISP8001 ||
+	    pdev->device == PCI_DEVICE_ID_QLOGIC_ISP8021 ||
 	    pdev->device == PCI_DEVICE_ID_QLOGIC_ISP2031 ||
 	    pdev->device == PCI_DEVICE_ID_QLOGIC_ISP8031 ||
+	    pdev->device == PCI_DEVICE_ID_QLOGIC_ISPF001 ||
+	    pdev->device == PCI_DEVICE_ID_QLOGIC_ISP8044 ||
 	    pdev->device == PCI_DEVICE_ID_QLOGIC_ISP2071 ||
 	    pdev->device == PCI_DEVICE_ID_QLOGIC_ISP2271 ||
 	    pdev->device == PCI_DEVICE_ID_QLOGIC_ISP2261 ||
@@ -7074,9 +7176,25 @@ static const struct pci_error_handlers qla2xxx_err_handler = {
 };
 
 static struct pci_device_id qla2xxx_pci_tbl[] = {
+	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP2100) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP2200) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP2300) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP2312) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP2322) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP6312) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP6322) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP2422) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP2432) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP8432) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP5422) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP5432) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP2532) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP2031) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP8001) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP8021) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP8031) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISPF001) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP8044) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP2071) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP2271) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP2261) },
