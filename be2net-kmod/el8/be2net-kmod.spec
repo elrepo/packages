@@ -8,7 +8,7 @@
 
 Name:           kmod-%{kmod_name}
 Version:        12.0.0.0
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -172,6 +172,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Jun 18 2020 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0.0-5
+- Re-enable both BE2 and BE3 that was disabled in error
+
 * Thu Apr 30 2020 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0.0-4
 - Rebuilt against RHEL 8.2 kernel
 - Source code updated to kernel-4.18.0-193
