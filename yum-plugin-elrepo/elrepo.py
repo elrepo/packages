@@ -4,7 +4,7 @@
 #                     yum transaction set which require kernels which
 #                     are not yet available.
 #
-# Copyright (C) 2018 Philip J Perry <phil@elrepo.org>
+# Copyright (C) 2018-2020 Philip J Perry <phil@elrepo.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -49,6 +49,12 @@ def exclude_hook(conduit):
 
     def find_matches(kmod, requires, matchfor=None):
 
+        global count
+        try:
+            count
+        except:
+            count = 0
+
         # Skip installed packages
         if kmod.repo.id == "installed":
             return
@@ -64,6 +70,7 @@ def exclude_hook(conduit):
         # else no matching kernel, excluding package
         conduit.info(3, '[elrepo]: excluding package: %s' % kmod)
         conduit.delPackage(kmod)
+        count += 1
 
         # if kmod-nvidia, handle matching nvidia-x11-drv packages
         if (kmod.name).startswith("kmod-nvidia"):
@@ -72,6 +79,8 @@ def exclude_hook(conduit):
                     if kmod.version == pkg.version and kmod.release == pkg.release:
                         conduit.info(3, '[elrepo]: excluding package: %s' % pkg)
                         conduit.delPackage(pkg)
-
+                        count += 1
 
     conduit._base.searchPackageProvides(['kernel-modules >= *', ], callback=find_matches, callback_has_matchfor=True)
+    if count:
+        conduit.info(2, '[elrepo]: %d kmod packages excluded due to dependency errors' % count)
