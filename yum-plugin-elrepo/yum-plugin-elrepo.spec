@@ -1,7 +1,7 @@
 %define pluginhome /usr/lib/yum-plugins
 
 Name:    yum-plugin-elrepo
-Version: 7.5.2
+Version: 7.5.3
 Release: 1%{?dist}
 Group:   Development/Tools
 License: GPLv2
@@ -44,6 +44,9 @@ require kernels that are not yet available.
 %{pluginhome}/elrepo.pyo
 
 %changelog
+* Mon Jun 22 2020 Philip J Perry <phil@elrepo.org> - 7.5.3-1
+- Fix global count variable
+
 * Thu Jun 18 2020 Philip J Perry <phil@elrepo.org> - 7.5.2-1
 - Reduce verbosity
 - Count excluded packages

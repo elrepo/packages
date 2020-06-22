@@ -29,6 +29,9 @@ def init_hook(conduit):
 
 def exclude_hook(conduit):
 
+    global count
+    count = 0
+
     # get installed kernels
     instpkgs = conduit.getRpmDB().returnPackages()
     for instpkg in instpkgs:
@@ -50,10 +53,6 @@ def exclude_hook(conduit):
     def find_matches(kmod, requires, matchfor=None):
 
         global count
-        try:
-            count
-        except:
-            count = 0
 
         # Skip installed packages
         if kmod.repo.id == "installed":
