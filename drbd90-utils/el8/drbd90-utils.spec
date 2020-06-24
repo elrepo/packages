@@ -1,8 +1,8 @@
 %define real_name drbd-utils
 
 Name:    drbd90-utils
-Version: 9.10.0
-Release: 2%{?dist}
+Version: 9.13.1
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
 Summary: Management utilities for DRBD
@@ -63,6 +63,9 @@ running a legacy SysV-compatible init system.
 
 It is not required when the init system used is systemd.
 
+### To prevent empty debug files  -ay
+%define debug_package %{nil}
+
 %prep
 %setup -n %{real_name}-%{version}
 %patch1 -p1
@@ -116,6 +119,7 @@ fi
 %doc %{_mandir}/ja/man5/drbd.conf.5*
 %doc %{_mandir}/ja/man5/drbd.conf-*
 %doc %{_mandir}/ja/man8/drbd*
+%doc %{_mandir}/man7/ocf_linbit_drbd.7.gz
 %config %{_sysconfdir}/bash_completion.d/drbdadm
 %config %{_prefix}/lib/udev/rules.d/65-drbd.rules
 %config(noreplace) %{_sysconfdir}/drbd.conf
@@ -174,6 +178,9 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Tue Jun 23 2020 Akemi Yagi <toracat@elrepo.org> - 9.13.1-1
+- Updated to 9.13.1
+
 * Thu Nov 07 2019 Akemi Yagi <toracat@elrepo.org> - 9.10.0-2
 - Built for el8
 
