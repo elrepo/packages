@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	1.0.20200611
+Version:	1.0.20200623
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -176,6 +176,9 @@ exit 0
 %changelog
 
 %changelog
+* Wed Jun 24 2020 Philip J Perry <phil@elrepo.org> 1.0.20200623-1
+- Update to 1.0.20200623
+
 * Thu Jun 11 2020 Philip J Perry <phil@elrepo.org> 1.0.20200611-1
 - Update to 1.0.20200611
 

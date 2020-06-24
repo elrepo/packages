@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-1127.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 1.0.20200611
+Version: 1.0.20200623
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -65,6 +65,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Jun 24 2020 Philip J Perry <phil@elrepo.org> 1.0.20200623-1
+- Update to 1.0.20200623
+
 * Thu Jun 11 2020 Philip J Perry <phil@elrepo.org> 1.0.20200611-1
 - Update to 1.0.20200611
 
