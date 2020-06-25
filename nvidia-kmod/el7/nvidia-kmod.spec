@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-1127.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 440.82
+Version: 440.100
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -81,6 +81,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Jun 25 2020 Philip J Perry <phil@elrepo.org> - 440.100-1
+- Updated to version 440.100
+
 * Wed Apr 08 2020 Philip J Perry <phil@elrepo.org> - 440.82-1
 - Updated to version 440.82
 - Rebuilt against RHEL 7.8 kernel
