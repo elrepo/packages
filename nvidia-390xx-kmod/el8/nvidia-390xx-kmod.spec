@@ -7,8 +7,8 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	390.132
-Release:	2%{?dist}
+Version:	390.138
+Release:	1%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
 License:	Proprietary
@@ -212,10 +212,13 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Jun 25 2020 Philip J Perry <phil@elrepo.org> - 390.138-1
+- Updated to version 390.138
+
 * Sat May 02 2020 Philip J Perry <phil@elrepo.org> - 390.132-2
 - Rebuilt for RHEL 8.2
 - Update initramfs for all kABI compatible kernels
   [https://elrepo.org/bugs/view.php?id=999]
-  
+
 * Mon Mar 30 2020 Philip J Perry <phil@elrepo.org> 390.132-1
 - Initial el8 build of the kmod package.
