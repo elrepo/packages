@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-1127.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 440.100
+Version: 450.57
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -81,6 +81,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Jul 10 2020 Philip J Perry <phil@elrepo.org> - 450.57-1
+- Updated to version 450.57
+
 * Thu Jun 25 2020 Philip J Perry <phil@elrepo.org> - 440.100-1
 - Updated to version 440.100
 

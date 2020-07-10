@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/440.100/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/450.57/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 
@@ -11,7 +11,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	440.100
+Version:	450.57
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -108,7 +108,7 @@ sh %{SOURCE0} --extract-only --target nvidiapkg
 
 # Lets just take care of all the docs here rather than during install
 pushd nvidiapkg
-%{__mv} LICENSE NVIDIA_Changelog pkg-history.txt README.txt html/
+%{__mv} LICENSE NVIDIA_Changelog pkg-history.txt README.txt supported-gpus.json html/
 %{__mv} nvidia-persistenced-init.tar.bz2 html/
 popd
 find nvidiapkg/html/ -type f | xargs chmod 0644
@@ -157,7 +157,6 @@ pushd nvidiapkg
 %{__install} -p -m 0755 libGLESv1_CM.so.1.2.0 $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libGLESv2_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libGLESv2.so.2.1.0 $RPM_BUILD_ROOT%{nvidialibdir}/
-%{__install} -p -m 0755 libGL.la $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libGL.so.1.7.0 $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libGLX.so.0 $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
@@ -174,8 +173,6 @@ pushd nvidiapkg
 # %{__install} -p -m 0755 libnvidia-egl-wayland.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libnvidia-encode.so in 310.19 driver
 %{__install} -p -m 0755 libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
-# Added libnvidia-fatbinaryloader.so in 361.28 driver
-%{__install} -p -m 0755 libnvidia-fatbinaryloader.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libnvidia-fbc.so in 331.20 driver
 %{__install} -p -m 0755 libnvidia-fbc.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libnvidia-glcore.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
@@ -189,6 +186,7 @@ pushd nvidiapkg
 %{__install} -p -m 0755 libnvidia-ifr.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libnvidia-ml.so in 270.xx series driver
 %{__install} -p -m 0755 libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
+%{__install} -p -m 0755 libnvidia-ngx.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 # Added libnvidia-opencl.so in 304.xx series driver
 %{__install} -p -m 0755 libnvidia-opencl.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
 %{__install} -p -m 0755 libnvidia-opticalflow.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/
@@ -215,7 +213,6 @@ pushd nvidiapkg
 %{__install} -p -m 0755 32/libGLESv1_CM.so.1.2.0 $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libGLESv2_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libGLESv2.so.2.1.0 $RPM_BUILD_ROOT%{nvidialib32dir}/
-%{__install} -p -m 0755 32/libGL.la $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libGL.so.1.7.0 $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libGLX.so.0 $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
@@ -225,8 +222,6 @@ pushd nvidiapkg
 # Added libnvidia-eglcore in 331.20 driver
 %{__install} -p -m 0755 32/libnvidia-eglcore.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
-# Added libnvidia-fatbinaryloader.so in 361.28 driver
-%{__install} -p -m 0755 32/libnvidia-fatbinaryloader.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 # Added missing 32-bit libnvidia-fbc.so in 331.67 driver
 %{__install} -p -m 0755 32/libnvidia-fbc.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
 %{__install} -p -m 0755 32/libnvidia-glcore.so.%{version} $RPM_BUILD_ROOT%{nvidialib32dir}/
@@ -287,6 +282,8 @@ pushd nvidiapkg
 # Added libnvidia-ml.so in 270.xx series driver
 %{__ln_s} libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-ml.so
 %{__ln_s} libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-ml.so.1
+%{__ln_s} libnvidia-ngx.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-ngx.so
+%{__ln_s} libnvidia-ngx.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-ngx.so.1
 # Added libnvidia-opencl.so in 304.xx series driver
 %{__ln_s} libnvidia-opencl.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-opencl.so.1
 %{__ln_s} libnvidia-opticalflow.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-opticalflow.so
@@ -513,6 +510,9 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Fri Jul 10 2020 Philip J Perry <phil@elrepo.org> - 450.57-1
+- Updated to version 450.57
+
 * Thu Jun 25 2020 Philip J Perry <phil@elrepo.org> - 440.100-1
 - Updated to version 440.100
 
