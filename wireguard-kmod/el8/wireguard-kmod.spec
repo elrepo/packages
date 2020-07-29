@@ -15,7 +15,7 @@ Epoch:	1
 %endif
 
 Name:		kmod-%{kmod_name}
-Version:	1.0.20200712
+Version:	1.0.20200729
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -182,8 +182,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Jul 29 2020 Philip J Perry <phil@elrepo.org> 1.0.20200729-1
+- Update to 1.0.20200729
+- Define epoch to equal minor point release
 
-%changelog
 * Mon Jul 13 2020 Philip J Perry <phil@elrepo.org> 1.0.20200712-1
 - Update to 1.0.20200712
 
