@@ -6,6 +6,14 @@
 
 %{!?dist: %define dist .el8}
 
+# define epoch to equal minor point release to ensure
+# newer versions are not installed on older kernels
+%if "%{kmod_kernel_version}" == "4.18.0-193.el8"
+Epoch:	2
+%else
+Epoch:	1
+%endif
+
 Name:		kmod-%{kmod_name}
 Version:	1.0.20200712
 Release:	1%{?dist}

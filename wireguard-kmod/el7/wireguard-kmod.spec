@@ -4,6 +4,14 @@
 # If kversion isn't defined on the rpmbuild line, define it here.
 %{!?kversion: %define kversion 3.10.0-1127.el7.%{_target_cpu}}
 
+# define epoch to equal minor point release to ensure
+# newer versions are not installed on older kernels
+%if "%{kversion}" == "3.10.0-1127.el7.%{_target_cpu}"
+Epoch:	8
+%else
+Epoch:	7
+%endif
+
 Name:    %{kmod_name}-kmod
 Version: 1.0.20200712
 Release: 1%{?dist}
