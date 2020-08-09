@@ -1,0 +1,256 @@
+diff -up ecryptfs-utils-109/src/key_mod/ecryptfs_key_mod_pkcs11_helper.c.werror ecryptfs-utils-109/src/key_mod/ecryptfs_key_mod_pkcs11_helper.c
+--- ecryptfs-utils-109/src/key_mod/ecryptfs_key_mod_pkcs11_helper.c.werror	2016-01-26 17:01:19.803230193 +0100
++++ ecryptfs-utils-109/src/key_mod/ecryptfs_key_mod_pkcs11_helper.c	2016-01-26 17:01:19.810230176 +0100
+@@ -98,7 +98,7 @@ static int ecryptfs_pkcs11h_deserialize(
+ 		pkcs11h_data->serialized_id = NULL;
+ 	}
+ 	else {
+-		pkcs11h_data->serialized_id = blob + i;
++		pkcs11h_data->serialized_id = (char *)blob + i;
+ 		i += serialized_id_length;
+ 	}
+ 	pkcs11h_data->certificate_blob_size = blob[i++] % 256;
+@@ -116,12 +116,11 @@ static int ecryptfs_pkcs11h_deserialize(
+ 		pkcs11h_data->passphrase = NULL;
+ 	}
+ 	else {
+-		pkcs11h_data->passphrase = blob + i;
++		pkcs11h_data->passphrase = (char *)blob + i;
+ 		i += passphrase_length;
+ 	}
+ 
+ 	rc = 0;
+-out:
+ 	return rc;
+ }
+ 
+@@ -379,15 +379,15 @@ static int ecryptfs_pkcs11h_get_key_sig(
+ 	data[i++] = (char)(nbits >> 8);
+ 	data[i++] = (char)nbits;
+ 	RSA_get0_key(rsa, &rsa_n, NULL, NULL);
+-	BN_bn2bin(rsa_n, &(data[i]));
++	BN_bn2bin(rsa_n, (unsigned char *)&(data[i]));
+ 	i += nbytes;
+ 	data[i++] = (char)(ebits >> 8);
+ 	data[i++] = (char)ebits;
+ 	RSA_get0_key(rsa, NULL, &rsa_e, NULL);
+-	BN_bn2bin(rsa_e, &(data[i]));
++	BN_bn2bin(rsa_e, (unsigned char *)&(data[i]));
+ 	i += ebytes;
+-	SHA1(data, len + 3, hash);
+-	to_hex(sig, hash, ECRYPTFS_SIG_SIZE);
++	SHA1((unsigned char *)data, len + 3, (unsigned char *)hash);
++	to_hex((char *)sig, hash, ECRYPTFS_SIG_SIZE);
+ 	sig[ECRYPTFS_SIG_SIZE_HEX] = '\0';
+ 
+ 	rc = 0;
+@@ -423,8 +422,8 @@ static int ecryptfs_pkcs11h_encrypt(char
+ 		if (
+ 			(rc = RSA_public_encrypt(
+ 				from_size,
+-				from,
+-				to,
++				(unsigned char *)from,
++				(unsigned char *)to,
+ 				rsa,
+ 				RSA_PKCS1_PADDING
+ 			)) == -1
+@@ -518,9 +517,9 @@ static int ecryptfs_pkcs11h_decrypt(char
+ 		(rv = pkcs11h_certificate_decryptAny (
+ 			certificate,
+ 			CKM_RSA_PKCS,
+-			from,
++			(unsigned char *)from,
+ 			from_size,
+-			to,
++			(unsigned char *)to,
+ 			to_size
+ 		)) != CKR_OK
+ 	) {
+@@ -546,9 +545,9 @@ static int ecryptfs_pkcs11h_decrypt(char
+ 		pkcs11h_certificate_decryptAny (
+ 			certificate,
+ 			CKM_RSA_PKCS,
+-			from,
++			(unsigned char *)from,
+ 			from_size,
+-			tmp,
++			(unsigned char *)tmp,
+ 			to_size
+ 		);
+ 
+@@ -863,7 +862,7 @@ static int ecryptfs_pkcs11h_process_key(
+ 		rc = MOUNT_ERROR;
+ 		goto out;
+ 	}
+-	if ((rc = ecryptfs_pkcs11h_serialize(subgraph_key_ctx->key_mod->blob,
++	if ((rc = ecryptfs_pkcs11h_serialize((unsigned char *)subgraph_key_ctx->key_mod->blob,
+ 					     &subgraph_key_ctx->key_mod->blob_size, 
+ 					     pkcs11h_data))) {
+ 		syslog(LOG_ERR, "PKCS#11: Error serializing pkcs11; rc=[%d]\n", rc);
+@@ -942,7 +941,7 @@ static int tf_pkcs11h_global_loglevel(st
+ 
+ 	rc = DEFAULT_TOK;
+ 	node->val = NULL;
+-out:
++// out:
+ 	return rc;
+ }
+ 
+@@ -955,7 +954,7 @@ static int tf_pkcs11h_global_pincache(st
+ 
+ 	rc = DEFAULT_TOK;
+ 	node->val = NULL;
+-out:
++// out:
+ 	return rc;
+ }
+ 
+@@ -1025,7 +1024,7 @@ static int tf_pkcs11h_provider_prot_auth
+ 	sscanf (node->val, "%x", &subgraph_provider_ctx->allow_protected_authentication);
+ 	rc = DEFAULT_TOK;
+ 	node->val = NULL;
+-out:
++
+ 	return rc;
+ }
+ 
+@@ -1039,7 +1038,7 @@ static int tf_pkcs11h_provider_cert_priv
+ 	sscanf (node->val, "%x", &subgraph_provider_ctx->certificate_is_private);
+ 	rc = DEFAULT_TOK;
+ 	node->val = NULL;
+-out:
++
+ 	return rc;
+ }
+ 
+@@ -1054,7 +1053,7 @@ static int tf_pkcs11h_provider_private_m
+ 
+ 	rc = DEFAULT_TOK;
+ 	node->val = NULL;
+-out:
++
+ 	return rc;
+ }
+ 
+@@ -1085,7 +1084,7 @@ static int tf_pkcs11h_provider_end(struc
+ 	free(subgraph_provider_ctx);
+ 	*foo = NULL;
+ 	rc = DEFAULT_TOK;
+-out:
++
+ 	return rc;
+ }
+ 
+@@ -1132,7 +1131,7 @@ static int tf_pkcs11h_key_x509file(struc
+ 	X509 *x509 = NULL;
+ 	unsigned char *p = NULL;
+ 	FILE *fp = NULL;
+-	int rc;
++	int rc = 0;
+ 
+ 	subgraph_key_ctx = (struct pkcs11h_subgraph_key_ctx *)(*foo);
+ 
+diff -up ecryptfs-utils-109/src/pam_ecryptfs/pam_ecryptfs.c.werror ecryptfs-utils-109/src/pam_ecryptfs/pam_ecryptfs.c
+--- ecryptfs-utils-109/src/pam_ecryptfs/pam_ecryptfs.c.werror	2015-12-21 21:38:59.000000000 +0100
++++ ecryptfs-utils-109/src/pam_ecryptfs/pam_ecryptfs.c	2016-01-26 17:01:19.810230176 +0100
+@@ -84,9 +84,7 @@ static int wrap_passphrase_if_necessary(
+ 	    stat(wrapped_pw_filename, &s) != 0  &&
+ 	    passphrase != NULL && *passphrase != '\0' &&
+ 	    username != NULL && *username != '\0') {
+-		setuid(uid);
+-		rc = ecryptfs_wrap_passphrase_file(wrapped_pw_filename, passphrase, salt, unwrapped_pw_filename);
+-		if (rc != 0) {
++		if ((rc = setuid(uid))<0 || ((rc = ecryptfs_wrap_passphrase_file(wrapped_pw_filename, passphrase, salt, unwrapped_pw_filename)) != 0)) {
+ 			syslog(LOG_ERR, "pam_ecryptfs: Error wrapping cleartext password; " "rc = [%d]\n", rc);
+ 		}
+ 		return rc;
+@@ -356,7 +354,7 @@ static int private_dir(pam_handle_t *pam
+ 			if (stat(recorded, &s) != 0 && stat("/usr/share/ecryptfs-utils/ecryptfs-record-passphrase", &s) == 0) {
+ 				/* User has not recorded their passphrase */
+ 				unlink("/var/lib/update-notifier/user.d/ecryptfs-record-passphrase");
+-				symlink("/usr/share/ecryptfs-utils/ecryptfs-record-passphrase", "/var/lib/update-notifier/user.d/ecryptfs-record-passphrase");
++				rc=symlink("/usr/share/ecryptfs-utils/ecryptfs-record-passphrase", "/var/lib/update-notifier/user.d/ecryptfs-record-passphrase");
+ 				fd = open("/var/lib/update-notifier/dpkg-run-stamp", O_WRONLY|O_CREAT|O_NONBLOCK, 0666);
+ 				if (fd != -1)
+ 					close(fd);
+@@ -517,7 +515,10 @@ PAM_EXTERN int pam_sm_chauthtok(pam_hand
+ 		char passphrase[ECRYPTFS_MAX_PASSWORD_LENGTH + 1];
+ 
+ 		/* temp regain uid 0 to drop privs */
+-		seteuid(oeuid);
++		if (seteuid(oeuid) < 0) {
++			syslog(LOG_ERR, "pam_ecryptfs: seteuid error");
++			goto out_child;
++		}
+ 		/* setgroups() already called */
+ 		if (setgid(gid) < 0 || setuid(uid) < 0)
+ 			goto out_child;
+@@ -542,9 +543,9 @@ out_child:
+ 	free(wrapped_pw_filename);
+ out:
+ 
+-	seteuid(oeuid);
+-	setegid(oegid);
+-	setgroups(ngids, groups);
++	rc = seteuid(oeuid);
++	rc = setegid(oegid);
++	rc = setgroups(ngids, groups);
+ 
+ outnouid:
+ 	return rc;
+diff -up ecryptfs-utils-109/src/utils/ecryptfs_generate_tpm_key.c.werror ecryptfs-utils-109/src/utils/ecryptfs_generate_tpm_key.c
+--- ecryptfs-utils-109/src/utils/ecryptfs_generate_tpm_key.c.werror	2015-12-21 21:38:59.000000000 +0100
++++ ecryptfs-utils-109/src/utils/ecryptfs_generate_tpm_key.c	2016-01-26 17:01:19.810230176 +0100
+@@ -89,7 +89,7 @@ int main(int argc, char **argv)
+ 	int i, c, *pcrsSelected = NULL, numPcrsSelected = 0;
+ 	TSS_UUID *uuid;
+ 	BYTE wellknown[] = TSS_WELL_KNOWN_SECRET;
+-	char *tmp_pcrs;
++	int *tmp_pcrs;
+ 
+ 	while (1) {
+ 		c = getopt(argc, argv, "p:");
+diff -up ecryptfs-utils-109/src/utils/mount.ecryptfs_private.c.werror ecryptfs-utils-109/src/utils/mount.ecryptfs_private.c
+--- ecryptfs-utils-109/src/utils/mount.ecryptfs_private.c.werror	2016-01-26 17:01:19.807230183 +0100
++++ ecryptfs-utils-109/src/utils/mount.ecryptfs_private.c	2016-01-26 17:01:30.262205251 +0100
+@@ -232,7 +232,7 @@ static int check_cwd_f_type()
+ 	 *
+ 	 * This whitelist is to prevent malicious mount.ecryptfs_private users
+ 	 * from mounting over filesystem types such as PROC_SUPER_MAGIC to
+-	 * deceive other programs with a crafted /proc/self/*. See
++	 * deceive other programs with a crafted /proc/self/ *. See
+ 	 * https://launchpad.net/bugs/1530566 for more details.
+ 	 */
+ 	__SWORD_TYPE f_type_whitelist[] = {
+@@ -276,7 +276,7 @@ static int check_cwd_f_type()
+ 
+ 	fprintf(stderr,
+ 		"Refusing to mount over an unapproved filesystem type: %#lx\n",
+-		buf.f_type);
++		(long unsigned int)buf.f_type);
+ 	return 1;
+ }
+ 
+@@ -829,8 +829,8 @@ int main(int argc, char *argv[]) {
+  		 * update mtab for us, and replace the current process.
+ 		 * Do not use the umount.ecryptfs helper (-i).
+  		 */
+-		setresuid(0,0,0);
+-		setresgid(0,0,0);
++		rc=setresuid(0,0,0);
++		rc=setresgid(0,0,0);
+ 		clearenv();
+ 
+ 		/* Since we're doing a lazy unmount anyway, just unmount the current
+diff -up ecryptfs-utils-109/tests/kernel/inode-race-stat/test.c.werror ecryptfs-utils-109/tests/kernel/inode-race-stat/test.c
+--- ecryptfs-utils-109/tests/kernel/inode-race-stat/test.c.werror	2015-12-21 21:38:59.000000000 +0100
++++ ecryptfs-utils-109/tests/kernel/inode-race-stat/test.c	2016-01-26 17:01:19.811230174 +0100
+@@ -364,6 +364,7 @@ abort:
+ 
+ 		if (write(pipe_to[i][1], cmd, 1) != 1)
+ 			continue;
++		(void)ret;
+ 		(void)waitpid(pids[i], &status, 0);
+ 
+ 		(void)close(pipe_to[i][1]);

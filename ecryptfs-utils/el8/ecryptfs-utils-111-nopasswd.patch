@@ -1,0 +1,14 @@
+diff -up ecryptfs-utils-111/src/pam_ecryptfs/pam_ecryptfs.c.nopasswd ecryptfs-utils-111/src/pam_ecryptfs/pam_ecryptfs.c
+--- ecryptfs-utils-111/src/pam_ecryptfs/pam_ecryptfs.c.nopasswd	2017-02-01 14:04:48.313349236 +0100
++++ ecryptfs-utils-111/src/pam_ecryptfs/pam_ecryptfs.c	2017-02-01 14:05:34.461694263 +0100
+@@ -190,6 +190,10 @@ PAM_EXTERN int pam_sm_authenticate(pam_h
+ 		       rc);
+ 		goto out;
+ 	}
++	if (!epd->passphrase) {
++		ecryptfs_syslog(LOG_WARNING, "pam_ecryptfs: No passphrase available");
++		goto out;
++	}
+ 	epd->passphrase = strdup(epd->passphrase);
+ 	rc = ecryptfs_read_salt_hex_from_rc(salt_hex);
+ 	if (rc) {

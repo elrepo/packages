@@ -1,0 +1,21 @@
+diff -up ecryptfs-utils-108/src/utils/ecryptfs-mount-private.groupcheck ecryptfs-utils-108/src/utils/ecryptfs-mount-private
+--- ecryptfs-utils-108/src/utils/ecryptfs-mount-private.groupcheck	2015-08-11 14:44:03.505811744 +0200
++++ ecryptfs-utils-108/src/utils/ecryptfs-mount-private	2015-08-11 14:44:03.524811694 +0200
+@@ -69,7 +69,16 @@ if [ -f "$WRAPPED_PASSPHRASE_FILE" -a -f
+ 		echo `gettext "ERROR:"` `gettext "Too many incorrect password attempts, exiting"`
+ 		exit 1
+ 	fi
+-	/sbin/mount.ecryptfs_private
++	if ! /sbin/mount.ecryptfs_private;
++	then
++		# Check if the ecryptfs group exists, and user is member of ecryptfs group
++		if grep -qs "^ecryptfs:" /etc/group; then
++		        if ! id "$USER" | grep -qs "\(ecryptfs\)"; then
++	                       echo $(gettext 'ERROR: ') $(gettext 'User needs to be a member of ecryptfs group')
++                               exit 1
++		        fi
++		fi
++	fi
+ else
+ 	echo `gettext "ERROR:"` `gettext "Encrypted private directory is not setup properly"`
+ 	exit 1

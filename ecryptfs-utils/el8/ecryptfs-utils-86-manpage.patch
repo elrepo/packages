@@ -1,0 +1,41 @@
+diff -up ecryptfs-utils-108/doc/manpage/ecryptfs-rewrite-file.1.manfix ecryptfs-utils-108/doc/manpage/ecryptfs-rewrite-file.1
+--- ecryptfs-utils-108/doc/manpage/ecryptfs-rewrite-file.1.manfix	2015-02-10 17:59:34.000000000 +0100
++++ ecryptfs-utils-108/doc/manpage/ecryptfs-rewrite-file.1	2015-08-11 14:43:55.128833810 +0200
+@@ -14,7 +14,7 @@ This script may be combined with \fBfind
+   ecryptfs-umount-private
+   sync
+ 
+-It is advised that this script is executed in runlevel 1 or 3, to avoid simultanteous writes and race conditions with targeted files.
++It is advised that this script is executed in runlevel 1 or 3, to avoid simultaneous writes and race conditions with targeted files.
+ 
+ \fBUSING THIS SCRIPT WHILE GNOME, KDE, OR OTHER APPLICATIONS ARE RUNNING MAY CAUSE DATA LOSS.\fP
+ 
+diff -up ecryptfs-utils-108/doc/manpage/ecryptfs.7.manfix ecryptfs-utils-108/doc/manpage/ecryptfs.7
+--- ecryptfs-utils-108/doc/manpage/ecryptfs.7.manfix	2015-02-10 17:59:34.000000000 +0100
++++ ecryptfs-utils-108/doc/manpage/ecryptfs.7	2015-08-11 14:43:55.128833810 +0200
+@@ -1,6 +1,6 @@
+ .TH ecryptfs 7 2009-03-24 ecryptfs-utils "eCryptfs"
+ .SH NAME
+-eCryptfs \- an enterprise-class cryptographic filesystem for linux
++eCryptfs \- an enterprise-class cryptographic filesystem for Linux
+ 
+ .SH SYNOPSIS
+ .BI "mount -t ecryptfs [SRC DIR] [DST DIR] -o [OPTIONS]"
+@@ -67,7 +67,7 @@ Parameters that apply to individual key
+ The actual password is passphrase. Since the password is visible to utilities (like ps under Unix) this form should only be used where security is not important.
+ .TP
+ .B passphrase_passwd_file=(filename)
+-The password should be specified in a file with passphrase_passwd_file=(passphrase). It is highly recommended that the file be stored on a secure medium such as a personal usb key.
++The password should be specified in a file with passphrase_passwd_file=(passphrase). It is highly recommended that the file be stored on a secure medium such as a personal USB key.
+ .TP
+ .B passphrase_passwd_fd=(file descriptor)
+ The password is specified through the specified file descriptor.
+@@ -79,7 +79,7 @@ The salt should be specified as a 16 dig
+ The filename should be the filename of a file containing an RSA SSL key.
+ .TP
+ .B openssl_passwd_file=(filename)
+-The password should be specified in a file with openssl_passwd=(openssl-password). It is highly recommended that the file be stored on a secure medium such as a personal usb key.
++The password should be specified in a file with openssl_passwd=(openssl-password). It is highly recommended that the file be stored on a secure medium such as a personal USB key.
+ .TP
+ .B openssl_passwd_fd=(file descriptor)
+ The password is specified through the specified file descriptor.

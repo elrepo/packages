@@ -1,0 +1,159 @@
+diff -up ecryptfs-utils-108/src/include/ecryptfs.h.fixconst ecryptfs-utils-108/src/include/ecryptfs.h
+--- ecryptfs-utils-108/src/include/ecryptfs.h.fixconst	2015-08-11 14:44:01.791816259 +0200
++++ ecryptfs-utils-108/src/include/ecryptfs.h	2015-08-11 14:44:01.794816251 +0200
+@@ -479,8 +479,8 @@ int ecryptfs_eval_decision_graph(struct
+ 				 struct val_node **head,
+ 				 struct param_node *root_node,
+ 				 struct ecryptfs_name_val_pair *nvp_head);
+-int ecryptfs_add_passphrase_key_to_keyring(char *auth_tok_sig, char *passphrase,
+-					   char *salt);
++int ecryptfs_add_passphrase_key_to_keyring(char *auth_tok_sig, const char *passphrase,
++					   const char *salt);
+ int ecryptfs_add_key_module_key_to_keyring(char *auth_tok_sig,
+ 					   struct ecryptfs_key_mod *key_mod);
+ int ecryptfs_read_salt_hex_from_rc(char *salt_hex);
+@@ -494,11 +494,11 @@ int parse_packet(struct ecryptfs_ctx *ct
+ 		 struct ecryptfs_message **reply);
+ int ecryptfs_find_key_mod(struct ecryptfs_key_mod **key_mod,
+ 			  struct ecryptfs_ctx *ctx, char *key_mod_alias);
+-int generate_passphrase_sig(char *passphrase_sig, char *fekek, char *salt,
+-			    char *passphrase);
++int generate_passphrase_sig(char *passphrase_sig, char *fekek, const char *salt,
++			    const char *passphrase);
+ int
+ generate_payload(struct ecryptfs_auth_tok *auth_tok, char *passphrase_sig,
+-		 char *salt, char *session_key_encryption_key);
++		 const char *salt, char *session_key_encryption_key);
+ int
+ ecryptfs_generate_key_payload(struct ecryptfs_auth_tok *auth_tok,
+ 			      struct ecryptfs_key_mod *key_mod, char *sig,
+@@ -517,15 +517,15 @@ int ecryptfs_check_sig(char *auth_tok_si
+ int ecryptfs_append_sig(char *auth_tok_sig, char *sig_cache_filename);
+ int __ecryptfs_detect_wrapped_passphrase_file_version(const char *filename,
+ 						      uint8_t *version);
+-int ecryptfs_wrap_passphrase_file(char *dest, char *wrapping_passphrase,
+- 			     char *wrapping_salt, char *src);
+-int ecryptfs_wrap_passphrase(char *filename, char *wrapping_passphrase,
+-			     char *unused, char *decrypted_passphrase);
+-int ecryptfs_unwrap_passphrase(char *decrypted_passphrase, char *filename,
+-			       char *wrapping_passphrase, char *wrapping_salt);
++int ecryptfs_wrap_passphrase_file(const char *dest, const char *wrapping_passphrase,
++			     const char *wrapping_salt, const char *src);
++int ecryptfs_wrap_passphrase(const char *filename, const char *wrapping_passphrase,
++			     const char *unused, char *decrypted_passphrase);
++int ecryptfs_unwrap_passphrase(char *decrypted_passphrase, const char *filename,
++			       const char *wrapping_passphrase, const char *wrapping_salt);
+ int ecryptfs_insert_wrapped_passphrase_into_keyring(
+-	char *auth_tok_sig, char *filename, char *wrapping_passphrase,
+-	char *salt);
++	char *auth_tok_sig, char *filename, const char *wrapping_passphrase,
++	const char *salt);
+ char *ecryptfs_get_wrapped_passphrase_filename();
+ struct ecryptfs_key_mod_ops *passphrase_get_key_mod_ops(void);
+ int ecryptfs_validate_keyring(void);
+@@ -573,7 +573,7 @@ char *ecryptfs_get_passphrase(char *prom
+ int ecryptfs_run_daemon(struct ecryptfs_messaging_ctx *mctx);
+ 
+ #define ECRYPTFS_PRIVATE_DIR "Private"
+-char *ecryptfs_fetch_private_mnt(char *pw_dir);
++char *ecryptfs_fetch_private_mnt(const char *pw_dir);
+ int ecryptfs_private_is_mounted(char *dev, char *mnt, char *sig, int mounting);
+ 
+ #endif
+diff -up ecryptfs-utils-108/src/libecryptfs/key_management.c.fixconst ecryptfs-utils-108/src/libecryptfs/key_management.c
+--- ecryptfs-utils-108/src/libecryptfs/key_management.c.fixconst	2015-08-11 14:44:01.777816296 +0200
++++ ecryptfs-utils-108/src/libecryptfs/key_management.c	2015-08-11 14:44:01.795816249 +0200
+@@ -55,7 +55,7 @@
+  */
+ int ecryptfs_generate_passphrase_auth_tok(struct ecryptfs_auth_tok **auth_tok,
+ 					  char *auth_tok_sig, char *fekek,
+-					  char *salt, char *passphrase)
++					  const char *salt, const char *passphrase)
+ {
+ 	int rc;
+ 
+@@ -195,8 +195,8 @@ int ecryptfs_add_blob_to_keyring(char *b
+  *
+  * Returns 0 on add, 1 on pre-existed, negative on failure.
+  */
+-int ecryptfs_add_passphrase_key_to_keyring(char *auth_tok_sig, char *passphrase,
+-					   char *salt)
++int ecryptfs_add_passphrase_key_to_keyring(char *auth_tok_sig, const char *passphrase,
++					  const char *salt)
+ {
+ 	int rc;
+ 	char fekek[ECRYPTFS_MAX_KEY_BYTES];
+@@ -382,8 +382,8 @@ out:
+ 	return rc;
+ }
+ 
+-int ecryptfs_wrap_passphrase_file(char *dest, char *wrapping_passphrase,
+-				  char *salt, char *src)
++int ecryptfs_wrap_passphrase_file(const char *dest, const char *wrapping_passphrase,
++				  const char *salt, const char *src)
+ {
+ 	int rc = 0;
+ 	ssize_t size;
+@@ -540,8 +540,8 @@ out:
+  *
+  * Returns 0 upon success. Negative upon error.
+  */
+-int ecryptfs_wrap_passphrase(char *filename, char *wrapping_passphrase,
+-			     char *unused, char *decrypted_passphrase)
++int ecryptfs_wrap_passphrase(const char *filename, const char *wrapping_passphrase,
++			     const char *unused, char *decrypted_passphrase)
+ {
+ 	char wrapping_salt[ECRYPTFS_SALT_SIZE];
+ 	char wrapping_auth_tok_sig[ECRYPTFS_SIG_SIZE_HEX + 1];
+@@ -822,8 +822,8 @@ out:
+  * decryptfs_passphrase must be able to hold
+  * ECRYPTFS_MAX_PASSPHRASE_BYTES + 1 bytes
+  */
+-int ecryptfs_unwrap_passphrase(char *decrypted_passphrase, char *filename,
+-			       char *wrapping_passphrase, char *wrapping_salt)
++int ecryptfs_unwrap_passphrase(char *decrypted_passphrase, const char *filename,
++			       const char *wrapping_passphrase, const char *wrapping_salt)
+ {
+ 	char v2_wrapping_salt[ECRYPTFS_SALT_SIZE];
+ 	char wrapping_auth_tok_sig[ECRYPTFS_SIG_SIZE_HEX + 1];
+@@ -976,8 +976,8 @@ out:
+  * into the user session keyring.
+  */
+ int ecryptfs_insert_wrapped_passphrase_into_keyring(
+-	char *auth_tok_sig, char *filename, char *wrapping_passphrase,
+-	char *salt)
++	char *auth_tok_sig, char *filename, const char *wrapping_passphrase,
++	const char *salt)
+ {
+ 	char decrypted_passphrase[ECRYPTFS_MAX_PASSPHRASE_BYTES + 1] ;
+ 	int rc = 0;
+diff -up ecryptfs-utils-108/src/libecryptfs/main.c.fixconst ecryptfs-utils-108/src/libecryptfs/main.c
+--- ecryptfs-utils-108/src/libecryptfs/main.c.fixconst	2015-08-11 14:44:01.791816259 +0200
++++ ecryptfs-utils-108/src/libecryptfs/main.c	2015-08-11 14:44:01.795816249 +0200
+@@ -92,7 +92,7 @@ out:
+ /* Read ecryptfs private mount from file
+  * Allocate and return a string
+  */
+-char *ecryptfs_fetch_private_mnt(char *pw_dir) {
++char *ecryptfs_fetch_private_mnt(const char *pw_dir) {
+ 	char *mnt_file = NULL;
+ 	char *mnt_default = NULL;
+ 	char *mnt = NULL;
+@@ -212,7 +212,7 @@ int ecryptfs_private_is_mounted(char *de
+  */
+ int
+ generate_passphrase_sig(char *passphrase_sig, char *fekek,
+-			char *salt, char *passphrase)
++			const char *salt, const char *passphrase)
+ {
+ 	char salt_and_passphrase[ECRYPTFS_MAX_PASSPHRASE_BYTES
+ 				 + ECRYPTFS_SALT_SIZE];
+@@ -257,7 +257,7 @@ generate_passphrase_sig(char *passphrase
+  */
+ int
+ generate_payload(struct ecryptfs_auth_tok *auth_tok, char *passphrase_sig,
+-		 char *salt, char *session_key_encryption_key)
++		 const char *salt, char *session_key_encryption_key)
+ {
+ 	int rc = 0;
+ 	int major, minor;
