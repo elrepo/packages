@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	450.57
+Version:	450.66
 Release:	1%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
@@ -54,6 +54,7 @@ BuildRequires:	gcc = 8.3.1
 Provides:	kernel-modules >= %{kmod_kernel_version}.%{_arch}
 Provides:	kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
 
+Requires:	nvidia-x11-drv = %{?epoch:%{epoch}:}%{version}
 Requires(post):	%{_sbindir}/weak-modules
 Requires(postun):	%{_sbindir}/weak-modules
 Requires:	kernel >= %{kmod_kernel_version}
@@ -212,6 +213,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Aug 19 2020 Philip J Perry <phil@elrepo.org> - 450.66-1
+- Updated to version 450.66
+- Add missing requires for nvidia-x11-drv package
+
 * Fri Jul 10 2020 Philip J Perry <phil@elrepo.org> - 450.57-1
 - Updated to version 450.57
 
