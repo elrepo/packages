@@ -2,13 +2,13 @@
 %define kmod_name   ib_qib
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-193.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-193.14.3.el8_2}
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
 Version:        0.0.1
-Release:        2%{?dist}
+Release:        4%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -172,6 +172,13 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri Aug 21 2020 Akemi Yagi <toracat@elrepo.org> - 0.0.1-4
+- Rebuilt against kernel 4.18.0-193.14.3.el8_2
+  https://elrepo.org/bugs/view.php?id=1033
+
+* Tue Jun 23 2020 Akemi Yagi <toracat@elrepo.org> - 0.0.1-3
+- Rebuilt against kernel 4.18.0-193.6.3.el8_2
+
 * Wed Apr 29 2020 Akemi Yagi <toracat@elrepo.org> - 0.0.1-2
 - Source code updated to RHEL 8.2
 
