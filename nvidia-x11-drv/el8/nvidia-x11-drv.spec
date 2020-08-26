@@ -1,12 +1,12 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/450.57/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/450.66/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	450.57
+Version:	450.66
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -60,6 +60,9 @@ Conflicts:	nvidia-x11-drv-173xx
 Conflicts:	nvidia-x11-drv-173xx-32bit
 Conflicts:	nvidia-x11-drv-96xx
 Conflicts:	nvidia-x11-drv-96xx-32bit
+
+# negativo17.org
+Conflicts:	nvidia-kmod-common
 
 # rpmforge
 Conflicts:	dkms-nvidia
@@ -381,6 +384,10 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Wed Aug 19 2020 Philip J Perry <phil@elrepo.org> - 450.66-1
+- Updated to version 450.66
+- Add conflicts for nvidia-kmod-common
+
 * Fri Jul 10 2020 Philip J Perry <phil@elrepo.org> - 450.57-1
 - Updated to version 450.57
 

@@ -1,5 +1,5 @@
 # Define the kmod package name here.
-%define kmod_name		nvidia
+%define kmod_name   cxgb3	
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
 %{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-193.el8}
@@ -7,19 +7,18 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	450.66
-Release:	1%{?dist}
-Summary:	NVIDIA OpenGL kernel driver module
+Version:	1.1.5
+Release:	3%{?dist}
+Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
-License:	Proprietary
-URL:		http://www.nvidia.com/
+License:	GPLv2
+URL:		http://www.kernel.org/
 
 # Sources
-Source0:  ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
-Source1:  blacklist-nouveau.conf
-Source2:  dracut-nvidia.conf
+Source0:	%{kmod_name}-%{version}.tar.gz
+Source5:	GPL-v2.0.txt
 
-NoSource: 0
+# Source code patches
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -43,42 +42,28 @@ BuildRequires:	kernel-abi-whitelists
 BuildRequires:	kernel-rpm-macros
 BuildRequires:	redhat-rpm-config
 
-# ensure version of gcc matches that used to build the kernel
-%if "%{kmod_kernel_version}" == "4.18.0-80.el8"
-BuildRequires:	gcc = 8.2.1
-%endif
-%if "%{kmod_kernel_version}" == "4.18.0-147.el8"
-BuildRequires:	gcc = 8.3.1
-%endif
-
 Provides:	kernel-modules >= %{kmod_kernel_version}.%{_arch}
 Provides:	kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
 
-Requires:	nvidia-x11-drv = %{?epoch:%{epoch}:}%{version}
 Requires(post):	%{_sbindir}/weak-modules
 Requires(postun):	%{_sbindir}/weak-modules
 Requires:	kernel >= %{kmod_kernel_version}
+Requires:	%{kmod_name}-firmware
 
 %description
-This package provides the proprietary NVIDIA OpenGL kernel driver module.
+This package provides the %{kmod_name} kernel module(s).
 It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
-%setup -q -c -T
+%setup -n %{kmod_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
-echo "override %{kmod_name}-drm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
-echo "override %{kmod_name}-modeset * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
-echo "override %{kmod_name}-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.config
-sh %{SOURCE0} --extract-only --target nvidiapkg
-%{__cp} -a nvidiapkg _kmod_build_
+
+# Apply patch(es)
+# % patch0 -p1
 
 %build
-# export IGNORE_CC_MISMATCH=1
-export SYSSRC=%{_usrsrc}/kernels/%{kmod_kernel_version}.%{_arch}
-pushd _kmod_build_/kernel
-%{__make} %{?_smp_mflags} module
-popd
+%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
 
 whitelist="/lib/modules/kabi-current/kabi_whitelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -91,19 +76,11 @@ sort -u greylist | uniq > greylist.txt
 
 %install
 %{__install} -d %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-pushd _kmod_build_/kernel
 %{__install} %{kmod_name}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-%{__install} %{kmod_name}-drm.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-%{__install} %{kmod_name}-modeset.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-%{__install} %{kmod_name}-uvm.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-popd
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
-%{__install} -d %{buildroot}%{_prefix}/lib/modprobe.d/
-%{__install} %{SOURCE1} %{buildroot}%{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
-%{__install} -d %{buildroot}%{_sysconfdir}/dracut.conf.d/
-%{__install} %{SOURCE2} %{buildroot}%{_sysconfdir}/dracut.conf.d/dracut-nvidia.conf
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
+%{__install} -m 0644 %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 # strip the modules(s)
@@ -136,47 +113,33 @@ exit 0
 # We have to re-implement part of weak-modules here because it doesn't allow
 # calling initramfs regeneration separately
 if [ -f "%{kver_state_file}" ]; then
-#	kver_base="%{kmod_kernel_version}"
-#	kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
-#
-#	for k_dir in $kvers; do
-#		k="${k_dir#/lib/modules/}"
-#
-#		tmp_initramfs="/boot/initramfs-$k.tmp"
-#		dst_initramfs="/boot/initramfs-$k.img"
-#
-#		# The same check as in weak-modules: we assume that the kernel present
-#		# if the symvers file exists.
-#		if [ -e "/boot/symvers-$k.gz" ]; then
-#			/usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
-#			cmp -s "$tmp_initramfs" "$dst_initramfs"
-#			if [ "$?" = 1 ]; then
-#				mv "$tmp_initramfs" "$dst_initramfs"
-#			else
-#				rm -f "$tmp_initramfs"
-#			fi
-#		fi
-#	done
+	kver_base="%{kmod_kernel_version}"
+	kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
+
+	for k_dir in $kvers; do
+		k="${k_dir#/lib/modules/}"
+
+		tmp_initramfs="/boot/initramfs-$k.tmp"
+		dst_initramfs="/boot/initramfs-$k.img"
+
+		# The same check as in weak-modules: we assume that the kernel present
+		# if the symvers file exists.
+		if [ -e "/boot/symvers-$k.gz" ]; then
+			/usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
+			cmp -s "$tmp_initramfs" "$dst_initramfs"
+			if [ "$?" = 1 ]; then
+				mv "$tmp_initramfs" "$dst_initramfs"
+			else
+				rm -f "$tmp_initramfs"
+			fi
+		fi
+	done
 
 	rm -f "%{kver_state_file}"
 	rmdir "%{kver_state_dir}" 2> /dev/null
 fi
 
 rmdir "%{dup_state_dir}" 2> /dev/null
-
-# Update initramfs for all kABI compatible kernels
-if [ -x /usr/bin/dracut ]; then
-	# get installed kernels
-	for KERNEL in $(rpm -q --qf '%{v}-%{r}.%{arch}\n' kernel); do
-		VMLINUZ="/boot/vmlinuz-"$KERNEL
-		# Check kABI compatibility
-		for KABI in $(find /lib/modules -name nvidia.ko | cut -d / -f 4); do
-			if [[ "$KERNEL" == "$KABI" && -e "$VMLINUZ" ]]; then
-				/usr/bin/dracut --add-drivers nvidia -f /boot/initramfs-$KERNEL.img $KERNEL
-			fi
-		done
-	done
-fi
 
 exit 0
 
@@ -208,39 +171,15 @@ exit 0
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
 %config /etc/depmod.d/kmod-%{kmod_name}.conf
-%config /etc/dracut.conf.d/dracut-nvidia.conf
-%config /usr/lib/modprobe.d/blacklist-nouveau.conf
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Wed Aug 19 2020 Philip J Perry <phil@elrepo.org> - 450.66-1
-- Updated to version 450.66
-- Add missing requires for nvidia-x11-drv package
+* Mon Aug 17 2020 Philip J Perry <phil@elrepo.org> 1.1.5-3
+- Add Requires for cxgb3-firmware
 
-* Fri Jul 10 2020 Philip J Perry <phil@elrepo.org> - 450.57-1
-- Updated to version 450.57
+* Tue Aug 11 2020 Akemi Yagi <toracat@elrepo.org> 1.1.5-2
+- Rebuilt against RHEL 8.2 kernel (source code unchanged from 8.1)
 
-* Thu Jun 25 2020 Philip J Perry <phil@elrepo.org> - 440.100-1
-- Updated to version 440.100
-
-* Sat May 02 2020 Philip J Perry <phil@elrepo.org> - 440.82-2
-- Rebuilt for RHEL 8.2
-
-* Wed Apr 08 2020 Philip J Perry <phil@elrepo.org> - 440.82-1
-- Updated to version 440.82
-- Update initramfs for all kABI compatible kernels
-  [https://elrepo.org/bugs/view.php?id=999]
-
-* Tue Mar 31 2020 Philip J Perry <phil@elrepo.org> - 440.64-1
-- Updated to version 440.64
-
-* Sat Feb 08 2020 Philip J Perry <phil@elrepo.org> - 440.59-1
-- Updated to version 440.59
-- Add dracut conf file to omit nouveau and add nvidia modules
-
-* Sat Jan 25 2020 Philip J Perry <phil@elrepo.org> 440.44-1
-- Updated to version 440.44
-- Rebuilt against RHEL 8.1 kernel
-
-* Sun Dec 01 2019 Philip J Perry <phil@elrepo.org> 440.36-1
-- Initial el8 build of the kmod package.
+* Fri Apr 17 2020 Akemi Yagi <toracat@elrepo.org> 1.1.5-1
+- Initial build for RHEL 8. 1
+- Source code backported from kernel 4.18.0-147.el8
