@@ -13,7 +13,7 @@ Epoch:	7
 %endif
 
 Name:    %{kmod_name}-kmod
-Version: 1.0.20200729
+Version: 1.0.20200908
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -73,6 +73,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Sep 08 2020 Philip J Perry <phil@elrepo.org> 1.0.20200908-1
+- Update to 1.0.20200908
+
 * Wed Jul 29 2020 Philip J Perry <phil@elrepo.org> 1.0.20200729-1
 - Update to 1.0.20200729
 - Define epoch to equal minor point release
