@@ -290,7 +290,7 @@ static int hwsim_get_radio(struct sk_buff *skb, struct hwsim_phy *phy,
 		return -EMSGSIZE;
 
 	if (cb)
-		genl_dump_check_consistent(cb, hdr);
+		genl_dump_check_consistent(cb, hdr, NULL);
 
 	res = append_radio_msg(skb, phy);
 	if (res < 0)
@@ -438,7 +438,7 @@ static int hwsim_new_edge_nl(struct sk_buff *msg, struct genl_info *info)
 
 	if (nla_parse_nested(edge_attrs, MAC802154_HWSIM_EDGE_ATTR_MAX,
 			     info->attrs[MAC802154_HWSIM_ATTR_RADIO_EDGE],
-			     hwsim_edge_policy, NULL))
+			     hwsim_edge_policy))
 		return -EINVAL;
 
 	if (!edge_attrs[MAC802154_HWSIM_EDGE_ATTR_ENDPOINT_ID])
@@ -502,7 +502,7 @@ static int hwsim_del_edge_nl(struct sk_buff *msg, struct genl_info *info)
 
 	if (nla_parse_nested(edge_attrs, MAC802154_HWSIM_EDGE_ATTR_MAX,
 			     info->attrs[MAC802154_HWSIM_ATTR_RADIO_EDGE],
-			     hwsim_edge_policy, NULL))
+			     hwsim_edge_policy))
 		return -EINVAL;
 
 	if (!edge_attrs[MAC802154_HWSIM_EDGE_ATTR_ENDPOINT_ID])
@@ -552,7 +552,7 @@ static int hwsim_set_edge_lqi(struct sk_buff *msg, struct genl_info *info)
 
 	if (nla_parse_nested(edge_attrs, MAC802154_HWSIM_EDGE_ATTR_MAX,
 			     info->attrs[MAC802154_HWSIM_ATTR_RADIO_EDGE],
-			     hwsim_edge_policy, NULL))
+			     hwsim_edge_policy))
 		return -EINVAL;
 
 	if (!edge_attrs[MAC802154_HWSIM_EDGE_ATTR_ENDPOINT_ID] &&
@@ -642,7 +642,7 @@ static const struct genl_ops hwsim_nl_ops[] = {
 	},
 };
 
-static struct genl_family hwsim_genl_family __ro_after_init = {
+static struct genl_family hwsim_genl_family = {
 	.name = "MAC802154_HWSIM",
 	.version = 1,
 	.maxattr = MAC802154_HWSIM_ATTR_MAX,
