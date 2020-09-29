@@ -2,19 +2,19 @@
 %define kmod_name wireguard
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-1127.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 # define epoch to equal minor point release to ensure
 # newer versions are not installed on older kernels
-%if "%{kversion}" == "3.10.0-1127.el7.%{_target_cpu}"
-Epoch:	8
+%if "%{kversion}" == "3.10.0-1160.el7.%{_target_cpu}"
+Epoch:	9
 %else
-Epoch:	7
+Epoch:	8
 %endif
 
 Name:    %{kmod_name}-kmod
 Version: 1.0.20200908
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -73,6 +73,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Sep 29 2020 Philip J Perry <phil@elrepo.org> 1.0.20200908-2
+- Rebuilt for RHEL7.9 release
+
 * Tue Sep 08 2020 Philip J Perry <phil@elrepo.org> 1.0.20200908-1
 - Update to 1.0.20200908
 
