@@ -2,11 +2,11 @@
 %define kmod_name ixgbe
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-1062.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 5.6.3
-Release: 2%{?dist}
+Version: 5.8.1
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -19,9 +19,6 @@ ExclusiveArch: x86_64
 Source0:  %{kmod_name}-%{version}.tar.gz
 Source5:  GPL-v2.0.txt
 Source10: kmodtool-%{kmod_name}-el7.sh
-
-# Patches.
-Patch0: elrepo-bug938.patch
 
 # Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
@@ -38,8 +35,6 @@ of the same variant of the Linux kernel and not on any one specific build.
 %setup -q -n %{kmod_name}-%{version}
 %{__gzip} %{kmod_name}.7
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
-
-%patch0 -p1
 
 %build
 pushd src >/dev/null
@@ -76,9 +71,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
-* Wed Sep 18 2019 Akemi Yagi <toracat@elrepo.org> - 5.6.3-2
-- Applied patch from kernel.org commit 377228accbbb8b9738f615d791aa803f41c067e0
-  (https://elrepo.org/bugs/view.php?id=938)
+* Tue Sep 29 2020 Philip J Perry <phil@elrepo.org> - 5.8.1-1
+- Updated to version 5.8.1
+- Built against RHEL 7.9 kernel
 
 * Mon Sep 02 2019 Akemi Yagi <toracat@elrepo.org> - 5.6.3-1
 - Updated to version 5.6.3
