@@ -2,11 +2,11 @@
 %define kmod_name e1000e
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-1127.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-1127.19.1.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
 Version: 3.8.4
-Release: 1.el7_8.elrepo
+Release: 2.el7_8.elrepo
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -76,6 +76,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Sep 16 2020 Akemi Yagi <toracat@elrepo.org> - 3.8.4-2.el7_8
+- Built against kernel-3.10.0-1127.19.1.el7
+  [https://elrepo.org/bugs/view.php?id=1040]
+
 * Tue Sep 01 2020 Akemi Yagi <toracat@elrepo.org> - 3.8.4-1.el7_8
 - Updated to version 3.8.4
 - Built against RHEL 7.8 kernel
