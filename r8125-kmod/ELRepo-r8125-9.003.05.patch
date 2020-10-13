@@ -1,0 +1,64 @@
+diff -Naurp r8125-9.003.05.orig/src/r8125.h r8125-9.003.05/src/r8125.h
+--- r8125-9.003.05.orig/src/r8125.h	2020-04-15 10:39:07.000000000 +0100
++++ r8125-9.003.05/src/r8125.h	2020-08-11 19:46:37.001765753 +0100
+@@ -43,7 +43,7 @@
+ #define device_set_wakeup_enable(dev, val)	do {} while (0)
+ #endif
+ 
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,14,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(3,14,0) && RHEL_MAJOR != 7
+ static inline void ether_addr_copy(u8 *dst, const u8 *src)
+ {
+         u16 *a = (u16 *)dst;
+diff -Naurp r8125-9.003.05.orig/src/r8125_n.c r8125-9.003.05/src/r8125_n.c
+--- r8125-9.003.05.orig/src/r8125_n.c	2020-04-15 10:34:42.000000000 +0100
++++ r8125-9.003.05/src/r8125_n.c	2020-08-11 20:03:06.225417054 +0100
+@@ -286,7 +286,9 @@ static void rtl8125_tx_timeout(struct ne
+ #endif
+ static struct net_device_stats *rtl8125_get_stats(struct net_device *dev);
+ static int rtl8125_rx_interrupt(struct net_device *, struct rtl8125_private *, napi_budget);
++#if RHEL_MAJOR != 7
+ static int rtl8125_change_mtu(struct net_device *dev, int new_mtu);
++#endif /* RHEL_MAJOR != 7 */
+ static void rtl8125_down(struct net_device *dev);
+ 
+ static int rtl8125_set_mac_address(struct net_device *dev, void *p);
+@@ -10356,7 +10358,9 @@ static const struct net_device_ops rtl81
+         .ndo_get_stats      = rtl8125_get_stats,
+         .ndo_start_xmit     = rtl8125_start_xmit,
+         .ndo_tx_timeout     = rtl8125_tx_timeout,
++#if RHEL_MAJOR != 7
+         .ndo_change_mtu     = rtl8125_change_mtu,
++#endif /* RHEL_MAJOR != 7 */
+         .ndo_set_mac_address    = rtl8125_set_mac_address,
+         .ndo_do_ioctl       = rtl8125_do_ioctl,
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(3,1,0)
+@@ -11131,7 +11135,7 @@ rtl8125_hw_start(struct net_device *dev)
+         rtl8125_enable_hw_interrupt(tp);
+ }
+ 
+-
++#if RHEL_MAJOR != 7
+ static int
+ rtl8125_change_mtu(struct net_device *dev,
+                    int new_mtu)
+@@ -11190,6 +11194,7 @@ out:
+ err_out:
+         return ret;
+ }
++#endif /* RHEL_MAJOR != 7 */
+ 
+ static inline void
+ rtl8125_make_unusable_by_asic(struct RxDesc *desc)
+@@ -12316,9 +12321,9 @@ process_pkt:
+ 
+                         if (rtl8125_rx_vlan_skb(tp, desc, skb) < 0)
+                                 rtl8125_rx_skb(tp, skb);
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0) && RHEL_MAJOR != 7
+                         dev->last_rx = jiffies;
+-#endif //LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0)
++#endif //LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0) && RHEL_MAJOR != 7
+                         RTLDEV->stats.rx_bytes += pkt_size;
+                         RTLDEV->stats.rx_packets++;
+                 }
