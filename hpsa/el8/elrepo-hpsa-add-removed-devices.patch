@@ -1,0 +1,54 @@
+elrepo-hpsa-add-removed-devices.patch
+
+ELRepo patch to add devices removed from RHEL-8 kernel
+
+   Submitted-by: Akemi Yagi <toracat@elrepo.org>
+
+--- a/hpsa.c	2020-10-25 23:09:14.314152533 -0700
++++ b/hpsa.c	2020-10-25 23:13:31.872152709 -0700
+@@ -83,6 +83,7 @@ MODULE_DESCRIPTION("Driver for HP Smart
+ MODULE_SUPPORTED_DEVICE("HP Smart Array Controllers");
+ MODULE_VERSION(HPSA_DRIVER_VERSION);
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("cciss");
+ 
+ static int hpsa_simple_mode;
+ module_param(hpsa_simple_mode, int, S_IRUGO|S_IWUSR);
+@@ -144,6 +145,10 @@ static const struct pci_device_id hpsa_p
+ 	{PCI_VENDOR_ID_HP_3PAR, 0x0075, 0x1590, 0x007D},
+ 	{PCI_VENDOR_ID_HP_3PAR, 0x0075, 0x1590, 0x0088},
+ 	{PCI_VENDOR_ID_HP, 0x333f, 0x103c, 0x333f},
++	{PCI_VENDOR_ID_HP,     PCI_ANY_ID,	PCI_ANY_ID, PCI_ANY_ID,
++		PCI_CLASS_STORAGE_RAID << 8, 0xffff << 8, 0},
++	{PCI_VENDOR_ID_COMPAQ,     PCI_ANY_ID,	PCI_ANY_ID, PCI_ANY_ID,
++		PCI_CLASS_STORAGE_RAID << 8, 0xffff << 8, 0},
+ 	{0,}
+ };
+ 
+@@ -154,6 +159,26 @@ MODULE_DEVICE_TABLE(pci, hpsa_pci_device
+  *  access = Address of the struct of function pointers
+  */
+ static struct board_type products[] = {
++	{0x40700E11, "Smart Array 5300", &SA5A_access},
++	{0x40800E11, "Smart Array 5i", &SA5B_access},
++	{0x40820E11, "Smart Array 532", &SA5B_access},
++	{0x40830E11, "Smart Array 5312", &SA5B_access},
++	{0x409A0E11, "Smart Array 641", &SA5A_access},
++	{0x409B0E11, "Smart Array 642", &SA5A_access},
++	{0x409C0E11, "Smart Array 6400", &SA5A_access},
++	{0x409D0E11, "Smart Array 6400 EM", &SA5A_access},
++	{0x40910E11, "Smart Array 6i", &SA5A_access},
++	{0x3225103C, "Smart Array P600", &SA5A_access},
++	{0x3223103C, "Smart Array P800", &SA5A_access},
++	{0x3234103C, "Smart Array P400", &SA5A_access},
++	{0x3235103C, "Smart Array P400i", &SA5A_access},
++	{0x3211103C, "Smart Array E200i", &SA5A_access},
++	{0x3212103C, "Smart Array E200", &SA5A_access},
++	{0x3213103C, "Smart Array E200i", &SA5A_access},
++	{0x3214103C, "Smart Array E200i", &SA5A_access},
++	{0x3215103C, "Smart Array E200i", &SA5A_access},
++	{0x3237103C, "Smart Array E500", &SA5A_access},
++	{0x323D103C, "Smart Array P700m", &SA5A_access},
+ 	{0x3241103C, "Smart Array P212", &SA5_access},
+ 	{0x3243103C, "Smart Array P410", &SA5_access},
+ 	{0x3245103C, "Smart Array P410i", &SA5_access},
