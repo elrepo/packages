@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	3.4.20
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,7 +19,7 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0:	elrepo-hpsa-add-removed-devices.patch
+Patch0:	elrepo-hpsa-add-removed-devices-v2.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -174,5 +174,8 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Oct 26 2020 Akemi Yagi <toracat@elrepo.org> - 3.4.20-2
+- Patch amended to include missing device IDs (v2)
+
 * Sun Oct 25 2020 Akemi Yagi <toracat@elrepo.org> - 3.4.20-1
 - Initial build for RHEL 8.2

@@ -1,11 +1,12 @@
-elrepo-hpsa-add-removed-devices.patch
+elrepo-hpsa-add-removed-devices-v2.patch
 
 ELRepo patch to add devices removed from RHEL-8 kernel
 
    Submitted-by: Akemi Yagi <toracat@elrepo.org>
+   Amended-by: Phil Perry <phil@elrepo.org>
 
---- a/hpsa.c	2020-10-25 23:09:14.314152533 -0700
-+++ b/hpsa.c	2020-10-25 23:13:31.872152709 -0700
+--- a/hpsa.c	2020-10-26 23:43:44.595212859 -0700
++++ b/hpsa.c	2020-10-26 23:45:36.887212936 -0700
 @@ -83,6 +83,7 @@ MODULE_DESCRIPTION("Driver for HP Smart
  MODULE_SUPPORTED_DEVICE("HP Smart Array Controllers");
  MODULE_VERSION(HPSA_DRIVER_VERSION);
@@ -14,7 +15,19 @@ ELRepo patch to add devices removed from RHEL-8 kernel
  
  static int hpsa_simple_mode;
  module_param(hpsa_simple_mode, int, S_IRUGO|S_IWUSR);
-@@ -144,6 +145,10 @@ static const struct pci_device_id hpsa_p
+@@ -91,6 +92,11 @@ MODULE_PARM_DESC(hpsa_simple_mode,
+ 
+ /* define the PCI info for the cards we can control */
+ static const struct pci_device_id hpsa_pci_device_id[] = {
++	{PCI_VENDOR_ID_HP,     PCI_DEVICE_ID_HP_CISSC,     0x103C, 0x3223},
++	{PCI_VENDOR_ID_HP,     PCI_DEVICE_ID_HP_CISSC,     0x103C, 0x3234},
++	{PCI_VENDOR_ID_HP,     PCI_DEVICE_ID_HP_CISSC,     0x103C, 0x3235},
++	{PCI_VENDOR_ID_HP,     PCI_DEVICE_ID_HP_CISSC,     0x103C, 0x3237},
++	{PCI_VENDOR_ID_HP,     PCI_DEVICE_ID_HP_CISSC,     0x103C, 0x323D},
+ 	{PCI_VENDOR_ID_HP,     PCI_DEVICE_ID_HP_CISSE,     0x103C, 0x3241},
+ 	{PCI_VENDOR_ID_HP,     PCI_DEVICE_ID_HP_CISSE,     0x103C, 0x3243},
+ 	{PCI_VENDOR_ID_HP,     PCI_DEVICE_ID_HP_CISSE,     0x103C, 0x3245},
+@@ -144,6 +150,10 @@ static const struct pci_device_id hpsa_p
  	{PCI_VENDOR_ID_HP_3PAR, 0x0075, 0x1590, 0x007D},
  	{PCI_VENDOR_ID_HP_3PAR, 0x0075, 0x1590, 0x0088},
  	{PCI_VENDOR_ID_HP, 0x333f, 0x103c, 0x333f},
@@ -25,7 +38,7 @@ ELRepo patch to add devices removed from RHEL-8 kernel
  	{0,}
  };
  
-@@ -154,6 +159,26 @@ MODULE_DEVICE_TABLE(pci, hpsa_pci_device
+@@ -154,6 +164,26 @@ MODULE_DEVICE_TABLE(pci, hpsa_pci_device
   *  access = Address of the struct of function pointers
   */
  static struct board_type products[] = {
