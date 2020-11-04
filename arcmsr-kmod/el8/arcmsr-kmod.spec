@@ -2,13 +2,13 @@
 %define kmod_name		arcmsr
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-147.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-240.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	1.40.00.05
-Release:	20180309.2%{?dist}
+Release:	20180309.4%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -17,6 +17,7 @@ URL:		http://www.kernel.org/
 # Sources
 Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
+Source10:	%{kmod_name}.conf
 
 # Source code patches
 
@@ -80,6 +81,8 @@ sort -u greylist | uniq > greylist.txt
 %{__install} %{kmod_name}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
+%{__install} -d %{buildroot}%{_sysconfdir}/dracut.conf.d/
+%{__install} %{SOURCE10} %{buildroot}%{_sysconfdir}/dracut.conf.d/%{kmod_name}.conf
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
@@ -172,9 +175,17 @@ exit 0
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
 %config /etc/depmod.d/kmod-%{kmod_name}.conf
+%config /etc/dracut.conf.d/%{kmod_name}.conf
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Nov 04 2020 Philip J Perry <phil@elrepo.org> 1.40.00.05-20180309.3
+- Add dracut conf file to ensure module is in initramfs
+- Rebuilt for RHEL8.3
+
+* Tue Apr 28 2020 Philip J Perry <phil@elrepo.org> 1.40.00.05-20180309.3
+- Rebuilt for RHEL8.2
+
 * Fri Nov 08 2019 Philip J Perry <phil@elrepo.org> 1.40.00.05-20180309.2
 - Rebuilt for RHEL8.1
 
