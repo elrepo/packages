@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	3.26.02.000
-Release:	4%{?dist}
+Release:	5%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -17,6 +17,7 @@ URL:		http://www.kernel.org/
 # Sources
 Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
+Source10:	3w-sas.conf
 
 # Source code patches
 
@@ -78,6 +79,8 @@ sort -u greylist | uniq > greylist.txt
 %{__install} %{kmod_name}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
+%{__install} -d %{buildroot}%{_sysconfdir}/dracut.conf.d/
+%{__install} %{SOURCE10} %{buildroot}%{_sysconfdir}/dracut.conf.d/3w-sas.conf
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
@@ -170,9 +173,14 @@ exit 0
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
 %config /etc/depmod.d/kmod-%{kmod_name}.conf
+%config /etc/dracut.conf.d/3w-sas.conf
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Nov 04 2020 Philip J Perry <phil@elrepo.org> - 3.26.02.000-5
+- Add dracut 3w-sas.conf file to ensure module is in initramfs
+- Updated source to kernel-4.18.20
+
 * Tue Nov 03 2020 Akemi Yagi <toracat@elrepo.org> - 3.26.02.000-4
 - Rebuilt against RHEL 8.3 kernel
 
@@ -183,4 +191,4 @@ exit 0
 - Rebuilt against RHEL 8.1 kernel
 
 * Wed Oct 02 2019 Akemi Yagi <toracat@elrepo.org> 3.26.02.000-1
-- Initial build for RHEL 8.0 
+- Initial build for RHEL 8.0
