@@ -31,7 +31,6 @@ else
 
 # Called from kernel build system -- just declare the module(s).
 
-# Example --
 obj-m := 3w-sas.o
 
 endif
