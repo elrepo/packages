@@ -2,13 +2,13 @@
 %define kmod_name		e100
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-147.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-240.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	3.5.24
-Release:	2%{?dist}
+Release:	4%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -171,6 +171,13 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Nov 04 2020 Philip J Perry <phil@elrepo.org> 3.5.24-3
+- Rebuilt for RHEL8.3
+- Fix build errors on RHEL8.3
+
+* Tue Apr 28 2020 Philip J Perry <phil@elrepo.org> 3.5.24-2
+- Rebuilt for RHEL8.2
+
 * Fri Nov 08 2019 Philip J Perry <phil@elrepo.org> 3.5.24-2
 - Rebuilt for RHEL8.1
 
