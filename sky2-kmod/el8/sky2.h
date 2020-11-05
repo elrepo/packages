@@ -251,12 +251,13 @@ enum {
 	PSM_CONFIG_REG4_RST_PHY_LINK_DETECT = 1<<0, /* Reset GPHY Link Detect */
 };
 
-
+#ifndef PCI_STATUS_ERROR_BITS
 #define PCI_STATUS_ERROR_BITS (PCI_STATUS_DETECTED_PARITY | \
 			       PCI_STATUS_SIG_SYSTEM_ERROR | \
 			       PCI_STATUS_REC_MASTER_ABORT | \
 			       PCI_STATUS_REC_TARGET_ABORT | \
 			       PCI_STATUS_PARITY)
+#endif
 
 enum csr_regs {
 	B0_RAP		= 0x0000,
