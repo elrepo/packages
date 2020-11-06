@@ -1,5 +1,5 @@
 # Define the kmod package name here.
-%define kmod_name sata_sil24
+%define kmod_name sata_nv
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
 %{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-240.el8}
@@ -7,8 +7,8 @@
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
-Version:        1.1
-Release:        2%{?dist}
+Version:        3.5
+Release:        3%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -68,7 +68,7 @@ echo "add_drivers+=\" %{kmod_name} \"" > %{kmod_name}.conf
 %patch0 -p1
 
 %build
-%{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD CONFIG_SATA_SIL24=m
+%{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD CONFIG_SATA_NV=m
 
 whitelist="/lib/modules/kabi-current/kabi_whitelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -181,15 +181,15 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Thu Nov 05 2020 Akemi Yagi <toracat@elrepo.org> - 1.1-2
+* Thu Nov 05 2020 Akemi Yagi <toracat@elrepo.org> - 3.5-3
 - Add dracut conf file to ensure module is in initramfs
 - Rebuilt against RHEL 8.3 kernel
 - Source code from kernel-4.18.0-240
 
-* Tue Apr 28 2020 Akemi Yagi <toracat@elrepo.org> - 1.1-1
+* Tue Apr 28 2020 Akemi Yagi <toracat@elrepo.org> - 3.5-2
 - Rebuilt against RHEL 8.2 kernel
 - Source code from kernel-4.18.0-193
 
-* Tue Jan 28 2020 Akemi Yagi <toracat@elrepo.org> - 0.0-1
+* Thu Jan 23 2020 Akemi Yagi <toracat@elrepo.org> - 3.5-1
 - Built against RHEL 8.1 kernel
 - Source code from kernel-4.18.0-147

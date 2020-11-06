@@ -2,20 +2,20 @@
 %define kmod_name sata_sil
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-193.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-240.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
 Version:        2.4
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
 URL:            http://www.kernel.org/
 
 # Sources.
-Source0:  %{kmod_name}-%{version}.tar.gz
+Source0:  drivers-ata.tar.gz
 Source5:  GPL-v2.0.txt
 Source7:  scsi_transport_api.h
 
@@ -58,8 +58,9 @@ of the same variant of the Linux kernel and not on any one specific build.
 
 
 %prep
-%setup -q -n %{kmod_name}-%{version}
+%setup -q -n drivers-ata
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "add_drivers+=\" %{kmod_name} \"" > %{kmod_name}.conf
 
 %{__cp} %{SOURCE7} .
 
@@ -83,6 +84,8 @@ sort -u greylist | uniq > greylist.txt
 %{__install} %{kmod_name}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
+%{__install} -d %{buildroot}%{_sysconfdir}/dracut.conf.d/
+%{__install} -m 0644 %{kmod_name}.conf %{buildroot}%{_sysconfdir}/dracut.conf.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
@@ -174,9 +177,15 @@ exit 0
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
 %config /etc/depmod.d/kmod-%{kmod_name}.conf
+%config /etc/dracut.conf.d/%{kmod_name}.conf
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Nov 05 2020 Akemi Yagi <toracat@elrepo.org> - 2.4-4
+- Add dracut conf file to ensure module is in initramfs
+- Rebuilt against RHEL 8.3 kernel
+- Source code from kernel-4.18.0-240
+
 * Tue Apr 28 2020 Akemi Yagi <toracat@elrepo.org> - 2.4-3
 - Rebuilt against RHEL 8.2 kernel
 - Source code from kernel-4.18.0-193
