@@ -2,13 +2,13 @@
 %define kmod_name		mlx4
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-193.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-240.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	4.0
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -170,6 +170,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri Nov 06 2020 Philip J Perry <phil@elrepo.org> 4.0-4
+- Rebuilt for RHEL8.3
+- Source code updated from RHEL kernel-4.18.0-240.el8.x86_64
+
 * Tue Apr 28 2020 Philip J Perry <phil@elrepo.org> 4.0-3
 - Rebuilt for RHEL8.2
 - Source code updated from RHEL kernel-4.18.0-193.el8.x86_64
