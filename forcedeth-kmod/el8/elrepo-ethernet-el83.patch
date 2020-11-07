@@ -1,0 +1,18 @@
+elrepo-ethernet-el83.patch
+
+Fix build issues for ethernet drivers on RHEL8.3
+
+Signed-off-by: Philip J Perry <phil@elrepo.org>
+Applied-by: Akemi Yagi <toracat@elrepo.org>
+
+--- a/forcedeth.c	2018-10-27 11:03:54.000000000 -0700
++++ b/forcedeth.c	2020-11-06 14:23:12.271191948 -0800
+@@ -2673,7 +2673,7 @@ static int nv_tx_done_optimized(struct n
+  * nv_tx_timeout: dev->tx_timeout function
+  * Called with netif_tx_lock held.
+  */
+-static void nv_tx_timeout(struct net_device *dev)
++static void nv_tx_timeout(struct net_device *dev, unsigned int txqueue)
+ {
+ 	struct fe_priv *np = netdev_priv(dev);
+ 	u8 __iomem *base = get_hwbase(dev);
