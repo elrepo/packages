@@ -2,13 +2,13 @@
 %define kmod_name		rtl8187
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-193.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-240.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -168,6 +168,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat Nov 07 2020 Philip J Perry <phil@elrepo.org> 0.0-3
+- Rebuilt for RHEL8.3
+- Backported from kernel-5.7.19
+
 * Tue Apr 28 2020 Philip J Perry <phil@elrepo.org> 0.0-2
 - Rebuilt for RHEL8.2
 - Backported from kernel-5.4.35
