@@ -3,20 +3,20 @@
 %define real_name drbd
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-193.6.3.el8_2}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-240.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	9.0.23
-Release:	1%{?dist}
+Version:	9.0.25
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
 URL:		http://www.drbd.org/
 
 # Sources
-Source0:	drbd-%{version}-1.tar.gz
+Source0:	drbd-%{version}-2.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
@@ -60,7 +60,7 @@ It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
-%setup -n %{real_name}-%{version}-1
+%setup -n %{real_name}-%{version}-2
 # %patch0 -p1
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
@@ -176,6 +176,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat Nov 07 2020 Akemi Yagi <toracat@elrepo.org> - 9.0.25-2.el8_3
+- Updated to 9.0.25
+- Rebuilt against RHEL 8.3 kernel
+
 * Tue Jun 23 2020 Akemi Yagi <toracat@elrepo.org> - 9.0.23-1.el8_2
 - Updated to 9.0.23
 

@@ -1,7 +1,7 @@
 %define real_name drbd-utils
 
 Name:    drbd90-utils
-Version: 9.13.1
+Version: 9.15.1
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
@@ -120,9 +120,11 @@ fi
 %doc %{_mandir}/ja/man5/drbd.conf-*
 %doc %{_mandir}/ja/man8/drbd*
 %doc %{_mandir}/man7/ocf_linbit_drbd.7.gz
+%doc %{_mandir}/man7/ocf_linbit_drbd-attr.7.gz
 %config %{_sysconfdir}/bash_completion.d/drbdadm
 %config %{_prefix}/lib/udev/rules.d/65-drbd.rules
 %config(noreplace) %{_sysconfdir}/drbd.conf
+%config(noreplace) %{_sysconfdir}/multipath/conf.d/drbd.conf
 %dir %{_sysconfdir}/drbd.d/
 %config(noreplace) %{_sysconfdir}/drbd.d/global_common.conf
 %config %{_unitdir}/drbd.service
@@ -152,6 +154,7 @@ fi
 %{_prefix}/lib/drbd/stonith_admin-fence-peer.sh
 %{_prefix}/lib/drbd/unsnapshot-resync-target-lvm.sh
 %{_prefix}/lib/tmpfiles.d/drbd.conf
+%{_prefix}/lib/ocf/resource.d/linbit/drbd-attr
 
 ### heartbeat
 %{_sysconfdir}/ha.d/resource.d/drbddisk
@@ -178,6 +181,9 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Sat Nov 07 2020 Akemi Yagi <toracat@elrepo.org> - 9.15.1-1
+- Updated to 9.15.1
+
 * Tue Jun 23 2020 Akemi Yagi <toracat@elrepo.org> - 9.13.1-1
 - Updated to 9.13.1
 
