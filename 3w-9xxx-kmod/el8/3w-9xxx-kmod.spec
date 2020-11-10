@@ -2,13 +2,13 @@
 %define kmod_name   3w-9xxx	
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-193.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-240.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	2.26.02.014
-Release:	3%{?dist}
+Release:	5%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -57,6 +57,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -n %{kmod_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "add_drivers+=\" %{kmod_name} \"" > %{kmod_name}.conf
 
 # Apply patch(es)
 # % patch0 -p1
@@ -78,6 +79,8 @@ sort -u greylist | uniq > greylist.txt
 %{__install} %{kmod_name}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
+%{__install} -d %{buildroot}%{_sysconfdir}/dracut.conf.d/
+%{__install} -m 0644 %{kmod_name}.conf %{buildroot}%{_sysconfdir}/dracut.conf.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
@@ -170,9 +173,16 @@ exit 0
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
 %config /etc/depmod.d/kmod-%{kmod_name}.conf
+%config /etc/dracut.conf.d/%{kmod_name}.conf
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Nov 09 2020 Akemi Yagi <toracat@elrepo.org> - 2.26.02.014-5
+- Add dracut conf file to ensure module is in initramfs
+
+* Tue Nov 03 2020 Akemi Yagi <toracat@elrepo.org> - 2.26.02.014-4
+- Rebuilt against RHEL 8.3 kernel
+
 * Wed Apr 29 2020 Akemi Yagi <toracat@elrepo.org> - 2.26.02.014-3
 - Rebuilt against RHEL 8.2 kernel
 
