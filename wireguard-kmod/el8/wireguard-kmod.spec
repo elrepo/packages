@@ -2,20 +2,20 @@
 %define kmod_name wireguard
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-193.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-240.el8}
 
 %{!?dist: %define dist .el8}
 
 # define epoch to equal minor point release to ensure
 # newer versions are not installed on older kernels
-%if "%{kmod_kernel_version}" == "4.18.0-193.el8"
-Epoch:	2
+%if "%{kmod_kernel_version}" == "4.18.0-240.el8"
+Epoch:	3
 %else
-Epoch:	1
+Epoch:	2
 %endif
 
 Name:		kmod-%{kmod_name}
-Version:	1.0.20200908
+Version:	1.0.20201112
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -182,6 +182,12 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri Nov 13 2020 Philip J Perry <phil@elrepo.org> 1.0.20201112-1
+- Update to 1.0.20201112
+
+* Tue Nov 03 2020 Philip J Perry <phil@elrepo.org> 1.0.20200908-2
+- Rebuilt for RHEL 8.3
+
 * Tue Sep 08 2020 Philip J Perry <phil@elrepo.org> 1.0.20200908-1
 - Update to 1.0.20200908
 

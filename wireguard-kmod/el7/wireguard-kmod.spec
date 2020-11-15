@@ -13,8 +13,8 @@ Epoch:	8
 %endif
 
 Name:    %{kmod_name}-kmod
-Version: 1.0.20200908
-Release: 2%{?dist}
+Version: 1.0.20201112
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -73,6 +73,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Nov 13 2020 Philip J Perry <phil@elrepo.org> 1.0.20201112-1
+- Update to 1.0.20201112
+
 * Tue Sep 29 2020 Philip J Perry <phil@elrepo.org> 1.0.20200908-2
 - Rebuilt for RHEL7.9 release
 
