@@ -2,13 +2,13 @@
 %define kmod_name		ftsteutates
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-80.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-240.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	20190927
-Release:	2%{?dist}
+Release:	4%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -186,6 +186,12 @@ exit 0
 %ghost /etc/sensors.d/fts-teutates.conf
 
 %changelog
+* Wed Nov 18 2020 Philip J Perry <phil@elrepo.org> - 20190927-4
+- Rebuilt for RHEL8.3
+
+* Tue Apr 28 2020 Philip J Perry <phil@elrepo.org> - 20190927-3
+- Rebuilt for RHEL8.2
+
 * Mon Dec 09 2019 Jens Kuehnel <elrepo-package@jens.kuehnel.org> - 20190927-2
 - create ghost file for board specific sensors file
 
