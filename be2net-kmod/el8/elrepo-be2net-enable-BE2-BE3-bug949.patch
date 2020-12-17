@@ -1,0 +1,21 @@
+elrepo-be2net-enable-BE2-BE3-bug949.patch [bug #949]
+
+Enable the be2net driver that have been removed in RHEL 8.
+
+OneConnect TIGERSHARK NIC, PCI ID 0x19a2:0x0700
+OneConnect TOMCAT NIC, PCI ID 0x19a2:0x0710
+
+OneConnect TOMCAT NIC, PCI ID 0x19a2:0x0710
+BladeEngine3 Network Adapter, PCI ID 0x19a2:0x0221
+
+--- a/Makefile	2020-09-23 01:29:32.000000000 -0700
++++ b/Makefile	2020-12-15 00:41:11.932886527 -0800
+@@ -3,6 +3,8 @@
+ # Makefile to build the network driver for ServerEngine's BladeEngine.
+ #
+ 
++ccflags-y += -DCONFIG_BE2NET_BE2 -DCONFIG_BE2NET_BE3
++
+ obj-$(CONFIG_BE2NET) += be2net.o
+ 
+ be2net-y :=  be_main.o be_cmds.o be_ethtool.o be_roce.o

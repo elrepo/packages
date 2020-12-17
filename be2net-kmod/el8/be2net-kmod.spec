@@ -2,13 +2,13 @@
 %define kmod_name be2net
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-193.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-240.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
 Version:        12.0.0.0
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -19,6 +19,7 @@ Source0:  %{kmod_name}-%{version}.tar.gz
 Source5:  GPL-v2.0.txt
 
 # Source code patches
+Patch0:   elrepo-be2net-enable-BE2-BE3-bug949.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -60,6 +61,8 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
+
+%patch0 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD CONFIG_BE2NET=m
@@ -172,6 +175,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Dec 14 2020 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0.0-6
+- Rebuilt against RHEL 8.3 kernel
+
 * Thu Jun 18 2020 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0.0-5
 - Re-enable both BE2 and BE3 that was disabled in error
 
