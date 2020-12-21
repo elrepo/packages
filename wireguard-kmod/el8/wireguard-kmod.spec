@@ -15,7 +15,7 @@ Epoch:	2
 %endif
 
 Name:		kmod-%{kmod_name}
-Version:	1.0.20201112
+Version:	1.0.20201221
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -132,7 +132,7 @@ if [ -f "%{kver_state_file}" ]; then
 
 		# The same check as in weak-modules: we assume that the kernel present
 		# if the symvers file exists.
-		if [ -e "/boot/symvers-$k.gz" ]; then
+		if [ -e "$k_dir/symvers.gz" ]; then
 			/usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
 			cmp -s "$tmp_initramfs" "$dst_initramfs"
 			if [ "$?" = 1 ]; then
@@ -182,6 +182,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Dec 21 2020 Philip J Perry <phil@elrepo.org> 1.0.20201221-1
+- Update to 1.0.20201221
+- Fix updating of initramfs image [https://elrepo.org/bugs/view.php?id=1060]
+
 * Fri Nov 13 2020 Philip J Perry <phil@elrepo.org> 1.0.20201112-1
 - Update to 1.0.20201112
 
