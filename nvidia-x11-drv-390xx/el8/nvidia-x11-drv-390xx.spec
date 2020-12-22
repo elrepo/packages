@@ -7,7 +7,7 @@
 
 Name:		nvidia-x11-drv-390xx
 Version:	390.138
-Release:	1%{?dist}
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -57,6 +57,9 @@ Conflicts:	nvidia-x11-drv-173xx
 Conflicts:	nvidia-x11-drv-173xx-32bit
 Conflicts:	nvidia-x11-drv-96xx
 Conflicts:	nvidia-x11-drv-96xx-32bit
+
+# negativo17.org
+Conflicts:	nvidia-kmod-common
 
 # rpmforge
 Conflicts:	dkms-nvidia
@@ -349,6 +352,10 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Tue Dec 22 2020 Philip J Perry <phil@elrepo.org> - 390.138-2
+- Rebuilt for RHEL 8.3
+- Add conflicts for nvidia-kmod-common
+
 * Thu Jun 25 2020 Philip J Perry <phil@elrepo.org> - 390.138-1
 - Updated to version 390.138
 

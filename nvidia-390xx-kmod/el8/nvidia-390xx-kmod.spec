@@ -2,13 +2,13 @@
 %define kmod_name		nvidia-390xx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-193.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-240.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	390.138
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
 License:	Proprietary
@@ -54,6 +54,7 @@ BuildRequires:	gcc = 8.3.1
 Provides:	kernel-modules >= %{kmod_kernel_version}.%{_arch}
 Provides:	kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
 
+Requires:	nvidia-x11-drv-390xx = %{?epoch:%{epoch}:}%{version}
 Requires(post):	%{_sbindir}/weak-modules
 Requires(postun):	%{_sbindir}/weak-modules
 Requires:	kernel >= %{kmod_kernel_version}
@@ -146,7 +147,7 @@ if [ -f "%{kver_state_file}" ]; then
 #
 #		# The same check as in weak-modules: we assume that the kernel present
 #		# if the symvers file exists.
-#		if [ -e "/boot/symvers-$k.gz" ]; then
+#		if [ -e "$k_dir/symvers.gz" ]; then
 #			/usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
 #			cmp -s "$tmp_initramfs" "$dst_initramfs"
 #			if [ "$?" = 1 ]; then
@@ -212,6 +213,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Dec 22 2020 Philip J Perry <phil@elrepo.org> - 390.138-2
+- Rebuilt for RHEL 8.3
+- Add missing requires for nvidia-x11-drv package
+
 * Thu Jun 25 2020 Philip J Perry <phil@elrepo.org> - 390.138-1
 - Updated to version 390.138
 
