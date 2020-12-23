@@ -188,7 +188,7 @@ static inline bool megasas_check_same_4gb_region
  * megasas_enable_intr_fusion -	Enables interrupts
  * @regs:			MFI register set
  */
-void
+static void
 megasas_enable_intr_fusion(struct megasas_instance *instance)
 {
 	struct megasas_register_set __iomem *regs;
@@ -210,7 +210,7 @@ megasas_enable_intr_fusion(struct megasas_instance *instance)
  * megasas_disable_intr_fusion - Disables interrupt
  * @regs:			 MFI register set
  */
-void
+static void
 megasas_disable_intr_fusion(struct megasas_instance *instance)
 {
 	u32 mask = 0xFFFFFFFF;
@@ -376,6 +376,35 @@ megasas_fusion_update_can_queue(struct megasas_instance *instance, int fw_boot_c
 		instance->max_fw_cmds = instance->max_fw_cmds-1;
 	}
 }
+
+static inline void
+megasas_get_msix_index(struct megasas_instance *instance,
+		       struct scsi_cmnd *scmd,
+		       struct megasas_cmd_fusion *cmd,
+		       u8 data_arms)
+{
+	int sdev_busy;
+
+	/* nr_hw_queue = 1 for MegaRAID */
+	struct blk_mq_hw_ctx *hctx =
+		scmd->device->request_queue->queue_hw_ctx[0];
+
+	sdev_busy = atomic_read(&hctx->nr_active);
+
+	if (instance->perf_mode == MR_BALANCED_PERF_MODE &&
+	    sdev_busy > (data_arms * MR_DEVICE_HIGH_IOPS_DEPTH))
+		cmd->request_desc->SCSIIO.MSIxIndex =
+			mega_mod64((atomic64_add_return(1, &instance->high_iops_outstanding) /
+					MR_HIGH_IOPS_BATCH_COUNT), instance->low_latency_index_start);
+	else if (instance->msix_load_balance)
+		cmd->request_desc->SCSIIO.MSIxIndex =
+			(mega_mod64(atomic64_add_return(1, &instance->total_io_count),
+				instance->msix_vectors));
+	else
+		cmd->request_desc->SCSIIO.MSIxIndex =
+			instance->reply_map[raw_smp_processor_id()];
+}
+
 /**
  * megasas_free_cmds_fusion -	Free all the cmds in the free cmd pool
  * @instance:		Adapter soft state
@@ -606,7 +635,8 @@ retry_alloc:
 
 	fusion->io_request_frames =
 			dma_pool_alloc(fusion->io_request_frames_pool,
-				GFP_KERNEL, &fusion->io_request_frames_phys);
+				GFP_KERNEL | __GFP_NOWARN,
+				&fusion->io_request_frames_phys);
 	if (!fusion->io_request_frames) {
 		if (instance->max_fw_cmds >= (MEGASAS_REDUCE_QD_COUNT * 2)) {
 			instance->max_fw_cmds -= MEGASAS_REDUCE_QD_COUNT;
@@ -644,7 +674,7 @@ retry_alloc:
 
 		fusion->io_request_frames =
 			dma_pool_alloc(fusion->io_request_frames_pool,
-				       GFP_KERNEL,
+				       GFP_KERNEL | __GFP_NOWARN,
 				       &fusion->io_request_frames_phys);
 
 		if (!fusion->io_request_frames) {
@@ -1324,7 +1354,9 @@ megasas_sync_pd_seq_num(struct megasas_instance *instance, bool pend) {
 	}
 
 	if (ret == DCMD_TIMEOUT)
-		megaraid_sas_kill_hba(instance);
+		dev_warn(&instance->pdev->dev,
+			 "%s DCMD timed out, continue without JBOD sequence map\n",
+			 __func__);
 
 	if (ret == DCMD_SUCCESS)
 		instance->pd_seq_map_id++;
@@ -1406,7 +1438,9 @@ megasas_get_ld_map_info(struct megasas_instance *instance)
 		ret = megasas_issue_polled(instance, cmd);
 
 	if (ret == DCMD_TIMEOUT)
-		megaraid_sas_kill_hba(instance);
+		dev_warn(&instance->pdev->dev,
+			 "%s DCMD timed out, RAID map is disabled\n",
+			 __func__);
 
 	megasas_return_cmd(instance, cmd);
 
@@ -2048,7 +2082,6 @@ static bool
 megasas_is_prp_possible(struct megasas_instance *instance,
 			struct scsi_cmnd *scmd, int sge_count)
 {
-	int i;
 	u32 data_length = 0;
 	struct scatterlist *sg_scmd;
 	bool build_prp = false;
@@ -2075,63 +2108,6 @@ megasas_is_prp_possible(struct megasas_instance *instance,
 		/* check if 1st SG entry size is < residual beyond 4 pages */
 		if (sg_dma_len(sg_scmd) < (data_length - (mr_nvme_pg_size * 4)))
 			build_prp = true;
-	}
-
-/*
- * Below code detects gaps/holes in IO data buffers.
- * What does holes/gaps mean?
- * Any SGE except first one in a SGL starts at non NVME page size
- * aligned address OR Any SGE except last one in a SGL ends at
- * non NVME page size boundary.
- *
- * Driver has already informed block layer by setting boundary rules for
- * bio merging done at NVME page size boundary calling kernel API
- * blk_queue_virt_boundary inside slave_config.
- * Still there is possibility of IO coming with holes to driver because of
- * IO merging done by IO scheduler.
- *
- * With SCSI BLK MQ enabled, there will be no IO with holes as there is no
- * IO scheduling so no IO merging.
- *
- * With SCSI BLK MQ disabled, IO scheduler may attempt to merge IOs and
- * then sending IOs with holes.
- *
- * Though driver can request block layer to disable IO merging by calling-
- * blk_queue_flag_set(QUEUE_FLAG_NOMERGES, sdev->request_queue) but
- * user may tune sysfs parameter- nomerges again to 0 or 1.
- *
- * If in future IO scheduling is enabled with SCSI BLK MQ,
- * this algorithm to detect holes will be required in driver
- * for SCSI BLK MQ enabled case as well.
- *
- *
- */
-	scsi_for_each_sg(scmd, sg_scmd, sge_count, i) {
-		if ((i != 0) && (i != (sge_count - 1))) {
-			if (mega_mod64(sg_dma_len(sg_scmd), mr_nvme_pg_size) ||
-			    mega_mod64(sg_dma_address(sg_scmd),
-				       mr_nvme_pg_size)) {
-				build_prp = false;
-				break;
-			}
-		}
-
-		if ((sge_count > 1) && (i == 0)) {
-			if ((mega_mod64((sg_dma_address(sg_scmd) +
-					sg_dma_len(sg_scmd)),
-					mr_nvme_pg_size))) {
-				build_prp = false;
-				break;
-			}
-		}
-
-		if ((sge_count > 1) && (i == (sge_count - 1))) {
-			if (mega_mod64(sg_dma_address(sg_scmd),
-				       mr_nvme_pg_size)) {
-				build_prp = false;
-				break;
-			}
-		}
 	}
 
 	return build_prp;
@@ -2837,19 +2813,7 @@ megasas_build_ldio_fusion(struct megasas_instance *instance,
 			fp_possible = (io_info.fpOkForIo > 0) ? true : false;
 	}
 
-	if ((instance->perf_mode == MR_BALANCED_PERF_MODE) &&
-		atomic_read(&scp->device->device_busy) >
-		(io_info.data_arms * MR_DEVICE_HIGH_IOPS_DEPTH))
-		cmd->request_desc->SCSIIO.MSIxIndex =
-			mega_mod64((atomic64_add_return(1, &instance->high_iops_outstanding) /
-				MR_HIGH_IOPS_BATCH_COUNT), instance->low_latency_index_start);
-	else if (instance->msix_load_balance)
-		cmd->request_desc->SCSIIO.MSIxIndex =
-			(mega_mod64(atomic64_add_return(1, &instance->total_io_count),
-				    instance->msix_vectors));
-	else
-		cmd->request_desc->SCSIIO.MSIxIndex =
-			instance->reply_map[raw_smp_processor_id()];
+	megasas_get_msix_index(instance, scp, cmd, io_info.data_arms);
 
 	if (instance->adapter_type >= VENTURA_SERIES) {
 		/* FP for Optimal raid level 1.
@@ -3170,18 +3134,7 @@ megasas_build_syspd_fusion(struct megasas_instance *instance,
 
 	cmd->request_desc->SCSIIO.DevHandle = io_request->DevHandle;
 
-	if ((instance->perf_mode == MR_BALANCED_PERF_MODE) &&
-		atomic_read(&scmd->device->device_busy) > MR_DEVICE_HIGH_IOPS_DEPTH)
-		cmd->request_desc->SCSIIO.MSIxIndex =
-			mega_mod64((atomic64_add_return(1, &instance->high_iops_outstanding) /
-				MR_HIGH_IOPS_BATCH_COUNT), instance->low_latency_index_start);
-	else if (instance->msix_load_balance)
-		cmd->request_desc->SCSIIO.MSIxIndex =
-			(mega_mod64(atomic64_add_return(1, &instance->total_io_count),
-				    instance->msix_vectors));
-	else
-		cmd->request_desc->SCSIIO.MSIxIndex =
-			instance->reply_map[raw_smp_processor_id()];
+	megasas_get_msix_index(instance, scmd, cmd, 1);
 
 	if (!fp_possible) {
 		/* system pd firmware path */
@@ -4231,15 +4184,17 @@ void  megasas_reset_reply_desc(struct megasas_instance *instance)
  * megasas_refire_mgmt_cmd :	Re-fire management commands
  * @instance:				Controller's soft instance
 */
-static void megasas_refire_mgmt_cmd(struct megasas_instance *instance)
+static void megasas_refire_mgmt_cmd(struct megasas_instance *instance,
+			     bool return_ioctl)
 {
 	int j;
 	struct megasas_cmd_fusion *cmd_fusion;
 	struct fusion_context *fusion;
 	struct megasas_cmd *cmd_mfi;
 	union MEGASAS_REQUEST_DESCRIPTOR_UNION *req_desc;
+	struct MPI2_RAID_SCSI_IO_REQUEST *scsi_io_req;
 	u16 smid;
-	bool refire_cmd = 0;
+	bool refire_cmd = false;
 	u8 result;
 	u32 opcode = 0;
 
@@ -4295,6 +4250,21 @@ static void megasas_refire_mgmt_cmd(struct megasas_instance *instance)
 			break;
 		}
 
+		if (return_ioctl && cmd_mfi->sync_cmd &&
+		    cmd_mfi->frame->hdr.cmd != MFI_CMD_ABORT) {
+			dev_err(&instance->pdev->dev,
+				"return -EBUSY from %s %d cmd 0x%x opcode 0x%x\n",
+				__func__, __LINE__, cmd_mfi->frame->hdr.cmd,
+				le32_to_cpu(cmd_mfi->frame->dcmd.opcode));
+			cmd_mfi->cmd_status_drv = DCMD_BUSY;
+			result = COMPLETE_CMD;
+		}
+
+		scsi_io_req = (struct MPI2_RAID_SCSI_IO_REQUEST *)
+				cmd_fusion->io_request;
+		if (scsi_io_req->Function == MPI2_FUNCTION_SCSI_TASK_MGMT)
+			result = RETURN_CMD;
+
 		switch (result) {
 		case REFIRE_CMD:
 			megasas_fire_cmd_fusion(instance, req_desc);
@@ -4305,6 +4275,37 @@ static void megasas_refire_mgmt_cmd(struct megasas_instance *instance)
 		case COMPLETE_CMD:
 			megasas_complete_cmd(instance, cmd_mfi, DID_OK);
 			break;
+		}
+	}
+}
+
+/*
+ * megasas_return_polled_cmds: Return polled mode commands back to the pool
+ *			       before initiating an OCR.
+ * @instance:                  Controller's soft instance
+ */
+static void
+megasas_return_polled_cmds(struct megasas_instance *instance)
+{
+	int i;
+	struct megasas_cmd_fusion *cmd_fusion;
+	struct fusion_context *fusion;
+	struct megasas_cmd *cmd_mfi;
+
+	fusion = instance->ctrl_context;
+
+	for (i = instance->max_scsi_cmds; i < instance->max_fw_cmds; i++) {
+		cmd_fusion = fusion->cmd_list[i];
+		cmd_mfi = instance->cmd_list[cmd_fusion->sync_cmd_idx];
+
+		if (cmd_mfi->flags & DRV_DCMD_POLLED_MODE) {
+			if (megasas_dbg_lvl & OCR_DEBUG)
+				dev_info(&instance->pdev->dev,
+					 "%s %d return cmd 0x%x opcode 0x%x\n",
+					 __func__, __LINE__, cmd_mfi->frame->hdr.cmd,
+					 le32_to_cpu(cmd_mfi->frame->dcmd.opcode));
+			cmd_mfi->flags &= ~DRV_DCMD_POLLED_MODE;
+			megasas_return_cmd(instance, cmd_mfi);
 		}
 	}
 }
@@ -4492,7 +4493,6 @@ megasas_issue_tm(struct megasas_instance *instance, u16 device_handle,
 	if (!timeleft) {
 		dev_err(&instance->pdev->dev,
 			"task mgmt type 0x%x timed out\n", type);
-		cmd_mfi->flags |= DRV_DCMD_SKIP_REFIRE;
 		mutex_unlock(&instance->reset_mutex);
 		rc = megasas_reset_fusion(instance->host, MFI_IO_TIMEOUT_OCR);
 		mutex_lock(&instance->reset_mutex);
@@ -4672,12 +4672,12 @@ int megasas_task_abort_fusion(struct scsi_cmnd *scmd)
 		"attempting task abort! scmd(0x%p) tm_dev_handle 0x%x\n",
 		scmd, devhandle);
 
-	mr_device_priv_data->tm_busy = 1;
+	mr_device_priv_data->tm_busy = true;
 	ret = megasas_issue_tm(instance, devhandle,
 			scmd->device->channel, scmd->device->id, smid,
 			MPI2_SCSITASKMGMT_TASKTYPE_ABORT_TASK,
 			mr_device_priv_data);
-	mr_device_priv_data->tm_busy = 0;
+	mr_device_priv_data->tm_busy = false;
 
 	mutex_unlock(&instance->reset_mutex);
 	scmd_printk(KERN_INFO, scmd, "task abort %s!! scmd(0x%p)\n",
@@ -4742,12 +4742,12 @@ int megasas_reset_target_fusion(struct scsi_cmnd *scmd)
 	sdev_printk(KERN_INFO, scmd->device,
 		"attempting target reset! scmd(0x%p) tm_dev_handle: 0x%x\n",
 		scmd, devhandle);
-	mr_device_priv_data->tm_busy = 1;
+	mr_device_priv_data->tm_busy = true;
 	ret = megasas_issue_tm(instance, devhandle,
 			scmd->device->channel, scmd->device->id, 0,
 			MPI2_SCSITASKMGMT_TASKTYPE_TARGET_RESET,
 			mr_device_priv_data);
-	mr_device_priv_data->tm_busy = 0;
+	mr_device_priv_data->tm_busy = false;
 	mutex_unlock(&instance->reset_mutex);
 	scmd_printk(KERN_NOTICE, scmd, "target reset %s!!\n",
 		(ret == SUCCESS) ? "SUCCESS" : "FAILED");
@@ -4859,6 +4859,7 @@ int megasas_reset_fusion(struct Scsi_Host *shost, int reason)
 	if (instance->requestorId && !instance->skip_heartbeat_timer_del)
 		del_timer_sync(&instance->sriov_heartbeat_timer);
 	set_bit(MEGASAS_FUSION_IN_RESET, &instance->reset_flags);
+	set_bit(MEGASAS_FUSION_OCR_NOT_POSSIBLE, &instance->reset_flags);
 	atomic_set(&instance->adprecovery, MEGASAS_ADPRESET_SM_POLLING);
 	instance->instancet->disable_intr(instance);
 	megasas_sync_irqs((unsigned long)instance);
@@ -4963,7 +4964,9 @@ int megasas_reset_fusion(struct Scsi_Host *shost, int reason)
 				goto kill_hba;
 			}
 
-			megasas_refire_mgmt_cmd(instance);
+			megasas_refire_mgmt_cmd(instance,
+						(i == (MEGASAS_FUSION_MAX_RESET_TRIES - 1)
+							? 1 : 0));
 
 			/* Reset load balance info */
 			if (fusion->load_balance_info)
@@ -4971,8 +4974,16 @@ int megasas_reset_fusion(struct Scsi_Host *shost, int reason)
 				       (sizeof(struct LD_LOAD_BALANCE_INFO) *
 				       MAX_LOGICAL_DRIVES_EXT));
 
-			if (!megasas_get_map_info(instance))
+			if (!megasas_get_map_info(instance)) {
 				megasas_sync_map_info(instance);
+			} else {
+				/*
+				 * Return pending polled mode cmds before
+				 * retrying OCR
+				 */
+				megasas_return_polled_cmds(instance);
+				continue;
+			}
 
 			megasas_setup_jbod_map(instance);
 
@@ -4999,6 +5010,15 @@ int megasas_reset_fusion(struct Scsi_Host *shost, int reason)
 				megasas_set_dynamic_target_properties(sdev, is_target_prop);
 			}
 
+			status_reg = instance->instancet->read_fw_status_reg
+					(instance);
+			abs_state = status_reg & MFI_STATE_MASK;
+			if (abs_state != MFI_STATE_OPERATIONAL) {
+				dev_info(&instance->pdev->dev,
+					 "Adapter is not OPERATIONAL, state 0x%x for scsi:%d\n",
+					 abs_state, instance->host->host_no);
+				goto out;
+			}
 			atomic_set(&instance->adprecovery, MEGASAS_HBA_OPERATIONAL);
 
 			dev_info(&instance->pdev->dev,
@@ -5058,7 +5078,7 @@ kill_hba:
 	instance->skip_heartbeat_timer_del = 1;
 	retval = FAILED;
 out:
-	clear_bit(MEGASAS_FUSION_IN_RESET, &instance->reset_flags);
+	clear_bit(MEGASAS_FUSION_OCR_NOT_POSSIBLE, &instance->reset_flags);
 	mutex_unlock(&instance->reset_mutex);
 	return retval;
 }
