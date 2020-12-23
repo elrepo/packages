@@ -2893,7 +2893,7 @@ qla2x00_gff_id(scsi_qla_host_t *vha, sw_info_t *list)
 	for (i = 0; i < ha->max_fibre_devices; i++) {
 		/* Set default FC4 Type as UNKNOWN so the default is to
 		 * Process this port */
-		list[i].fc4_type = FC4_TYPE_UNKNOWN;
+		list[i].fc4_type = 0;
 
 		/* Do not attempt GFF_ID if we are not FWI_2 capable */
 		if (!IS_FWI2_CAPABLE(ha))
@@ -2963,7 +2963,6 @@ int qla24xx_post_gpsc_work(struct scsi_qla_host *vha, fc_port_t *fcport)
 		return QLA_FUNCTION_FAILED;
 
 	e->u.fcport.fcport = fcport;
-	fcport->flags |= FCF_ASYNC_ACTIVE;
 	return qla2x00_post_work(vha, e);
 }
 
@@ -3097,9 +3096,7 @@ int qla24xx_async_gpsc(scsi_qla_host_t *vha, fc_port_t *fcport)
 
 done_free_sp:
 	sp->free(sp);
-	fcport->flags &= ~FCF_ASYNC_SENT;
 done:
-	fcport->flags &= ~FCF_ASYNC_ACTIVE;
 	return rval;
 }
 
@@ -3246,7 +3243,7 @@ void qla24xx_handle_gpnid_event(scsi_qla_host_t *vha, struct event_arg *ea)
 			    "%s %d %8phC post new sess\n",
 			    __func__, __LINE__, ea->port_name);
 			qla24xx_post_newsess_work(vha, &ea->id,
-			    ea->port_name, NULL, NULL, FC4_TYPE_UNKNOWN);
+			    ea->port_name, NULL, NULL, 0);
 		}
 	}
 }
@@ -3587,12 +3584,22 @@ void qla24xx_async_gnnft_done(scsi_qla_host_t *vha, srb_t *sp)
 		if (vha->scan.scan_retry < MAX_SCAN_RETRIES) {
 			set_bit(LOCAL_LOOP_UPDATE, &vha->dpc_flags);
 			set_bit(LOOP_RESYNC_NEEDED, &vha->dpc_flags);
+			goto out;
 		} else {
-			ql_dbg(ql_dbg_disc + ql_dbg_verbose, vha, 0xffff,
+			ql_dbg(ql_dbg_disc, vha, 0xffff,
 			    "%s: Fabric scan failed for %d retries.\n",
 			    __func__, vha->scan.scan_retry);
+			/*
+			 * Unable to scan any rports. logout loop below
+			 * will unregister all sessions.
+			 */
+			list_for_each_entry(fcport, &vha->vp_fcports, list) {
+				if ((fcport->flags & FCF_FABRIC_DEVICE) != 0) {
+					fcport->scan_state = QLA_FCPORT_SCAN;
+				}
+			}
+			goto login_logout;
 		}
-		goto out;
 	}
 	vha->scan.scan_retry = 0;
 
@@ -3639,6 +3646,7 @@ void qla24xx_async_gnnft_done(scsi_qla_host_t *vha, srb_t *sp)
 			if (memcmp(rp->port_name, fcport->port_name, WWN_SIZE))
 				continue;
 			fcport->scan_state = QLA_FCPORT_FOUND;
+			fcport->last_rscn_gen = fcport->rscn_gen;
 			found = true;
 			/*
 			 * If device was not a fabric device before.
@@ -3670,6 +3678,7 @@ void qla24xx_async_gnnft_done(scsi_qla_host_t *vha, srb_t *sp)
 		    dup_cnt);
 	}
 
+login_logout:
 	/*
 	 * Logout all previous fabric dev marked lost, except FCP2 devices.
 	 */
@@ -3680,10 +3689,22 @@ void qla24xx_async_gnnft_done(scsi_qla_host_t *vha, srb_t *sp)
 		}
 
 		if (fcport->scan_state != QLA_FCPORT_FOUND) {
+			bool do_delete = false;
+
+			if (fcport->scan_needed &&
+			    fcport->disc_state == DSC_LOGIN_PEND) {
+				/* Cable got disconnected after we sent
+				 * a login. Do delete to prevent timeout.
+				 */
+				fcport->logout_on_delete = 1;
+				do_delete = true;
+			}
+
 			fcport->scan_needed = 0;
-			if ((qla_dual_mode_enabled(vha) ||
-				qla_ini_mode_enabled(vha)) &&
-			    atomic_read(&fcport->state) == FCS_ONLINE) {
+			if (((qla_dual_mode_enabled(vha) ||
+			      qla_ini_mode_enabled(vha)) &&
+			    atomic_read(&fcport->state) == FCS_ONLINE) ||
+				do_delete) {
 				if (fcport->loop_id != FC_NO_LOOP_ID) {
 					if (fcport->flags & FCF_FCP2_DEVICE)
 						fcport->logout_on_delete = 0;
@@ -3883,6 +3904,18 @@ static void qla2x00_async_gpnft_gnnft_sp_done(srb_t *sp, int res)
 	if (res) {
 		unsigned long flags;
 		const char *name = sp->name;
+
+		if (res == QLA_OS_TIMER_EXPIRED) {
+			/* switch is ignoring all commands.
+			 * This might be a zone disable behavior.
+			 * This means we hit 64s timeout.
+			 * 22s GPNFT + 44s Abort = 64s
+			 */
+			ql_dbg(ql_dbg_disc, vha, 0xffff,
+			       "%s: Switch Zone check please .\n",
+			       name);
+			qla2x00_mark_all_devices_lost(vha);
+		}
 
 		/*
 		 * We are in an Interrupt context, queue up this
@@ -4276,7 +4309,7 @@ int qla24xx_async_gnnid(scsi_qla_host_t *vha, fc_port_t *fcport)
 	if (!vha->flags.online || (fcport->flags & FCF_ASYNC_SENT))
 		return rval;
 
-	fcport->disc_state = DSC_GNN_ID;
+	qla2x00_set_fcport_disc_state(fcport, DSC_GNN_ID);
 	sp = qla2x00_get_sp(vha, fcport, GFP_ATOMIC);
 	if (!sp)
 		goto done;
@@ -4450,7 +4483,6 @@ int qla24xx_async_gfpnid(scsi_qla_host_t *vha, fc_port_t *fcport)
 
 done_free_sp:
 	sp->free(sp);
-	fcport->flags &= ~FCF_ASYNC_SENT;
 done:
 	return rval;
 }

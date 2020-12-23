@@ -2,12 +2,12 @@
 %define kmod_name		qla2xxx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-80.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-240.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	10.01.00.21.08.2
+Version:	10.01.00.25.08.3
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -17,6 +17,7 @@ URL:		http://www.kernel.org/
 # Sources
 Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
+Source10:	%{kmod_name}.conf
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -73,6 +74,8 @@ sort -u greylist | uniq > greylist.txt
 %{__install} %{kmod_name}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
+%{__install} -d %{buildroot}%{_sysconfdir}/dracut.conf.d/
+%{__install} %{SOURCE10} %{buildroot}%{_sysconfdir}/dracut.conf.d/%{kmod_name}.conf
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
@@ -165,9 +168,16 @@ exit 0
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
 %config /etc/depmod.d/kmod-%{kmod_name}.conf
+%config /etc/dracut.conf.d/%{kmod_name}.conf
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Nov 04 2020 Philip J Perry <phil@elrepo.org> 10.01.00.25.08.3-1
+- Rebuilt for RHEL8.3
+- Source code updated from RHEL kernel-4.18.0-240.el8.x86_64
+- Revert removal of PCI_DEVICE_IDs for older devices
+  [https://github.com/elrepo/packages/commit/1ef89751cfe949dc5a8947c7e4c42d6dc5c3a7a1]
+
 * Wed Jun 17 2020 Philip J Perry <phil@elrepo.org> 10.01.00.21.08.2-1
 - Initial el8 build of the kmod package.
   [https://elrepo.org/bugs/view.php?id=1010]

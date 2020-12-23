@@ -1049,6 +1049,7 @@ static inline bool qla2xxx_is_valid_mbs(unsigned int mbs)
 #define MBA_TEMPERATURE_ALERT	0x8070	/* Temperature Alert */
 #define MBA_DPORT_DIAGNOSTICS	0x8080	/* D-port Diagnostics */
 #define MBA_TRANS_INSERT	0x8130	/* Transceiver Insertion */
+#define MBA_TRANS_REMOVE	0x8131	/* Transceiver Removal */
 #define MBA_FW_INIT_FAILURE	0x8401	/* Firmware initialization failure */
 #define MBA_MIRROR_LUN_CHANGE	0x8402	/* Mirror LUN State Change
 					   Notification */
@@ -1474,47 +1475,44 @@ typedef struct {
 #define GLSO_USE_DID	BIT_3
 
 struct link_statistics {
-	uint32_t link_fail_cnt;
-	uint32_t loss_sync_cnt;
-	uint32_t loss_sig_cnt;
-	uint32_t prim_seq_err_cnt;
-	uint32_t inval_xmit_word_cnt;
-	uint32_t inval_crc_cnt;
-	uint32_t lip_cnt;
-	uint32_t link_up_cnt;
-	uint32_t link_down_loop_init_tmo;
-	uint32_t link_down_los;
-	uint32_t link_down_loss_rcv_clk;
+	__le32 link_fail_cnt;
+	__le32 loss_sync_cnt;
+	__le32 loss_sig_cnt;
+	__le32 prim_seq_err_cnt;
+	__le32 inval_xmit_word_cnt;
+	__le32 inval_crc_cnt;
+	__le32 lip_cnt;
+	__le32 link_up_cnt;
+	__le32 link_down_loop_init_tmo;
+	__le32 link_down_los;
+	__le32 link_down_loss_rcv_clk;
 	uint32_t reserved0[5];
-	uint32_t port_cfg_chg;
+	__le32 port_cfg_chg;
 	uint32_t reserved1[11];
-	uint32_t rsp_q_full;
-	uint32_t atio_q_full;
-	uint32_t drop_ae;
-	uint32_t els_proto_err;
-	uint32_t reserved2;
-	uint32_t tx_frames;
-	uint32_t rx_frames;
-	uint32_t discarded_frames;
-	uint32_t dropped_frames;
+	__le32 rsp_q_full;
+	__le32 atio_q_full;
+	__le32 drop_ae;
+	__le32 els_proto_err;
+	__le32 reserved2;
+	__le32 tx_frames;
+	__le32 rx_frames;
+	__le32 discarded_frames;
+	__le32 dropped_frames;
 	uint32_t reserved3;
-	uint32_t nos_rcvd;
+	__le32 nos_rcvd;
 	uint32_t reserved4[4];
-	uint32_t tx_prjt;
-	uint32_t rcv_exfail;
-	uint32_t rcv_abts;
-	uint32_t seq_frm_miss;
-	uint32_t corr_err;
-	uint32_t mb_rqst;
-	uint32_t nport_full;
-	uint32_t eofa;
+	__le32 tx_prjt;
+	__le32 rcv_exfail;
+	__le32 rcv_abts;
+	__le32 seq_frm_miss;
+	__le32 corr_err;
+	__le32 mb_rqst;
+	__le32 nport_full;
+	__le32 eofa;
 	uint32_t reserved5;
-	uint32_t fpm_recv_word_cnt_lo;
-	uint32_t fpm_recv_word_cnt_hi;
-	uint32_t fpm_disc_word_cnt_lo;
-	uint32_t fpm_disc_word_cnt_hi;
-	uint32_t fpm_xmit_word_cnt_lo;
-	uint32_t fpm_xmit_word_cnt_hi;
+	__le64 fpm_recv_word_cnt;
+	__le64 fpm_disc_word_cnt;
+	__le64 fpm_xmit_word_cnt;
 	uint32_t reserved6[70];
 };
 
@@ -2401,6 +2399,8 @@ typedef struct fc_port {
 	unsigned int id_changed:1;
 	unsigned int scan_needed:1;
 	unsigned int n2n_flag:1;
+	unsigned int explicit_logout:1;
+	unsigned int prli_pend_timer:1;
 
 	struct completion nvme_del_done;
 	uint32_t nvme_prli_service_param;
@@ -2427,6 +2427,7 @@ typedef struct fc_port {
 	struct work_struct free_work;
 	struct work_struct reg_work;
 	uint64_t jiffies_at_registration;
+	unsigned long prli_expired;
 	struct qlt_plogi_ack_t *plogi_link[QLT_PLOGI_LINK_MAX];
 
 	uint16_t tgt_id;
@@ -2463,6 +2464,7 @@ typedef struct fc_port {
 	struct qla_tgt_sess *tgt_session;
 	struct ct_sns_desc ct_desc;
 	enum discovery_state disc_state;
+	atomic_t shadow_disc_state;
 	enum discovery_state next_disc_state;
 	enum login_state fw_login_state;
 	unsigned long dm_login_expire;
@@ -2508,6 +2510,19 @@ struct event_arg {
 #define FCS_ONLINE		4
 
 extern const char *const port_state_str[5];
+
+static const char * const port_dstate_str[] = {
+	"DELETED",
+	"GNN_ID",
+	"GNL",
+	"LOGIN_PEND",
+	"LOGIN_FAILED",
+	"GPDB",
+	"UPD_FCPORT",
+	"LOGIN_COMPLETE",
+	"ADISC",
+	"DELETE_PEND"
+};
 
 /*
  * FC port flags.
@@ -3205,6 +3220,7 @@ struct isp_operations {
 		uint32_t);
 
 	void (*fw_dump) (struct scsi_qla_host *, int);
+	void (*mpi_fw_dump)(struct scsi_qla_host *, int);
 
 	int (*beacon_on) (struct scsi_qla_host *);
 	int (*beacon_off) (struct scsi_qla_host *);
@@ -3233,6 +3249,7 @@ struct isp_operations {
 #define QLA_MSIX_RSP_Q			0x01
 #define QLA_ATIO_VECTOR		0x02
 #define QLA_MSIX_QPAIR_MULTIQ_RSP_Q	0x03
+#define QLA_MSIX_QPAIR_MULTIQ_RSP_Q_HS	0x04
 
 #define QLA_MIDX_DEFAULT	0
 #define QLA_MIDX_RSP_Q		1
@@ -3262,7 +3279,6 @@ enum qla_work_type {
 	QLA_EVT_IDC_ACK,
 	QLA_EVT_ASYNC_LOGIN,
 	QLA_EVT_ASYNC_LOGOUT,
-	QLA_EVT_ASYNC_LOGOUT_DONE,
 	QLA_EVT_ASYNC_ADISC,
 	QLA_EVT_UEVENT,
 	QLA_EVT_AENFX,
@@ -3602,6 +3618,11 @@ struct qlt_hw_data {
 
 #define LEAK_EXCHG_THRESH_HOLD_PERCENT 75	/* 75 percent */
 
+struct qla_hw_data_stat {
+	u32 num_fw_dump;
+	u32 num_mpi_reset;
+};
+
 /*
  * Qlogic host adapter specific data structure.
 */
@@ -3657,17 +3678,18 @@ struct qla_hw_data {
 		uint32_t	fw_started:1;
 		uint32_t	fw_init_done:1;
 
-		uint32_t	detected_lr_sfp:1;
-		uint32_t	using_lr_setting:1;
+		uint32_t	lr_detected:1;
+
 		uint32_t	rida_fmt2:1;
 		uint32_t	purge_mbox:1;
 		uint32_t        n2n_bigger:1;
 		uint32_t	secure_adapter:1;
 		uint32_t	secure_fw:1;
+		uint32_t	max_req_queue_warned:1;
 	} flags;
 
 	uint16_t max_exchg;
-	uint16_t long_range_distance;	/* 32G & above */
+	uint16_t lr_distance;	/* 32G & above */
 #define LR_DISTANCE_5K  1
 #define LR_DISTANCE_10K 0
 
@@ -3952,7 +3974,7 @@ struct qla_hw_data {
 	void		*sfp_data;
 	dma_addr_t	sfp_data_dma;
 
-	void		*flt;
+	struct qla_flt_header *flt;
 	dma_addr_t	flt_dma;
 
 #define XGMAC_DATA_SIZE	4096
@@ -4082,7 +4104,6 @@ struct qla_hw_data {
 	uint32_t	fw_dump_len;
 	u32		fw_dump_alloc_len;
 	bool		fw_dumped;
-	bool		fw_dump_mpi;
 	unsigned long	fw_dump_cap_flags;
 #define RISC_PAUSE_CMPL		0
 #define DMA_SHUTDOWN_CMPL	1
@@ -4093,6 +4114,10 @@ struct qla_hw_data {
 #define ISP_MBX_RDY		6
 #define ISP_SOFT_RESET_CMPL	7
 	int		fw_dump_reading;
+	void		*mpi_fw_dump;
+	u32		mpi_fw_dump_len;
+	unsigned int	mpi_fw_dump_reading:1;
+	unsigned int	mpi_fw_dumped:1;
 	int		prev_minidump_failed;
 	dma_addr_t	eft_dma;
 	void		*eft;
@@ -4306,6 +4331,8 @@ struct qla_hw_data {
 	uint16_t last_zio_threshold;
 
 #define DEFAULT_ZIO_THRESHOLD 5
+
+	struct qla_hw_data_stat stat;
 };
 
 struct active_regions {
@@ -4806,11 +4833,14 @@ struct sff_8247_a0 {
 	u8 resv2[128];
 };
 
-#define AUTO_DETECT_SFP_SUPPORT(_vha)\
-	(ql2xautodetectsfp && !_vha->vp_idx &&		\
-	(IS_QLA25XX(_vha->hw) || IS_QLA81XX(_vha->hw) ||\
-	IS_QLA83XX(_vha->hw) || IS_QLA27XX(_vha->hw) || \
-	 IS_QLA28XX(_vha->hw)))
+/* BPM -- Buffer Plus Management support. */
+#define IS_BPM_CAPABLE(ha) \
+	(IS_QLA25XX(ha) || IS_QLA81XX(ha) || IS_QLA83XX(ha) || \
+	 IS_QLA27XX(ha) || IS_QLA28XX(ha))
+#define IS_BPM_RANGE_CAPABLE(ha) \
+	(IS_QLA83XX(ha) || IS_QLA27XX(ha) || IS_QLA28XX(ha))
+#define IS_BPM_ENABLED(vha) \
+	(ql2xautodetectsfp && !vha->vp_idx && IS_BPM_CAPABLE(vha->hw))
 
 #define FLASH_SEMAPHORE_REGISTER_ADDR   0x00101016
 
@@ -4843,6 +4873,9 @@ struct sff_8247_a0 {
 	((NVME_FCP_TARGET(fcport) && \
 	(ha->fc4_type_priority == FC4_PRIORITY_NVME)) || \
 	NVME_ONLY_TARGET(fcport)) \
+
+#define PRLI_PHASE(_cls) \
+	((_cls == DSC_LS_PRLI_PEND) || (_cls == DSC_LS_PRLI_COMP))
 
 #include "qla_target.h"
 #include "qla_gbl.h"
