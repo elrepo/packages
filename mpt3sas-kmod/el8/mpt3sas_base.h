@@ -76,8 +76,8 @@
 #define MPT3SAS_DRIVER_NAME		"mpt3sas"
 #define MPT3SAS_AUTHOR "Avago Technologies <MPT-FusionLinux.pdl@avagotech.com>"
 #define MPT3SAS_DESCRIPTION	"LSI MPT Fusion SAS 3.0 Device Driver"
-#define MPT3SAS_DRIVER_VERSION		"32.100.00.00"
-#define MPT3SAS_MAJOR_VERSION		32
+#define MPT3SAS_DRIVER_VERSION		"34.100.00.00"
+#define MPT3SAS_MAJOR_VERSION		34
 #define MPT3SAS_MINOR_VERSION		100
 #define MPT3SAS_BUILD_VERSION		0
 #define MPT3SAS_RELEASE_VERSION	00
@@ -89,6 +89,10 @@
 #define MPT2SAS_MINOR_VERSION		102
 #define MPT2SAS_BUILD_VERSION		0
 #define MPT2SAS_RELEASE_VERSION	00
+
+/* CoreDump: Default timeout */
+#define MPT3SAS_DEFAULT_COREDUMP_TIMEOUT_SECONDS	(15) /*15 seconds*/
+#define MPT3SAS_COREDUMP_LOOP_DONE                     (0xFF)
 
 /*
  * Set MPT3SAS_SG_DEPTH value based on user input.
@@ -140,6 +144,7 @@
 #define MAX_CHAIN_ELEMT_SZ		16
 #define DEFAULT_NUM_FWCHAIN_ELEMTS	8
 
+#define IO_UNIT_CONTROL_SHUTDOWN_TIMEOUT 6
 #define FW_IMG_HDR_READ_TIMEOUT	15
 
 #define IOC_OPERATIONAL_WAIT_COUNT	10
@@ -362,6 +367,7 @@ struct mpt3sas_nvme_cmd {
 #define MPT3SAS_HIGH_IOPS_REPLY_QUEUES		8
 #define MPT3SAS_HIGH_IOPS_BATCH_COUNT		16
 #define MPT3SAS_GEN35_MAX_MSIX_QUEUES		128
+#define RDPQ_MAX_INDEX_IN_ONE_CHUNK		16
 
 /* OEM Specific Flags will come from OEM specific header files */
 struct Mpi2ManufacturingPage10_t {
@@ -398,7 +404,10 @@ struct Mpi2ManufacturingPage11_t {
 	u8	HostTraceBufferFlags;		/* 4Fh */
 	u16	HostTraceBufferMaxSizeKB;	/* 50h */
 	u16	HostTraceBufferMinSizeKB;	/* 52h */
-	__le32	Reserved10[2];			/* 54h - 5Bh */
+	u8	CoreDumpTOSec;			/* 54h */
+	u8	Reserved8;			/* 55h */
+	u16	Reserved9;			/* 56h */
+	__le32	Reserved10;			/* 58h */
 };
 
 /**
@@ -589,6 +598,7 @@ static inline void sas_device_put(struct _sas_device *s)
  * @connector_name: ASCII value of the Connector's name
  * @serial_number: pointer of serial number string allocated runtime
  * @access_status: Device's Access Status
+ * @shutdown_latency: NVMe device's RTD3 Entry Latency
  * @refcount: reference count for deletion
  */
 struct _pcie_device {
@@ -611,6 +621,7 @@ struct _pcie_device {
 	u8	*serial_number;
 	u8	reset_timeout;
 	u8	access_status;
+	u16	shutdown_latency;
 	struct kref refcount;
 };
 /**
@@ -1016,7 +1027,6 @@ typedef void (*MPT3SAS_FLUSH_RUNNING_CMDS)(struct MPT3SAS_ADAPTER *ioc);
  * @ir_firmware: IR firmware present
  * @bars: bitmask of BAR's that must be configured
  * @mask_interrupts: ignore interrupt
- * @dma_mask: used to set the consistent dma mask
  * @pci_access_mutex: Mutex to synchronize ioctl, sysfs show path and
  *			pci resource handling
  * @fault_reset_work_q_name: fw fault work queue
@@ -1045,6 +1055,7 @@ typedef void (*MPT3SAS_FLUSH_RUNNING_CMDS)(struct MPT3SAS_ADAPTER *ioc);
  * @cpu_msix_table: table for mapping cpus to msix index
  * @cpu_msix_table_sz: table size
  * @total_io_cnt: Gives total IO count, used to load balance the interrupts
+ * @ioc_coredump_loop: will have non-zero value when FW is in CoreDump state
  * @high_iops_outstanding: used to load balance the interrupts
  *				within high iops reply queues
  * @msix_load_balance: Enables load balancing of interrupts across
@@ -1053,6 +1064,7 @@ typedef void (*MPT3SAS_FLUSH_RUNNING_CMDS)(struct MPT3SAS_ADAPTER *ioc);
  * @thresh_hold: Max number of reply descriptors processed
  *				before updating Host Index
  * @drv_support_bitmap: driver's supported feature bit map
+ * @use_32bit_dma: Flag to use 32 bit consistent dma mask
  * @scsi_io_cb_idx: shost generated commands
  * @tm_cb_idx: task management commands
  * @scsih_cb_idx: scsih internal commands
@@ -1073,6 +1085,10 @@ typedef void (*MPT3SAS_FLUSH_RUNNING_CMDS)(struct MPT3SAS_ADAPTER *ioc);
  * @event_context: unique id for each logged event
  * @event_log: event log pointer
  * @event_masks: events that are masked
+ * @max_shutdown_latency: timeout value for NVMe shutdown operation,
+ *			which is equal that NVMe drive's RTD3 Entry Latency
+ *			which has reported maximum RTD3 Entry Latency value
+ *			among attached NVMe drives.
  * @facts: static facts data
  * @prev_fw_facts: previous fw facts data
  * @pfacts: static port facts data
@@ -1190,7 +1206,6 @@ struct MPT3SAS_ADAPTER {
 	u8		ir_firmware;
 	int		bars;
 	u8		mask_interrupts;
-	int		dma_mask;
 
 	/* fw fault handler */
 	char		fault_reset_work_q_name[20];
@@ -1231,6 +1246,7 @@ struct MPT3SAS_ADAPTER {
 	u32		ioc_reset_count;
 	MPT3SAS_FLUSH_RUNNING_CMDS schedule_dead_ioc_flush_running_cmds;
 	u32             non_operational_loop;
+	u8              ioc_coredump_loop;
 	atomic64_t      total_io_cnt;
 	atomic64_t	high_iops_outstanding;
 	bool            msix_load_balance;
@@ -1238,6 +1254,7 @@ struct MPT3SAS_ADAPTER {
 	u8		high_iops_queues;
 	u32		drv_support_bitmap;
 	bool		enable_sdev_max_qd;
+	bool		use_32bit_dma;
 
 	/* internal commands, callback index */
 	u8		scsi_io_cb_idx;
@@ -1283,7 +1300,7 @@ struct MPT3SAS_ADAPTER {
 
 	u8		tm_custom_handling;
 	u8		nvme_abort_timeout;
-
+	u16		max_shutdown_latency;
 
 	/* static config pages */
 	struct mpt3sas_facts facts;
@@ -1455,11 +1472,18 @@ struct MPT3SAS_ADAPTER {
 	u16		device_remove_in_progress_sz;
 	u8		is_gen35_ioc;
 	u8		is_aero_ioc;
+	struct dentry	*debugfs_root;
+	struct dentry	*ioc_dump;
 	PUT_SMID_IO_FP_HIP put_smid_scsi_io;
 	PUT_SMID_IO_FP_HIP put_smid_fast_path;
 	PUT_SMID_IO_FP_HIP put_smid_hi_priority;
 	PUT_SMID_DEFAULT put_smid_default;
 	GET_MSIX_INDEX get_msix_index_for_smlio;
+};
+
+struct mpt3sas_debugfs_buffer {
+	void	*buf;
+	u32	len;
 };
 
 #define MPT_DRV_SUPPORT_BITMAP_MEMMOVE 0x00000001
@@ -1531,6 +1555,17 @@ void *mpt3sas_base_get_reply_virt_addr(struct MPT3SAS_ADAPTER *ioc,
 u32 mpt3sas_base_get_iocstate(struct MPT3SAS_ADAPTER *ioc, int cooked);
 
 void mpt3sas_base_fault_info(struct MPT3SAS_ADAPTER *ioc , u16 fault_code);
+#define mpt3sas_print_fault_code(ioc, fault_code) \
+do { pr_err("%s fault info from func: %s\n", ioc->name, __func__); \
+	mpt3sas_base_fault_info(ioc, fault_code); } while (0)
+
+void mpt3sas_base_coredump_info(struct MPT3SAS_ADAPTER *ioc, u16 fault_code);
+#define mpt3sas_print_coredump_info(ioc, fault_code) \
+do { pr_err("%s fault info from func: %s\n", ioc->name, __func__); \
+	mpt3sas_base_coredump_info(ioc, fault_code); } while (0)
+
+int mpt3sas_base_wait_for_coredump_completion(struct MPT3SAS_ADAPTER *ioc,
+		const char *caller);
 int mpt3sas_base_sas_iounit_control(struct MPT3SAS_ADAPTER *ioc,
 	Mpi2SasIoUnitControlReply_t *mpi_reply,
 	Mpi2SasIoUnitControlRequest_t *mpi_request);
@@ -1552,6 +1587,11 @@ mpt3sas_wait_for_commands_to_complete(struct MPT3SAS_ADAPTER *ioc);
 
 u8 mpt3sas_base_check_cmd_timeout(struct MPT3SAS_ADAPTER *ioc,
 	u8 status, void *mpi_request, int sz);
+#define mpt3sas_check_cmd_timeout(ioc, status, mpi_request, sz, issue_reset) \
+do {	ioc_err(ioc, "In func: %s\n", __func__); \
+	issue_reset = mpt3sas_base_check_cmd_timeout(ioc, \
+	status, mpi_request, sz); } while (0)
+
 int mpt3sas_wait_for_ioc(struct MPT3SAS_ADAPTER *ioc, int wait_count);
 
 /* scsih shared API */
@@ -1560,7 +1600,8 @@ struct scsi_cmnd *mpt3sas_scsih_scsi_lookup_get(struct MPT3SAS_ADAPTER *ioc,
 u8 mpt3sas_scsih_event_callback(struct MPT3SAS_ADAPTER *ioc, u8 msix_index,
 	u32 reply);
 void mpt3sas_scsih_pre_reset_handler(struct MPT3SAS_ADAPTER *ioc);
-void mpt3sas_scsih_after_reset_handler(struct MPT3SAS_ADAPTER *ioc);
+void mpt3sas_scsih_clear_outstanding_scsi_tm_commands(
+	struct MPT3SAS_ADAPTER *ioc);
 void mpt3sas_scsih_reset_done_handler(struct MPT3SAS_ADAPTER *ioc);
 
 int mpt3sas_scsih_issue_tm(struct MPT3SAS_ADAPTER *ioc, u16 handle, u64 lun,
@@ -1694,7 +1735,7 @@ void mpt3sas_ctl_exit(ushort hbas_to_enumerate);
 u8 mpt3sas_ctl_done(struct MPT3SAS_ADAPTER *ioc, u16 smid, u8 msix_index,
 	u32 reply);
 void mpt3sas_ctl_pre_reset_handler(struct MPT3SAS_ADAPTER *ioc);
-void mpt3sas_ctl_after_reset_handler(struct MPT3SAS_ADAPTER *ioc);
+void mpt3sas_ctl_clear_outstanding_ioctls(struct MPT3SAS_ADAPTER *ioc);
 void mpt3sas_ctl_reset_done_handler(struct MPT3SAS_ADAPTER *ioc);
 u8 mpt3sas_ctl_event_callback(struct MPT3SAS_ADAPTER *ioc,
 	u8 msix_index, u32 reply);
@@ -1747,6 +1788,11 @@ mpt3sas_setup_direct_io(struct MPT3SAS_ADAPTER *ioc, struct scsi_cmnd *scmd,
 
 /* NCQ Prio Handling Check */
 bool scsih_ncq_prio_supp(struct scsi_device *sdev);
+
+void mpt3sas_setup_debugfs(struct MPT3SAS_ADAPTER *ioc);
+void mpt3sas_destroy_debugfs(struct MPT3SAS_ADAPTER *ioc);
+void mpt3sas_init_debugfs(void);
+void mpt3sas_exit_debugfs(void);
 
 /**
  * _scsih_is_pcie_scsi_device - determines if device is an pcie scsi device
