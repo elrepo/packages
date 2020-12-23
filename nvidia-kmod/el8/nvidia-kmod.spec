@@ -2,13 +2,13 @@
 %define kmod_name		nvidia
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-193.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-240.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	450.66
-Release:	1%{?dist}
+Version:	450.80.02
+Release:	3%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
 License:	Proprietary
@@ -147,7 +147,7 @@ if [ -f "%{kver_state_file}" ]; then
 #
 #		# The same check as in weak-modules: we assume that the kernel present
 #		# if the symvers file exists.
-#		if [ -e "/boot/symvers-$k.gz" ]; then
+#		if [ -e "$k_dir/symvers.gz" ]; then
 #			/usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
 #			cmp -s "$tmp_initramfs" "$dst_initramfs"
 #			if [ "$?" = 1 ]; then
@@ -213,6 +213,16 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Nov 04 2020 Philip J Perry <phil@elrepo.org> - 450.80.02-3
+- Rebuilt for RHEL 8.3
+
+* Wed Oct 21 2020 Philip J Perry <phil@elrepo.org> - 450.80.02-2
+- Rebuilt for kernel-4.18.0-193.28.1.el8_2.x86_64
+  [4.18.0-193.28.1.el8_2.x86_64]
+
+* Fri Oct 02 2020 Philip J Perry <phil@elrepo.org> - 450.80.02-1
+- Updated to version 450.80.02
+
 * Wed Aug 19 2020 Philip J Perry <phil@elrepo.org> - 450.66-1
 - Updated to version 450.66
 - Add missing requires for nvidia-x11-drv package

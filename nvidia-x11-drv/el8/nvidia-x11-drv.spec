@@ -1,13 +1,13 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/450.66/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/450.80.02/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	450.66
-Release:	1%{?dist}
+Version:	450.80.02
+Release:	3%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -384,6 +384,12 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Wed Nov 04 2020 Philip J Perry <phil@elrepo.org> - 450.80.02-3
+- Rebuilt for RHEL 8.3
+
+* Fri Oct 02 2020 Philip J Perry <phil@elrepo.org> - 450.80.02-1
+- Updated to version 450.80.02
+
 * Wed Aug 19 2020 Philip J Perry <phil@elrepo.org> - 450.66-1
 - Updated to version 450.66
 - Add conflicts for nvidia-kmod-common
