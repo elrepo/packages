@@ -13,7 +13,7 @@ Epoch:	8
 %endif
 
 Name:    %{kmod_name}-kmod
-Version: 1.0.20201221
+Version: 1.0.20210124
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -73,6 +73,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Jan 24 2021 Philip J Perry <phil@elrepo.org> 1.0.20210124-1
+- Update to 1.0.20210124
+
 * Mon Dec 21 2020 Philip J Perry <phil@elrepo.org> 1.0.20201221-1
 - Update to 1.0.20201221
 

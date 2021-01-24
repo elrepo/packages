@@ -15,7 +15,7 @@ Epoch:	2
 %endif
 
 Name:		kmod-%{kmod_name}
-Version:	1.0.20201221
+Version:	1.0.20210124
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -182,6 +182,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sun Jan 24 2021 Philip J Perry <phil@elrepo.org> 1.0.20210124-1
+- Update to 1.0.20210124
+
 * Mon Dec 21 2020 Philip J Perry <phil@elrepo.org> 1.0.20201221-1
 - Update to 1.0.20201221
 - Fix updating of initramfs image [https://elrepo.org/bugs/view.php?id=1060]
