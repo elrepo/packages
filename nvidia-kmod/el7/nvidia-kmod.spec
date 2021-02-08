@@ -2,10 +2,10 @@
 %define kmod_name nvidia
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-1127.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 450.66
+Version: 460.39
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -81,6 +81,17 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Mon Feb 01 2021 Philip J Perry <phil@elrepo.org> - 460.39-1
+- Updated to version 460.39
+
+* Mon Dec 14 2020 Philip J Perry <phil@elrepo.org> - 455.45.01-1
+- Updated to version 455.45.01
+  [https://elrepo.org/bugs/view.php?id=1057]
+
+* Fri Oct 02 2020 Philip J Perry <phil@elrepo.org> - 450.80.02-1
+- Updated to version 450.80.02
+- Rebuilt against RHEL 7.9 kernel
+
 * Wed Aug 19 2020 Philip J Perry <phil@elrepo.org> - 450.66-1
 - Updated to version 450.66
 

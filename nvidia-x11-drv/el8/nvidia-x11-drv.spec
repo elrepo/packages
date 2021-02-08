@@ -1,13 +1,13 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/450.80.02/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/460.39/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	450.80.02
-Release:	3%{?dist}
+Version:	460.39
+Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -89,7 +89,7 @@ Group:		User Interface/X Hardware Support
 ## Remove requires for nvidia-x11-drv to allow installation of
 ## nvidia-x11-drv-libs on headless systems. See bug 
 ## https://elrepo.org/bugs/view.php?id=926
-## Requires:	%{name} = %{?epoch:%{epoch}:}%{version}-%{release}
+## Requires:	%%{name} = %%{?epoch:%%{epoch}:}%%{version}-%%{release}
 Requires:	xorg-x11-server-Xorg <= %{max_xorg_ver}
 Requires(post):	/sbin/ldconfig
 Requires:	libvdpau%{?_isa} >= 1.0
@@ -113,7 +113,7 @@ sh %{SOURCE0} --extract-only --target nvidiapkg
 # Lets just take care of all the docs here rather than during install
 pushd nvidiapkg
 %{__mkdir_p} html/samples/systemd/
-%{__mv} LICENSE NVIDIA_Changelog pkg-history.txt README.txt supported-gpus.json html/
+%{__mv} LICENSE NVIDIA_Changelog pkg-history.txt README.txt html/
 %{__mv} nvidia-persistenced-init.tar.bz2 html/samples/
 %{__mv} nvidia nvidia-sleep.sh nvidia-*.service html/samples/systemd/
 popd
@@ -134,6 +134,7 @@ pushd nvidiapkg
 %{__install} -p -m 0755 nvidia-cuda-mps-server $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-debugdump $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-modprobe $RPM_BUILD_ROOT%{_bindir}/
+%{__install} -p -m 0755 nvidia-ngx-updater $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-persistenced $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-settings $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-smi $RPM_BUILD_ROOT%{_bindir}/
@@ -367,6 +368,7 @@ fi ||:
 %{_bindir}/nvidia-cuda-mps-server
 %{_bindir}/nvidia-debugdump
 %attr(4755, root, root) %{_bindir}/nvidia-modprobe
+%{_bindir}/nvidia-ngx-updater
 %{_bindir}/nvidia-persistenced
 %{_bindir}/nvidia-settings
 %{_bindir}/nvidia-smi
@@ -384,6 +386,13 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Mon Feb 01 2021 Philip J Perry <phil@elrepo.org> - 460.39-1
+- Updated to version 460.39
+
+* Sat Dec 19 2020 Philip J Perry <phil@elrepo.org> - 455.45.01-1
+- Updated to version 455.45.01
+  [https://elrepo.org/bugs/view.php?id=1061]
+
 * Wed Nov 04 2020 Philip J Perry <phil@elrepo.org> - 450.80.02-3
 - Rebuilt for RHEL 8.3
 

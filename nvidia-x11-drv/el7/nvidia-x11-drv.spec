@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/450.66/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/460.39/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 
@@ -8,7 +8,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	450.66
+Version:	460.39
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -103,7 +103,7 @@ Group:		User Interface/X Hardware Support
 ## Remove requires for nvidia-x11-drv to allow installation of
 ## nvidia-x11-drv-libs on headless systems. See bug 
 ## https://elrepo.org/bugs/view.php?id=926
-## Requires:	%{name} = %{?epoch:%{epoch}:}%{version}-%{release}
+## Requires:	%%{name} = %%{?epoch:%%{epoch}:}%%{version}-%%{release}
 Requires:	xorg-x11-server-Xorg <= %{max_xorg_ver}
 Requires(post):	/sbin/ldconfig
 Obsoletes:	nvidia-x11-drv-32bit < %{?epoch:%{epoch}:}%{version}-%{release}
@@ -124,7 +124,7 @@ sh %{SOURCE0} --extract-only --target nvidiapkg
 # Lets just take care of all the docs here rather than during install
 pushd nvidiapkg
 %{__mkdir_p} html/samples/systemd/
-%{__mv} LICENSE NVIDIA_Changelog pkg-history.txt README.txt supported-gpus.json html/
+%{__mv} LICENSE NVIDIA_Changelog pkg-history.txt README.txt html/
 %{__mv} nvidia-persistenced-init.tar.bz2 html/samples/
 %{__mv} nvidia nvidia-sleep.sh nvidia-*.service html/samples/systemd/
 popd
@@ -145,6 +145,7 @@ pushd nvidiapkg
 %{__install} -p -m 0755 nvidia-cuda-mps-server $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-debugdump $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-modprobe $RPM_BUILD_ROOT%{_bindir}/
+%{__install} -p -m 0755 nvidia-ngx-updater $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-persistenced $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-settings $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-smi $RPM_BUILD_ROOT%{_bindir}/
@@ -182,7 +183,7 @@ pushd 32
 %{__install} -p -m 0755 libnvidia-compiler.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-eglcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %ifarch x86_64
-%{__install} -p -m 0755 libnvidia-egl-wayland.so.1.1.4 $RPM_BUILD_ROOT%{_libdir}/
+%{__install} -p -m 0755 libnvidia-egl-wayland.so.1.1.5 $RPM_BUILD_ROOT%{_libdir}/
 %endif
 %{__install} -p -m 0755 libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-fbc.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
@@ -233,8 +234,8 @@ popd
 %{__ln_s} libnvidia-allocator.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-allocator.so.1
 %ifarch x86_64
 %{__ln_s} libnvidia-cfg.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-cfg.so.1
-%{__ln_s} libnvidia-egl-wayland.so.1.1.4 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so
-%{__ln_s} libnvidia-egl-wayland.so.1.1.4 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so.1
+%{__ln_s} libnvidia-egl-wayland.so.1.1.5 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so
+%{__ln_s} libnvidia-egl-wayland.so.1.1.5 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so.1
 %endif
 %{__ln_s} libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-encode.so
 %{__ln_s} libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-encode.so.1
@@ -391,6 +392,7 @@ fi ||:
 %{_bindir}/nvidia-cuda-mps-server
 %{_bindir}/nvidia-debugdump
 %attr(4755, root, root) %{_bindir}/nvidia-modprobe
+%{_bindir}/nvidia-ngx-updater
 %{_bindir}/nvidia-persistenced
 %{_bindir}/nvidia-settings
 %{_bindir}/nvidia-smi
@@ -409,6 +411,16 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Mon Feb 01 2021 Philip J Perry <phil@elrepo.org> - 460.39-1
+- Updated to version 460.39
+
+* Mon Dec 14 2020 Philip J Perry <phil@elrepo.org> - 455.45.01-1
+- Updated to version 455.45.01
+  [https://elrepo.org/bugs/view.php?id=1057]
+
+* Fri Oct 02 2020 Philip J Perry <phil@elrepo.org> - 450.80.02-1
+- Updated to version 450.80.02
+
 * Wed Aug 19 2020 Philip J Perry <phil@elrepo.org> - 450.66-1
 - Updated to version 450.66
 - Add conflicts for nvidia-kmod-common

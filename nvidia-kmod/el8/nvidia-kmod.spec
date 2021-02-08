@@ -7,8 +7,8 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	450.80.02
-Release:	3%{?dist}
+Version:	460.39
+Release:	1%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
 License:	Proprietary
@@ -213,6 +213,13 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Feb 01 2021 Philip J Perry <phil@elrepo.org> - 460.39-1
+- Updated to version 460.39
+
+* Sat Dec 19 2020 Philip J Perry <phil@elrepo.org> - 455.45.01-1
+- Updated to version 455.45.01
+  [https://elrepo.org/bugs/view.php?id=1061]
+
 * Wed Nov 04 2020 Philip J Perry <phil@elrepo.org> - 450.80.02-3
 - Rebuilt for RHEL 8.3
 
