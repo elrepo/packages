@@ -2,10 +2,10 @@
 %define kmod_name r8125
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-1127.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 9.003.05
+Version: 9.005.01
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -73,5 +73,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Feb 25 2021 Philip J Perry <phil@elrepo.org> - 9.005.01-1
+- Update to version 9.005.01
+  [https://elrepo.org/bugs/view.php?id=1078]
+- Rebuilt against RHEL7.9 kernel
+  
 * Tue Aug 11 2020 Philip J Perry <phil@elrepo.org> - 9.003.05-1
 - Initial el7 build of the kmod package.
