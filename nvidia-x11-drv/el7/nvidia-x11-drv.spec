@@ -8,7 +8,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	460.39
+Version:	460.56
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -411,6 +411,9 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Fri Feb 26 2021 Philip J Perry <phil@elrepo.org> - 460.56-1
+- Updated to version 460.56
+
 * Mon Feb 01 2021 Philip J Perry <phil@elrepo.org> - 460.39-1
 - Updated to version 460.39
 
