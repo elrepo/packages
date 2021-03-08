@@ -2,13 +2,13 @@
 %define kmod_name sata_sis
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-240.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-240.10.1.el8_3}
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
 Version:        1.0
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -183,6 +183,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Feb 15 2021 Akemi Yagi <toracat@elrepo.org> - 1.0-5
+- Rebuilt against RHEL 8.3 kernel-10.1.el8_3
+  [https://elrepo.org/bugs/view.php?id=1074]
+
 * Thu Nov 05 2020 Akemi Yagi <toracat@elrepo.org> - 1.0-4
 - Add dracut conf file to ensure module is in initramfs
 - Rebuilt against RHEL 8.3 kernel
