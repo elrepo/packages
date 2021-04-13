@@ -174,3 +174,4 @@ exit 0
 * Tue Apr 13 2021 Philip J Perry <phil@elrepo.org> 1.14-1
 - Initial el8 build of the kmod package.
 - Backported from kernel-4.18.20
+- Fix build errors on RHEL8.3
