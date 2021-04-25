@@ -15,7 +15,7 @@ Epoch:	2
 %endif
 
 Name:		kmod-%{kmod_name}
-Version:	1.0.20210219
+Version:	1.0.20210424
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -182,6 +182,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sun Apr 25 2021 Philip J Perry <phil@elrepo.org> 1.0.20210424-1
+- Update to 1.0.20210424
+
 * Fri Feb 19 2021 Philip J Perry <phil@elrepo.org> 1.0.20210219-1
 - Update to 1.0.20210219
 
