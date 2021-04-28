@@ -2,10 +2,10 @@
 %define kmod_name nvidia-390xx
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-1127.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 390.138
+Version: 390.143
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -77,6 +77,13 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Apr 28 2021 Philip J Perry <phil@elrepo.org> - 390.143-1
+- Updated to version 390.143
+
+* Thu Mar 18 2021 Philip J Perry <phil@elrepo.org> - 390.141-1
+- Updated to version 390.141
+- Rebuilt against RHEL 7.9 kernel
+
 * Thu Jun 25 2020 Philip J Perry <phil@elrepo.org> - 390.138-1
 - Updated to version 390.138
 - Rebuilt against RHEL 7.8 kernel
