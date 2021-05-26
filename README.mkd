@@ -19,6 +19,6 @@ If you wish to maintain a package or set of packages, and would like access to o
 
 When creating new packages, please use the templates provided in our [templates repository](https://github.com/elrepo/templates).
 
-If you need help or want to discuss your contribution, please post to the [elrepo-devel](http://lists.elrepo.org/mailman/listinfo/elrepo-devel) mailing list or drop by #elrepo on Freenode.
+If you need help or want to discuss your contribution, please post to the [elrepo-devel](http://lists.elrepo.org/mailman/listinfo/elrepo-devel) mailing list or drop by #elrepo or #elrepo-devel on libera.chat.
 
 The ELRepo Team.
