@@ -1,14 +1,15 @@
 # Define the kmod package name here.
 %define kmod_name		qla2xxx
+%define kmod_vendor		elrepo
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-240.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	10.01.00.25.08.3
-Release:	2%{?dist}
+Version:	10.02.00.104
+Release:	1%{?dist}.%{kmod_vendor}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -17,7 +18,6 @@ URL:		http://www.kernel.org/
 # Sources
 Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
-Source10:	%{kmod_name}.conf
 
 # Source code patches
 Patch0:	elrepo-qla2xxx-revert-removed-devices.8.3.patch
@@ -80,8 +80,6 @@ sort -u greylist | uniq > greylist.txt
 %{__install} %{kmod_name}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
-%{__install} -d %{buildroot}%{_sysconfdir}/dracut.conf.d/
-%{__install} %{SOURCE10} %{buildroot}%{_sysconfdir}/dracut.conf.d/%{kmod_name}.conf
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
@@ -174,10 +172,13 @@ exit 0
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
 %config /etc/depmod.d/kmod-%{kmod_name}.conf
-%config /etc/dracut.conf.d/%{kmod_name}.conf
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue May 18 2021 Philip J Perry <phil@elrepo.org> 10.02.00.104-1
+- Rebuilt for RHEL8.4
+- Source code updated from RHEL kernel-4.18.0-305.el8.x86_64
+
 * Sat Dec 19 2020 Philip J Perry <phil@elrepo.org> 10.01.00.25.08.3-2
 - Use patch to revert removed devices
 - Fix updating of initramfs image

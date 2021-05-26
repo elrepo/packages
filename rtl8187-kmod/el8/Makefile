@@ -28,8 +28,7 @@ clean:
 .PHONY: modules modules_install clean
 
 else
-
-# Called from kernel build system -- just declare the module(s).
+# SPDX-License-Identifier: GPL-2.0-only
 
 obj-m += rtl8187.o
 

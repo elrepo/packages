@@ -1,22 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
  *  Linux MegaRAID driver for SAS based RAID controllers
  *
  *  Copyright (c) 2003-2013  LSI Corporation
  *  Copyright (c) 2013-2016  Avago Technologies
  *  Copyright (c) 2016-2018  Broadcom Inc.
- *
- *  This program is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU General Public License
- *  as published by the Free Software Foundation; either version 2
- *  of the License, or (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  *  FILE: megaraid_sas.h
  *
@@ -2721,4 +2709,24 @@ int megasas_adp_reset_wait_for_ready(struct megasas_instance *instance,
 				     int ocr_context);
 int megasas_irqpoll(struct irq_poll *irqpoll, int budget);
 void megasas_dump_fusion_io(struct scsi_cmnd *scmd);
+u32 megasas_readl(struct megasas_instance *instance,
+		  const volatile void __iomem *addr);
+struct megasas_cmd *megasas_get_cmd(struct megasas_instance *instance);
+void megasas_return_cmd(struct megasas_instance *instance,
+			struct megasas_cmd *cmd);
+int megasas_issue_polled(struct megasas_instance *instance,
+			 struct megasas_cmd *cmd);
+void megaraid_sas_kill_hba(struct megasas_instance *instance);
+void megasas_check_and_restore_queue_depth(struct megasas_instance *instance);
+void megasas_start_timer(struct megasas_instance *instance);
+int megasas_sriov_start_heartbeat(struct megasas_instance *instance,
+				  int initial);
+int megasas_alloc_cmds(struct megasas_instance *instance);
+void megasas_free_cmds(struct megasas_instance *instance);
+
+void megasas_init_debugfs(void);
+void megasas_exit_debugfs(void);
+void megasas_setup_debugfs(struct megasas_instance *instance);
+void megasas_destroy_debugfs(struct megasas_instance *instance);
+
 #endif				/*LSI_MEGARAID_SAS_H */

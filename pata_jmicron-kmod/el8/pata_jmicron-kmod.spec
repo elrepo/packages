@@ -1,14 +1,15 @@
 # Define the kmod package name here.
-%define kmod_name pata_jmicron
+%define kmod_name		pata_jmicron
+%define kmod_vendor		elrepo
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-240.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
 Version:        0.1.5
-Release:        1%{?dist}
+Release:        2%{?dist}.%{kmod_vendor}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -60,7 +61,6 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -q -n drivers-ata
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
-echo "add_drivers+=\" %{kmod_name} \"" > %{kmod_name}.conf
 
 %{__cp} %{SOURCE7} .
 
@@ -84,8 +84,6 @@ sort -u greylist | uniq > greylist.txt
 %{__install} %{kmod_name}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
-%{__install} -d %{buildroot}%{_sysconfdir}/dracut.conf.d/
-%{__install} -m 0644 %{kmod_name}.conf %{buildroot}%{_sysconfdir}/dracut.conf.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
@@ -130,7 +128,7 @@ if [ -f "%{kver_state_file}" ]; then
 
                 # The same check as in weak-modules: we assume that the kernel present
                 # if the symvers file exists.
-                if [ -e "/boot/symvers-$k.gz" ]; then
+                if [ -e "$k_dir/symvers.gz" ]; then
                         /usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
                         cmp -s "$tmp_initramfs" "$dst_initramfs"
                         if [ "$?" = 1 ]; then
@@ -177,10 +175,16 @@ exit 0
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
 %config /etc/depmod.d/kmod-%{kmod_name}.conf
-%config /etc/dracut.conf.d/%{kmod_name}.conf
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue May 18 2021 Philip J Perry <phil@elrepo.org> - 0.1.5-2
+- Rebuilt against RHEL 8.4 kernel
+- Source code from kernel-4.18.0-305
+- Fix updating of initramfs image
+  [https://elrepo.org/bugs/view.php?id=1060]
+- Revert addition of dracut conf file
+
 * Sat Jan 23 2020 Akemi Yagi <toracat@elrepo.org> - 0.1.5-1
 - Add dracut conf file to ensure module is in initramfs
 - Built against RHEL 8.3 kernel

@@ -223,8 +223,7 @@ qla24xx_proc_fcp_prio_cfg_cmd(struct bsg_job *bsg_job)
 
 		/* validate fcp priority data */
 
-		if (!qla24xx_fcp_prio_cfg_valid(vha,
-		    (struct qla_fcp_prio_cfg *) ha->fcp_prio_cfg, 1)) {
+		if (!qla24xx_fcp_prio_cfg_valid(vha, ha->fcp_prio_cfg, 1)) {
 			bsg_reply->result = (DID_ERROR << 16);
 			ret = -EINVAL;
 			/* If buffer was invalidatic int
@@ -490,7 +489,7 @@ qla2x00_process_ct(struct bsg_job *bsg_job)
 			>> 24;
 	switch (loop_id) {
 	case 0xFC:
-		loop_id = cpu_to_le16(NPH_SNS);
+		loop_id = NPH_SNS;
 		break;
 	case 0xFA:
 		loop_id = vha->mgmt_svr_loop_id;
@@ -691,7 +690,7 @@ qla81xx_set_loopback_mode(scsi_qla_host_t *vha, uint16_t *config,
 		 * dump and reset the chip.
 		 */
 		if (ret) {
-			ha->isp_ops->fw_dump(vha, 0);
+			qla2xxx_dump_fw(vha);
 			set_bit(ISP_ABORT_NEEDED, &vha->dpc_flags);
 		}
 		rval = -EINVAL;
@@ -728,7 +727,7 @@ qla2x00_process_loopback(struct bsg_job *bsg_job)
 	uint16_t response[MAILBOX_REGISTER_COUNT];
 	uint16_t config[4], new_config[4];
 	uint8_t *fw_sts_ptr;
-	uint8_t *req_data = NULL;
+	void *req_data = NULL;
 	dma_addr_t req_data_dma;
 	uint32_t req_data_len;
 	uint8_t *rsp_data = NULL;
@@ -806,10 +805,11 @@ qla2x00_process_loopback(struct bsg_job *bsg_job)
 	    bsg_request->rqst_data.h_vendor.vendor_cmd[2];
 
 	if (atomic_read(&vha->loop_state) == LOOP_READY &&
-	    (ha->current_topology == ISP_CFG_F ||
-	    (get_unaligned_le32(req_data) == ELS_OPCODE_BYTE &&
-	     req_data_len == MAX_ELS_FRAME_PAYLOAD)) &&
-	    elreq.options == EXTERNAL_LOOPBACK) {
+	    ((ha->current_topology == ISP_CFG_F && (elreq.options & 7) >= 2) ||
+	    ((IS_QLA81XX(ha) || IS_QLA8031(ha) || IS_QLA8044(ha)) &&
+	    get_unaligned_le32(req_data) == ELS_OPCODE_BYTE &&
+	    req_data_len == MAX_ELS_FRAME_PAYLOAD &&
+	    elreq.options == EXTERNAL_LOOPBACK))) {
 		type = "FC_BSG_HST_VENDOR_ECHO_DIAG";
 		ql_dbg(ql_dbg_user, vha, 0x701e,
 		    "BSG request type: %s.\n", type);
@@ -895,7 +895,7 @@ qla2x00_process_loopback(struct bsg_job *bsg_job)
 					 * doesn't work take FCoE dump and then
 					 * reset the chip.
 					 */
-					ha->isp_ops->fw_dump(vha, 0);
+					qla2xxx_dump_fw(vha);
 					set_bit(ISP_ABORT_NEEDED,
 					    &vha->dpc_flags);
 				}
@@ -2041,7 +2041,7 @@ qlafx00_mgmt_cmd(struct bsg_job *bsg_job)
 
 	/* Initialize all required  fields of fcport */
 	fcport->vha = vha;
-	fcport->loop_id = piocb_rqst->dataword;
+	fcport->loop_id = le32_to_cpu(piocb_rqst->dataword);
 
 	sp->type = SRB_FXIOCB_BCMD;
 	sp->name = "bsg_fx_mgmt";

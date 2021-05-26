@@ -1,14 +1,15 @@
 # Define the kmod package name here.
 %define kmod_name		forcedeth
+%define kmod_vendor		elrepo
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-240.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	5%{?dist}
+Release:	6%{?dist}.%{kmod_vendor}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -124,7 +125,7 @@ if [ -f "%{kver_state_file}" ]; then
 
 		# The same check as in weak-modules: we assume that the kernel present
 		# if the symvers file exists.
-		if [ -e "/boot/symvers-$k.gz" ]; then
+		if [ -e "$k_dir/symvers.gz" ]; then
 			/usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
 			cmp -s "$tmp_initramfs" "$dst_initramfs"
 			if [ "$?" = 1 ]; then
@@ -174,6 +175,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue May 18 2021 Philip J Perry <phil@elrepo.org> 0.0-6
+- Rebuilt for RHEL 8.4
+- Fix updating of initramfs image
+  [https://elrepo.org/bugs/view.php?id=1060]
+
 * Fri Nov 06 2020 Akemi Yagi <toracat@elrepo.org> - 0.0-5
 - Rebuilt against RHEL 8.3 kernel
 - Applied a patch to fix build issues for ethernet drivers on RHEL8.3

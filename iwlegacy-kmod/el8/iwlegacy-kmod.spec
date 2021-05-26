@@ -1,14 +1,15 @@
 # Define the kmod package name here.
 %define kmod_name		iwlegacy
+%define kmod_vendor		elrepo
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-240.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	4%{?dist}
+Release:	5%{?dist}.%{kmod_vendor}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,6 +20,7 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
+Patch0:	elrepo-iwlegacy-revert-convert-tasklets.8.4.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -56,7 +58,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
 %setup -q -n %{kmod_name}-%{version}
-# %patch0 -p1
+%patch0 -p1
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
@@ -123,7 +125,7 @@ if [ -f "%{kver_state_file}" ]; then
 
 		# The same check as in weak-modules: we assume that the kernel present
 		# if the symvers file exists.
-		if [ -e "/boot/symvers-$k.gz" ]; then
+		if [ -e "$k_dir/symvers.gz" ]; then
 			/usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
 			cmp -s "$tmp_initramfs" "$dst_initramfs"
 			if [ "$?" = 1 ]; then
@@ -173,6 +175,13 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat May 23 2021 Philip J Perry <phil@elrepo.org> 0.0-5
+- Rebuilt for RHEL8.4
+- Backported from kernel-5.10.39
+- Revert convert tasklets to use new tasklet_setup() API
+- Fix updating of initramfs image
+  [https://elrepo.org/bugs/view.php?id=1060]
+
 * Sat Nov 07 2020 Philip J Perry <phil@elrepo.org> 0.0-4
 - Rebuilt for RHEL8.3
 - Backported from kernel-5.7.19

@@ -1,14 +1,15 @@
 # Define the kmod package name here.
-%define kmod_name   ib_qib
+%define kmod_name		ib_qib
+%define kmod_vendor		elrepo
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-193.14.3.el8_2}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
-Version:        0.0.1
-Release:        4%{?dist}
+Version:        1.11
+Release:        1%{?dist}.%{kmod_vendor}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -19,6 +20,7 @@ Source0:  %{kmod_name}-%{version}.tar.gz
 Source5:  GPL-v2.0.txt
 
 # Source code patches
+Patch0:		elrepo-ib_qib-unpin_user_page.8.4.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -60,6 +62,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
+%patch0 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD CONFIG_INFINIBAND_QIB=m
@@ -122,7 +125,7 @@ if [ -f "%{kver_state_file}" ]; then
 
                 # The same check as in weak-modules: we assume that the kernel present
                 # if the symvers file exists.
-                if [ -e "/boot/symvers-$k.gz" ]; then
+                if [ -e "$k_dir/symvers.gz" ]; then
                         /usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
                         cmp -s "$tmp_initramfs" "$dst_initramfs"
                         if [ "$?" = 1 ]; then
@@ -172,6 +175,14 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue May 18 2021 Philip J Perry <phil@elrepo.org> 1.11-1
+- Rebuilt for RHEL 8.4
+- Source code updated to RHEL 8.4
+- Fix put_user_page() functions on RHEL 8.4
+- Fix updating of initramfs image
+  [https://elrepo.org/bugs/view.php?id=1060]
+- Bump driver version to match QIB_DRIVER_VERSION_BASE
+
 * Fri Aug 21 2020 Akemi Yagi <toracat@elrepo.org> - 0.0.1-4
 - Rebuilt against kernel 4.18.0-193.14.3.el8_2
   https://elrepo.org/bugs/view.php?id=1033

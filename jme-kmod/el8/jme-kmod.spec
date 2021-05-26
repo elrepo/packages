@@ -1,14 +1,15 @@
 # Define the kmod package name here.
 %define kmod_name		jme
+%define kmod_vendor		elrepo
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-240.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	1.0.8
-Release:	2%{?dist}
+Release:	3%{?dist}.%{kmod_vendor}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -118,7 +119,7 @@ if [ -f "%{kver_state_file}" ]; then
 
 		# The same check as in weak-modules: we assume that the kernel present
 		# if the symvers file exists.
-		if [ -e "/boot/symvers-$k.gz" ]; then
+		if [ -e "$k_dir/symvers.gz" ]; then
 			/usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
 			cmp -s "$tmp_initramfs" "$dst_initramfs"
 			if [ "$?" = 1 ]; then
@@ -168,6 +169,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue May 18 2021 Philip J Perry <phil@elrepo.org> 1.0.8-3
+- Rebuilt for RHEL8.4
+- Fix updating of initramfs image
+  [https://elrepo.org/bugs/view.php?id=1060]
+
 * Wed Nov 04 2020 Philip J Perry <phil@elrepo.org> 1.0.8-2
 - Rebuilt for RHEL8.3
 - Fix build issues on RHEL8.3

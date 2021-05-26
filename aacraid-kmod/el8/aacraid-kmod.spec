@@ -1,14 +1,15 @@
 # Define the kmod package name here.
 %define kmod_name		aacraid
+%define kmod_vendor		elrepo
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-240.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	1.2.1
-Release:	4%{?dist}
+Release:	5%{?dist}.%{kmod_vendor}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -17,7 +18,9 @@ URL:		http://www.kernel.org/
 # Sources
 Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
-Source10:	%{kmod_name}.conf
+
+# Source code patches
+Patch0:	elrepo-aacraid-revert-removed-devices.8.3.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -57,6 +60,9 @@ of the same variant of the Linux kernel and not on any one specific build.
 %setup -q -n %{kmod_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
+# Apply patch(es)
+%patch0 -p1
+
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD
 
@@ -74,8 +80,6 @@ sort -u greylist | uniq > greylist.txt
 %{__install} %{kmod_name}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
-%{__install} -d %{buildroot}%{_sysconfdir}/dracut.conf.d/
-%{__install} %{SOURCE10} %{buildroot}%{_sysconfdir}/dracut.conf.d/%{kmod_name}.conf
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
@@ -121,7 +125,7 @@ if [ -f "%{kver_state_file}" ]; then
 
 		# The same check as in weak-modules: we assume that the kernel present
 		# if the symvers file exists.
-		if [ -e "/boot/symvers-$k.gz" ]; then
+		if [ -e "$k_dir/symvers.gz" ]; then
 			/usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
 			cmp -s "$tmp_initramfs" "$dst_initramfs"
 			if [ "$?" = 1 ]; then
@@ -168,10 +172,16 @@ exit 0
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
 %config /etc/depmod.d/kmod-%{kmod_name}.conf
-%config /etc/dracut.conf.d/%{kmod_name}.conf
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue May 18 2021 Philip J Perry <phil@elrepo.org> 1.2.1-5
+- Rebuilt for RHEL8.4
+- Source code updated from RHEL kernel-4.18.0-305.el8.x86_64
+- Use patch to revert removed devices
+- Fix updating of initramfs image
+  [https://elrepo.org/bugs/view.php?id=1060]
+  
 * Wed Nov 04 2020 Philip J Perry <phil@elrepo.org> 1.2.1-4
 - Rebuilt for RHEL8.3
 - Source code updated from RHEL kernel-4.18.0-240.el8.x86_64

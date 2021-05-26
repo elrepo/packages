@@ -1,14 +1,15 @@
 # Define the kmod package name here.
 %define kmod_name		skge
+%define kmod_vendor		elrepo
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-240.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	1.14
-Release:	1%{?dist}
+Release:	2%{?dist}.%{kmod_vendor}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -171,6 +172,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue May 18 2021 Philip J Perry <phil@elrepo.org> 1.14-2
+- Rebuilt for RHEL8.4
+
 * Tue Apr 13 2021 Philip J Perry <phil@elrepo.org> 1.14-1
 - Initial el8 build of the kmod package.
 - Backported from kernel-4.18.20
