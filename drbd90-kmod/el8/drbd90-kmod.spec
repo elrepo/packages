@@ -1,15 +1,16 @@
 # Define the kmod package name here.
 %define kmod_name		drbd90
-%define real_name drbd
+%define real_name 		drbd
+%define kmod_vendor		elrepo
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-240.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	9.0.25
-Release:	2%{?dist}
+Release:	3%{?dist}.%{kmod_vendor}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -121,12 +122,12 @@ if [ -f "%{kver_state_file}" ]; then
 	for k_dir in $kvers; do
 		k="${k_dir#/lib/modules/}"
 
-		tmp_initramfs="/boot/initramfs-$k.tmp"
-		dst_initramfs="/boot/initramfs-$k.img"
+		tmp_initramfs="/$k_dir/initramfs-$k.tmp"
+		dst_initramfs="/$k_dir/initramfs-$k.img"
 
 		# The same check as in weak-modules: we assume that the kernel present
 		# if the symvers file exists.
-		if [ -e "/boot/symvers-$k.gz" ]; then
+		if [ -e "/$k_dir/symvers-$k.gz" ]; then
 			/usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
 			cmp -s "$tmp_initramfs" "$dst_initramfs"
 			if [ "$?" = 1 ]; then
@@ -176,6 +177,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed May 26 2021 Akemi Yagi <toracat@elrepo.org> - 9.0.25-3.el8_4
+- Rebuilt against RHEL 8.4 kernel
+- Fix updating of initramfs image
+  [https://elrepo.org/bugs/view.php?id=1060]
+
 * Sat Nov 07 2020 Akemi Yagi <toracat@elrepo.org> - 9.0.25-2.el8_3
 - Updated to 9.0.25
 - Rebuilt against RHEL 8.3 kernel
