@@ -1,6 +1,6 @@
 # Define the kmod package name here.
-%define kmod_name		lru_cache
-%define kmod_vendor		elrepo
+%define kmod_name lru_cache
+%define kmod_vendor elrepo
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
 %{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.el8}
@@ -125,7 +125,7 @@ if [ -f "%{kver_state_file}" ]; then
 
                 # The same check as in weak-modules: we assume that the kernel present
                 # if the symvers file exists.
-                if [ -e "$k_dir/symvers.gz" ]; then
+                if [ -e "/boot/symvers-$k.gz" ]; then
                         /usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
                         cmp -s "$tmp_initramfs" "$dst_initramfs"
                         if [ "$?" = 1 ]; then
@@ -175,9 +175,8 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Tue May 18 2021 Philip J Perry <phil@elrepo.org> 0.0-2
+* Wed May 26 2021 Akemi Yagi <toracat@elrepo.org> - 0.0-2
 - Rebuilt against RHEL 8.4 kernel
-- Source backported from kernel-4.18.0-305.el8
 - Fix updating of initramfs image
   [https://elrepo.org/bugs/view.php?id=1060]
 
