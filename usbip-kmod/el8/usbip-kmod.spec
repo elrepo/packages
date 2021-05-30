@@ -9,7 +9,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	6%{?dist}.%{kmod_vendor}
+Release:	7%{?dist}.%{kmod_vendor}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -59,7 +59,6 @@ of the same variant of the Linux kernel and not on any one specific build.
 %setup -n %{kmod_name}-%{version}
 echo "override %{kmod_name}-core * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 echo "override %{kmod_name}-host * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
-echo "override %{kmod_name}-vudc * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 echo "override vhci-hcd * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 
 # Apply patch(es)
@@ -81,7 +80,6 @@ sort -u greylist | uniq > greylist.txt
 %{__install} -d %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} %{kmod_name}-core.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} %{kmod_name}-host.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-%{__install} %{kmod_name}-vudc.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} vhci-hcd.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
@@ -180,6 +178,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sun May 30 2021 Philip J Perry <phil@elrepo.org> 0.0-7
+- Remove broken usbip-vudc module
+
 * Tue May 25 2021 Philip J Perry <phil@elrepo.org> 0.0-6
 - Update source from kernel-4.18.0-305.el8
   [https://elrepo.org/bugs/view.php?id=1098]
