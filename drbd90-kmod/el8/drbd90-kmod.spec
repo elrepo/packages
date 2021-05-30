@@ -122,8 +122,8 @@ if [ -f "%{kver_state_file}" ]; then
 	for k_dir in $kvers; do
 		k="${k_dir#/lib/modules/}"
 
-		tmp_initramfs="/$k_dir/initramfs-$k.tmp"
-		dst_initramfs="/$k_dir/initramfs-$k.img"
+		tmp_initramfs="/boot/initramfs-$k.tmp"
+		dst_initramfs="/boot/initramfs-$k.img"
 
 		# The same check as in weak-modules: we assume that the kernel present
 		# if the symvers file exists.
