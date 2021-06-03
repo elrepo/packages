@@ -9,16 +9,28 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	9.0.25
-Release:	3%{?dist}.%{kmod_vendor}
+Version:	9.0.29
+Release:	1%{?dist}.%{kmod_vendor}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
 URL:		http://www.drbd.org/
 
 # Sources
-Source0:	drbd-%{version}-2.tar.gz
+Source0:	drbd-%{version}-1.tar.gz
 Source5:	GPL-v2.0.txt
+
+# Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
+# https://bugzilla.redhat.com/show_bug.cgi?id=1967291
+
+%define __spec_install_post /usr/lib/rpm/check-buildroot \
+                             /usr/lib/rpm/redhat/brp-ldconfig \
+                             /usr/lib/rpm/brp-compress \
+                             /usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump \
+                             /usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
+                             /usr/lib/rpm/brp-python-bytecompile "" 1 \
+                             /usr/lib/rpm/brp-python-hardlink \
+                             PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
 
 # Source code patches
 
@@ -61,7 +73,7 @@ It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
-%setup -n %{real_name}-%{version}-2
+%setup -n %{real_name}-%{version}-1
 # %patch0 -p1
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
@@ -177,6 +189,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Jun 03 2021 Akemi Yagi <toracat@elrepo.org> - 9.0.29-1.el8_4
+- Updated to 9.0.29
+- Fix SB-signing issue caused by /usr/lib/rpm/brp-strip
+  [https://bugzilla.redhat.com/show_bug.cgi?id=1967291]
+
 * Wed May 26 2021 Akemi Yagi <toracat@elrepo.org> - 9.0.25-3.el8_4
 - Rebuilt against RHEL 8.4 kernel
 - Fix updating of initramfs image
