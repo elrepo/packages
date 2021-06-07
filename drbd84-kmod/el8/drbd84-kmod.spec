@@ -4,14 +4,14 @@
 %define kmod_vendor elrepo
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.3.1.el8_4}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	8.4.10
 %define 	original_release 1
-Release:	%{original_release}.6%{?dist}.%{kmod_vendor}
+Release:	%{original_release}.7%{?dist}.%{kmod_vendor}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -20,6 +20,18 @@ URL:		http://www.kernel.org/
 # Sources
 Source0:	%{real_name}-%{version}-%{original_release}.tar.gz
 Source5:	GPL-v2.0.txt
+
+# Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
+# https://bugzilla.redhat.com/show_bug.cgi?id=1967291
+
+%define __spec_install_post /usr/lib/rpm/check-buildroot \
+                             /usr/lib/rpm/redhat/brp-ldconfig \
+                             /usr/lib/rpm/brp-compress \
+                             /usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump \
+                             /usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
+                             /usr/lib/rpm/brp-python-bytecompile "" 1 \
+                             /usr/lib/rpm/brp-python-hardlink \
+                             PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
 
 # Source code patches
 
@@ -48,6 +60,7 @@ BuildRequires:	redhat-rpm-config
 Provides:	kernel-modules >= %{kmod_kernel_version}.%{_arch}
 Provides:	kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
 
+Requires:	kmod-lru_cache
 Requires(post):	%{_sbindir}/weak-modules
 Requires(postun):	%{_sbindir}/weak-modules
 Requires:	kernel >= %{kmod_kernel_version}
@@ -180,6 +193,12 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Jun 07 2021 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1.7.el8
+- Rebuilt against kernel-4.18.0-305.3.1.el8_4
+- Fix SB-signing issue caused by /usr/lib/rpm/brp-strip
+  [https://bugzilla.redhat.com/show_bug.cgi?id=1967291]
+- kmod-lru_cache added as a Requires
+
 * Wed May 26 2021 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1.6.el8
 - Rebuilt against RHEL 8.4 (kernel-4.18.0-305.el8)
 - Source code from kernel-4.18.0-305.el8
