@@ -1,5 +1,5 @@
 Name:    nvidia-detect
-Version: 440.36
+Version: 440.64
 Release: 1%{?dist}
 Group:   Applications/System
 License: GPLv2
@@ -37,6 +37,10 @@ A utility to detect NVIDIA graphics cards.
 %{_bindir}/nvidia-detect
 
 %changelog
+* Mon Mar 30 2020 Philip J Perry <phil@elrepo.org> - 440.64-1
+- Add support for detection of devices added to 440.64 driver release
+- Add support for RHEL8
+
 * Fri Nov 29 2019 Philip J Perry <phil@elrepo.org> - 440.36-1
 - Add support for detection of devices added to 440.36 driver release
 
