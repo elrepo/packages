@@ -460,6 +460,7 @@ int main(int argc, char *argv[])
 
 	/* Iterate over all devices */
 	for (dev=pacc->devices; dev; dev=dev->next) {
+		pci_fill_info(dev,  PCI_FILL_IDENT | PCI_FILL_CLASS);
 
 		if ((dev->device_class & 0xff00) == 0x0300) {
 
