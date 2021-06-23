@@ -34,7 +34,7 @@
 #endif
 
 #define PROGRAM_NAME		"nvidia-detect"
-#define NVIDIA_VERSION		"440.64"
+#define NVIDIA_VERSION		"460.73.01"
 
 #ifndef PCI_VENDOR_ID_INTEL
 #define PCI_VENDOR_ID_INTEL		0x8086
@@ -58,14 +58,6 @@
 #define KMOD_NVIDIA_367XX	""	/* No longer supported on RHEL */
 #define KMOD_NVIDIA_340XX	"kmod-nvidia-340xx"
 #define KMOD_NVIDIA_304XX	""	/* No longer supported on RHEL */
-#define KMOD_NVIDIA_173XX	""	/* No longer supported on RHEL */
-#define KMOD_NVIDIA_96XX	""	/* No longer supported on RHEL */
-#elif RHEL_MAJOR == 6
-#define KMOD_NVIDIA			"kmod-nvidia"
-#define KMOD_NVIDIA_390XX	"kmod-nvidia-390xx"
-#define KMOD_NVIDIA_367XX	""	/* No longer supported on RHEL */
-#define KMOD_NVIDIA_340XX	"kmod-nvidia-340xx"
-#define KMOD_NVIDIA_304XX	"kmod-nvidia-304xx"
 #define KMOD_NVIDIA_173XX	""	/* No longer supported on RHEL */
 #define KMOD_NVIDIA_96XX	""	/* No longer supported on RHEL */
 #else	/* make no specific package recommendation */
