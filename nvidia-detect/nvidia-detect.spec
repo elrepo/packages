@@ -1,5 +1,5 @@
 Name:    nvidia-detect
-Version: 460.73.01
+Version: 460.84
 Release: 1%{?dist}
 Group:   Applications/System
 License: GPLv2
@@ -37,6 +37,11 @@ A utility to detect NVIDIA graphics cards.
 %{_bindir}/nvidia-detect
 
 %changelog
+* Wed Jun 23 2021 Philip J Perry <phil@elrepo.org> - 460.84-1
+- Add support for detection of devices added to 460.84 driver release
+- Call pci_fill_info() to retrieve device_class data
+  [https://elrepo.org/bugs/view.php?id=1112]
+
 * Tue May 11 2021 Philip J Perry <phil@elrepo.org> - 460.73.01-1
 - Add support for detection of devices added to 460.73.01 driver release
 - Drop support for RHEL6
