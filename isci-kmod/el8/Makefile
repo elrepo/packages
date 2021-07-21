@@ -23,14 +23,14 @@ modules_install:
 
 clean:
 	rm -rf *~ *.o .*.cmd *.mod.c *.ko *.ko.unsigned .depend \
-        .tmp_versions modules.order Module.symvers Module.markers
+	.tmp_versions modules.order Module.symvers Module.markers
 
 .PHONY: modules modules_install clean
 
 else
 
 # Called from kernel build system -- just declare the module(s).
-
+# SPDX-License-Identifier: GPL-2.0
 obj-m += isci.o
 isci-objs := init.o phy.o request.o \
 	     remote_device.o port.o \
@@ -38,6 +38,6 @@ isci-objs := init.o phy.o request.o \
 	     remote_node_context.o \
 	     remote_node_table.o \
 	     unsolicited_frame_control.o \
-	     port_config.o \
+	     port_config.o
 
 endif
