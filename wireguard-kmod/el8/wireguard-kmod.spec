@@ -16,8 +16,8 @@ Epoch:	3
 %endif
 
 Name:		kmod-%{kmod_name}
-Version:	1.0.20210424
-Release:	2%{?dist}.%{kmod_vendor}
+Version:	1.0.20210606
+Release:	1%{?dist}.%{kmod_vendor}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -183,6 +183,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sun Jun 06 2021 Philip J Perry <phil@elrepo.org> 1.0.20210606-1
+- Update to 1.0.20210606
+
 * Tue May 18 2021 Philip J Perry <phil@elrepo.org> 1.0.20210424-2
 - Rebuilt for RHEL 8.4
 
