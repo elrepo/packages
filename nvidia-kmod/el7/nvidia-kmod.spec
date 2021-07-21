@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 460.73.01
+Version: 470.57.02
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -43,6 +43,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 echo "override %{kmod_name}-drm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 echo "override %{kmod_name}-modeset * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+echo "override %{kmod_name}-peermem * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 echo "override %{kmod_name}-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 sh %{SOURCE0} --extract-only --target nvidiapkg
 %{__cp} -a nvidiapkg _kmod_build_
@@ -59,6 +60,7 @@ pushd _kmod_build_/kernel
 %{__install} %{kmod_name}.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 %{__install} %{kmod_name}-drm.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 %{__install} %{kmod_name}-modeset.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
+%{__install} %{kmod_name}-peermem.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 %{__install} %{kmod_name}-uvm.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 popd
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
@@ -81,6 +83,16 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Mon Jul 19 2021 Philip J Perry <phil@elrepo.org> - 470.57.02-1
+- Updated to version 470.57.02
+- Adds nvidia-peermem kernel module
+
+* Fri Jun 04 2021 Philip J Perry <phil@elrepo.org> - 460.84-1
+- Updated to version 460.84
+
+* Wed May 12 2021 Philip J Perry <phil@elrepo.org> - 460.80-1
+- Updated to version 460.80
+
 * Wed Apr 14 2021 Philip J Perry <phil@elrepo.org> - 460.73.01-1
 - Updated to version 460.73.01
 

@@ -1,13 +1,13 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/460.80/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/470.57.02/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	460.80
-Release:	2%{?dist}
+Version:	470.57.02
+Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -113,9 +113,13 @@ sh %{SOURCE0} --extract-only --target nvidiapkg
 # Lets just take care of all the docs here rather than during install
 pushd nvidiapkg
 %{__mkdir_p} html/samples/systemd/
+%{__mkdir_p} html/samples/systemd/system/
+%{__mkdir_p} html/samples/systemd/system-sleep/
 %{__mv} LICENSE NVIDIA_Changelog pkg-history.txt README.txt html/
 %{__mv} nvidia-persistenced-init.tar.bz2 html/samples/
-%{__mv} nvidia nvidia-sleep.sh nvidia-*.service html/samples/systemd/
+%{__mv} systemd/nvidia-sleep.sh html/samples/systemd/
+%{__mv} systemd/system/nvidia-*.service html/samples/systemd/system/
+%{__mv} systemd/system-sleep/nvidia html/samples/systemd/system-sleep/
 popd
 find nvidiapkg/html/ -type f | xargs chmod 0644
 
@@ -151,6 +155,10 @@ pushd nvidiapkg
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/
 %{__install} -p -m 0644 10_nvidia.json $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
 
+# Install GPU System Processor (GSP) firmware
+%{__mkdir_p} $RPM_BUILD_ROOT/lib/firmware/nvidia/%{version}/
+%{__install} -p -m 0755 firmware/gsp.bin $RPM_BUILD_ROOT/lib/firmware/nvidia/%{version}/gsp.bin
+
 # Install GL, tls and vdpau libs
 %ifarch i686
 pushd 32
@@ -181,6 +189,7 @@ pushd 32
 %{__install} -p -m 0755 libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %ifarch x86_64
 %{__install} -p -m 0755 libnvidia-ngx.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
+%{__install} -p -m 0755 libnvidia-nvvm.so.4.0.0 $RPM_BUILD_ROOT%{_libdir}/
 %endif
 %{__install} -p -m 0755 libnvidia-opencl.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-opticalflow.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
@@ -193,6 +202,11 @@ pushd 32
 %{__install} -p -m 0755 libnvoptix.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %endif
 %{__install} -p -m 0755 libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/vdpau/
+%ifarch x86_64
+# Wine libs
+%{__install} -p -m 0755 _nvngx.dll $RPM_BUILD_ROOT%{_libdir}/
+%{__install} -p -m 0755 nvngx.dll $RPM_BUILD_ROOT%{_libdir}/
+%endif
 %ifarch i686
 popd
 %endif
@@ -229,6 +243,7 @@ popd
 %ifarch x86_64
 %{__ln_s} libnvidia-ngx.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ngx.so
 %{__ln_s} libnvidia-ngx.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ngx.so.1
+%{__ln_s} libnvidia-nvvm.so.4.0.0 $RPM_BUILD_ROOT%{_libdir}/libnvidia-nvvm.so.4
 %endif
 %{__ln_s} libnvidia-opencl.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-opencl.so.1
 %{__ln_s} libnvidia-opticalflow.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-opticalflow.so
@@ -373,6 +388,7 @@ fi ||:
 %{_bindir}/nvidia-settings
 %{_bindir}/nvidia-smi
 %{_bindir}/nvidia-xconfig
+/lib/firmware/nvidia/%{version}/gsp.bin
 %config %{_sysconfdir}/X11/nvidia-xorg.conf
 %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %dir %{_prefix}/lib/nvidia/
@@ -384,8 +400,17 @@ fi ||:
 %defattr(-,root,root,-)
 %{_libdir}/lib*
 %{_libdir}/vdpau/libvdpau_nvidia.*
+%ifarch x86_64
+%{_libdir}/*.dll
+%endif
 
 %changelog
+* Mon Jul 19 2021 Philip J Perry <phil@elrepo.org> - 470.57.02-1
+- Updated to version 470.57.02
+
+* Fri Jun 04 2021 Philip J Perry <phil@elrepo.org> - 460.84-1
+- Updated to version 460.84
+
 * Tue May 18 2021 Philip J Perry <phil@elrepo.org> - 460.80-2
 - Rebuilt for RHEL 8.4
 
