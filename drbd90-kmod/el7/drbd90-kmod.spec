@@ -6,8 +6,8 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 9.0.22
-Release: 3%{?dist}
+Version: 9.0.30
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: Distributed Redundant Block Device driver for Linux
@@ -19,7 +19,7 @@ ExclusiveArch: x86_64
 
 # Sources.
 # Source0:  http://oss.linbit.com/drbd/9.0/drbd-%{version}.tar.gz
-Source0:  http://www.linbit.com/downloads/drbd/9.0/drbd-%{version}-2.tar.gz
+Source0:  http://www.linbit.com/downloads/drbd/9.0/drbd-%{version}-1.tar.gz
 Source10: kmodtool-%{kmod_name}-el7.sh
 
 # Magic hidden here.
@@ -35,7 +35,7 @@ as networked raid 1. It is a building block for setting up
 high availability (HA) clusters.
 
 %prep
-%setup -n %{real_name}-%{version}-2
+%setup -n %{real_name}-%{version}-1
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
@@ -69,6 +69,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Jul 30 2021 Philip J Perry <phil@elrepo.org> - 9.0.30-1.el7_9
+- Updated to 9.0.30-1
+  [https://elrepo.org/bugs/view.php?id=1124]
+
 * Tue Sep 29 2020 Akemi Yagi <toracat@elrepo.org> - 9.0.22-3.el7_9
 - Rebuilt against RHEL 7.9 kernel
 
