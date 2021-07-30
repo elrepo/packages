@@ -1,7 +1,7 @@
 %define real_name drbd-utils
 
 Name:    drbd90-utils
-Version: 9.12.2
+Version: 9.18.1
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
@@ -18,6 +18,8 @@ BuildRequires: udev
 BuildRequires: libxslt
 BuildRequires: docbook-style-xsl
 BuildRequires: po4a
+# Build Requires rubygem-asciidoctor from EPEL
+BuildRequires: asciidoctor
 
 Requires: udev
 Requires(post):   systemd-units
@@ -116,20 +118,22 @@ fi
 %doc %{_mandir}/ja/man5/drbd.conf.5*
 %doc %{_mandir}/ja/man5/drbd.conf-*
 %doc %{_mandir}/ja/man8/drbd*
-%doc %{_mandir}/man7/ocf_linbit_drbd.7.gz
+%doc %{_mandir}/man7/*
 %config %{_sysconfdir}/bash_completion.d/drbdadm
 %config %{_prefix}/lib/udev/rules.d/65-drbd.rules
 %config(noreplace) %{_sysconfdir}/drbd.conf
+%config(noreplace) %{_sysconfdir}/multipath/conf.d/drbd.conf
 %dir %{_sysconfdir}/drbd.d/
 %config(noreplace) %{_sysconfdir}/drbd.d/global_common.conf
 %config %{_unitdir}/drbd.service
 %dir %{_localstatedir}/lib/drbd/
 %dir /lib/drbd/
-/lib/drbd/drbd
 /lib/drbd/drbdadm-83
 /lib/drbd/drbdsetup-83
 /lib/drbd/drbdadm-84
 /lib/drbd/drbdsetup-84
+%dir /lib/drbd/scripts/
+/lib/drbd/scripts/*
 %{_sbindir}/drbdadm
 %{_sbindir}/drbdmeta
 %{_sbindir}/drbdsetup
@@ -148,6 +152,7 @@ fi
 %{_prefix}/lib/drbd/snapshot-resync-target-lvm.sh
 %{_prefix}/lib/drbd/stonith_admin-fence-peer.sh
 %{_prefix}/lib/drbd/unsnapshot-resync-target-lvm.sh
+%{_prefix}/lib/systemd/system/*
 %{_prefix}/lib/tmpfiles.d/drbd.conf
 
 ### heartbeat
@@ -157,7 +162,7 @@ fi
 ### pacemaker
 %{_prefix}/lib/drbd/crm-fence-peer.sh
 %{_prefix}/lib/drbd/crm-unfence-peer.sh
-%{_prefix}/lib/ocf/resource.d/linbit/drbd
+%{_prefix}/lib/ocf/resource.d/linbit/*
 %{_prefix}/lib/drbd/crm-fence-peer.9.sh
 %{_prefix}/lib/drbd/crm-unfence-peer.9.sh
 %{_prefix}/lib/ocf/resource.d/linbit/drbd.shellfuncs.sh
@@ -175,6 +180,10 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Fri Jul 30 2021 Philip J Perry <phil@elrepo.org> - 9.18.1-1
+- Updated to 9.18.1
+  [https://elrepo.org/bugs/view.php?id=1124]
+
 * Sat Apr 04 2020 Akemi Yagi <toracat@elrepo.org> - 9.12.2-1
 - Updated to 9.12.2
 
