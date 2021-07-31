@@ -4,14 +4,14 @@
 %define kmod_vendor elrepo
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.7.1.el8_4}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.10.2.el8_4}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	8.4.10
 %define 	original_release 1
-Release:	%{original_release}.8%{?dist}.%{kmod_vendor}
+Release:	%{original_release}.9%{?dist}.%{kmod_vendor}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -193,6 +193,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Jul 21 2021 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1.9.el8
+- Rebuilt against kernel-4.18.0-305.10.2.el8_4
+
 * Thu Jul 01 2021 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1.8.el8
 - Rebuilt against kernel-4.18.0-305.7.1.el8_4
 
