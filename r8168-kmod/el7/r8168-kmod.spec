@@ -5,10 +5,10 @@
 %define kmod_name r8168
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-1062.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 8.048.00
+Version: 8.049.02
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -81,6 +81,12 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Aug 08 2021 Philip J Perry <phil@elrepo.org> - 8.049.02-1
+- Updated to version 8.049.02
+- Built against RHEL 7.9 kernel
+- Enabled -DCONFIG_R8168_VLAN, -DCONFIG_ASPM, -DENABLE_S5WOL, -DENABLE_EEE,
+          -DENABLE_USE_FIRMWARE_FILE
+
 * Sun Mar 01 2020 Philip J Perry <phil@elrepo.org> - 8.048.00-1
 - Updated to version 8.048.00
 
