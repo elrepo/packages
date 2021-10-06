@@ -6,7 +6,7 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 9.0.30
+Version: 9.1.4
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -69,6 +69,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Oct 05 2021 Akemi Yagi <toracat@elrepo.org> - 9.1.4-1.el7_9
+- Updated to 9.1.4-1
+  [https://elrepo.org/bugs/view.php?id=1146]
+
 * Fri Jul 30 2021 Philip J Perry <phil@elrepo.org> - 9.0.30-1.el7_9
 - Updated to 9.0.30-1
   [https://elrepo.org/bugs/view.php?id=1124]
