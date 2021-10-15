@@ -8,7 +8,7 @@
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
-Version:        0.0
+Version:        0.1
 Release:        1%{?dist}.%{kmod_vendor}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
@@ -75,7 +75,7 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 # Apply patch(es)
 
 %build
-%{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD CONFIG_BE2NET=m
+%{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD
 
 whitelist="/lib/modules/kabi-current/kabi_whitelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -185,6 +185,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Oct 14 2021 Akemi Yagi <toracat@elrepo.org> - 0.1-1
+- Added CONFIG_LEDS_PCA9532_GPIO=y
+  [https://elrepo.org/bugs/view.php?id=1148]
+
 * Mon Jun 28 2021 Akemi Yagi <toracat@elrepo.org> - 0.0-1
 - Initial buildfor EL8
 - Built from the source for kernel-4.18.0-305.
