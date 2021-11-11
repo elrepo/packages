@@ -221,6 +221,8 @@ then
     echo "/lib/modules/${verrel}${dotvariant}/"
     echo "%config /etc/depmod.d/kmod-${kmod_name}.conf"
     echo "%config /usr/lib/modprobe.d/blacklist-nouveau.conf"
+    echo "%dir /lib/firmware/nvidia/%{version}/"
+    echo "/lib/firmware/nvidia/%{version}/gsp.bin"
 else
     cat "$override_filelist" | get_filelist
 fi

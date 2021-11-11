@@ -1,12 +1,12 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/470.57.02/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/470.86/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	470.57.02
+Version:	470.86
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -155,10 +155,6 @@ pushd nvidiapkg
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/
 %{__install} -p -m 0644 10_nvidia.json $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
 
-# Install GPU System Processor (GSP) firmware
-%{__mkdir_p} $RPM_BUILD_ROOT/lib/firmware/nvidia/%{version}/
-%{__install} -p -m 0755 firmware/gsp.bin $RPM_BUILD_ROOT/lib/firmware/nvidia/%{version}/gsp.bin
-
 # Install GL, tls and vdpau libs
 %ifarch i686
 pushd 32
@@ -199,13 +195,15 @@ pushd 32
 %endif
 %{__install} -p -m 0755 libnvidia-tls.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %ifarch x86_64
+%{__install} -p -m 0755 libnvidia-vulkan-producer.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvoptix.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %endif
 %{__install} -p -m 0755 libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/vdpau/
 %ifarch x86_64
-# Wine libs
-%{__install} -p -m 0755 _nvngx.dll $RPM_BUILD_ROOT%{_libdir}/
-%{__install} -p -m 0755 nvngx.dll $RPM_BUILD_ROOT%{_libdir}/
+# NGX Wine libs
+%{__mkdir_p} $RPM_BUILD_ROOT%{_libdir}/nvidia/wine/
+%{__install} -p -m 0755 _nvngx.dll $RPM_BUILD_ROOT%{_libdir}/nvidia/wine/
+%{__install} -p -m 0755 nvngx.dll $RPM_BUILD_ROOT%{_libdir}/nvidia/wine/
 %endif
 %ifarch i686
 popd
@@ -250,6 +248,7 @@ popd
 %{__ln_s} libnvidia-opticalflow.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-opticalflow.so.1
 %{__ln_s} libnvidia-ptxjitcompiler.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ptxjitcompiler.so.1
 %ifarch x86_64
+%{__ln_s} libnvidia-vulkan-producer.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-vulkan-producer.so
 %{__ln_s} libnvoptix.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvoptix.so.1
 %endif
 %{__ln_s} libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/vdpau/libvdpau_nvidia.so.1
@@ -375,7 +374,7 @@ fi ||:
 %{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
 %{_datadir}/vulkan/icd.d/nvidia_icd.json
 %{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
-%dir %{_datadir}/nvidia
+%dir %{_datadir}/nvidia/
 %{_datadir}/nvidia/nvidia-application-profiles-*
 %{_datadir}/X11/xorg.conf.d/nvidia-drm-outputclass.conf
 %{_bindir}/nvidia-bug-report.sh
@@ -388,7 +387,6 @@ fi ||:
 %{_bindir}/nvidia-settings
 %{_bindir}/nvidia-smi
 %{_bindir}/nvidia-xconfig
-/lib/firmware/nvidia/%{version}/gsp.bin
 %config %{_sysconfdir}/X11/nvidia-xorg.conf
 %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %dir %{_prefix}/lib/nvidia/
@@ -401,10 +399,28 @@ fi ||:
 %{_libdir}/lib*
 %{_libdir}/vdpau/libvdpau_nvidia.*
 %ifarch x86_64
-%{_libdir}/*.dll
+%dir %{_libdir}/nvidia/
+%{_libdir}/nvidia/wine/*.dll
 %endif
 
 %changelog
+* Thu Nov 11 2021 Philip J Perry <phil@elrepo.org> - 470.86-1
+- Updated to version 470.86
+
+* Wed Nov 10 2021 Philip J Perry <phil@elrepo.org> - 470.82.00-2
+- Add libnvidia-vulkan-producer.so
+
+* Thu Oct 28 2021 Philip J Perry <phil@elrepo.org> - 470.82.00-1
+- Updated to version 470.82.00
+
+* Tue Sep 21 2021 Philip J Perry <phil@elrepo.org> - 470.74-1
+- Updated to version 470.74
+
+* Wed Aug 11 2021 Philip J Perry <phil@elrepo.org> - 470.63.01-1
+- Updated to version 470.63.01
+- Move Wine libs to %%{_libdir}/nvidia/wine/
+- Move firmware into kmod package as it is for nvidia.ko module
+
 * Mon Jul 19 2021 Philip J Perry <phil@elrepo.org> - 470.57.02-1
 - Updated to version 470.57.02
 

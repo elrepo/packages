@@ -1,15 +1,14 @@
 # Define the kmod package name here.
 %define kmod_name		nvidia
-%define kmod_vendor		elrepo
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-348.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	470.57.02
-Release:	1%{?dist}.%{kmod_vendor}
+Version:	470.86
+Release:	1%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
 License:	Proprietary
@@ -22,6 +21,14 @@ Source2:  dracut-nvidia.conf
 
 NoSource: 0
 
+%define __spec_install_post /usr/lib/rpm/check-buildroot \
+                            /usr/lib/rpm/redhat/brp-ldconfig \
+                            /usr/lib/rpm/brp-compress \
+                            /usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump \
+                            /usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
+                            /usr/lib/rpm/brp-python-bytecompile "" 1 \
+                            /usr/lib/rpm/brp-python-hardlink \
+                            PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
 %define __find_provides /usr/lib/rpm/redhat/find-provides.ksyms %{kmod_name} %{?epoch:%{epoch}:}%{version}-%{release}
@@ -53,6 +60,9 @@ BuildRequires:	gcc = 8.3.1
 %endif
 %if "%{kmod_kernel_version}" == "4.18.0-305.el8"
 BuildRequires:	gcc = 8.4.1
+%endif
+%if "%{kmod_kernel_version}" == "4.18.0-348.el8"
+BuildRequires:	gcc = 8.5.0
 %endif
 
 Provides:	kernel-modules >= %{kmod_kernel_version}.%{_arch}
@@ -103,17 +113,22 @@ pushd _kmod_build_/kernel
 %{__install} %{kmod_name}-peermem.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} %{kmod_name}-uvm.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 popd
+pushd _kmod_build_
+# Install GPU System Processor (GSP) firmware
+%{__install} -d %{buildroot}/lib/firmware/nvidia/%{version}/
+%{__install} -p -m 0755 firmware/gsp.bin %{buildroot}/lib/firmware/nvidia/%{version}/gsp.bin
+popd
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_prefix}/lib/modprobe.d/
-%{__install} %{SOURCE1} %{buildroot}%{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
+%{__install} -m 0644 %{SOURCE1} %{buildroot}%{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
 %{__install} -d %{buildroot}%{_sysconfdir}/dracut.conf.d/
-%{__install} %{SOURCE2} %{buildroot}%{_sysconfdir}/dracut.conf.d/dracut-nvidia.conf
+%{__install} -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/dracut.conf.d/dracut-nvidia.conf
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 # strip the modules(s)
-find %{buildroot} -type f -name \*.ko -exec %{__strip} --strip-debug \{\} \;
+find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --strip-debug
 
 # Sign the modules(s)
 %if %{?_with_modsign:1}%{!?_with_modsign:0}
@@ -217,8 +232,32 @@ exit 0
 %config /etc/dracut.conf.d/dracut-nvidia.conf
 %config /usr/lib/modprobe.d/blacklist-nouveau.conf
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
+%dir /lib/firmware/nvidia/%{version}/
+/lib/firmware/nvidia/%{version}/gsp.bin
 
 %changelog
+* Thu Nov 11 2021 Philip J Perry <phil@elrepo.org> - 470.86-1
+- Updated to version 470.86
+- Fix modes on source files
+
+* Wed Nov 10 2021 Philip J Perry <phil@elrepo.org> - 470.82.00-2
+- Rebuilt for RHEL8.5
+- Fix SB-signing issue caused by /usr/lib/rpm/brp-strip
+  [https://bugzilla.redhat.com/show_bug.cgi?id=1967291]
+- Update stripping of modules
+
+* Thu Oct 28 2021 Philip J Perry <phil@elrepo.org> - 470.82.00-1
+- Updated to version 470.82.00
+
+* Tue Sep 21 2021 Philip J Perry <phil@elrepo.org> - 470.74-1
+- Updated to version 470.74
+- Removed conflict with centos-stream-release
+  [https://elrepo.org/bugs/view.php?id=1139]
+
+* Wed Aug 11 2021 Philip J Perry <phil@elrepo.org> - 470.63.01-1
+- Updated to version 470.63.01
+- Add firmware for nvidia.ko module
+
 * Mon Jul 19 2021 Philip J Perry <phil@elrepo.org> - 470.57.02-1
 - Updated to version 470.57.02
 - Adds nvidia-peermem kernel module

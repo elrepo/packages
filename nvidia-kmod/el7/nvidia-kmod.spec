@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 470.57.02
+Version: 470.86
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -63,6 +63,11 @@ pushd _kmod_build_/kernel
 %{__install} %{kmod_name}-peermem.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 %{__install} %{kmod_name}-uvm.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 popd
+pushd _kmod_build_
+# Install GPU System Processor (GSP) firmware
+%{__install} -d %{buildroot}/lib/firmware/nvidia/%{version}/
+%{__install} -p -m 0755 firmware/gsp.bin %{buildroot}/lib/firmware/nvidia/%{version}/gsp.bin
+popd
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_prefix}/lib/modprobe.d/
@@ -83,6 +88,19 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Nov 11 2021 Philip J Perry <phil@elrepo.org> - 470.86-1
+- Updated to version 470.86
+
+* Thu Oct 28 2021 Philip J Perry <phil@elrepo.org> - 470.82.00-1
+- Updated to version 470.82.00
+
+* Tue Sep 21 2021 Philip J Perry <phil@elrepo.org> - 470.74-1
+- Updated to version 470.74
+
+* Wed Aug 11 2021 Philip J Perry <phil@elrepo.org> - 470.63.01-1
+- Updated to version 470.63.01
+- Add firmware for nvidia.ko module
+
 * Mon Jul 19 2021 Philip J Perry <phil@elrepo.org> - 470.57.02-1
 - Updated to version 470.57.02
 - Adds nvidia-peermem kernel module
