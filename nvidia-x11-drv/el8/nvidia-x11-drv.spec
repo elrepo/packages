@@ -7,7 +7,7 @@
 
 Name:		nvidia-x11-drv
 Version:	470.86
-Release:	1%{?dist}
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -86,6 +86,8 @@ This package provides the proprietary NVIDIA OpenGL X11 display driver files.
 %package libs
 Summary:	Libraries for the Proprietary NVIDIA driver
 Group:		User Interface/X Hardware Support
+# Fix broken SONAME dependency chain
+Provides:	libnvidia-vulkan-producer.so()(64bit)
 ## Remove requires for nvidia-x11-drv to allow installation of
 ## nvidia-x11-drv-libs on headless systems. See bug 
 ## https://elrepo.org/bugs/view.php?id=926
@@ -404,6 +406,10 @@ fi ||:
 %endif
 
 %changelog
+* Fri Nov 12 2021 Philip J Perry <phil@elrepo.org> - 470.86-2
+- Fix broken SONAME dependency chain for libnvidia-vulkan-producer.so
+  [https://elrepo.org/bugs/view.php?id=1159]
+
 * Thu Nov 11 2021 Philip J Perry <phil@elrepo.org> - 470.86-1
 - Updated to version 470.86
 
