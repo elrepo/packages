@@ -8,7 +8,7 @@
 
 Name:           kmod-%{kmod_name}
 Version:        0.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -134,7 +134,7 @@ if [ -f "%{kver_state_file}" ]; then
 
                 # The same check as in weak-modules: we assume that the kernel present
                 # if the symvers file exists.
-                if [ -e "/boot/symvers-$k.gz" ]; then
+                if [ -e "$k_dir/symvers.gz" ]; then
                         /usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
                         cmp -s "$tmp_initramfs" "$dst_initramfs"
                         if [ "$?" = 1 ]; then
@@ -184,6 +184,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Nov 15 2021 Akemi Yagi <toracat@elrepo.org> - 0.1-2
+- correct symvers.gz location
+
 * Fri Nov 12 2021 Akemi Yagi <toracat@elrepo.org> - 0.1-1
 - Source code taken from kernel-4.18.0-348.el8
 - Built against RHEL 8.5 kernel
