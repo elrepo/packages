@@ -1,15 +1,14 @@
 # Define the kmod package name here.
 %define kmod_name leds-gpio
-%define kmod_vendor elrepo
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-348.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
 Version:        0.0
-Release:        1%{?dist}.%{kmod_vendor}
+Release:        2%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -185,6 +184,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri Nov 12 2021 Akemi Yagi <toracat@elrepo.org> - 0.0-2
+- Rebuilt against RHEL 8.5 kernel
+
 * Mon Jun 28 2021 Akemi Yagi <toracat@elrepo.org> - 0.0-1
 - Initial buildfor EL8
 - Built from the source for kernel-4.18.0-305.

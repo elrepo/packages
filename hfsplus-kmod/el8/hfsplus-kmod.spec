@@ -1,15 +1,14 @@
 # Define the kmod package name here.
-%define kmod_name		hfsplus
-%define kmod_vendor		elrepo
+%define kmod_name hfsplus
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-348.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
-Version:        0.0
-Release:        4%{?dist}.%{kmod_vendor}
+Version:        0.1
+Release:        1%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -18,6 +17,18 @@ URL:            http://www.kernel.org/
 # Sources.
 Source0:  %{kmod_name}-%{version}.tar.gz
 Source5:  GPL-v2.0.txt
+
+# Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
+# https://bugzilla.redhat.com/show_bug.cgi?id=1967291
+
+%define __spec_install_post  /usr/lib/rpm/check-buildroot \
+                             /usr/lib/rpm/redhat/brp-ldconfig \
+                             /usr/lib/rpm/brp-compress \
+                             /usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump \
+                             /usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
+                             /usr/lib/rpm/brp-python-bytecompile "" 1 \
+                             /usr/lib/rpm/brp-python-hardlink \
+                             PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
 
 # Source code patches
 
@@ -63,7 +74,7 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 # Apply patch(es)
 
 %build
-%{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD
+%{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD CONFIG_BE2NET=m
 
 whitelist="/lib/modules/kabi-current/kabi_whitelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -83,7 +94,7 @@ sort -u greylist | uniq > greylist.txt
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 # strip the modules(s)
-find %{buildroot} -type f -name \*.ko -exec %{__strip} --strip-debug \{\} \;
+find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --strip-debug
 
 # Sign the modules(s)
 %if %{?_with_modsign:1}%{!?_with_modsign:0}
@@ -123,7 +134,7 @@ if [ -f "%{kver_state_file}" ]; then
 
                 # The same check as in weak-modules: we assume that the kernel present
                 # if the symvers file exists.
-                if [ -e "$k_dir/symvers.gz" ]; then
+                if [ -e "/boot/symvers-$k.gz" ]; then
                         /usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
                         cmp -s "$tmp_initramfs" "$dst_initramfs"
                         if [ "$?" = 1 ]; then
@@ -173,11 +184,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Tue May 18 2021 Philip J Perry <phil@elrepo.org> 0.0-4
-- Rebuilt against RHEL 8.4 kernel
-- Source backported from kernel-4.18.0-305.el8
-- Fix updating of initramfs image
-  [https://elrepo.org/bugs/view.php?id=1060]
+* Fri Nov 12 2021 Akemi Yagi <toracat@elrepo.org> - 0.1-1
+- Source code taken from kernel-4.18.0-348.el8
+- Built against RHEL 8.5 kernel
 
 * Sun Nov 08 2020 Akemi Yagi <toracat@elrepo.org> - 0.0-3
 - Rebuilt against RHEL 8.3 kernel

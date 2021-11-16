@@ -1,15 +1,14 @@
 # Define the kmod package name here.
 %define kmod_name	lru_cache
-%define kmod_vendor	elrepo
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-348.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
 Version:        0.0
-Release:        2%{?dist}.%{kmod_vendor}
+Release:        3%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -18,6 +17,18 @@ URL:            http://www.kernel.org/
 # Sources.
 Source0:  %{kmod_name}-%{version}.tar.gz
 Source5:  GPL-v2.0.txt
+
+# Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
+# https://bugzilla.redhat.com/show_bug.cgi?id=1967291
+
+%define __spec_install_post  /usr/lib/rpm/check-buildroot \
+                             /usr/lib/rpm/redhat/brp-ldconfig \
+                             /usr/lib/rpm/brp-compress \
+                             /usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump \
+                             /usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
+                             /usr/lib/rpm/brp-python-bytecompile "" 1 \
+                             /usr/lib/rpm/brp-python-hardlink \
+                             PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
 
 # Source code patches
 
@@ -175,6 +186,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 09 2021 Akemi Yagi <toracat@elrepo.org> - 0.0-3
+- Rebuilt against RHEL 8.5 GA kernel 4.18.0-348.el8
+
 * Tue May 18 2021 Philip J Perry <phil@elrepo.org> 0.0-2
 - Rebuilt against RHEL 8.4 kernel
 - Source backported from kernel-4.18.0-305.el8

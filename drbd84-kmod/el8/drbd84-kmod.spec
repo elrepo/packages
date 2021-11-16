@@ -1,17 +1,16 @@
 # Define the kmod package name here.
 %define kmod_name drbd84
 %define real_name drbd
-%define kmod_vendor elrepo
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.12.1.el8_4}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-348.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	8.4.10
 %define 	original_release 1
-Release:	%{original_release}.10%{?dist}.%{kmod_vendor}
+Release:	%{original_release}.14%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -193,6 +192,18 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 09 2021 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1.14.el8
+- Rebuilt against RHEL 8.5 GA kernel 4.18.0-348.el8
+
+* Wed Nov 03 2021 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1.13.el8
+- Rebuilt against kernel-4.18.0-305.251.el8_4
+
+* Thu Sep 16 2021 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1.12.el8
+-Rebuilt against kernel-4.18.0-305.19.1.el8_4
+
+* Tue Sep 07 2021 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1.11.el8
+-Rebuilt against kernel-4.18.0-305.17.1.el8_4
+
 * Tue Aug 10 2021 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1.10.el8
 - Rebuilt against kernel-4.18.0-305.12.1.el8_4
 

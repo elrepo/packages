@@ -1,16 +1,15 @@
 # Define the kmod package name here.
 %define kmod_name		drbd90
 %define real_name 		drbd
-%define kmod_vendor		elrepo
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-348.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	9.1.4
-Release:	1%{?dist}.%{kmod_vendor}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -189,6 +188,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 09 2021 Akemi Yagi <toracat@elrepo.org> - 9.1.4-2.el8_5
+- Rebuilt against RHEL 8.5 GA kernel 4.18.0-348.el8
+
 * Wed Oct 06 2021 Akemi Yagi <toracat@elrepo.org> - 9.1.4-1.el8_4
 - Updated to 9.1.4
 
