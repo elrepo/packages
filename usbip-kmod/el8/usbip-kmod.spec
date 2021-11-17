@@ -1,15 +1,14 @@
 # Define the kmod package name here.
 %define kmod_name		usbip
-%define kmod_vendor		elrepo
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-348.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	7%{?dist}.%{kmod_vendor}
+Release:	9%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -18,6 +17,18 @@ URL:		http://www.kernel.org/
 # Sources
 Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
+
+# Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
+# https://bugzilla.redhat.com/show_bug.cgi?id=1967291
+
+%define __spec_install_post	/usr/lib/rpm/check-buildroot \
+				/usr/lib/rpm/redhat/brp-ldconfig \
+				/usr/lib/rpm/brp-compress \
+				/usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump \
+ 				/usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
+				/usr/lib/rpm/brp-python-bytecompile "" 1 \
+				/usr/lib/rpm/brp-python-hardlink \
+				PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
 
 # Source code patches
 
@@ -88,7 +99,7 @@ sort -u greylist | uniq > greylist.txt
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 # strip the modules(s)
-find %{buildroot} -type f -name \*.ko -exec %{__strip} --strip-debug \{\} \;
+find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --strip-debug
 
 # Sign the modules(s)
 %if %{?_with_modsign:1}%{!?_with_modsign:0}
@@ -178,6 +189,13 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat Nov 13 2021 Akemi Yagi <toracat@elrepo.org> 0.0-9
+- Rebuilt against RHEL 8.5 kernel
+
+* Mon Sep 20 2021 Philip J Perry <phil@elrepo.org> 0.0-8
+- Rebuilt against kernel-4.18.0-305.19.1.el8_4
+  [https://elrepo.org/bugs/view.php?id=1138]
+
 * Sun May 30 2021 Philip J Perry <phil@elrepo.org> 0.0-7
 - Remove broken usbip-vudc module
 
