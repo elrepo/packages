@@ -5,12 +5,12 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 9.005.01
+Version: 9.007.01
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
-URL:     http://www.realtek.com/
+URL:     http://www.realtek.com/en/
 
 BuildRequires: redhat-rpm-config, perl
 ExclusiveArch: x86_64
@@ -73,6 +73,14 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Nov 23 2021 Philip J Perry <phil@elrepo.org> - 9.007.01-1
+- Update to version 9.007.01
+  [https://elrepo.org/bugs/view.php?id=1165]
+
+* Mon Nov 08 2021 Philip J Perry <phil@elrepo.org> - 9.006.04-1
+- Update to version 9.006.04
+  [https://elrepo.org/bugs/view.php?id=1157]
+
 * Thu Feb 25 2021 Philip J Perry <phil@elrepo.org> - 9.005.01-1
 - Update to version 9.005.01
   [https://elrepo.org/bugs/view.php?id=1078]
