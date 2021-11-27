@@ -1,6 +1,5 @@
 # Define the kmod package name here.
 %define kmod_name	hello-1
-%define kmod_vendor	elrepo
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
 %{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-17.el9}
@@ -9,7 +8,7 @@
 
 Name:           kmod-%{kmod_name}
 Version:        0.0
-Release:        1%{?dist}.%{kmod_vendor}
+Release:        1%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
