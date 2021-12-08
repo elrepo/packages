@@ -15,7 +15,7 @@ Epoch:	4
 %endif
 
 Name:		kmod-%{kmod_name}
-Version:	1.0.20210808
+Version:	1.0.20211208
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -190,6 +190,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Dec 08 2021 Philip J Perry <phil@elrepo.org> 1.0.20211208-1
+- Update to 1.0.20211208
+
 * Thu Nov 11 2021 Philip J Perry <phil@elrepo.org> 1.0.20210808-1
 - Update to 1.0.20210808 git snapshot
 - Rebuilt for RHEL 8.5
