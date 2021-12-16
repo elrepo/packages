@@ -10,7 +10,7 @@
 Name:		kmod-%{kmod_name}
 Version:	8.4.10
 %define 	original_release 1
-Release:	%{original_release}.14%{?dist}
+Release:	%{original_release}.16%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -59,7 +59,6 @@ BuildRequires:	redhat-rpm-config
 Provides:	kernel-modules >= %{kmod_kernel_version}.%{_arch}
 Provides:	kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
 
-Requires:	kmod-lru_cache
 Requires(post):	%{_sbindir}/weak-modules
 Requires(postun):	%{_sbindir}/weak-modules
 Requires:	kernel >= %{kmod_kernel_version}
@@ -192,6 +191,15 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Dec 15 2021 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1.16.el8
+- Added missing lru_cache.c to the source code
+- kmod-lru_cache no longer required as dependency
+- Makefile corrected
+- Built against RHEL 8.5 GA kernel 4.18.0-348.el8
+
+* Thu Nov 18 2021 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1.15.el8
+- Rebuilt against kernel-4.18.0-348.2.1.el8_5
+
 * Tue Nov 09 2021 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1.14.el8
 - Rebuilt against RHEL 8.5 GA kernel 4.18.0-348.el8
 
