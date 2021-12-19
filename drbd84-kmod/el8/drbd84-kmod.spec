@@ -10,7 +10,7 @@
 Name:		kmod-%{kmod_name}
 Version:	8.4.10
 %define 	original_release 1
-Release:	%{original_release}.16%{?dist}
+Release:	%{original_release}.17%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -191,6 +191,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat Dec 18 2021 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1.17.el8
+- Source code from kernel-4.18.0-348.el8
+
 * Wed Dec 15 2021 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1.16.el8
 - Added missing lru_cache.c to the source code
 - kmod-lru_cache no longer required as dependency
