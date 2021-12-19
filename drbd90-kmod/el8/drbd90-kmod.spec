@@ -8,15 +8,15 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	9.1.4
-Release:	2%{?dist}
+Version:	9.1.5
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
 URL:		http://www.drbd.org/
 
 # Sources
-Source0:	drbd-%{version}-1.tar.gz
+Source0:	drbd-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
@@ -72,7 +72,7 @@ It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
-%setup -n %{real_name}-%{version}-1
+%setup -n %{real_name}-%{version}
 # %patch0 -p1
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
@@ -188,6 +188,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat Dec 18 2021 Akemi Yagi <toracat@elrepo.org> - 9.1.5-1.el8_5
+- Updated to 9.1.5
+
 * Tue Nov 09 2021 Akemi Yagi <toracat@elrepo.org> - 9.1.4-2.el8_5
 - Rebuilt against RHEL 8.5 GA kernel 4.18.0-348.el8
 
