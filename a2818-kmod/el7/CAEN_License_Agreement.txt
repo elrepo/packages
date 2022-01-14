@@ -1,0 +1,188 @@
+Software License 
+
+Copyright © 1998-2015 C.A.E.N. S.p.A
+
+Licence Agreement for “CAEN Software or Firmware” (collectively, the " CAEN SwFw")
+
+By using or distributing this CAEN SwFw (or any work based on the CAEN SwFw) you shall be deemed to have 
+accepted the terms and conditions set out below.
+
+C.A.E.N. S.p.A ("C.A.E.N.") is making this CAEN SwFw freely available on the basis that it is accepted as found and 
+that the user checks its fitness for purpose prior to use.
+
+The CAEN SwFw is provided 'as-is', without any express or implied warranties whatsoever. In no event will the 
+authors, partners or contributors be held liable for any damages, claims or other liabilities direct or indirect, arising 
+from the use of this CAEN SwFw or any derivative work.
+
+C.A.E.N. will from time to time make CAEN SwFw updates available.  However, C.A.E.N. accepts no obligation to 
+provide any support to free licence holders.
+
+C.A.E.N. grants you a limited non-exclusive licence to use this CAEN SwFw for any purpose, including commercial 
+applications and redistribute it freely, subject to the following restrictions:
+
+1. The origin of this CAEN SwFw must not be misrepresented; you must not claim that you wrote the original CAEN SwFw.
+2. You must not alter the CAEN SwFw, user licence or installer in any way.
+3. This notice may not be removed or altered from any distribution.
+4. You may not resell or charge for the CAEN SwFw.
+5. You may not reverse engineer, decompile, disassemble, derive the source code of or modify the CAEN SwFw in order to resell,  
+   rent, lease, loan, derivative works. 
+6. You must not use CAEN SwFw to engage in or allow others to engage in any illegal activity.
+7. You may not claim any sponsorship by, endorsement by, or affiliation with our company.
+8. You acknowledge that C.A.E.N. owns the copyright and all associated intellectual property rights relating to the 
+CAEN SwFw except to the extent that the CAEN SwFw includes identifiable separate components originating from 
+the CAEN SwFw.
+
+1.	Licensed Uses and Restrictions. 
+
+CAEN SwFw applications, documentation, and local computer files installed or utilised by the installer application 
+are owned by C.A.E.N., and are licensed to you on a worldwide (except as limited below), non-exclusive, non-
+sublicenseable basis on the terms and conditions set forth herein. This CAEN SwFw Licence defines legal use of the 
+CAEN SwFw, all updates, revisions, substitutions, and any copies of the CAEN SwFw made by or for you. All rights 
+not expressly granted to you are reserved by C.A.E.N. or their respective owners. 
+
+A(i)  YOU MAY install and personally use the CAEN SwFw and any updates provided by C.A.E.N. (in its sole 
+discretion) in object code form on a personal computer or on board on CAEN Products owned or controlled by you 
+and may use the CAEN SwFw for your own non commercial use or benefit. Your licence to the CAEN SwFw under 
+this CAEN SwFw Licence continues until it is terminated by either party. You may terminate the CAEN SwFw Licence 
+by discontinuing use of all or any of the CAEN SwFw and by destroying all your copies of the applicable CAEN 
+SwFw. This CAEN SwFw Licence terminates automatically if you violate any term of this CAEN SwFw Licence, 
+C.A.E.N. publicly posts a written notice of termination on C.A.E.N.’s web site, or C.A.E.N. sends a written notice of 
+termination to you.
+
+A (ii) You may make a CAEN SwFw copy only if it is necessary for its use.
+
+b.  YOU MAY NOT: 
+
+(i)  decompile, reverse engineer, disassemble, modify the CAEN SwFw or any portion thereof in order to resell,
+rent, lease,  derivative works (as defined by the Italian Copyright Act, l.22 April 1941, n.633 and following 
+amendments) or improvements (as defined by Italian patent law), without C.A.E.N.’s prior, express, written 
+permission.
+
+(ii)  incorporate the CAEN SwFw into any computer chip or the firmware of a computing device manufactured by or 
+for you except in those where you have received. 
+
+(iii) use the CAEN SwFw in any unlawful manner, for any unlawful purpose.
+
+(iv)  you may not use the CAEN SwFw to operate nuclear facilities, life support, or other mission critical application 
+where human life or property may be at stake. You understand that the CAEN SwFw is not designed for such 
+purposes and that its failure in such cases could lead to death, personal injury, or severe property or environmental 
+damage for which C.A.E.N. is not responsible. 
+
+(v)  use or export the CAEN SwFw in violation of applicable Italian laws or regulations
+ 
+(vi)  sell, lease, loan, distribute, transfer, or sub-license the CAEN SwFw or access thereto or derive income from 
+the use or provision of the CAEN SwFw, whether for direct commercial or monetary gain or otherwise, without 
+C.A.E.N.’s prior, express, written permission. 
+
+c. As provided from Berna Convention concerning the Protection of Works of Art and Literature acknowledged in 
+Italy with Law 20 June 1978, n. 399, the provisions of this agreement can not be interpreted to allow their 
+application is a jeopardizing event for the owner of the rights or is in conflict with the ordinary use of the CAEN 
+SwFw
+
+2.	Ownership and Relationship of Parties. 
+
+The CAEN SwFw is protected by copyrights, trademarks, service marks, international treaties, and/or other 
+proprietary rights and laws of the U.S. and other countries. You agree to abide by all applicable proprietary rights 
+laws and other laws. C.A.E.N. owns all rights, title, and interest in and to their applicable contributions to the CAEN 
+SwFw. This CAEN SwFw Licence grants you no right, title, or interest in any intellectual property owned or licensed 
+by C.A.E.N., including (but not limited to) the CAEN SwFw and the C.A.E.N. trademarks, and creates no relationship 
+between you and C.A.E.N. other than that of C.A.E.N. to licensee. 
+
+You agree that you will use the CAEN SwFw, and any data accessed through the CAEN SwFw, for your own 
+personal non-commercial use only. You agree not to assign, copy, transfer, or transmit CAEN SwFw. Your licence to 
+use the CAEN SwFw will terminate if you violate these restrictions. If your licence terminates, you agree to cease 
+any and all use of the CAEN SwFw. All rights in any third-party data, any third-party CAEN SwFw, and any third-
+party data servers, including all ownership rights are reserved and remain with the respective third parties. You 
+agree that these third parties may enforce their rights under this Agreement against you directly in their own name. 
+
+3.	Support and CAEN SwFw Updates. 
+	
+C.A.E.N. may elect to provide you with customer support and/or CAEN SwFw upgrades, enhancements, or 
+modifications for the CAEN SwFw (collectively, "Support"), in its sole discretion, and may terminate such Support at 
+any time without notice to you. C.A.E.N. may change, suspend, or discontinue any aspect of the CAEN SwFw at any 
+time, including the availability of any CAEN SwFw feature, database, or content. C.A.E.N. may also impose limits on 
+certain features and services or restrict your access to parts or all of the CAEN SwFw or the C.A.E.N. web site 
+without notice or liability. 
+
+4.  	Fees and Payments. 
+
+C.A.E.N. reserves the right to charge fees for future use of or access to the CAEN SwFw in C.A.E.N.’s sole 
+discretion. If C.A.E.N. decides to charge for the CAEN SwFw , such charges will be disclosed to you 28 days before 
+they are applied. 
+
+5.	Disclaimer of Warranties by C.A.E.N.
+
+Use of the CAEN SwFw and any data accessed through the CAEN SwFw is at your sole risk. They are Provided "as 
+is."
+
+Any service or otherwise obtained through the use of the CAEN SwFw is done at your own discretion and risk, and 
+you will be solely responsible for any damage to your computer system or loss of data that results from the 
+download and/or use of any such material or service.
+
+C.A.E.N., its officers, directors, employees, contractors, agents, affiliates, and assigns (collectively, "C.A.E.N. 
+Entities"), and C.A.E.N.’s Licensors do not represent that the CAEN SwFw or any data accessed therefrom is 
+appropriate or available for use outside Italy. 
+
+The C.A.E.N. Entities and C.A.E.N. Licensors expressly disclaim all warranties of any kind, whether express or 
+implied, relating to the CAEN SwFw and any data accessed therefrom, or the accuracy, timeliness, completeness, or 
+adequacy of the CAEN SwFw and any data accessed therefrom, including the implied warranties of title, 
+merchantability, satisfactory quality, fitness for a particular purpose, and non-infringement. 
+
+If the CAEN SwFw or any data accessed therefrom proves defective, you (and not the C.A.E.N. Entities, or the 
+C.A.E.N. Licensors) assume the entire cost of all repair or injury of any kind, even if the C.A.E.N. Entities, or 
+C.A.E.N. Licensors have been advised of the possibility of such a defect or damages. Some jurisdictions do not 
+allow restrictions on implied warranties so some of these limitations may not apply to you. 
+
+6. 	Limitation of liability. 
+
+Notwithstanding any other provision, nothing in this CAEN SwFw Licence shall exclude or limit either party’s liability 
+for the tort of deceit, fraudulent misrepresentation, death or personal injury caused by negligence.
+
+The C.A.E.N. Entities and C.A.E.N. Licensors will not be liable to you for claims and liabilities of any kind arising out 
+of or in any way related to the use of the CAEN SwFw or any derivative work by yourself or by third parties, to the 
+use or non-use of any brokerage firm or dealer, or to the sale or purchase of any security, whether such claims and 
+liabilities are based on any legal or equitable theory. 
+
+The C.A.E.N. Entities and C.A.E.N. Licensors are not liable to you for any and all direct, incidental, special, indirect, 
+or consequential damages arising out of the use or inability to use the CAEN SwFw or any derivative work, 
+arising out of or related to any third-party CAEN SwFw or any derivative work , any data accessed through the 
+CAEN SwFw or any derivative work, your use or inability to use or access the CAEN SwFw or any derivative work , 
+or any data provided through the CAEN SwFw or any derivative work , whether such damage claims are brought 
+under any theory of law or equity. Damages excluded by this clause include, without limitation, those for loss of 
+business profits, injury to person or property, business interruption, loss of business or personal information. Some 
+jurisdictions do not allow limitation of incidental or consequential damages so this restriction may not apply to you. 
+
+Information provided through the CAEN SwFw , may be delayed, inaccurate, or contain errors or omissions, and the 
+C.A.E.N. Entities and C.A.E.N. Licensors will have no liability with respect thereto. C.A.E.N. may change or 
+discontinue any aspect or feature of the CAEN SwFw or the use of all or any features or technology in the CAEN 
+SwFw at any time without prior notice to you, including, but not limited to, content, hours of availability. 
+
+7. 	 Indemnification. 
+
+You are solely responsible for compliance with agreements you have executed with third parties. You agree to 
+indemnify and hold the C.A.E.N. Entities harmless from any claim or demand, including reasonable legal fees, made 
+by any third party in connection with or arising out of your use of the CAEN SwFw , your violation of any terms or 
+conditions of this CAEN SwFw Licence, your violation of applicable laws, or your violation of any rights of another 
+person or entity. 
+
+8.  	Controlling Law. 
+
+This CAEN SwFw Licence and the relationship between you and C.A.E.N. is governed by the laws of Italy. 
+This Agreement shall be construed and governed by Italian Law.
+The United Nations Convention on the International Sale of Goods does not apply to this CAEN SwFw Licence. 
+Any dispute arising out of or in connection with this Agreement shall be referred to and finally resolved by 
+Arbitration under the provisions of Italian Law (c.p.c. art 816 and following.) by one Arbitrator.
+The Arbitrator shall be nominated from Chairman of the Court of Milan. 
+The place of Arbitration shall be Milan, Italy and the language shall be English
+
+9.	Precedence . 
+
+This CAEN SwFw Licence constitute the entire understanding between the parties respecting use of the CAEN 
+SwFw, superseding all prior agreements between you and C.A.E.N.. In the event of any conflict between the terms 
+and conditions of this CAEN SwFw Licence, the terms and conditions of this CAEN SwFw Licence will control
+	
+10.	Surviving Provisions. 
+
+Sections 2, and 4 through 10, will survive any termination of this Agreement.
+
+Tel No: +39.0584.388398 , Fax No.: +39.0584.388959, E-mail: support.computing@caen.it 
