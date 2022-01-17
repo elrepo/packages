@@ -1,9 +1,8 @@
 %define real_name drbd-utils
-%define kmod_vendor elrepo
 
 Name:    drbd90-utils
-Version: 9.19.1
-Release: 1%{?dist}.%{kmod_vendor}
+Version: 9.20.0
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
 Summary: Management utilities for DRBD
@@ -205,6 +204,9 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Thu Jan 13 2022 Akemi Yagi <toracat@elrepo.org> - 9.20.0-1
+- Updated to 9.20.0
+
 * Mon Dec 13 2021 Akemi Yagi <toracat@elrepo.org> - 9.19.1-1
 - Updated to 9.19.1
 
