@@ -1,13 +1,13 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/470.86/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/470.103.01/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	470.86
-Release:	2%{?dist}
+Version:	470.103.01
+Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -406,6 +406,12 @@ fi ||:
 %endif
 
 %changelog
+* Tue Feb 01 2022 Philip J Perry <phil@elrepo.org> - 470.103.01-1
+- Updated to version 470.103.01
+
+* Tue Dec 14 2021 Philip J Perry <phil@elrepo.org> - 470.94-1
+- Updated to version 470.94
+
 * Fri Nov 12 2021 Philip J Perry <phil@elrepo.org> - 470.86-2
 - Fix broken SONAME dependency chain for libnvidia-vulkan-producer.so
   [https://elrepo.org/bugs/view.php?id=1159]

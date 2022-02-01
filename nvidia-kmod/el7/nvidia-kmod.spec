@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 470.86
+Version: 470.103.01
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -88,6 +88,12 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Feb 01 2022 Philip J Perry <phil@elrepo.org> - 470.103.01-1
+- Updated to version 470.103.01
+
+* Tue Dec 14 2021 Philip J Perry <phil@elrepo.org> - 470.94-1
+- Updated to version 470.94
+
 * Thu Nov 11 2021 Philip J Perry <phil@elrepo.org> - 470.86-1
 - Updated to version 470.86
 
