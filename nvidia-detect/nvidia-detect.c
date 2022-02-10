@@ -1,7 +1,7 @@
 /*
  *  nvidia-detect - A utility to detect NVIDIA graphics cards
  *
- *  Copyright (C) 2013-2021 Philip J Perry <phil@elrepo.org>
+ *  Copyright (C) 2013-2022 Philip J Perry <phil@elrepo.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@
 #endif
 
 #define PROGRAM_NAME		"nvidia-detect"
-#define NVIDIA_VERSION		"470.86"
+#define NVIDIA_VERSION		"510.47.03"
 
 #ifndef PCI_VENDOR_ID_INTEL
 #define PCI_VENDOR_ID_INTEL		0x8086
@@ -46,6 +46,7 @@
 /* Only recommend elrepo drivers on RHEL*/
 #if RHEL_MAJOR == 8
 #define KMOD_NVIDIA			"kmod-nvidia"
+#define KMOD_NVIDIA_470XX	"kmod-nvidia-470xx"
 #define KMOD_NVIDIA_390XX	"kmod-nvidia-390xx"
 #define KMOD_NVIDIA_367XX	""	/* No longer supported on RHEL */
 #define KMOD_NVIDIA_340XX	""	/* Not ported to RHEL8 yet     */
@@ -54,6 +55,7 @@
 #define KMOD_NVIDIA_96XX	""	/* No longer supported on RHEL */
 #elif RHEL_MAJOR == 7
 #define KMOD_NVIDIA			"kmod-nvidia"
+#define KMOD_NVIDIA_470XX	"kmod-nvidia-470xx"
 #define KMOD_NVIDIA_390XX	"kmod-nvidia-390xx"
 #define KMOD_NVIDIA_367XX	""	/* No longer supported on RHEL */
 #define KMOD_NVIDIA_340XX	"kmod-nvidia-340xx"
@@ -62,6 +64,7 @@
 #define KMOD_NVIDIA_96XX	""	/* No longer supported on RHEL */
 #else	/* make no specific package recommendation */
 #define KMOD_NVIDIA		""
+#define KMOD_NVIDIA_470XX	""
 #define KMOD_NVIDIA_390XX	""
 #define KMOD_NVIDIA_367XX	""
 #define KMOD_NVIDIA_340XX	""
@@ -76,6 +79,7 @@
  * http://cgit.freedesktop.org/xorg/xserver/tree/hw/xfree86/common/xf86Module.h
  */
 #define XORG_ABI_CURRENT	24	/* 390.59; Xorg 1.20 */
+#define XORG_ABI_470XX		24	/* 470.103.01; Xorg 1.20 */
 #define XORG_ABI_390XX		24	/* 390.59; Xorg 1.20 */
 #define XORG_ABI_367XX		20	/* 367.44; Xorg 1.18 */
 #define XORG_ABI_340XX		24	/* 340.107; Xorg 1.20 */
@@ -103,6 +107,7 @@ enum {
 	NVIDIA_LEGACY_340XX,
 	NVIDIA_LEGACY_367XX,
 	NVIDIA_LEGACY_390XX,
+	NVIDIA_LEGACY_470XX,
 };
 
 static int ret = 0;
@@ -152,7 +157,8 @@ static void usage(void)
 	printf("4: Device supported by the legacy  304.xx NVIDIA driver\n");
 	printf("5: Device supported by the legacy  340.xx NVIDIA driver\n");
 	printf("6: Device supported by the legacy  367.xx NVIDIA driver\n");
-	printf("7: Device supported by the legacy  390.xx NVIDIA driver\n\n");
+	printf("7: Device supported by the legacy  390.xx NVIDIA driver\n");
+	printf("7: Device supported by the legacy  470.xx NVIDIA driver\n\n")
 	printf("Please report bugs at http://elrepo.org/bugs\n");
 }
 
@@ -174,6 +180,16 @@ static void list_all_nvidia_devices(void)
 			PCI_VENDOR_ID_NVIDIA, nv_current_pci_ids[i]);
 
 		printf("[10de:%04x] %s\n", nv_current_pci_ids[i], name);
+	}
+
+	printf("\n*** Devices supported by the legacy 470.xx NVIDIA driver %s ***\n\n",
+		KMOD_NVIDIA_470XX);
+	for (i = 0; i < ARRAY_SIZE(nv_470xx_pci_ids); i++) {
+		name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
+			PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
+			PCI_VENDOR_ID_NVIDIA, nv_470xx_pci_ids[i]);
+
+		printf("[10de:%04x] %s\n", nv_470xx_pci_ids[i], name);
 	}
 #endif /* __i386__ */
 
@@ -251,6 +267,17 @@ static int nv_lookup_device_id(u_int16_t device_id)
 					"driver %s\n", NVIDIA_VERSION, KMOD_NVIDIA);
 			}
 			return NVIDIA_CURRENT;
+		}
+	}
+
+	/** Find devices supported by the 470xx legacy driver **/
+	for (i = 0; i < ARRAY_SIZE(nv_470xx_pci_ids); i++) {
+		if (device_id == nv_470xx_pci_ids[i]) {
+			if (opt_verbose) {
+				printf("This device requires the legacy 470.xx NVIDIA "
+					"driver %s\n", KMOD_NVIDIA_470XX);
+			}
+			return NVIDIA_LEGACY_470XX;
 		}
 	}
 #endif /* __i386__ */
@@ -335,6 +362,10 @@ static int terse_output(void)
 		printf("%s\n", KMOD_NVIDIA);
 		return 0;
 	}
+	else if (ret == NVIDIA_LEGACY_470XX) {
+		printf("%s\n", KMOD_NVIDIA_470XX);
+		return 0;
+	}
 	else if (ret == NVIDIA_LEGACY_390XX) {
 		printf("%s\n", KMOD_NVIDIA_390XX);
 		return 0;
@@ -396,6 +427,8 @@ static bool check_xorg_abi_compat(int driver)
 
 	if (abi > 0) {
 		if (driver == NVIDIA_CURRENT && abi <= XORG_ABI_CURRENT )
+			return 1;
+		else if (driver == NVIDIA_LEGACY_470XX && abi <= XORG_ABI_470XX )
 			return 1;
 		else if (driver == NVIDIA_LEGACY_390XX && abi <= XORG_ABI_390XX )
 			return 1;
