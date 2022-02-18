@@ -1,0 +1,12 @@
+diff -Naurp mxser/driver/kernel4.x/Makefile mxser.oden/driver/kernel4.x/Makefile
+--- mxser/driver/kernel4.x/Makefile	2021-11-08 06:42:32.000000000 +0100
++++ mxser.oden/driver/kernel4.x/Makefile	2022-02-09 16:31:29.334311427 +0100
+@@ -4,7 +4,7 @@ TARGET_DRIVER2:=mxupcie
+ CPLD_PATH:=../CPLD/Source
+ LVER:=$(shell uname -r)
+ MOD_DIR:= /lib/modules/$(LVER)/kernel/drivers/char/
+-EXTRA_CFLAGS  += -DOS_LINUX
++EXTRA_CFLAGS  += -DOS_LINUX -DSP3
+ SP3_CFLAGS += -DSP3
+ KER_DVR1_DIR:= /lib/modules/$(LVER)/kernel/drivers/tty/$(TARGET_DRIVER1).ko
+ 
