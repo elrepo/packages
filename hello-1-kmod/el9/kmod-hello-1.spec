@@ -27,7 +27,7 @@ Source5:	GPL-v2.0.txt
 	/usr/lib/rpm/brp-compress \
 	/usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump \
 	/usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
-	/usr/lib/rpm/brp-python-bytecompile "" 1  "0" \
+	/usr/lib/rpm/brp-python-bytecompile "" "1" "0" \
 	/usr/lib/rpm/brp-python-hardlink \
 	/usr/lib/rpm/redhat/brp-mangle-shebangs
 
