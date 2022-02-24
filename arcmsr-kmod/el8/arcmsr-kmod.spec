@@ -7,8 +7,8 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	1.40.00.05
-Release:	20180309.6%{?dist}
+Version:	1.50.00.02
+Release:	20200819.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,7 +19,7 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0:	elrepo-arcmsr-scsi_partsize.8.4.patch
+# Patch0:	elrepo-arcmsr-scsi_partsize.8.4.patch
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
                             /usr/lib/rpm/redhat/brp-ldconfig \
@@ -70,7 +70,7 @@ Areca ARC11xx/12xx/16xx/188x SAS/SATA RAID Controller Driver
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
-%patch0 -p1
+# %patch0 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD
@@ -184,6 +184,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Feb 24 2022 Philip J Perry <phil@elrepo.org> - 1.50.00.02-20200819.1
+- Rebase to kernel-5.10.102
+  [https://elrepo.org/bugs/view.php?id=1204]
+
 * Sat Nov 13 2021 Philip J Perry <phil@elrepo.org> - 1.40.00.05-20180309.6
 - Rebuilt for RHEL 8.5 kernel
 - Fix SB-signing issue caused by /usr/lib/rpm/brp-strip
