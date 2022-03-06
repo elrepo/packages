@@ -2,13 +2,13 @@
 %define kmod_name		r8168
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-348.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	8.049.02
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -22,6 +22,14 @@ Source10:	ELRepo-Makefile-%{kmod_name}
 # Patches
 Patch0: ELRepo-r8168-%{version}.patch
 
+%define __spec_install_post /usr/lib/rpm/check-buildroot \
+                            /usr/lib/rpm/redhat/brp-ldconfig \
+                            /usr/lib/rpm/brp-compress \
+                            /usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump \
+                            /usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
+                            /usr/lib/rpm/brp-python-bytecompile "" 1 \
+                            /usr/lib/rpm/brp-python-hardlink \
+                            PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
 %define __find_provides /usr/lib/rpm/redhat/find-provides.ksyms %{kmod_name} %{?epoch:%{epoch}:}%{version}-%{release}
@@ -180,6 +188,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sun Mar 06 2022 Philip J Perry <phil@elrepo.org> 8.049.02-2
+- Fix SB-signing issue caused by /usr/lib/rpm/brp-strip
+  [https://bugzilla.redhat.com/show_bug.cgi?id=1967291]
+
 * Sun Mar 06 2022 Philip J Perry <phil@elrepo.org> 8.049.02-1
 - Update to version 8.049.02
 
