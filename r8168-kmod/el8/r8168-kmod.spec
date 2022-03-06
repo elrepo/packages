@@ -1,6 +1,5 @@
 # Define the kmod package name here.
 %define kmod_name		r8168
-%define kmod_vendor		elrepo
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
 %{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.el8}
@@ -8,12 +7,12 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	8.048.03
-Release:	2%{?dist}.%{kmod_vendor}
+Version:	8.049.02
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
-URL:		http://www.realtek.com/
+URL:		http://www.realtek.com/en
 
 # Sources
 Source0:	%{kmod_name}-%{version}.tar.bz2
@@ -181,6 +180,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sun Mar 06 2022 Philip J Perry <phil@elrepo.org> 8.049.02-1
+- Update to version 8.049.02
+
 * Tue May 18 2021 Philip J Perry <phil@elrepo.org> 8.048.03-2
 - Rebuilt for RHEL8.4
 
