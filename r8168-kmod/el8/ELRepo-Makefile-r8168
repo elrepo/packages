@@ -32,9 +32,16 @@ else
 # Called from kernel build system -- just declare the module(s).
 
 EXTRA_CFLAGS	+= -DCONFIG_R8168_NAPI
+EXTRA_CFLAGS	+= -DCONFIG_R8168_VLAN
+EXTRA_CFLAGS	+= -DCONFIG_ASPM
+EXTRA_CFLAGS	+= -DENABLE_S5WOL
+EXTRA_CFLAGS	+= -DENABLE_EEE
+EXTRA_CFLAGS	+= -DCONFIG_DYNAMIC_ASPM
+EXTRA_CFLAGS	+= -DENABLE_USE_FIRMWARE_FILE
 
 obj-m		:= r8168.o
 
 r8168-objs	:= r8168_n.o r8168_asf.o rtl_eeprom.o rtltool.o
+r8168-objs	+= r8168_firmware.o
 
 endif

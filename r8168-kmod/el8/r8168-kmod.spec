@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	8.049.02
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -188,6 +188,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Mar 07 2022 Philip J Perry <phil@elrepo.org> 8.049.02-3
+- Enabled -DCONFIG_R8168_VLAN, -DCONFIG_ASPM, -DENABLE_S5WOL, -DENABLE_EEE,
+          -DCONFIG_DYNAMIC_ASPM -DENABLE_USE_FIRMWARE_FILE 
+
 * Sun Mar 06 2022 Philip J Perry <phil@elrepo.org> 8.049.02-2
 - Fix SB-signing issue caused by /usr/lib/rpm/brp-strip
   [https://bugzilla.redhat.com/show_bug.cgi?id=1967291]
