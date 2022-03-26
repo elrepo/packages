@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/470.103.01/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/510.60.02/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 
@@ -8,7 +8,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	470.103.01
+Version:	510.60.02
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -62,6 +62,7 @@ Conflicts:	ocl-icd
 Conflicts:	ocl-icd-devel
 
 # elrepo
+Conflicts:	nvidia-x11-drv-470xx
 Conflicts:	nvidia-x11-drv-390xx
 Conflicts:	nvidia-x11-drv-390xx-32bit
 Conflicts:	nvidia-x11-drv-367xx
@@ -93,6 +94,7 @@ Conflicts:	xorg-x11-drv-nvidia-304xx
 Conflicts:	xorg-x11-drv-nvidia-340xx
 Conflicts:	xorg-x11-drv-nvidia-367xx
 Conflicts:	xorg-x11-drv-nvidia-390xx
+Conflicts:	xorg-x11-drv-nvidia-470xx
 
 %description
 This package provides the proprietary NVIDIA OpenGL X11 display driver files.
@@ -153,10 +155,13 @@ pushd nvidiapkg
 %{__install} -p -m 0755 nvidia-modprobe $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-ngx-updater $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-persistenced $RPM_BUILD_ROOT%{_bindir}/
+%{__install} -p -m 0755 nvidia-powerd $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-settings $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-smi $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-xconfig $RPM_BUILD_ROOT%{_bindir}/
 
+%{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/dbus-1/system.d/
+%{__install} -p -m 0644 nvidia-dbus.conf $RPM_BUILD_ROOT%{_datadir}/dbus-1/system.d/nvidia-dbus.conf
 # Install OpenCL Vendor file
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/
 %{__install} -p -m 0644 nvidia.icd $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/nvidia.icd
@@ -169,6 +174,7 @@ pushd nvidiapkg
 %{__install} -p -m 0644 10_nvidia.json $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/
 %{__install} -p -m 0644 10_nvidia_wayland.json $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/10_nvidia_wayland.json
+%{__install} -p -m 0644 15_nvidia_gbm.json $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/15_nvidia_gbm.json
 
 # Install GL, tls and vdpau libs
 %ifarch i686
@@ -183,13 +189,14 @@ pushd 32
 %{__install} -p -m 0755 libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-allocator.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %ifarch x86_64
-%{__install} -p -m 0755 libnvidia-cbl.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-cfg.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
+%{__install} -p -m 0755 libnvidia-compiler-next.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %endif
 %{__install} -p -m 0755 libnvidia-compiler.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-eglcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %ifarch x86_64
-%{__install} -p -m 0755 libnvidia-egl-wayland.so.1.1.7 $RPM_BUILD_ROOT%{_libdir}/
+%{__install} -p -m 0755 libnvidia-egl-gbm.so.1.1.0 $RPM_BUILD_ROOT%{_libdir}/
+%{__install} -p -m 0755 libnvidia-egl-wayland.so.1.1.9 $RPM_BUILD_ROOT%{_libdir}/
 %endif
 %{__install} -p -m 0755 libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-fbc.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
@@ -199,7 +206,6 @@ pushd 32
 %ifarch x86_64
 %{__install} -p -m 0755 libnvidia-gtk3.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %endif
-%{__install} -p -m 0755 libnvidia-ifr.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %ifarch x86_64
 %{__install} -p -m 0755 libnvidia-ngx.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
@@ -248,6 +254,8 @@ popd
 %{__ln_s} libnvidia-allocator.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-allocator.so.1
 %ifarch x86_64
 %{__ln_s} libnvidia-cfg.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-cfg.so.1
+%{__ln_s} libnvidia-egl-gbm.so.1.1.0 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-gbm.so
+%{__ln_s} libnvidia-egl-gbm.so.1.1.0 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-gbm.so.1
 %{__ln_s} libnvidia-egl-wayland.so.1.1.7 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so
 %{__ln_s} libnvidia-egl-wayland.so.1.1.7 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so.1
 %endif
@@ -255,8 +263,6 @@ popd
 %{__ln_s} libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-encode.so.1
 %{__ln_s} libnvidia-fbc.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-fbc.so
 %{__ln_s} libnvidia-fbc.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-fbc.so.1
-%{__ln_s} libnvidia-ifr.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ifr.so
-%{__ln_s} libnvidia-ifr.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ifr.so.1
 %{__ln_s} libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ml.so
 %{__ln_s} libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ml.so.1
 %ifarch x86_64
@@ -396,7 +402,9 @@ fi ||:
 %{_mandir}/man1/nvidia*.*
 %{_datadir}/pixmaps/nvidia-settings.png
 %{_datadir}/applications/*nvidia-settings.desktop
+%{_datadir}/dbus-1/system.d/nvidia-dbus.conf
 %{_datadir}/egl/egl_external_platform.d/10_nvidia_wayland.json
+%{_datadir}/egl/egl_external_platform.d/15_nvidia_gbm.json
 %{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
 %{_datadir}/vulkan/icd.d/nvidia_icd.json
 %{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
@@ -410,6 +418,7 @@ fi ||:
 %attr(4755, root, root) %{_bindir}/nvidia-modprobe
 %{_bindir}/nvidia-ngx-updater
 %{_bindir}/nvidia-persistenced
+%{_bindir}/nvidia-powerd
 %{_bindir}/nvidia-settings
 %{_bindir}/nvidia-smi
 %{_bindir}/nvidia-xconfig
@@ -431,6 +440,16 @@ fi ||:
 %endif
 
 %changelog
+* Sat Mar 26 2022 Philip J Perry <phil@elrepo.org> - 510.60.02-1
+- Updated to version 510.60.02
+
+* Tue Feb 15 2022 Philip J Perry <phil@elrepo.org> - 510.54-1
+- Updated to version 510.54
+
+* Thu Feb 03 2022 Philip J Perry <phil@elrepo.org> - 510.47.03-1
+- Updated to version 510.47.03
+- Drops support for older legacy kepler GPUs
+
 * Tue Feb 01 2022 Philip J Perry <phil@elrepo.org> - 470.103.01-1
 - Updated to version 470.103.01
 
