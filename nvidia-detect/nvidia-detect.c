@@ -158,7 +158,7 @@ static void usage(void)
 	printf("5: Device supported by the legacy  340.xx NVIDIA driver\n");
 	printf("6: Device supported by the legacy  367.xx NVIDIA driver\n");
 	printf("7: Device supported by the legacy  390.xx NVIDIA driver\n");
-	printf("7: Device supported by the legacy  470.xx NVIDIA driver\n\n")
+	printf("8: Device supported by the legacy  470.xx NVIDIA driver\n\n");
 	printf("Please report bugs at http://elrepo.org/bugs\n");
 }
 
