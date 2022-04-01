@@ -6,7 +6,7 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 9.1.5
+Version: 9.1.6
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -19,7 +19,7 @@ ExclusiveArch: x86_64
 
 # Sources.
 # Source0:  http://oss.linbit.com/drbd/9.0/drbd-%{version}.tar.gz
-Source0:  http://www.linbit.com/downloads/drbd/9.0/drbd-%{version}-1.tar.gz
+Source0:  http://www.linbit.com/downloads/drbd/9.0/drbd-%{version}.tar.gz
 Source10: kmodtool-%{kmod_name}-el7.sh
 
 # Magic hidden here.
@@ -35,7 +35,7 @@ as networked raid 1. It is a building block for setting up
 high availability (HA) clusters.
 
 %prep
-%setup -n %{real_name}-%{version}-1
+%setup -n %{real_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
@@ -69,6 +69,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Apr 01 2022 Akemi Yagi <toracat@elrepo.org> - 9.1.6-1.el7_9
+- Updated to 9.1.6-1
+  [https://elrepo.org/bugs/view.php?id=1217]
+
 * Wed Dec 29 2021 Akemi Yagi <toracat@elrepo.org> - 9.1.5-1.el7_9
 - Updated to 9.1.5-1
   [https://elrepo.org/bugs/view.php?id=1171]
