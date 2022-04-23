@@ -8,7 +8,7 @@
 
 Name:           kmod-%{kmod_name}
 Version:        0.0
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -26,6 +26,7 @@ Source5:	GPL-v2.0.txt
 	/usr/lib/rpm/redhat/brp-ldconfig \
 	/usr/lib/rpm/brp-compress \
 	/usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump \
+	/usr/lib/rpm/redhat/brp-strip-lto /usr/bin/strip \
 	/usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
 	/usr/lib/rpm/brp-python-bytecompile "" "1" "0" \
 	/usr/lib/rpm/brp-python-hardlink \
@@ -47,10 +48,10 @@ BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 ExclusiveArch:  x86_64
 
-BuildRequires:  libuuid-devel
 BuildRequires:  elfutils-libelf-devel
-BuildRequires:  glibc
-BuildRequires:  kernel-devel >= %{kmod_kernel_version}
+BuildRequires:  kernel-devel = %{kmod_kernel_version}
+BuildRequires:	kernel-abi-stablelists
+BuildRequires:  kernel-rpm-macros
 BuildRequires:  redhat-rpm-config
 
 Provides:       kernel-modules >= %{kmod_kernel_version}.%{_arch}
@@ -135,7 +136,7 @@ if [ -f "%{kver_state_file}" ]; then
 
                 # The same check as in weak-modules: we assume that the kernel present
                 # if the symvers file exists.
-                if [ -e "/$k_dir/symvers-$k.gz" ]; then
+                if [ -e "/$k_dir/symvers.gz" ]; then
                         /usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
                         cmp -s "$tmp_initramfs" "$dst_initramfs"
                         if [ "$?" = 1 ]; then
@@ -185,6 +186,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri Apr 22 2022 Akemi Yagi <toracat@elrepo.org> - 0.0-7
+- spec file improvement
+
 * Sat Feb 19 2022 Akemi Yagi <toracat@elrepo.org> - 0.0-6
 - module signing added
 - signing bug fix added
