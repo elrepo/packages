@@ -198,3 +198,33 @@ exit 0
 * Mon May 09 2022 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0-9
 - Initial build for RHEL 9
 - Source code from RHEL 9 GA kernel
+
+* Fri Nov 12 2021 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0-8
+- Rebuilt against RHEL 8.5 kernel
+
+* Tue May 18 2021 Philip J Perry <phil@elrepo.org> 12.0.0.0-7
+- Rebuilt for RHEL 8.4
+- Fix updating of initramfs image
+  [https://elrepo.org/bugs/view.php?id=1060]
+
+* Mon Dec 14 2020 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0-6
+- Rebuilt against RHEL 8.3 kernel
+
+* Thu Jun 18 2020 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0-5
+- Re-enable both BE2 and BE3 that was disabled in error
+
+* Thu Apr 30 2020 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0-4
+- Rebuilt against RHEL 8.2 kernel
+- Source code updated to kernel-4.18.0-193
+
+* Fri Nov 09 2019 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0-3
+- Rebuilt against RHEL 8.1 kernel
+- Source code updated to kernel-4.18.0-147
+
+* Thu Oct 03 2019 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0.0-2
+- Enable both BE2 and BE3
+
+* Mon Sep 30 2019 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0.0-1
+- Initial build for EL8
+- Built from the source for kernel-4.18.0-80.
+
