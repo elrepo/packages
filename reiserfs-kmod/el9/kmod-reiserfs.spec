@@ -191,3 +191,24 @@ exit 0
 * Mon May 09 2022 Akemi Yagi <toracat@elrepo.org> - 0.2-1
 - Initial build for RHEL 9
 - Source code from RHEL 9 GA kernel
+
+* Fri Nov 12 2021 Akemi Yagi <toracat@elrepo.org> - 0.0-6
+- Rebuilt against RHEL 8.5 kernel
+
+* Tue May 18 2021 Philip J Perry <phil@elrepo.org> 0.0-5
+- Rebuilt against RHEL 8.4 kernel
+- Update source from kernel-4.18.0-305.el8
+- Fix updating of initramfs image
+  [https://elrepo.org/bugs/view.php?id=1060]
+
+* Sun Nov 08 2020 Akemi Yagi <toracat@elrepo.org> - 0.0-4
+- Rebuilt against RHEL 8.3 kernel
+
+* Fri May 01 2020 Akemi Yagi <toracat@elrepo.org> - 0.0-3
+- Rebuilt against RHEL 8.2 kernel
+
+* Sat Dec 14 2019 Akemi Yagi <toracat@elrepo.org> 0.0-2
+- Rebuilt for RHEL 8.1
+
+* Sat Dec 07 2019 Akemi Yagi <toracat@elrepo.org> 0.0-1
+- Initial build for RHEL 8.0
