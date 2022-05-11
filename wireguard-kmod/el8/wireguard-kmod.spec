@@ -2,7 +2,7 @@
 %define kmod_name		wireguard
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-348.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.9.1.el8}
 
 %{!?dist: %define dist .el8}
 
@@ -11,12 +11,12 @@
 %if "%{kmod_kernel_version}" == "4.18.0-348.el8"
 Epoch:	5
 %else
-Epoch:	4
+Epoch:	6
 %endif
 
 Name:		kmod-%{kmod_name}
 Version:	1.0.20211208
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -190,6 +190,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue May 10 2022 Philip J Perry <phil@elrepo.org> 1.0.20211208-2
+- Rebuilt for RHEL 8.6
+
 * Wed Dec 08 2021 Philip J Perry <phil@elrepo.org> 1.0.20211208-1
 - Update to 1.0.20211208
 

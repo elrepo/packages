@@ -2,7 +2,7 @@
 %define kmod_name		usbip
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-348.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.9.1.el8}
 
 %{!?dist: %define dist .el8}
 
@@ -18,20 +18,16 @@ URL:		http://www.kernel.org/
 Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
-# Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
-# https://bugzilla.redhat.com/show_bug.cgi?id=1967291
-
-%define __spec_install_post	/usr/lib/rpm/check-buildroot \
-				/usr/lib/rpm/redhat/brp-ldconfig \
-				/usr/lib/rpm/brp-compress \
-				/usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump \
- 				/usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
-				/usr/lib/rpm/brp-python-bytecompile "" 1 \
-				/usr/lib/rpm/brp-python-hardlink \
-				PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
-
 # Source code patches
 
+%define __spec_install_post /usr/lib/rpm/check-buildroot \
+                            /usr/lib/rpm/redhat/brp-ldconfig \
+                            /usr/lib/rpm/brp-compress \
+                            /usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump \
+                            /usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
+                            /usr/lib/rpm/brp-python-bytecompile "" 1 \
+                            /usr/lib/rpm/brp-python-hardlink \
+                            PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
 %define __find_provides /usr/lib/rpm/redhat/find-provides.ksyms %{kmod_name} %{?epoch:%{epoch}:}%{version}-%{release}
@@ -189,8 +185,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Sat Nov 13 2021 Akemi Yagi <toracat@elrepo.org> 0.0-9
-- Rebuilt against RHEL 8.5 kernel
+* Tue May 10 2022 Philip J Perry <phil@elrepo.org> 0.0-9
+- Rebuilt for RHEL 8.6
+- Fix SB-signing issue caused by /usr/lib/rpm/brp-strip
+  [https://bugzilla.redhat.com/show_bug.cgi?id=1967291]
+- Update stripping of modules
 
 * Mon Sep 20 2021 Philip J Perry <phil@elrepo.org> 0.0-8
 - Rebuilt against kernel-4.18.0-305.19.1.el8_4

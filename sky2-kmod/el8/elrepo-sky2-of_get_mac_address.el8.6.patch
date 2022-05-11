@@ -1,0 +1,24 @@
+--- sky2.c.orig	2020-11-05 20:35:50.000000000 +0000
++++ sky2.c	2022-05-11 15:31:24.447362986 +0100
+@@ -4746,7 +4746,7 @@ static struct net_device *sky2_init_netd
+ {
+ 	struct sky2_port *sky2;
+ 	struct net_device *dev = alloc_etherdev(sizeof(*sky2));
+-	const void *iap;
++	int ret;
+ 
+ 	if (!dev)
+ 		return NULL;
+@@ -4816,10 +4816,8 @@ static struct net_device *sky2_init_netd
+ 	 * 1) from device tree data
+ 	 * 2) from internal registers set by bootloader
+ 	 */
+-	iap = of_get_mac_address(hw->pdev->dev.of_node);
+-	if (iap)
+-		memcpy(dev->dev_addr, iap, ETH_ALEN);
+-	else
++	ret = of_get_mac_address(hw->pdev->dev.of_node, dev->dev_addr);
++	if (ret)	
+ 		memcpy_fromio(dev->dev_addr, hw->regs + B2_MAC_1 + port * 8,
+ 			      ETH_ALEN);
+ 

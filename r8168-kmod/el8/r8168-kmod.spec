@@ -2,13 +2,13 @@
 %define kmod_name		r8168
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-348.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.9.1.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	8.049.02
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -97,7 +97,7 @@ sort -u greylist | uniq > greylist.txt
 %{__install} README %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 # strip the modules(s)
-find %{buildroot} -type f -name \*.ko -exec %{__strip} --strip-debug \{\} \;
+find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --strip-debug
 
 # Sign the modules(s)
 %if %{?_with_modsign:1}%{!?_with_modsign:0}
@@ -188,6 +188,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue May 10 2022 Philip J Perry <phil@elrepo.org> 8.049.02-4
+- Rebuilt for RHEL 8.6
+
 * Mon Mar 07 2022 Philip J Perry <phil@elrepo.org> 8.049.02-3
 - Enabled -DCONFIG_R8168_VLAN, -DCONFIG_ASPM, -DENABLE_S5WOL, -DENABLE_EEE,
           -DCONFIG_DYNAMIC_ASPM -DENABLE_USE_FIRMWARE_FILE 

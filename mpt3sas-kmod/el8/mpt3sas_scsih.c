@@ -78,6 +78,7 @@ static void _scsih_pcie_device_remove_from_sml(struct MPT3SAS_ADAPTER *ioc,
 static void
 _scsih_pcie_check_device(struct MPT3SAS_ADAPTER *ioc, u16 handle);
 static u8 _scsih_check_for_pending_tm(struct MPT3SAS_ADAPTER *ioc, u16 smid);
+static void _scsih_complete_devices_scanning(struct MPT3SAS_ADAPTER *ioc);
 
 /* global parameters */
 LIST_HEAD(mpt3sas_ioc_list);
@@ -1801,7 +1802,7 @@ scsih_change_queue_depth(struct scsi_device *sdev, int qdepth)
 	 * limit max device queue for SATA to 32 if enable_sdev_max_qd
 	 * is disabled.
 	 */
-	if (ioc->enable_sdev_max_qd)
+	if (ioc->enable_sdev_max_qd || ioc->is_gen35_ioc)
 		goto not_sata;
 
 	sas_device_priv_data = sdev->hostdata;
@@ -2655,7 +2656,7 @@ scsih_slave_configure(struct scsi_device *sdev)
 			return 1;
 		}
 
-		qdepth = MPT3SAS_NVME_QUEUE_DEPTH;
+		qdepth = ioc->max_nvme_qd;
 		ds = "NVMe";
 		sdev_printk(KERN_INFO, sdev,
 			"%s: handle(0x%04x), wwid(0x%016llx), port(%d)\n",
@@ -2707,7 +2708,8 @@ scsih_slave_configure(struct scsi_device *sdev)
 	sas_device->volume_handle = volume_handle;
 	sas_device->volume_wwid = volume_wwid;
 	if (sas_device->device_info & MPI2_SAS_DEVICE_INFO_SSP_TARGET) {
-		qdepth = MPT3SAS_SAS_QUEUE_DEPTH;
+		qdepth = (sas_device->port_type > 1) ?
+			ioc->max_wideport_qd : ioc->max_narrowport_qd;
 		ssp_target = 1;
 		if (sas_device->device_info &
 				MPI2_SAS_DEVICE_INFO_SEP) {
@@ -2719,7 +2721,7 @@ scsih_slave_configure(struct scsi_device *sdev)
 		} else
 			ds = "SSP";
 	} else {
-		qdepth = MPT3SAS_SATA_QUEUE_DEPTH;
+		qdepth = ioc->max_sata_qd;
 		if (sas_device->device_info & MPI2_SAS_DEVICE_INFO_STP_TARGET)
 			ds = "STP";
 		else if (sas_device->device_info &
@@ -3630,8 +3632,6 @@ _scsih_error_recovery_delete_devices(struct MPT3SAS_ADAPTER *ioc)
 {
 	struct fw_event_work *fw_event;
 
-	if (ioc->is_driver_loading)
-		return;
 	fw_event = alloc_fw_event_work(0);
 	if (!fw_event)
 		return;
@@ -3692,10 +3692,53 @@ _scsih_fw_event_cleanup_queue(struct MPT3SAS_ADAPTER *ioc)
 	if ((list_empty(&ioc->fw_event_list) && !ioc->current_event) ||
 	    !ioc->firmware_event_thread)
 		return;
+	/*
+	 * Set current running event as ignore, so that
+	 * current running event will exit quickly.
+	 * As diag reset has occurred it is of no use
+	 * to process remaining stale event data entries.
+	 */
+	if (ioc->shost_recovery && ioc->current_event)
+		ioc->current_event->ignore = 1;
 
 	ioc->fw_events_cleanup = 1;
 	while ((fw_event = dequeue_next_fw_event(ioc)) ||
 	     (fw_event = ioc->current_event)) {
+
+		/*
+		 * Don't call cancel_work_sync() for current_event
+		 * other than MPT3SAS_REMOVE_UNRESPONDING_DEVICES;
+		 * otherwise we may observe deadlock if current
+		 * hard reset issued as part of processing the current_event.
+		 *
+		 * Orginal logic of cleaning the current_event is added
+		 * for handling the back to back host reset issued by the user.
+		 * i.e. during back to back host reset, driver use to process
+		 * the two instances of MPT3SAS_REMOVE_UNRESPONDING_DEVICES
+		 * event back to back and this made the drives to unregister
+		 * the devices from SML.
+		 */
+
+		if (fw_event == ioc->current_event &&
+		    ioc->current_event->event !=
+		    MPT3SAS_REMOVE_UNRESPONDING_DEVICES) {
+			ioc->current_event = NULL;
+			continue;
+		}
+
+		/*
+		 * Driver has to clear ioc->start_scan flag when
+		 * it is cleaning up MPT3SAS_PORT_ENABLE_COMPLETE,
+		 * otherwise scsi_scan_host() API waits for the
+		 * 5 minute timer to expire. If we exit from
+		 * scsi_scan_host() early then we can issue the
+		 * new port enable request as part of current diag reset.
+		 */
+		if (fw_event->event == MPT3SAS_PORT_ENABLE_COMPLETE) {
+			ioc->port_enable_cmds.status |= MPT3_CMD_RESET;
+			ioc->start_scan = 0;
+		}
+
 		/*
 		 * Wait on the fw_event to complete. If this returns 1, then
 		 * the event was never executed, and we need a put for the
@@ -3825,7 +3868,7 @@ _scsih_ublock_io_device(struct MPT3SAS_ADAPTER *ioc,
 
 	shost_for_each_device(sdev, ioc->shost) {
 		sas_device_priv_data = sdev->hostdata;
-		if (!sas_device_priv_data)
+		if (!sas_device_priv_data || !sas_device_priv_data->sas_target)
 			continue;
 		if (sas_device_priv_data->sas_target->sas_address
 		    != sas_address)
@@ -6382,10 +6425,25 @@ _scsih_sas_port_refresh(struct MPT3SAS_ADAPTER *ioc)
 	int i, j, count = 0, lcount = 0;
 	int ret;
 	u64 sas_addr;
+	u8 num_phys;
 
 	drsprintk(ioc, ioc_info(ioc,
 	    "updating ports for sas_host(0x%016llx)\n",
 	    (unsigned long long)ioc->sas_hba.sas_address));
+
+	mpt3sas_config_get_number_hba_phys(ioc, &num_phys);
+	if (!num_phys) {
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+		    __FILE__, __LINE__, __func__);
+		return;
+	}
+
+	if (num_phys > ioc->sas_hba.nr_phys_allocated) {
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+		   __FILE__, __LINE__, __func__);
+		return;
+	}
+	ioc->sas_hba.num_phys = num_phys;
 
 	port_table = kcalloc(ioc->sas_hba.num_phys,
 	    sizeof(struct hba_port), GFP_KERNEL);
@@ -6587,6 +6645,30 @@ _scsih_sas_host_refresh(struct MPT3SAS_ADAPTER *ioc)
 			ioc->sas_hba.phy[i].hba_vphy = 1;
 		}
 
+		/*
+		 * Add new HBA phys to STL if these new phys got added as part
+		 * of HBA Firmware upgrade/downgrade operation.
+		 */
+		if (!ioc->sas_hba.phy[i].phy) {
+			if ((mpt3sas_config_get_phy_pg0(ioc, &mpi_reply,
+							&phy_pg0, i))) {
+				ioc_err(ioc, "failure at %s:%d/%s()!\n",
+					__FILE__, __LINE__, __func__);
+				continue;
+			}
+			ioc_status = le16_to_cpu(mpi_reply.IOCStatus) &
+				MPI2_IOCSTATUS_MASK;
+			if (ioc_status != MPI2_IOCSTATUS_SUCCESS) {
+				ioc_err(ioc, "failure at %s:%d/%s()!\n",
+					__FILE__, __LINE__, __func__);
+				continue;
+			}
+			ioc->sas_hba.phy[i].phy_id = i;
+			mpt3sas_transport_add_host_phy(ioc,
+				&ioc->sas_hba.phy[i], phy_pg0,
+				ioc->sas_hba.parent_dev);
+			continue;
+		}
 		ioc->sas_hba.phy[i].handle = ioc->sas_hba.handle;
 		attached_handle = le16_to_cpu(sas_iounit_pg0->PhyData[i].
 		    AttachedDevHandle);
@@ -6597,6 +6679,19 @@ _scsih_sas_host_refresh(struct MPT3SAS_ADAPTER *ioc)
 		mpt3sas_transport_update_links(ioc, ioc->sas_hba.sas_address,
 		    attached_handle, i, link_rate,
 		    ioc->sas_hba.phy[i].port);
+	}
+	/*
+	 * Clear the phy details if this phy got disabled as part of
+	 * HBA Firmware upgrade/downgrade operation.
+	 */
+	for (i = ioc->sas_hba.num_phys;
+	     i < ioc->sas_hba.nr_phys_allocated; i++) {
+		if (ioc->sas_hba.phy[i].phy &&
+		    ioc->sas_hba.phy[i].phy->negotiated_linkrate >=
+		    SAS_LINK_RATE_1_5_GBPS)
+			mpt3sas_transport_update_links(ioc,
+				ioc->sas_hba.sas_address, 0, i,
+				MPI2_SAS_NEG_LINK_RATE_PHY_DISABLED, NULL);
 	}
  out:
 	kfree(sas_iounit_pg0);
@@ -6630,7 +6725,10 @@ _scsih_sas_host_add(struct MPT3SAS_ADAPTER *ioc)
 			__FILE__, __LINE__, __func__);
 		return;
 	}
-	ioc->sas_hba.phy = kcalloc(num_phys,
+
+	ioc->sas_hba.nr_phys_allocated = max_t(u8,
+	    MPT_MAX_HBA_NUM_PHYS, num_phys);
+	ioc->sas_hba.phy = kcalloc(ioc->sas_hba.nr_phys_allocated,
 	    sizeof(struct _sas_phy), GFP_KERNEL);
 	if (!ioc->sas_hba.phy) {
 		ioc_err(ioc, "failure at %s:%d/%s()!\n",
@@ -6883,8 +6981,10 @@ _scsih_expander_add(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 		 handle, parent_handle,
 		 (u64)sas_expander->sas_address, sas_expander->num_phys);
 
-	if (!sas_expander->num_phys)
+	if (!sas_expander->num_phys) {
+		rc = -1;
 		goto out_fail;
+	}
 	sas_expander->phy = kcalloc(sas_expander->num_phys,
 	    sizeof(struct _sas_phy), GFP_KERNEL);
 	if (!sas_expander->phy) {
@@ -7331,6 +7431,10 @@ _scsih_add_device(struct MPT3SAS_ADAPTER *ioc, u16 handle, u8 phy_num,
 
 	/* get device name */
 	sas_device->device_name = le64_to_cpu(sas_device_pg0.DeviceName);
+	sas_device->port_type = sas_device_pg0.MaxPortConnections;
+	ioc_info(ioc,
+	    "handle(0x%0x) sas_address(0x%016llx) port_type(0x%0x)\n",
+	    handle, sas_device->sas_address, sas_device->port_type);
 
 	if (ioc->wait_for_discovery_to_complete)
 		_scsih_sas_device_init_add(ioc, sas_device);
@@ -9564,6 +9668,42 @@ _scsih_prep_device_scan(struct MPT3SAS_ADAPTER *ioc)
 }
 
 /**
+ * _scsih_update_device_qdepth - Update QD during Reset.
+ * @ioc: per adapter object
+ *
+ */
+static void
+_scsih_update_device_qdepth(struct MPT3SAS_ADAPTER *ioc)
+{
+	struct MPT3SAS_DEVICE *sas_device_priv_data;
+	struct MPT3SAS_TARGET *sas_target_priv_data;
+	struct _sas_device *sas_device;
+	struct scsi_device *sdev;
+	u16 qdepth;
+
+	ioc_info(ioc, "Update devices with firmware reported queue depth\n");
+	shost_for_each_device(sdev, ioc->shost) {
+		sas_device_priv_data = sdev->hostdata;
+		if (sas_device_priv_data && sas_device_priv_data->sas_target) {
+			sas_target_priv_data = sas_device_priv_data->sas_target;
+			sas_device = sas_device_priv_data->sas_target->sas_dev;
+			if (sas_target_priv_data->flags & MPT_TARGET_FLAGS_PCIE_DEVICE)
+				qdepth = ioc->max_nvme_qd;
+			else if (sas_device &&
+			    sas_device->device_info & MPI2_SAS_DEVICE_INFO_SSP_TARGET)
+				qdepth = (sas_device->port_type > 1) ?
+				    ioc->max_wideport_qd : ioc->max_narrowport_qd;
+			else if (sas_device &&
+			    sas_device->device_info & MPI2_SAS_DEVICE_INFO_SATA_DEVICE)
+				qdepth = ioc->max_sata_qd;
+			else
+				continue;
+			mpt3sas_scsih_change_queue_depth(sdev, qdepth);
+		}
+	}
+}
+
+/**
  * _scsih_mark_responding_sas_device - mark a sas_devices as responding
  * @ioc: per adapter object
  * @sas_device_pg0: SAS Device page 0
@@ -10116,6 +10256,17 @@ _scsih_remove_unresponding_devices(struct MPT3SAS_ADAPTER *ioc)
 	 * owner for the reference the list had on any object we prune.
 	 */
 	spin_lock_irqsave(&ioc->sas_device_lock, flags);
+
+	/*
+	 * Clean up the sas_device_init_list list as
+	 * driver goes for fresh scan as part of diag reset.
+	 */
+	list_for_each_entry_safe(sas_device, sas_device_next,
+	    &ioc->sas_device_init_list, list) {
+		list_del_init(&sas_device->list);
+		sas_device_put(sas_device);
+	}
+
 	list_for_each_entry_safe(sas_device, sas_device_next,
 	    &ioc->sas_device_list, list) {
 		if (!sas_device->responding)
@@ -10137,6 +10288,16 @@ _scsih_remove_unresponding_devices(struct MPT3SAS_ADAPTER *ioc)
 	ioc_info(ioc, "Removing unresponding devices: pcie end-devices\n");
 	INIT_LIST_HEAD(&head);
 	spin_lock_irqsave(&ioc->pcie_device_lock, flags);
+	/*
+	 * Clean up the pcie_device_init_list list as
+	 * driver goes for fresh scan as part of diag reset.
+	 */
+	list_for_each_entry_safe(pcie_device, pcie_device_next,
+	    &ioc->pcie_device_init_list, list) {
+		list_del_init(&pcie_device->list);
+		pcie_device_put(pcie_device);
+	}
+
 	list_for_each_entry_safe(pcie_device, pcie_device_next,
 	    &ioc->pcie_device_list, list) {
 		if (!pcie_device->responding)
@@ -10539,8 +10700,7 @@ void
 mpt3sas_scsih_reset_done_handler(struct MPT3SAS_ADAPTER *ioc)
 {
 	dtmprintk(ioc, ioc_info(ioc, "%s: MPT3_IOC_DONE_RESET\n", __func__));
-	if ((!ioc->is_driver_loading) && !(disable_discovery > 0 &&
-					   !ioc->sas_hba.num_phys)) {
+	if (!(disable_discovery > 0 && !ioc->sas_hba.num_phys)) {
 		if (ioc->multipath_on_hba) {
 			_scsih_sas_port_refresh(ioc);
 			_scsih_update_vphys_after_reset(ioc);
@@ -10594,7 +10754,21 @@ _mpt3sas_fw_work(struct MPT3SAS_ADAPTER *ioc, struct fw_event_work *fw_event)
 		_scsih_remove_unresponding_devices(ioc);
 		_scsih_del_dirty_vphy(ioc);
 		_scsih_del_dirty_port_entries(ioc);
+		if (ioc->is_gen35_ioc)
+			_scsih_update_device_qdepth(ioc);
 		_scsih_scan_for_devices_after_reset(ioc);
+		/*
+		 * If diag reset has occurred during the driver load
+		 * then driver has to complete the driver load operation
+		 * by executing the following items:
+		 *- Register the devices from sas_device_init_list to SML
+		 *- clear is_driver_loading flag,
+		 *- start the watchdog thread.
+		 * In happy driver load path, above things are taken care of when
+		 * driver executes scsih_scan_finished().
+		 */
+		if (ioc->is_driver_loading)
+			_scsih_complete_devices_scanning(ioc);
 		_scsih_set_nvme_max_shutdown_latency(ioc);
 		break;
 	case MPT3SAS_PORT_ENABLE_COMPLETE:
@@ -10651,8 +10825,7 @@ _mpt3sas_fw_work(struct MPT3SAS_ADAPTER *ioc, struct fw_event_work *fw_event)
 	case MPI2_EVENT_PCIE_TOPOLOGY_CHANGE_LIST:
 		_scsih_pcie_topology_change_event(ioc, fw_event);
 		ioc->current_event = NULL;
-			return;
-	break;
+		return;
 	}
 out:
 	fw_event_work_put(fw_event);
@@ -10740,11 +10913,23 @@ mpt3sas_scsih_event_callback(struct MPT3SAS_ADAPTER *ioc, u8 msix_index,
 		_scsih_check_topo_delete_events(ioc,
 		    (Mpi2EventDataSasTopologyChangeList_t *)
 		    mpi_reply->EventData);
+		/*
+		 * No need to add the topology change list
+		 * event to fw event work queue when
+		 * diag reset is going on. Since during diag
+		 * reset driver scan the devices by reading
+		 * sas device page0's not by processing the
+		 * events.
+		 */
+		if (ioc->shost_recovery)
+			return 1;
 		break;
 	case MPI2_EVENT_PCIE_TOPOLOGY_CHANGE_LIST:
 	_scsih_check_pcie_topo_remove_events(ioc,
 		    (Mpi26EventDataPCIeTopologyChangeList_t *)
 		    mpi_reply->EventData);
+		if (ioc->shost_recovery)
+			return 1;
 		break;
 	case MPI2_EVENT_IR_CONFIGURATION_CHANGE_LIST:
 		_scsih_check_ir_config_unhide_events(ioc,
@@ -11211,7 +11396,12 @@ scsih_shutdown(struct pci_dev *pdev)
 
 	_scsih_ir_shutdown(ioc);
 	_scsih_nvme_shutdown(ioc);
-	mpt3sas_base_detach(ioc);
+	mpt3sas_base_mask_interrupts(ioc);
+	ioc->shost_recovery = 1;
+	mpt3sas_base_make_ioc_ready(ioc, SOFT_RESET);
+	ioc->shost_recovery = 0;
+	mpt3sas_base_free_irq(ioc);
+	mpt3sas_base_disable_msix(ioc);
 }
 
 
@@ -11260,13 +11450,27 @@ _scsih_probe_boot_devices(struct MPT3SAS_ADAPTER *ioc)
 
 	if (channel == RAID_CHANNEL) {
 		raid_device = device;
+		/*
+		 * If this boot vd is already registered with SML then
+		 * no need to register it again as part of device scanning
+		 * after diag reset during driver load operation.
+		 */
+		if (raid_device->starget)
+			return;
 		rc = scsi_add_device(ioc->shost, RAID_CHANNEL,
 		    raid_device->id, 0);
 		if (rc)
 			_scsih_raid_device_remove(ioc, raid_device);
 	} else if (channel == PCIE_CHANNEL) {
-		spin_lock_irqsave(&ioc->pcie_device_lock, flags);
 		pcie_device = device;
+		/*
+		 * If this boot NVMe device is already registered with SML then
+		 * no need to register it again as part of device scanning
+		 * after diag reset during driver load operation.
+		 */
+		if (pcie_device->starget)
+			return;
+		spin_lock_irqsave(&ioc->pcie_device_lock, flags);
 		tid = pcie_device->id;
 		list_move_tail(&pcie_device->list, &ioc->pcie_device_list);
 		spin_unlock_irqrestore(&ioc->pcie_device_lock, flags);
@@ -11274,8 +11478,15 @@ _scsih_probe_boot_devices(struct MPT3SAS_ADAPTER *ioc)
 		if (rc)
 			_scsih_pcie_device_remove(ioc, pcie_device);
 	} else {
-		spin_lock_irqsave(&ioc->sas_device_lock, flags);
 		sas_device = device;
+		/*
+		 * If this boot sas/sata device is already registered with SML
+		 * then no need to register it again as part of device scanning
+		 * after diag reset during driver load operation.
+		 */
+		if (sas_device->starget)
+			return;
+		spin_lock_irqsave(&ioc->sas_device_lock, flags);
 		handle = sas_device->handle;
 		sas_address_parent = sas_device->sas_address_parent;
 		sas_address = sas_device->sas_address;
@@ -11574,6 +11785,25 @@ scsih_scan_start(struct Scsi_Host *shost)
 }
 
 /**
+ * _scsih_complete_devices_scanning - add the devices to sml and
+ * complete ioc initialization.
+ * @ioc: per adapter object
+ *
+ * Return nothing.
+ */
+static void _scsih_complete_devices_scanning(struct MPT3SAS_ADAPTER *ioc)
+{
+
+	if (ioc->wait_for_discovery_to_complete) {
+		ioc->wait_for_discovery_to_complete = 0;
+		_scsih_probe_devices(ioc);
+	}
+
+	mpt3sas_base_start_watchdog(ioc);
+	ioc->is_driver_loading = 0;
+}
+
+/**
  * scsih_scan_finished - scsi lld callback for .scan_finished
  * @shost: SCSI host pointer
  * @time: elapsed time of the scan in jiffies
@@ -11586,6 +11816,8 @@ static int
 scsih_scan_finished(struct Scsi_Host *shost, unsigned long time)
 {
 	struct MPT3SAS_ADAPTER *ioc = shost_priv(shost);
+	u32 ioc_state;
+	int issue_hard_reset = 0;
 
 	if (disable_discovery > 0) {
 		ioc->is_driver_loading = 0;
@@ -11600,9 +11832,30 @@ scsih_scan_finished(struct Scsi_Host *shost, unsigned long time)
 		return 1;
 	}
 
-	if (ioc->start_scan)
+	if (ioc->start_scan) {
+		ioc_state = mpt3sas_base_get_iocstate(ioc, 0);
+		if ((ioc_state & MPI2_IOC_STATE_MASK) == MPI2_IOC_STATE_FAULT) {
+			mpt3sas_print_fault_code(ioc, ioc_state &
+			    MPI2_DOORBELL_DATA_MASK);
+			issue_hard_reset = 1;
+			goto out;
+		} else if ((ioc_state & MPI2_IOC_STATE_MASK) ==
+				MPI2_IOC_STATE_COREDUMP) {
+			mpt3sas_base_coredump_info(ioc, ioc_state &
+			    MPI2_DOORBELL_DATA_MASK);
+			mpt3sas_base_wait_for_coredump_completion(ioc, __func__);
+			issue_hard_reset = 1;
+			goto out;
+		}
 		return 0;
+	}
 
+	if (ioc->port_enable_cmds.status & MPT3_CMD_RESET) {
+		ioc_info(ioc,
+		    "port enable: aborted due to diag reset\n");
+		ioc->port_enable_cmds.status = MPT3_CMD_NOT_USED;
+		goto out;
+	}
 	if (ioc->start_scan_failed) {
 		ioc_info(ioc, "port enable: FAILED with (ioc_status=0x%08x)\n",
 			 ioc->start_scan_failed);
@@ -11614,13 +11867,14 @@ scsih_scan_finished(struct Scsi_Host *shost, unsigned long time)
 
 	ioc_info(ioc, "port enable: SUCCESS\n");
 	ioc->port_enable_cmds.status = MPT3_CMD_NOT_USED;
+	_scsih_complete_devices_scanning(ioc);
 
-	if (ioc->wait_for_discovery_to_complete) {
-		ioc->wait_for_discovery_to_complete = 0;
-		_scsih_probe_devices(ioc);
+out:
+	if (issue_hard_reset) {
+		ioc->port_enable_cmds.status = MPT3_CMD_NOT_USED;
+		if (mpt3sas_base_hard_reset_handler(ioc, SOFT_RESET))
+			ioc->is_driver_loading = 0;
 	}
-	mpt3sas_base_start_watchdog(ioc);
-	ioc->is_driver_loading = 0;
 	return 1;
 }
 
@@ -11791,6 +12045,63 @@ _scsih_determine_hba_mpi_version(struct pci_dev *pdev)
 	return 0;
 }
 
+static const struct pci_device_id rh_deprecated_pci_table[] = {
+	/* Thunderbolt ~ 2208 */
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2208_1,
+		PCI_ANY_ID, PCI_ANY_ID },
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2208_2,
+		PCI_ANY_ID, PCI_ANY_ID },
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2208_3,
+		PCI_ANY_ID, PCI_ANY_ID },
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2208_4,
+		PCI_ANY_ID, PCI_ANY_ID },
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2208_5,
+		PCI_ANY_ID, PCI_ANY_ID },
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2208_6,
+		PCI_ANY_ID, PCI_ANY_ID },
+	/* Mustang ~ 2308 */
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2308_1,
+		PCI_ANY_ID, PCI_ANY_ID },
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2308_2,
+		PCI_ANY_ID, PCI_ANY_ID },
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2308_3,
+		PCI_ANY_ID, PCI_ANY_ID },
+
+	{0}     /* Terminating entry */
+};
+
+static const struct pci_device_id rh_unmaintained_pci_table[] = {
+
+	{0}     /* Terminating entry */
+};
+
+static const struct pci_device_id rh_disabled_pci_table[] = {
+	/* Spitfire ~ 2004 */
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2004,
+		PCI_ANY_ID, PCI_ANY_ID },
+	/* Falcon ~ 2008 */
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2008,
+		PCI_ANY_ID, PCI_ANY_ID },
+	/* Liberator ~ 2108 */
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2108_1,
+		PCI_ANY_ID, PCI_ANY_ID },
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2108_2,
+		PCI_ANY_ID, PCI_ANY_ID },
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2108_3,
+		PCI_ANY_ID, PCI_ANY_ID },
+	/* Meteor ~ 2116 */
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2116_1,
+		PCI_ANY_ID, PCI_ANY_ID },
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2116_2,
+		PCI_ANY_ID, PCI_ANY_ID },
+
+	/* SSS6200 */
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SSS6200,
+		PCI_ANY_ID, PCI_ANY_ID },
+
+	{0}     /* Terminating entry */
+};
+
 /**
  * _scsih_probe - attach and add scsi host
  * @pdev: PCI device struct
@@ -11805,6 +12116,12 @@ _scsih_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	struct Scsi_Host *shost = NULL;
 	int rv;
 	u16 hba_mpi_version;
+
+	if (pci_hw_disabled(rh_disabled_pci_table, pdev))
+		return -ENODEV;
+
+	pci_hw_deprecated(rh_deprecated_pci_table, pdev);
+	pci_hw_unmaintained(rh_unmaintained_pci_table, pdev);
 
 	/* Determine in which MPI version class this pci device belongs */
 	hba_mpi_version = _scsih_determine_hba_mpi_version(pdev);
@@ -11931,6 +12248,7 @@ _scsih_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 				ioc->multipath_on_hba = 1;
 			else
 				ioc->multipath_on_hba = 0;
+			break;
 		default:
 			break;
 		}
@@ -12327,6 +12645,24 @@ bool scsih_ncq_prio_supp(struct scsi_device *sdev)
  * The pci device ids are defined in mpi/mpi2_cnfg.h.
  */
 static const struct pci_device_id mpt3sas_pci_table[] = {
+	/* Spitfire ~ 2004 */
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2004,
+		PCI_ANY_ID, PCI_ANY_ID },
+	/* Falcon ~ 2008 */
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2008,
+		PCI_ANY_ID, PCI_ANY_ID },
+	/* Liberator ~ 2108 */
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2108_1,
+		PCI_ANY_ID, PCI_ANY_ID },
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2108_2,
+		PCI_ANY_ID, PCI_ANY_ID },
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2108_3,
+		PCI_ANY_ID, PCI_ANY_ID },
+	/* Meteor ~ 2116 */
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2116_1,
+		PCI_ANY_ID, PCI_ANY_ID },
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2116_2,
+		PCI_ANY_ID, PCI_ANY_ID },
 	/* Thunderbolt ~ 2208 */
 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2208_1,
 		PCI_ANY_ID, PCI_ANY_ID },
@@ -12350,6 +12686,9 @@ static const struct pci_device_id mpt3sas_pci_table[] = {
 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SWITCH_MPI_EP,
 		PCI_ANY_ID, PCI_ANY_ID },
 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SWITCH_MPI_EP_1,
+		PCI_ANY_ID, PCI_ANY_ID },
+	/* SSS6200 */
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SSS6200,
 		PCI_ANY_ID, PCI_ANY_ID },
 	/* Fury ~ 3004 and 3008 */
 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI25_MFGPAGE_DEVID_SAS3004,

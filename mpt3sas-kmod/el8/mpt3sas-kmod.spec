@@ -2,12 +2,12 @@
 %define kmod_name		mpt3sas
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-348.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.9.1.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	37.101.00.00
+Version:	39.100.00.00
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -19,7 +19,7 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0:	elrepo-mpt3sas-revert-removed-devices.8.3.patch
+Patch0:	elrepo-mpt3sas-revert-removed-devices.8.6.patch
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
                             /usr/lib/rpm/redhat/brp-ldconfig \
@@ -68,7 +68,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
-%patch0 -p1
+%patch0 -p0
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD
@@ -182,6 +182,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue May 10 2022 Philip J Perry <phil@elrepo.org> 1.2.1-7
+- Rebuilt for RHEL 8.6
+- Source code updated from RHEL kernel-4.18.0-372.9.1.el8.x86_64
+- Patch to revert removed devices
+
 * Sat Nov 13 2021 Philip J Perry <phil@elrepo.org> 37.101.00.00-1
 - Rebuilt for RHEL8.5
 - Source code updated from RHEL kernel-4.18.0-348.el8.x86_64
