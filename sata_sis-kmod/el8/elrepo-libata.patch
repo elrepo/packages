@@ -1,0 +1,17 @@
+elrepo-libata-8_6.patch
+
+extern void blk_queue_flush_queueable(struct request_queue *q, bool queueable);
+is in include/linux/blkdev.h in RHEL 8.0. However it was removed in RHEL 8.1.
+
+Submitted-by: Akemi Yagi <toracat@elrepo.org>
+
+--- a/libata.h	2022-04-15 17:03:46.000000000 -0700
++++ b/libata.h	2022-05-11 16:14:11.213348017 -0700
+@@ -107,6 +107,7 @@
+ #ifdef CONFIG_SATA_HOST
+ int ata_sas_allocate_tag(struct ata_port *ap);
+ void ata_sas_free_tag(unsigned int tag, struct ata_port *ap);
++extern void blk_queue_flush_queueable(struct request_queue *q, bool queueable);
+ #else
+ static inline int ata_sas_allocate_tag(struct ata_port *ap)
+ {

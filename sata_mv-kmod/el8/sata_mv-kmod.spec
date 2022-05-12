@@ -2,13 +2,13 @@
 %define kmod_name sata_mv
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.9.1.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
 Version:        1.28
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -33,6 +33,7 @@ Source7:  scsi_transport_api.h
 
 # Source code patches
 Patch0:  elrepo-libata-eh.patch
+Patch1:  elrepo-libata.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -78,6 +79,7 @@ echo "add_drivers+=\" %{kmod_name} \"" > %{kmod_name}.conf
 
 # Apply patch(es)
 %patch0 -p1
+%patch1 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD CONFIG_SATA_MV=m
@@ -193,6 +195,13 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue May 10 2022 Akemi Yagi <toracat@elrepo.org> - 1.28-2
+- Source code from kernel-4.18.0-305
+- Built against RHEL 8.6 GA kernel 4.18.0-372.9.1.el8
+- Source code from kernel-4.18.0-372.9.1
+- Fix SB-signing issue caused by /usr/lib/rpm/brp-strip
+  [https://bugzilla.redhat.com/show_bug.cgi?id=1967291]
+
 * Thu Nov 18 2021 Akemi Yagi <toracat@elrepo.org> - 1.28-1
 - Initial build for RHEL 8.5
 - Source code from kernel-4.18.0-240 (unchanged in 8.5)
