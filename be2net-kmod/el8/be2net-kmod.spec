@@ -2,13 +2,13 @@
 %define kmod_name	be2net
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-348.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.9.1.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
 Version:        12.0.0.0
-Release:        8%{?dist}
+Release:        9%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -187,7 +187,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Fri Nov 12 2021 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0.0-8
+* Tue May 10 2022 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0-9
+- Source code updated to kernel-4.18.0-372.9.1.el8
+- Bbuilt against RHEL 8.6 GA kernel 4.18.0-372.9.1.el8
+
+* Fri Nov 12 2021 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0-8
 - Rebuilt against RHEL 8.5 kernel
 
 * Tue May 18 2021 Philip J Perry <phil@elrepo.org> 12.0.0.0.0-7

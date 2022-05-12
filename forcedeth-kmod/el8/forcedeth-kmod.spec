@@ -1,15 +1,14 @@
 # Define the kmod package name here.
 %define kmod_name		forcedeth
-%define kmod_vendor		elrepo
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.9.1.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	6%{?dist}.%{kmod_vendor}
+Release:	7%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,8 +18,19 @@ URL:		http://www.kernel.org/
 Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
+# Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
+# https://bugzilla.redhat.com/show_bug.cgi?id=1967291
+%define __spec_install_post \
+	/usr/lib/rpm/check-buildroot \
+	/usr/lib/rpm/redhat/brp-ldconfig \
+	/usr/lib/rpm/brp-compress \
+	/usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump \
+	/usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
+	/usr/lib/rpm/brp-python-bytecompile "" 1 \
+	/usr/lib/rpm/brp-python-hardlink \
+	PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
+
 # Source code patches
-Patch0:		elrepo-ethernet-el83.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -61,7 +71,6 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
-%patch0 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
@@ -125,7 +134,7 @@ if [ -f "%{kver_state_file}" ]; then
 
 		# The same check as in weak-modules: we assume that the kernel present
 		# if the symvers file exists.
-		if [ -e "$k_dir/symvers.gz" ]; then
+		if [ -e "/boot/symvers-$k.gz" ]; then
 			/usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
 			cmp -s "$tmp_initramfs" "$dst_initramfs"
 			if [ "$?" = 1 ]; then
@@ -175,6 +184,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue May 10 2022 Akemi Yagi <toracat@elrepo.org> - 0.0-7
+- Source code from RHEL 8.6 GA kernel
+- Built against RHEL 8.6 GA kernel 4.18.0-372.9.1.el8
+
 * Tue May 18 2021 Philip J Perry <phil@elrepo.org> 0.0-6
 - Rebuilt for RHEL 8.4
 - Fix updating of initramfs image

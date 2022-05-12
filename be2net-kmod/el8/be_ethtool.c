@@ -316,7 +316,9 @@ static int be_read_dump_data(struct be_adapter *adapter, u32 dump_len,
 }
 
 static int be_get_coalesce(struct net_device *netdev,
-			   struct ethtool_coalesce *et)
+			   struct ethtool_coalesce *et,
+			   struct kernel_ethtool_coalesce *kernel_coal,
+			   struct netlink_ext_ack *extack)
 {
 	struct be_adapter *adapter = netdev_priv(netdev);
 	struct be_aic_obj *aic = &adapter->aic_obj[0];
@@ -339,7 +341,9 @@ static int be_get_coalesce(struct net_device *netdev,
  * eqd cmd is issued in the worker thread.
  */
 static int be_set_coalesce(struct net_device *netdev,
-			   struct ethtool_coalesce *et)
+			   struct ethtool_coalesce *et,
+			   struct kernel_ethtool_coalesce *kernel_coal,
+			   struct netlink_ext_ack *extack)
 {
 	struct be_adapter *adapter = netdev_priv(netdev);
 	struct be_aic_obj *aic = &adapter->aic_obj[0];
@@ -572,7 +576,7 @@ static u32 convert_to_et_setting(struct be_adapter *adapter, u32 if_speeds)
 				break;
 			}
 		}
-		/* fall through */
+		fallthrough;
 	case PHY_TYPE_SFP_PLUS_10GB:
 	case PHY_TYPE_XFP_10GB:
 	case PHY_TYPE_SFP_1GB:

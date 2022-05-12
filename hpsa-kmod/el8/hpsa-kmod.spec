@@ -2,13 +2,13 @@
 %define kmod_name		hpsa
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-348.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.9.1.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	3.4.20
-Release:	6%{?dist}
+Release:	7%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -31,7 +31,7 @@ Source5:	GPL-v2.0.txt
 				PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
 
 # Source code patches
-Patch0:	elrepo-hpsa-add-removed-devices-v3.patch
+Patch0: elrepo-hpsa-add-removed-devices-el9.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -186,6 +186,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue May 10 2022 Akemi Yagi <toracat@elrepo.org> - 3.4.20-7
+- Rebuilt against RHEL 8.6 GA kernel 4.18.0-372.9.1.el8
+
 * Fri Nov 12 2021 Akemi Yagi <toracat@elrepo.org> - 3.4.20-6
 - Rebuilt against RHEL 8.5 kernel
 
