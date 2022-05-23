@@ -2,7 +2,7 @@
 %define kmod_name	arcmsr
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-70.el9}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-70.13.1.el9_0}
 
 %{!?dist: %define dist .el9}
 
@@ -18,9 +18,6 @@ URL:		http://www.kernel.org/
 Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
-# Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
-# https://bugzilla.redhat.com/show_bug.cgi?id=1967291
-
 %define __spec_install_post \
 		/usr/lib/rpm/check-buildroot \
 		/usr/lib/rpm/redhat/brp-ldconfig \
@@ -30,7 +27,6 @@ Source5:	GPL-v2.0.txt
 		/usr/lib/rpm/redhat/brp-python-bytecompile "" "1" "0" \
 		/usr/lib/rpm/brp-python-hardlink \
 		/usr/lib/rpm/redhat/brp-mangle-shebangs
-
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
 %define __find_provides /usr/lib/rpm/redhat/find-provides.ksyms %{kmod_name} %{?epoch:%{epoch}:}%{version}-%{release}
