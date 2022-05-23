@@ -2,13 +2,13 @@
 %define kmod_name		nvidia-390xx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-348.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.9.1.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	390.144
-Release:	2%{?dist}
+Version:	390.151
+Release:	1%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
 License:	Proprietary
@@ -61,7 +61,7 @@ BuildRequires:	gcc = 8.3.1
 %if "%{kmod_kernel_version}" == "4.18.0-305.el8"
 BuildRequires:	gcc = 8.4.1
 %endif
-%if "%{kmod_kernel_version}" == "4.18.0-348.el8"
+%if "%{kmod_kernel_version}" >= "4.18.0-348.el8"
 BuildRequires:	gcc = 8.5.0
 %endif
 
@@ -227,6 +227,12 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon May 23 2022 Philip J Perry <phil@elrepo.org> - 390.151-1
+- Updated to version 390.151
+
+* Tue May 10 2022 Philip J Perry <phil@elrepo.org> - 390.144-3
+- Rebuilt for RHEL 8.6
+
 * Sun Nov 14 2021 Philip J Perry <phil@elrepo.org> - 390.144-2
 - Rebuilt for RHEL8.5
 - Fix SB-signing issue caused by /usr/lib/rpm/brp-strip

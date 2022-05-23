@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 470.103.01
+Version: 470.129.06
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -84,6 +84,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Mon May 23 2022 Philip J Perry <phil@elrepo.org> - 470.129.06-1
+- Updated to version 470.129.06
+
 * Fri Mar 04 2022 Philip J Perry <phil@elrepo.org> - 470.103.01-1
 - Forked to legacy release nvidia-470xx
 - Trim changelog
