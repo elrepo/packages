@@ -1,0 +1,20 @@
+--- linit.c.orig	2022-04-14 16:51:12.000000000 +0100
++++ linit.c	2022-05-18 17:04:04.910438862 +0100
+@@ -71,7 +71,7 @@ static LIST_HEAD(aac_devices);
+ static int aac_cfg_major = AAC_CHARDEV_UNREGISTERED;
+ char aac_driver_version[] = AAC_DRIVER_FULL_VERSION;
+ 
+-#ifdef CONFIG_RHEL_DIFFERENCES
++#ifdef CONFIG_ELREPO_DIFFERENCES
+ static const struct pci_device_id rh_deprecated_pci_table[] = {
+ 
+ 	{0}     /* Terminating entry */
+@@ -1669,7 +1669,7 @@ static int aac_probe_one(struct pci_dev
+ 	int mask_bits = 0;
+ 	extern int aac_sync_mode;
+ 
+-#ifdef CONFIG_RHEL_DIFFERENCES
++#ifdef CONFIG_ELREPO_DIFFERENCES
+ 	if (pci_hw_disabled(rh_disabled_pci_table, pdev))
+ 		return -ENODEV;
+ 
