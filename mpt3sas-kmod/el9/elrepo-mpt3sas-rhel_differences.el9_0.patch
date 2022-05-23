@@ -1,0 +1,20 @@
+--- mpt3sas_scsih.c.orig	2022-04-14 16:51:12.000000000 +0100
++++ mpt3sas_scsih.c	2022-05-18 16:53:27.033508855 +0100
+@@ -12074,7 +12074,7 @@ _scsih_determine_hba_mpi_version(struct
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_RHEL_DIFFERENCES
++#ifdef CONFIG_ELREPO_DIFFERENCES
+ static const struct pci_device_id rh_deprecated_pci_table[] = {
+ 
+ 	{0}     /* Terminating entry */
+@@ -12150,7 +12150,7 @@ _scsih_probe(struct pci_dev *pdev, const
+ 	u16 hba_mpi_version;
+ 	int iopoll_q_count = 0;
+ 
+-#ifdef CONFIG_RHEL_DIFFERENCES
++#ifdef CONFIG_ELREPO_DIFFERENCES
+ 	if (pci_hw_disabled(rh_disabled_pci_table, pdev))
+ 		return -ENODEV;
+ 
