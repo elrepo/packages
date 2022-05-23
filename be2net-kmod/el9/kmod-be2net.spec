@@ -2,7 +2,7 @@
 %define kmod_name	be2net
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-55.el9}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-70.13.1.el9_0}
 
 %{!?dist: %define dist .el9}
 
@@ -195,9 +195,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Mon May 09 2022 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0-9
-- Initial build for RHEL 9
-- Source code from RHEL 9 GA kernel
+* Tue May 17 2022 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0-9
+- Rebuilt against RHEL 9.0 GA kernel 5.14.0-70.13.1.el9_0
+- Source code from kernel-5.14.0-70.13.1.el9_0
 
 * Fri Nov 12 2021 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0-8
 - Rebuilt against RHEL 8.5 kernel
