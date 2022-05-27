@@ -1,0 +1,12 @@
+diff -Naur old/src/utils/ecryptfs-migrate-home new/src/utils/ecryptfs-migrate-home
+--- old/src/utils/ecryptfs-migrate-home	2018-09-07 12:29:47.600730369 +0200
++++ new/src/utils/ecryptfs-migrate-home	2018-09-07 12:32:07.781704748 +0200
+@@ -101,7 +101,7 @@
+ 	# Check for ecryptfs pam module
+ 	if ! grep -q ecryptfs /etc/pam.d/postlogin
+ 	then
+-		error "You must enable ecryptfs pam module first. It can be enabled by using: authconfig --enableecryptfs --updateall"
++		error "You must enable ecryptfs pam module first. It can be enabled by using: authselect enable-feature with-ecryptfs"
+ 	fi
+ 	# Check free space: make sure we have sufficient disk space
+ 	# available. To make a full copy, we will need at least 2.5x the

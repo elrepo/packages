@@ -1,0 +1,74 @@
+diff -up ecryptfs-utils-108/src/pam_ecryptfs/pam_ecryptfs.c.fixpamfork ecryptfs-utils-108/src/pam_ecryptfs/pam_ecryptfs.c
+--- ecryptfs-utils-108/src/pam_ecryptfs/pam_ecryptfs.c.fixpamfork	2015-08-11 14:43:58.438825091 +0200
++++ ecryptfs-utils-108/src/pam_ecryptfs/pam_ecryptfs.c	2015-08-11 14:43:58.439825089 +0200
+@@ -253,7 +253,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_h
+ 		}
+ out_child:
+ 		free(auth_tok_sig);
+-		exit(0);
++		_exit(0);
+ 	}
+ 	tmp_pid = waitpid(child_pid, NULL, 0);
+ 	if (tmp_pid == -1)
+@@ -349,7 +349,7 @@ static int private_dir(pam_handle_t *pam
+ 			    "%s/.ecryptfs/.wrapped-passphrase.recorded",
+ 			    pwd->pw_dir) < 0) || recorded == NULL) {
+ 				syslog(LOG_ERR, "pam_ecryptfs: Error allocating memory for recorded name");
+-				exit(1);
++				_exit(255);
+ 			}
+ 			if (stat(recorded, &s) != 0 && stat("/usr/share/ecryptfs-utils/ecryptfs-record-passphrase", &s) == 0) {
+ 				/* User has not recorded their passphrase */
+@@ -362,33 +362,35 @@ static int private_dir(pam_handle_t *pam
+ 			if (stat(autofile, &s) != 0) {
+ 				/* User does not want to auto-mount */
+ 				syslog(LOG_DEBUG, "pam_ecryptfs: Skipping automatic eCryptfs mount");
+-				exit(0);
++				_exit(0);
+ 			}
+ 			clearenv();
+ 			if (setgroups(1, &pwd->pw_gid) < 0 || setgid(pwd->pw_gid) < 0)
+-				exit(-1);
++				_exit(-1);
+ 			/* run mount.ecryptfs_private as the user */
+ 			if (setresuid(pwd->pw_uid, pwd->pw_uid, pwd->pw_uid) < 0)
+-				exit(-1);
++				_exit(-1);
+ 			execl("/sbin/mount.ecryptfs_private",
+ 			      "mount.ecryptfs_private", NULL);
++			syslog(LOG_ERR, "unable to execute mount.ecryptfs_private : %m");
+ 		} else {
+ 			if (stat(autofile, &s) != 0) {
+ 				/* User does not want to auto-unmount */
+ 				syslog(LOG_DEBUG, "pam_ecryptfs: Skipping automatic eCryptfs unmount");
+-				exit(0);
++				_exit(0);
+ 			}
+ 			clearenv();
+ 			if (setgroups(1, &pwd->pw_gid) < 0 || setgid(pwd->pw_gid) < 0)
+-				exit(-1);
++				_exit(-1);
+ 			/* run umount.ecryptfs_private as the user */
+ 			if (setresuid(pwd->pw_uid, pwd->pw_uid, pwd->pw_uid) < 0)
+-				exit(-1);
++				_exit(-1);
+ 			execl("/sbin/umount.ecryptfs_private",
+ 			      "umount.ecryptfs_private", "-d", NULL);
+-			exit(1);
++			syslog(LOG_ERR, "unable to execute umount.ecryptfs_private : %m");
++			_exit(1);
+ 		}
+-		exit(1);
++		_exit(1);
+ 	} else {
+ 		waitpid(pid, &rc, 0);
+ 	}
+@@ -536,7 +538,7 @@ PAM_EXTERN int pam_sm_chauthtok(pam_hand
+ 			goto out_child;
+ 		}
+ out_child:
+-		exit(0);
++		_exit(0);
+ 	}
+ 	if ((tmp_pid = waitpid(child_pid, NULL, 0)) == -1)
+ 		syslog(LOG_WARNING, "pam_ecryptfs: waitpid() returned with error condition\n");
