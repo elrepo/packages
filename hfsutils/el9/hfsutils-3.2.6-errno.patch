@@ -1,0 +1,11 @@
+--- hfsutils-3.2.6/tclhfs.c.orig	2004-04-09 19:25:28.722117122 +0100
++++ hfsutils-3.2.6/tclhfs.c	2004-04-09 19:25:50.962124699 +0100
+@@ -32,7 +32,7 @@
+ # include <string.h>
+ # include <ctype.h>
+ # include <limits.h>
+-
++# include <errno.h>
+ # include <tcl.h>
+ 
+ # include "tclhfs.h"
