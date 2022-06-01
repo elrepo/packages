@@ -2,14 +2,14 @@
 %define kmod_name		moxa-mxupcie
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-348.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.9.1.el8}
 
 %{!?dist: %define dist .el8}
 
 Summary:	Moxa %{kmod_name} kernel module(s)
 Name:		kmod-%{kmod_name}
 Version:	4.1
-Release:	2%{?dist}
+Release:	3%{?dist}
 License:	GPLv2+
 URL:		https://www.moxa.com/
 
@@ -32,6 +32,7 @@ Source5:	GPL-v2.0.txt
 
 # Source code patches
 Patch0:	moxa-linux-kernel-4.x.x-driver-v4.1-access_ok.diff
+Patch1: mxpcie.c.diff
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -80,6 +81,7 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 
 # Apply patch(es)
 %patch0 -p1
+%patch1 -p1
 
 %build
 %{__make} -C $PWD/utility %{?_smp_mflags}
@@ -207,6 +209,11 @@ exit 0
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
 
 %changelog
+* Tue May 31 2022 Akemi Yagi <toracat@elrepo.org> - 4.1-3
+- Rebuilt against RHEL 8.6 GA kernel 4.18.0-372.9.1.el8
+- Patch mxpcie.c.diff applied
+  [https://elrepo.org/bugs/view.php?id=1229]
+
 * Thu Feb 10 2022 Akemi Yagi <toracat@elrepo.org> - 4.1-2
 - updated to match the current ELRepo spec template
 - Rebuilt against RHEL 8.5 GA kernel
