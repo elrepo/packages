@@ -1,0 +1,13 @@
+diff -Naurp a/osm/linux/osm_linux.h b/osm/linux/osm_linux.h
+--- a/osm/linux/osm_linux.h	2022-02-14 09:13:41.000000000 +0000
++++ b/osm/linux/osm_linux.h	2022-06-04 12:37:14.652856515 +0100
+@@ -70,6 +70,9 @@
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(5,16,0)
+ #include <linux/major.h>
+ #endif
++#if RHEL_MAJOR == 9
++#include <uapi/linux/major.h>
++#endif
+ typedef struct scsi_host_template Scsi_Host_Template;
+ typedef struct scsi_device Scsi_Device;
+ typedef struct scsi_cmnd Scsi_Cmnd;
