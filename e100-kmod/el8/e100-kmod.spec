@@ -1,15 +1,14 @@
 # Define the kmod package name here.
 %define kmod_name		e100
-%define kmod_vendor		elrepo
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-305.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.9.1.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	3.5.24
-Release:	5%{?dist}.%{kmod_vendor}
+Release:	6%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -21,6 +20,14 @@ Source5:	GPL-v2.0.txt
 
 # Source code patches
 
+%define __spec_install_post /usr/lib/rpm/check-buildroot \
+                            /usr/lib/rpm/redhat/brp-ldconfig \
+                            /usr/lib/rpm/brp-compress \
+                            /usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump \
+                            /usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
+                            /usr/lib/rpm/brp-python-bytecompile "" 1 \
+                            /usr/lib/rpm/brp-python-hardlink \
+                            PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
 %define __find_provides /usr/lib/rpm/redhat/find-provides.ksyms %{kmod_name} %{?epoch:%{epoch}:}%{version}-%{release}
@@ -82,7 +89,7 @@ sort -u greylist | uniq > greylist.txt
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 # strip the modules(s)
-find %{buildroot} -type f -name \*.ko -exec %{__strip} --strip-debug \{\} \;
+find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --strip-debug
 
 # Sign the modules(s)
 %if %{?_with_modsign:1}%{!?_with_modsign:0}
@@ -172,6 +179,12 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Jun 02 2022 Philip J Perry <phil@elrepo.org> 3.5.24-6
+- Fix SB-signing issue caused by /usr/lib/rpm/brp-strip
+  [https://bugzilla.redhat.com/show_bug.cgi?id=1967291]
+- Rebuilt for RHEL8.6
+  [https://elrepo.org/bugs/view.php?id=1230]
+
 * Tue May 18 2021 Philip J Perry <phil@elrepo.org> 3.5.24-5
 - Rebuilt for RHEL8.4
 - Fix updating of initramfs image
