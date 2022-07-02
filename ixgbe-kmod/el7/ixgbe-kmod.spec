@@ -2,11 +2,11 @@
 %define kmod_name ixgbe
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-1160.71.1.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 5.8.1
-Release: 1%{?dist}
+Version: 5.12.5
+Release: 2%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: %{kmod_name} kernel module(s)
@@ -76,6 +76,13 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Jul 01 2022 Akemi Yagi <toracat@elrepo.org> - 5.12.5-2
+- Rebuilt against RHEL 7.9 kernel-3.10.0-1160.71.1.el7
+
+* Tue May 17 2022 Akemi Yagi <toracat@elrepo.org> - 5.12.5-1
+- Updated to version 5.12.5
+- Built against RHEL 7.9 kernel
+
 * Tue Sep 29 2020 Philip J Perry <phil@elrepo.org> - 5.8.1-1
 - Updated to version 5.8.1
 - Built against RHEL 7.9 kernel
