@@ -8,7 +8,7 @@
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	9.1.7
+Version:	9.1.8
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -20,8 +20,6 @@ Source0:	%{real_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0:		elrepo-%{kmod_name}-keep_submit_bio_noacct.el9_0.patch
-Patch1:		elrepo-%{kmod_name}-void_drbd_submit_bio.el9_0.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -35,8 +33,6 @@ Patch1:		elrepo-%{kmod_name}-void_drbd_submit_bio.el9_0.patch
 		/usr/lib/rpm/redhat/brp-python-bytecompile "" "1" "0" \
 		/usr/lib/rpm/brp-python-hardlink \
 		/usr/lib/rpm/redhat/brp-mangle-shebangs
-
-# Source code patches
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -84,8 +80,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
 %setup -n %{real_name}-%{version}
-%patch0 -p1
-%patch1 -p1
+
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
@@ -200,6 +195,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Jul 27 2022 Akemi Yagi <toracat@elrepo.org> - 9.1.8-1.el9
+- Updated to 9.1.8
+- Build errors on RHEL 9 have been fixed in the code
+
 * Tue May 24 2022 Akemi Yagi <toracat@elrepo.org> - 9.1.7-1.el9
 - Renamed from drbd90 to drbd9x
 - Initial build for RHEL 9
