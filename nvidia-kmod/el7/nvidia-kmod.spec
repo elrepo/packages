@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 510.73.05
+Version: 515.57
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -88,6 +88,12 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Jun 29 2022 Philip J Perry <phil@elrepo.org> - 515.57-1
+- Updated to version 515.57
+
+* Fri Jun 03 2022 Philip J Perry <phil@elrepo.org> - 515.48.07-1
+- Updated to version 515.48.07
+
 * Mon May 23 2022 Philip J Perry <phil@elrepo.org> - 510.73.05-1
 - Updated to version 510.73.05
 

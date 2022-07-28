@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/510.73.05/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/515.57/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 
@@ -8,7 +8,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	510.73.05
+Version:	515.57
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -190,7 +190,6 @@ pushd 32
 %{__install} -p -m 0755 libnvidia-allocator.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %ifarch x86_64
 %{__install} -p -m 0755 libnvidia-cfg.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
-%{__install} -p -m 0755 libnvidia-compiler-next.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %endif
 %{__install} -p -m 0755 libnvidia-compiler.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-eglcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
@@ -209,8 +208,8 @@ pushd 32
 %{__install} -p -m 0755 libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %ifarch x86_64
 %{__install} -p -m 0755 libnvidia-ngx.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
-%{__install} -p -m 0755 libnvidia-nvvm.so.4.0.0 $RPM_BUILD_ROOT%{_libdir}/
 %endif
+%{__install} -p -m 0755 libnvidia-nvvm.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-opencl.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-opticalflow.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-ptxjitcompiler.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
@@ -220,6 +219,7 @@ pushd 32
 %{__install} -p -m 0755 libnvidia-tls.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %ifarch x86_64
 %{__install} -p -m 0755 libnvidia-vulkan-producer.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
+%{__install} -p -m 0755 libnvidia-wayland-client.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvoptix.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %endif
 %{__install} -p -m 0755 libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{_libdir}/
@@ -268,8 +268,8 @@ popd
 %ifarch x86_64
 %{__ln_s} libnvidia-ngx.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ngx.so
 %{__ln_s} libnvidia-ngx.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ngx.so.1
-%{__ln_s} libnvidia-nvvm.so.4.0.0 $RPM_BUILD_ROOT%{_libdir}/libnvidia-nvvm.so.4
 %endif
+%{__ln_s} libnvidia-nvvm.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-nvvm.so.4
 %{__ln_s} libnvidia-opencl.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-opencl.so.1
 %{__ln_s} libnvidia-opticalflow.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-opticalflow.so
 %{__ln_s} libnvidia-opticalflow.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-opticalflow.so.1
@@ -440,6 +440,12 @@ fi ||:
 %endif
 
 %changelog
+* Wed Jun 29 2022 Philip J Perry <phil@elrepo.org> - 515.57-1
+- Updated to version 515.57
+
+* Fri Jun 03 2022 Philip J Perry <phil@elrepo.org> - 515.48.07-1
+- Updated to version 515.48.07
+
 * Mon May 23 2022 Philip J Perry <phil@elrepo.org> - 510.73.05-1
 - Updated to version 510.73.05
 
