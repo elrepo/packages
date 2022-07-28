@@ -4,7 +4,7 @@
 Summary: ELRepo.org Community Enterprise Linux Repository release file
 Name: elrepo-release
 Version: 7.0
-Release: 5%{?dist}
+Release: 6%{?dist}
 License: GPLv2
 Group: System Environment/Base
 URL: https://elrepo.org/
@@ -16,7 +16,8 @@ Source2: SECURE-BOOT-KEY-elrepo.org.der
 BuildArch: noarch
 
 # To prevent users installing on the wrong dist
-Requires: glibc = 2.17
+Requires: system-release >= 7
+Requires: system-release < 8
 
 %description
 This package contains yum configuration for the ELRepo.org Community Enterprise Linux Repository, as well as the public GPG keys used to sign packages.
@@ -47,6 +48,10 @@ This package contains yum configuration for the ELRepo.org Community Enterprise 
 %{_sysconfdir}/pki/elrepo/SECURE-BOOT-KEY-elrepo.org.der
 
 %changelog
+* Sat Jul 09 2022 Philip J Perry <phil@elrepo.org> - 7.0-6
+- Remove dependency on glibc
+  [https://elrepo.org/bugs/view.php?id=1242]
+
 * Mon Jun 15 2020 Philip J Perry <phil@elrepo.org> - 7.0-5
 - Replace stale mirror site.
 

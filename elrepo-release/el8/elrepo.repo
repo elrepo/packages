@@ -9,6 +9,7 @@ baseurl=http://elrepo.org/linux/elrepo/el8/$basearch/
 	http://linux-mirrors.fnal.gov/linux/elrepo/elrepo/el8/$basearch/
 mirrorlist=http://mirrors.elrepo.org/mirrors-elrepo.el8
 enabled=1
+countme=1
 gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
 
@@ -20,6 +21,7 @@ baseurl=http://elrepo.org/linux/testing/el8/$basearch/
 	http://linux-mirrors.fnal.gov/linux/elrepo/testing/el8/$basearch/
 mirrorlist=http://mirrors.elrepo.org/mirrors-elrepo-testing.el8
 enabled=0
+countme=1
 gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
 
@@ -31,6 +33,7 @@ baseurl=http://elrepo.org/linux/kernel/el8/$basearch/
 	http://linux-mirrors.fnal.gov/linux/elrepo/kernel/el8/$basearch/
 mirrorlist=http://mirrors.elrepo.org/mirrors-elrepo-kernel.el8
 enabled=0
+countme=1
 gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
 
@@ -42,5 +45,6 @@ baseurl=http://elrepo.org/linux/extras/el8/$basearch/
 	http://linux-mirrors.fnal.gov/linux/elrepo/extras/el8/$basearch/
 mirrorlist=http://mirrors.elrepo.org/mirrors-elrepo-extras.el8
 enabled=0
+countme=1
 gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
