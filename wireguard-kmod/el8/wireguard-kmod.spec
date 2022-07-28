@@ -2,7 +2,7 @@
 %define kmod_name		wireguard
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.9.1.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.13.1.el8}
 
 %{!?dist: %define dist .el8}
 
@@ -16,7 +16,7 @@ Epoch:	6
 
 Name:		kmod-%{kmod_name}
 Version:	1.0.20220627
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -190,6 +190,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat Jul 02 2022 Philip J Perry <phil@elrepo.org> 1.0.20220627-2
+- Rebuild against kernel-4.18.0-372.13.1.el8_6 for kABI breakage
+
 * Mon Jun 27 2022 Philip J Perry <phil@elrepo.org> 1.0.20220627-1
 - Update to 1.0.20220627
 
