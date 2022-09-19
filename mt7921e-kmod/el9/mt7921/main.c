@@ -8,6 +8,10 @@
 #include "mt7921.h"
 #include "mcu.h"
 
+/* elrepo fix */
+#define IEEE80211_HE_PHY_CAP9_NOMINAL_PKT_PADDING_16US	0x2
+#define IEEE80211_HE_PHY_CAP9_NOMINAL_PKT_PADDING_MASK	0xc0
+
 static void
 mt7921_gen_ppe_thresh(u8 *he_ppet, int nss)
 {

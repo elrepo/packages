@@ -7,6 +7,9 @@
 #include "mcu.h"
 #include "eeprom.h"
 
+/* elrepo fix */
+#define IEEE80211_MAX_AMPDU_BUF_HE    0x100
+
 static const struct ieee80211_iface_limit if_limits[] = {
 	{
 		.max = MT7921_MAX_INTERFACES,
