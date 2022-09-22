@@ -7,8 +7,8 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	8.049.02
-Release:	4%{?dist}
+Version:	8.050.03
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -188,6 +188,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Sep 21 2022 Akemi Yagi <toracat@elrepo.org> 8.050.03-1
+- Update to version 8.050.03
+
 * Tue May 10 2022 Philip J Perry <phil@elrepo.org> 8.049.02-4
 - Rebuilt for RHEL 8.6
 

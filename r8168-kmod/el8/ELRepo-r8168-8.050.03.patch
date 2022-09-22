@@ -1,0 +1,32 @@
+--- a/src/r8168_n.c	2022-05-17 02:12:17.000000000 -0700
++++ b/src/r8168_n.c.new	2022-09-21 17:36:27.996477830 -0700
+@@ -63,9 +63,11 @@
+ 
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(5,4,0)
++#if RHEL_MAJOR != 8
+ #include <linux/pci-aspm.h>
+ #endif
+ #endif
++#endif
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,37)
+ #include <linux/prefetch.h>
+ #endif
+@@ -568,7 +570,7 @@ static void rtl8168_hw_config(struct net
+ static void rtl8168_hw_start(struct net_device *dev);
+ static int rtl8168_close(struct net_device *dev);
+ static void rtl8168_set_rx_mode(struct net_device *dev);
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,6,0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,6,0) || RHEL_MAJOR >= 8
+ static void rtl8168_tx_timeout(struct net_device *dev, unsigned int txqueue);
+ #else
+ static void rtl8168_tx_timeout(struct net_device *dev);
+@@ -28791,7 +28793,7 @@ static void rtl8168_reset_task(struct wo
+         }
+ }
+ 
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,6,0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,6,0) || RHEL_MAJOR >= 8
+ static void
+ rtl8168_tx_timeout(struct net_device *dev, unsigned int txqueue)
+ #else
