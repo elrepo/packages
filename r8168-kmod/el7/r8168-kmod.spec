@@ -8,7 +8,7 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 8.049.02
+Version: 8.050.03
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -81,6 +81,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Sep 21 2022 Akemi Yagi <toracat@elrepo.org> - 8.050.03-1
+- Updated to version 8.050.03
+- Enabled -DCONFIG_DYNAMIC_ASPM
+
 * Sun Aug 08 2021 Philip J Perry <phil@elrepo.org> - 8.049.02-1
 - Updated to version 8.049.02
 - Built against RHEL 7.9 kernel

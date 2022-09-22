@@ -1,0 +1,61 @@
+--- a/src/r8168.h	2022-05-17 02:12:20.000000000 -0700
++++ b/src/r8168.h.new	2022-09-21 15:22:04.683937915 -0700
+@@ -49,7 +49,7 @@ typedef int netdev_tx_t;
+ #define device_set_wakeup_enable(dev, val)	do {} while (0)
+ #endif
+ 
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,14,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(3,14,0) && RHEL_MAJOR != 7
+ static inline void ether_addr_copy(u8 *dst, const u8 *src)
+ {
+         u16 *a = (u16 *)dst;
+--- a/src/r8168_n.c	2022-05-17 02:12:17.000000000 -0700
++++ b/src/r8168_n.c.new	2022-09-21 15:32:28.731303592 -0700
+@@ -575,7 +575,9 @@ static void rtl8168_tx_timeout(struct ne
+ #endif
+ static struct net_device_stats *rtl8168_get_stats(struct net_device *dev);
+ static int rtl8168_rx_interrupt(struct net_device *, struct rtl8168_private *, napi_budget);
++#if RHEL_MAJOR != 7
+ static int rtl8168_change_mtu(struct net_device *dev, int new_mtu);
++#endif /* RHEL_MAJOR != 7 */
+ static void rtl8168_down(struct net_device *dev);
+ 
+ static int rtl8168_set_mac_address(struct net_device *dev, void *p);
+@@ -26765,7 +26767,9 @@ static const struct net_device_ops rtl81
+         .ndo_get_stats      = rtl8168_get_stats,
+         .ndo_start_xmit     = rtl8168_start_xmit,
+         .ndo_tx_timeout     = rtl8168_tx_timeout,
++#if RHEL_MAJOR != 7
+         .ndo_change_mtu     = rtl8168_change_mtu,
++#endif /* RHEL_MAJOR != 7 */
+         .ndo_set_mac_address    = rtl8168_set_mac_address,
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(5,15,0)
+         .ndo_do_ioctl       = rtl8168_do_ioctl,
+@@ -28361,6 +28365,7 @@ rtl8168_hw_start(struct net_device *dev)
+         rtl8168_enable_hw_interrupt(tp);
+ }
+ 
++#if RHEL_MAJOR != 7
+ static int
+ rtl8168_change_mtu(struct net_device *dev,
+                    int new_mtu)
+@@ -28420,6 +28425,7 @@ out:
+ err_out:
+         return ret;
+ }
++#endif /* RHEL_MAJOR != 7 */
+ 
+ static inline void
+ rtl8168_make_unusable_by_asic(struct RxDesc *desc)
+@@ -29483,9 +29489,9 @@ process_pkt:
+ 
+                         if (rtl8168_rx_vlan_skb(tp, desc, skb) < 0)
+                                 rtl8168_rx_skb(tp, skb);
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0) && RHEL_MAJOR != 7
+                         dev->last_rx = jiffies;
+-#endif //LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0)
++#endif //LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0) && RHEL_MAJOR != 7
+                         RTLDEV->stats.rx_bytes += pkt_size;
+                         RTLDEV->stats.rx_packets++;
+                 }
