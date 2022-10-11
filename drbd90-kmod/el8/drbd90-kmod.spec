@@ -8,7 +8,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	9.1.8
+Version:	9.1.11
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -188,6 +188,13 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Oct 11 2022 Akemi Yagi <toracat@elrepo.org> - 9.1.11-1.el8_6
+- Updated to 9.1.11
+
+* Sat Aug 20 2022 Akemi Yagi <toracat@elrepo.org> - 9.1.8-2.el8_6
+- Patch applied from https://github.com/LINBIT/drbd/issues/45
+  (commit d7d76aa)
+
 * Wed Jul 27 2022 Akemi Yagi <toracat@elrepo.org> - 9.1.8-1.el8_6
 - Updated to 9.1.8
 
