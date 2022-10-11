@@ -6,7 +6,7 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 9.1.8
+Version: 9.1.11
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -69,6 +69,17 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Oct 04 2022 Akemi Yagi <toracat@elrepo.org> - 9.1.11-1.el7_9
+- Updated to 9.1.11
+
+* Thu Sep 01 2022 Akemi Yagi <toracat@elrepo.org> - 9.1.10-1.el7_9
+- Updated to 9.1.10
+  (https://elrepo.org/bugs/view.php?id=1250)
+
+* Mon Aug 22 2022 Akemi Yagi <toracat@elrepo.org> - 9.1.8-2.el7_9
+- Patch applied from https://github.com/LINBIT/drbd/issues/45
+  (commit d7d76aa)
+
 * Wed Jul 27 2022 Akemi Yagi <toracat@elrepo.org> - 9.1.8-1.el7_9
 - Updated to 9.1.8-1
 
