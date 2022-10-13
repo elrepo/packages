@@ -8,7 +8,7 @@
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	9.1.8
+Version:	9.1.11
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -195,6 +195,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Oct 13 2022 Akemi Yagi <toracat@elrepo.org> - 9.1.11-1.el9
+- Updated to 9.1.11
+- version 9.1.8 had an issue and has been removed.
+
 * Wed Jul 27 2022 Akemi Yagi <toracat@elrepo.org> - 9.1.8-1.el9
 - Updated to 9.1.8
 - Build errors on RHEL 9 have been fixed in the code
