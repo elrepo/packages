@@ -1,7 +1,7 @@
-diff -Naurp r8125-9.005.01.orig/src/r8125.h r8125-9.005.01/src/r8125.h
---- r8125-9.005.01.orig/src/r8125.h	2021-01-26 14:10:01.000000000 +0000
-+++ r8125-9.005.01/src/r8125.h	2021-02-25 19:05:31.053750415 +0000
-@@ -59,7 +59,7 @@
+diff -Naurp r8125-9.009.02.orig/src/r8125.h r8125-9.009.02/src/r8125.h
+--- r8125-9.009.02.orig/src/r8125.h	2022-06-28 16:44:58.000000000 +0100
++++ r8125-9.009.02/src/r8125.h	2022-10-14 06:35:25.692390620 +0100
+@@ -65,7 +65,7 @@ typedef int netdev_tx_t;
  #define device_set_wakeup_enable(dev, val)	do {} while (0)
  #endif
  
@@ -10,20 +10,20 @@ diff -Naurp r8125-9.005.01.orig/src/r8125.h r8125-9.005.01/src/r8125.h
  static inline void ether_addr_copy(u8 *dst, const u8 *src)
  {
          u16 *a = (u16 *)dst;
-diff -Naurp r8125-9.005.01.orig/src/r8125_n.c r8125-9.005.01/src/r8125_n.c
---- r8125-9.005.01.orig/src/r8125_n.c	2021-01-27 08:14:56.000000000 +0000
-+++ r8125-9.005.01/src/r8125_n.c	2021-02-25 19:09:41.415974123 +0000
-@@ -301,7 +301,9 @@ static struct net_device_stats *rtl8125_
- static int rtl8125_rx_interrupt(struct net_device *, struct rtl8125_private *, struct rtl8125_rx_ring *, napi_budget);
+diff -Naurp r8125-9.009.02.orig/src/r8125_n.c r8125-9.009.02/src/r8125_n.c
+--- r8125-9.009.02.orig/src/r8125_n.c	2022-06-28 16:32:07.000000000 +0100
++++ r8125-9.009.02/src/r8125_n.c	2022-10-14 06:41:10.993177914 +0100
+@@ -345,7 +345,9 @@ static int rtl8125_rx_interrupt(struct n
  static int rtl8125_tx_interrupt(struct rtl8125_tx_ring *ring, int budget);
  static int rtl8125_tx_interrupt_with_vector(struct rtl8125_private *tp, const int message_id, int budget);
+ static void rtl8125_wait_for_quiescence(struct net_device *dev);
 +#if RHEL_MAJOR != 7
  static int rtl8125_change_mtu(struct net_device *dev, int new_mtu);
 +#endif /* RHEL_MAJOR != 7 */
  static void rtl8125_down(struct net_device *dev);
  
  static int rtl8125_set_mac_address(struct net_device *dev, void *p);
-@@ -11216,7 +11218,9 @@ static const struct net_device_ops rtl81
+@@ -12345,7 +12347,9 @@ static const struct net_device_ops rtl81
          .ndo_get_stats      = rtl8125_get_stats,
          .ndo_start_xmit     = rtl8125_start_xmit,
          .ndo_tx_timeout     = rtl8125_tx_timeout,
@@ -31,9 +31,9 @@ diff -Naurp r8125-9.005.01.orig/src/r8125_n.c r8125-9.005.01/src/r8125_n.c
          .ndo_change_mtu     = rtl8125_change_mtu,
 +#endif /* RHEL_MAJOR != 7 */
          .ndo_set_mac_address    = rtl8125_set_mac_address,
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(5,15,0)
          .ndo_do_ioctl       = rtl8125_do_ioctl,
- #if LINUX_VERSION_CODE < KERNEL_VERSION(3,1,0)
-@@ -12452,6 +12456,7 @@ rtl8125_hw_start(struct net_device *dev)
+@@ -13662,6 +13666,7 @@ rtl8125_hw_start(struct net_device *dev)
          rtl8125_lib_reset_complete(tp);
  }
  
@@ -41,7 +41,7 @@ diff -Naurp r8125-9.005.01.orig/src/r8125_n.c r8125-9.005.01/src/r8125_n.c
  static int
  rtl8125_change_mtu(struct net_device *dev,
                     int new_mtu)
-@@ -12509,6 +12514,7 @@ out:
+@@ -13711,6 +13716,7 @@ out:
  err_out:
          return ret;
  }
@@ -49,7 +49,7 @@ diff -Naurp r8125-9.005.01.orig/src/r8125_n.c r8125-9.005.01/src/r8125_n.c
  
  static void
  rtl8125_free_rx_skb(struct rtl8125_private *tp,
-@@ -13928,9 +13934,9 @@ process_pkt:
+@@ -15233,9 +15239,9 @@ process_pkt:
                          if (rtl8125_rx_vlan_skb(tp, desc, skb) < 0)
                                  rtl8125_rx_skb(tp, skb, ring_index);
  
