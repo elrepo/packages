@@ -1,12 +1,12 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/390.151/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/390.154/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv-390xx
-Version:	390.151
+Version:	390.154
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -352,6 +352,9 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Mon Oct 17 2022 Philip J Perry <phil@elrepo.org> - 390.154-1
+- Updated to version 390.154
+
 * Mon May 23 2022 Philip J Perry <phil@elrepo.org> - 390.151-1
 - Updated to version 390.151
 
