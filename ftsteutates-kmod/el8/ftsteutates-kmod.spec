@@ -2,13 +2,13 @@
 %define kmod_name		ftsteutates
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.9.1.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.3.1.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	20190927
-Release:	6%{?dist}
+Release:	7%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -194,6 +194,9 @@ exit 0
 %ghost /etc/sensors.d/fts-teutates.conf
 
 %changelog
+* Tue Nov 08 2022 Philip J Perry <phil@elrepo.org> 20190927-7
+- Rebuilt for RHEL 8.7
+
 * Tue May 10 2022 Philip J Perry <phil@elrepo.org> 20190927-6
 - Rebuilt for RHEL 8.6
 - Fix SB-signing issue caused by /usr/lib/rpm/brp-strip

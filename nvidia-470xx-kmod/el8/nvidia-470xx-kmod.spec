@@ -2,13 +2,13 @@
 %define kmod_name		nvidia-470xx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.9.1.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.3.1.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	470.129.06
-Release:	1%{?dist}
+Version:	470.141.03
+Release:	2%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
 License:	Proprietary
@@ -236,6 +236,12 @@ exit 0
 /lib/firmware/nvidia/%{version}/gsp.bin
 
 %changelog
+* Tue Nov 08 2022 Philip J Perry <phil@elrepo.org> - 470.141.03-2
+- Rebuilt for RHEL 8.7
+
+* Sun Aug 07 2022 Philip J Perry <phil@elrepo.org> - 470.141.03-1
+- Updated to version 470.141.03
+
 * Fri Jul 01 2022 Philip J Perry <phil@elrepo.org> - 470.129.06-1
 - Forked to legacy release nvidia-470xx
 - Trim changelog

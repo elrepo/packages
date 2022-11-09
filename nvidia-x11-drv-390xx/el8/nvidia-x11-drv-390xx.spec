@@ -7,7 +7,7 @@
 
 Name:		nvidia-x11-drv-390xx
 Version:	390.154
-Release:	1%{?dist}
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -352,6 +352,9 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Tue Nov 08 2022 Philip J Perry <phil@elrepo.org> - 390.154-2
+- Rebuilt for RHEL 8.7
+
 * Mon Oct 17 2022 Philip J Perry <phil@elrepo.org> - 390.154-1
 - Updated to version 390.154
 
