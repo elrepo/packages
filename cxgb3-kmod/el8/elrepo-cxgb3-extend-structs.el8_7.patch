@@ -1,0 +1,46 @@
+--- cxgb3_main.c.orig	2018-11-21 08:22:14.000000000 +0000
++++ cxgb3_main.c	2022-11-09 15:49:53.593816066 +0000
+@@ -1951,7 +1951,9 @@ static int set_pauseparam(struct net_dev
+ 	return 0;
+ }
+ 
+-static void get_sge_param(struct net_device *dev, struct ethtool_ringparam *e)
++static void get_sge_param(struct net_device *dev, struct ethtool_ringparam *e,
++			  struct kernel_ethtool_ringparam *kernel_e,
++			  struct netlink_ext_ack *extack)
+ {
+ 	struct port_info *pi = netdev_priv(dev);
+ 	struct adapter *adapter = pi->adapter;
+@@ -1967,7 +1969,9 @@ static void get_sge_param(struct net_dev
+ 	e->tx_pending = q->txq_size[0];
+ }
+ 
+-static int set_sge_param(struct net_device *dev, struct ethtool_ringparam *e)
++static int set_sge_param(struct net_device *dev, struct ethtool_ringparam *e,
++			 struct kernel_ethtool_ringparam *kernel_e,
++			 struct netlink_ext_ack *extack)
+ {
+ 	struct port_info *pi = netdev_priv(dev);
+ 	struct adapter *adapter = pi->adapter;
+@@ -1999,7 +2003,9 @@ static int set_sge_param(struct net_devi
+ 	return 0;
+ }
+ 
+-static int set_coalesce(struct net_device *dev, struct ethtool_coalesce *c)
++static int set_coalesce(struct net_device *dev, struct ethtool_coalesce *c,
++			struct kernel_ethtool_coalesce *kernel_coal,
++			struct netlink_ext_ack *extack)
+ {
+ 	struct port_info *pi = netdev_priv(dev);
+ 	struct adapter *adapter = pi->adapter;
+@@ -2020,7 +2026,9 @@ static int set_coalesce(struct net_devic
+ 	return 0;
+ }
+ 
+-static int get_coalesce(struct net_device *dev, struct ethtool_coalesce *c)
++static int get_coalesce(struct net_device *dev, struct ethtool_coalesce *c,
++			struct kernel_ethtool_coalesce *kernel_coal,
++			struct netlink_ext_ack *extack)
+ {
+ 	struct port_info *pi = netdev_priv(dev);
+ 	struct adapter *adapter = pi->adapter;

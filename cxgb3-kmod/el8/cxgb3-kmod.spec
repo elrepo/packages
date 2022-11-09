@@ -2,13 +2,13 @@
 %define kmod_name		cxgb3
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.9.1.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.3.1.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	1.1.5
-Release:	7%{?dist}
+Release:	8%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,7 +19,7 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0:		elrepo-cxgb3-extend-coalesce.el8.6.patch
+Patch0:		elrepo-cxgb3-extend-structs.el8_7.patch
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
                             /usr/lib/rpm/redhat/brp-ldconfig \
@@ -183,6 +183,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 08 2022 Philip J Perry <phil@elrepo.org> 1.1.5-8
+- Rebuilt for RHEL 8.7
+- Fix extend ringparam setting/getting API with rx_buf_len
+
 * Tue May 10 2022 Philip J Perry <phil@elrepo.org> 1.1.5-7
 - Rebuilt for RHEL 8.6
 - Fix extend coalesce setting uAPI with CQE mode
