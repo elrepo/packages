@@ -2,13 +2,13 @@
 %define kmod_name sata_mv
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.9.1.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.3.1.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
 Version:        1.28
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -195,6 +195,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 08 2022 Akemi Yagi <toracat@elrepo.org> - 1.28-3
+- Source code from kernel-4.18.0-425.3.1.el8 (8.7 GA)
+- Built against RHEL 8.7 GA kernel
+
 * Tue May 10 2022 Akemi Yagi <toracat@elrepo.org> - 1.28-2
 - Source code from kernel-4.18.0-305
 - Built against RHEL 8.6 GA kernel 4.18.0-372.9.1.el8
