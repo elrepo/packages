@@ -37,7 +37,8 @@ Provides:	nvidia-drivers = %{version}
 # provides desktop-file-install
 BuildRequires:	desktop-file-utils
 BuildRequires:	perl
-BuildRequires:	systemd-rpm-macros
+# For systemd_ scriptlets
+BuildRequires:	systemd
 
 Requires:	perl
 Requires:	vulkan-filesystem

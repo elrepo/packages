@@ -34,6 +34,7 @@ Provides:	libglxserver_nvidia.so()(64bit)
 # provides desktop-file-install
 BuildRequires:	desktop-file-utils
 BuildRequires:	perl
+# For systemd_ scriptlets
 BuildRequires:	systemd-rpm-macros
 
 Requires:	perl
