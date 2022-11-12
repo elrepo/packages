@@ -431,6 +431,10 @@ fi ||:
 %endif
 
 %changelog
+* Sat Nov 12 2022 - jthiltges
+- Install systemd unit file for nvidia-persistenced
+  [https://github.com/elrepo/packages/commit/86005affaab9ecf13f4c294f0562976d5d06d441
+
 * Tue Nov 08 2022 Philip J Perry <phil@elrepo.org> - 515.76-2
 - Rebuilt for RHEL 8.7
 
