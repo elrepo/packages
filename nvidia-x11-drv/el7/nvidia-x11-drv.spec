@@ -37,6 +37,8 @@ Provides:	nvidia-drivers = %{version}
 # provides desktop-file-install
 BuildRequires:	desktop-file-utils
 BuildRequires:	perl
+# For systemd_ scriptlets
+BuildRequires:	systemd
 
 Requires:	perl
 Requires:	vulkan-filesystem
@@ -329,6 +331,14 @@ desktop-file-install \
 %{__mkdir_p} $RPM_BUILD_ROOT%{_prefix}/lib/nvidia/
 %{__install} -p -m 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_prefix}/lib/nvidia/alternate-install-present
 
+# Extract and install nvidia-persistenced systemd script
+%{__tar} xf html/samples/nvidia-persistenced-init.tar.bz2
+%{__mkdir_p} $RPM_BUILD_ROOT%{_unitdir}/
+%{__install} -p -m 0644 nvidia-persistenced-init/systemd/nvidia-persistenced.service.template \
+  $RPM_BUILD_ROOT%{_unitdir}/nvidia-persistenced.service
+# Set the username for the daemon to root
+%{__sed} -i -e "s/__USER__/root/" $RPM_BUILD_ROOT%{_unitdir}/nvidia-persistenced.service
+
 popd
 
 %clean
@@ -361,6 +371,7 @@ if [ "$1" -eq "1" ]; then # new install
       done
     fi
 fi || :
+%systemd_post nvidia-persistenced.service
 
 /sbin/ldconfig
 
@@ -389,9 +400,11 @@ if [ "$1" -eq "0" ]; then # uninstall
       done
     fi
 fi ||:
+%systemd_preun nvidia-persistenced.service
 
 %postun
 /sbin/ldconfig
+%systemd_postun_with_restart nvidia-persistenced.service
 
 %postun libs
 /sbin/ldconfig
@@ -429,6 +442,7 @@ fi ||:
 %{_prefix}/lib/nvidia/alternate-install*
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 %{_libdir}/xorg/modules/extensions/libglxserver_nvidia.*
+%{_unitdir}/nvidia-persistenced.service
 
 %files libs
 %defattr(-,root,root,-)
