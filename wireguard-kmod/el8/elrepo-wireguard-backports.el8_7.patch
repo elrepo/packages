@@ -1,0 +1,19 @@
+diff -Naurp a/src/compat/compat.h b/src/compat/compat.h
+--- a/src/compat/compat.h	2022-06-27 11:54:37.000000000 +0100
++++ b/src/compat/compat.h	2022-11-11 08:49:07.493920746 +0000
+@@ -412,6 +412,7 @@ static inline u64 __compat_jiffies64_to_
+ }
+ #define jiffies64_to_nsecs __compat_jiffies64_to_nsecs
+ #endif
++#if !defined(ISRHEL8)
+ static inline u64 ktime_get_coarse_boottime_ns(void)
+ {
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(3, 17, 0)
+@@ -423,6 +424,7 @@ static inline u64 ktime_get_coarse_boott
+ #endif
+ }
+ #endif
++#endif
+ 
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0)
+ #include <linux/inetdevice.h>
