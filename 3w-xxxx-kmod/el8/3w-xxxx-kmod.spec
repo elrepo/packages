@@ -2,13 +2,13 @@
 %define kmod_name		3w-xxxx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.9.1.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.3.1.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	2.26.02.003
-Release:	6%{?dist}
+Release:	7%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -179,6 +179,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sun Nov 13 2022 Philip J Perry <phil@elrepo.org> 2.26.02.003-7
+- Rebuilt for RHEL 8.7
+
 * Tue May 10 2022 Philip J Perry <phil@elrepo.org> - 2.26.02.003-6
 - Rebuilt for RHEL 8.6
 - Updated source to kernel-5.10.114
