@@ -1,0 +1,12 @@
+diff -Naurp a/osm/linux/os_linux.c b/osm/linux/os_linux.c
+--- a/osm/linux/os_linux.c	2021-10-26 08:22:36.000000000 +0100
++++ b/osm/linux/os_linux.c	2022-11-15 15:30:34.703968027 +0000
+@@ -394,7 +394,7 @@ void refresh_sd_flags(PVBUS_EXT vbus_ext
+ #endif
+ 								vbus_ext->sd_flags[id] &= ~SD_FLAG_REVALIDATE;
+ 							}
+-							if (bdev->bd_openers>1)
++							if (atomic_read(&bdev->bd_openers)>1)
+ 								vbus_ext->sd_flags[id] |= SD_FLAG_IN_USE;
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,28)
+ 							blkdev_put(bdev, FMODE_READ);

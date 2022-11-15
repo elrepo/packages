@@ -2,13 +2,13 @@
 %define kmod_name	megaraid_mbox
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-70.13.1.el9_0}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-162.6.1.el9_1}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	2.20.5.1
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -186,6 +186,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 15 2022 Philip J Perry <phil@elrepo.org> - 2.20.5.1-2
+- Rebuilt for RHEL 9.1
+
 * Mon May 09 2022 Philip J Perry <phil@elrepo.org> - 2.20.5.1-1
 - Initial build for RHEL 9
 - Backported from kernel-5.14.21

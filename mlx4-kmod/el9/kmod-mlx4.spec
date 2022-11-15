@@ -2,13 +2,13 @@
 %define kmod_name	mlx4
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-70.13.1.el9_0}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-162.6.1.el9_1}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	4.0
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,7 +19,6 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0:		elrepo-%{kmod_name}-infiniband_port_stats.el9_0.patch
 
 %define __spec_install_post \
 		/usr/lib/rpm/check-buildroot \
@@ -78,7 +77,6 @@ echo "override %{kmod_name}_en * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}
 echo "override %{kmod_name}_ib * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 
 # Apply patch(es)
-%patch0 -p0
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
@@ -194,6 +192,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 15 2022 Philip J Perry <phil@elrepo.org> - 4.0-2
+- Rebuilt for RHEL 9.1
+- Source updated from RHEL 9.1 kernel
+
 * Thu Oct 06 2022 Philip J Perry <phil@elrepo.org> - 4.0-2
 - Build infiniband module mlx4_ib
 - Patch: RDMA/mlx4: Do not fail the registration on port stats

@@ -2,12 +2,12 @@
 %define kmod_name	qla2xxx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-70.13.1.el9_0}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-162.6.1.el9_1}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	10.02.00.106
+Version:	10.02.07.400
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -190,6 +190,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 15 2022 Philip J Perry <phil@elrepo.org> - 10.02.07.400-1
+- Rebuilt for RHEL 9.1
+- Source updated from RHEL 9.1 kernel
+
 * Tue May 17 2022 Philip J Perry <phil@elrepo.org> - 10.02.00.106-1
 - Initial build for RHEL 9
 - Backported from kernel-5.14.0-70.13.1.el9_0

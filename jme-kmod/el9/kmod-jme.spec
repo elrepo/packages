@@ -2,13 +2,13 @@
 %define kmod_name	jme
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-70.13.1.el9_0}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-162.6.1.el9_1}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	1.0.8
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -18,8 +18,8 @@ URL:		http://www.kernel.org/
 Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
-# Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
-# https://bugzilla.redhat.com/show_bug.cgi?id=1967291
+# Source code patches
+Patch0:		elrepo-%{kmod_name}-extend-coalesce-setting.el9_1.patch
 
 %define __spec_install_post \
 		/usr/lib/rpm/check-buildroot \
@@ -74,6 +74,9 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -q -n %{kmod_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+
+# Apply patch(es)
+%patch0 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
@@ -187,6 +190,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 15 2022 Philip J Perry <phil@elrepo.org> - 1.0.8-2
+- Rebuilt for RHEL 9.1
+- Extend coalesce setting uAPI with CQE mode
+
 * Sat Sep 17 2022 Philip J Perry <phil@elrepo.org> - 1.0.8-1
 - Initial build for RHEL 9 [https://elrepo.org/bugs/view.php?id=1263]
 - Backported from kernel-5.14.21

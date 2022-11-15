@@ -3,13 +3,13 @@
 %define extid 22_03_04
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-70.13.1.el9_0}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-162.6.1.el9_1}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	1.5.6
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	HighPoint
@@ -20,6 +20,7 @@ Source0:	RR64xl_Linux_Src_v%{version}_%{extid}.tar.gz
 
 # Source code patches
 Patch0:		elrepo-%{kmod_name}-SCSI_DISK_MAJOR.el9_0.patch
+Patch1:		elrepo-%{kmod_name}-atomic-bd_openers.el9_1.patch
 
 %define __spec_install_post \
 		/usr/lib/rpm/check-buildroot \
@@ -54,6 +55,7 @@ BuildRequires:		redhat-rpm-config
 BuildRequires:		rpm-build
 BuildRequires:		gcc
 BuildRequires:		make
+BuildRequires:		perl
 
 Provides:			kernel-modules >= %{kmod_kernel_version}.%{_arch}
 Provides:			kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
@@ -78,6 +80,7 @@ echo "override rr640l * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
 %patch0 -p1
+%patch1 -p1
 
 %build
 pushd product/%{kmod_name}/linux >/dev/null
@@ -193,6 +196,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 15 2022 Philip J Perry <phil@elrepo.org> - 1.5.6-2
+- Rebuilt for RHEL 9.1
+- Fix bdev->bd_openers is of type atomic_t
+
 * Sat Jun 04 2022 Philip J Perry <phil@elrepo.org> - 1.5.6-1
 - Initial build for RHEL 9
   [https://elrepo.org/bugs/view.php?id=1231]
