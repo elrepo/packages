@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	0.2
+Version:	0.4
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -188,6 +188,12 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat Aug 27 2022 Akemi Yagi <toracat@elrepo.org> - 0.4-1
+- Source code from kernel-5.15.63
+
+* Fri Aug 26 2022 Akemi Yagi <toracat@elrepo.org> - 0.3-1
+- Source code from kernel-5.19.4
+
 * Sun May 22 2022 Akemi Yagi <toracat@elrepo.org> - 0.2-1
 - Initial build for RHEL 9
 - Source code from kernel-5.14.0-70.13.1.el9_0
