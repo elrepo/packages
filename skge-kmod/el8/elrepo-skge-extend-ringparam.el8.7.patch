@@ -1,0 +1,25 @@
+diff -Naurp a/skge.c b/skge.c
+--- a/skge.c	2021-04-13 19:41:34.000000000 +0100
++++ b/skge.c	2022-11-16 11:02:50.944137831 +0000
+@@ -502,7 +502,9 @@ static void skge_get_strings(struct net_
+ }
+ 
+ static void skge_get_ring_param(struct net_device *dev,
+-				struct ethtool_ringparam *p)
++				struct ethtool_ringparam *p,
++				struct kernel_ethtool_ringparam *kernel_p,
++				struct netlink_ext_ack *extack)
+ {
+ 	struct skge_port *skge = netdev_priv(dev);
+ 
+@@ -514,7 +516,9 @@ static void skge_get_ring_param(struct n
+ }
+ 
+ static int skge_set_ring_param(struct net_device *dev,
+-			       struct ethtool_ringparam *p)
++			       struct ethtool_ringparam *p,
++			       struct kernel_ethtool_ringparam *kernel_p,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct skge_port *skge = netdev_priv(dev);
+ 	int err = 0;

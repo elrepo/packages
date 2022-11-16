@@ -2,13 +2,13 @@
 %define kmod_name		sky2
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.9.1.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.3.1.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	1.30
-Release:	6%{?dist}
+Release:	7%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -21,6 +21,7 @@ Source5:	GPL-v2.0.txt
 # Source code patches
 Patch0:		elrepo-sky2-extend-coalesce.el8.6.patch
 Patch1:		elrepo-sky2-of_get_mac_address.el8.6.patch
+Patch2:		elrepo-sky2-extend-ringparam.el8.7.patch
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
                             /usr/lib/rpm/redhat/brp-ldconfig \
@@ -68,6 +69,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 %setup -q -n %{kmod_name}-%{version}
 %patch0 -p0
 %patch1 -p0
+%patch2 -p1
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
@@ -182,6 +184,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 15 2022 Philip J Perry <phil@elrepo.org> 1.30-7
+- Rebuilt for RHEL 8.7
+- Fix extend ringparam setting/getting API with rx_buf_len
+
 * Tue May 10 2022 Philip J Perry <phil@elrepo.org> 1.30-6
 - Rebuilt for RHEL 8.6
 - Fix extend coalesce setting uAPI with CQE mode

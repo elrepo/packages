@@ -2,13 +2,13 @@
 %define kmod_name		e100
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.9.1.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.3.1.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	3.5.24
-Release:	6%{?dist}
+Release:	7%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,6 +19,7 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
+Patch0:		elrepo-e100-extend-ringparam.el8.7.patch
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
                             /usr/lib/rpm/redhat/brp-ldconfig \
@@ -64,7 +65,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
 %setup -q -n %{kmod_name}-%{version}
-# %patch0 -p1
+%patch0 -p1
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
@@ -179,6 +180,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 15 2022 Philip J Perry <phil@elrepo.org> 3.5.24-7
+- Rebuilt for RHEL 8.7
+- Fix extend ringparam setting/getting API with rx_buf_len
+
 * Thu Jun 02 2022 Philip J Perry <phil@elrepo.org> 3.5.24-6
 - Fix SB-signing issue caused by /usr/lib/rpm/brp-strip
   [https://bugzilla.redhat.com/show_bug.cgi?id=1967291]

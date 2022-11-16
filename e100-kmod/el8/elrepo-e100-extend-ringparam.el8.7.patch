@@ -1,0 +1,25 @@
+diff -Naurp a/e100.c b/e100.c
+--- a/e100.c	2020-11-05 20:25:29.000000000 +0000
++++ b/e100.c	2022-11-16 11:28:27.078923611 +0000
+@@ -2545,7 +2545,9 @@ static int e100_set_eeprom(struct net_de
+ }
+ 
+ static void e100_get_ringparam(struct net_device *netdev,
+-	struct ethtool_ringparam *ring)
++			       struct ethtool_ringparam *ring,
++			       struct kernel_ethtool_ringparam *kernel_ring,
++			       struct netlink_ext_ack *extack)
+ {
+ 	struct nic *nic = netdev_priv(netdev);
+ 	struct param_range *rfds = &nic->params.rfds;
+@@ -2558,7 +2560,9 @@ static void e100_get_ringparam(struct ne
+ }
+ 
+ static int e100_set_ringparam(struct net_device *netdev,
+-	struct ethtool_ringparam *ring)
++			      struct ethtool_ringparam *ring,
++			      struct kernel_ethtool_ringparam *kernel_ring,
++			      struct netlink_ext_ack *extack)
+ {
+ 	struct nic *nic = netdev_priv(netdev);
+ 	struct param_range *rfds = &nic->params.rfds;
