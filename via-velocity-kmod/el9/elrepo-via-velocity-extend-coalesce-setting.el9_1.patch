@@ -1,0 +1,25 @@
+diff -Naurp a/via-velocity.c b/via-velocity.c
+--- a/via-velocity.c	2021-11-21 12:49:09.000000000 +0000
++++ b/via-velocity.c	2022-11-17 14:26:27.427055679 +0000
+@@ -3520,7 +3520,9 @@ static void set_pending_timer_val(int *v
+ 
+ 
+ static int velocity_get_coalesce(struct net_device *dev,
+-		struct ethtool_coalesce *ecmd)
++				 struct ethtool_coalesce *ecmd,
++				 struct kernel_ethtool_coalesce *kernel_coal,
++				 struct netlink_ext_ack *extack)
+ {
+ 	struct velocity_info *vptr = netdev_priv(dev);
+ 
+@@ -3534,7 +3536,9 @@ static int velocity_get_coalesce(struct
+ }
+ 
+ static int velocity_set_coalesce(struct net_device *dev,
+-		struct ethtool_coalesce *ecmd)
++				 struct ethtool_coalesce *ecmd,
++				 struct kernel_ethtool_coalesce *kernel_coal,
++				 struct netlink_ext_ack *extack)
+ {
+ 	struct velocity_info *vptr = netdev_priv(dev);
+ 	int max_us = 0x3f * 64;
