@@ -2,17 +2,17 @@
 %define kmod_name	v4l2loopback
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-70.13.1.el9_0}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-162.6.1.el9_1}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	0.12.5
-Release:	5%{?dist}
+Version:	0.12.7
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
-URL:		http://www.kernel.org/
+URL:		https://github.com/umlaeute/v4l2loopback
 
 # Sources.
 Source0:	%{kmod_name}-%{version}.tar.gz
@@ -188,6 +188,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 15 2022 Akemi Yagi <toracat@elrepo.org> - 0.12.7-1
+- Rebuilt against RHEL 9.1 GA kernel 5.14.0-162.6.1.el9_1
+- Source code from github.com/umlaeute/v4l2loopback
+
 * Sat May 21 2022 Akemi Yagi <toracat@elrepo.org> - 0.12.5-5
 - Initial build for RHEL 9
 - Source code from kernel-5.14.0-70.13.1.el9_0
