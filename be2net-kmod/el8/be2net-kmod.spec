@@ -2,13 +2,13 @@
 %define kmod_name	be2net
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.9.1.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.3.1.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
 Version:        12.0.0.0
-Release:        9%{?dist}
+Release:        10%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -32,6 +32,7 @@ Source5:  GPL-v2.0.txt
 
 # Source code patches
 Patch0:   elrepo-be2net-enable-BE2-BE3-bug949.patch
+Patch1:   elrepo-be2net-extend-ringparam-el8_7.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -75,6 +76,7 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 # Apply patch(es)
 
 %patch0 -p1
+%patch1 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD CONFIG_BE2NET=m
@@ -187,6 +189,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat Nov 19 2022 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0-10
+- Source code from RHEL 8.7 GA kernel 4.18.0-425.3.1.el8 
+- Built against RHEL kernel-4.18.0-425.3.1.el8
+
 * Tue May 10 2022 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0-9
 - Source code updated to kernel-4.18.0-372.9.1.el8
 - Bbuilt against RHEL 8.6 GA kernel 4.18.0-372.9.1.el8
