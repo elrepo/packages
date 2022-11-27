@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/515.76/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/515.86.01/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 
@@ -8,7 +8,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	515.76
+Version:	515.86.01
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -454,9 +454,12 @@ fi ||:
 %endif
 
 %changelog
+* Sun Nov 27 2022 Philip J Perry <phil@elrepo.org> - 515.86.01-1
+- Updated to version 515.86.01
+
 * Sat Nov 12 2022 - jthiltges
 - Install systemd unit file for nvidia-persistenced
-  [https://github.com/elrepo/packages/commit/86005affaab9ecf13f4c294f0562976d5d06d441
+  [https://github.com/elrepo/packages/commit/86005affaab9ecf13f4c294f0562976d5d06d441]
 
 * Sat Sep 24 2022 Philip J Perry <phil@elrepo.org> - 515.76-1
 - Updated to version 515.76
