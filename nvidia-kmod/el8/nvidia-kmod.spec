@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	515.86.01
+Version:	525.60.11
 Release:	1%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
@@ -116,7 +116,8 @@ popd
 pushd _kmod_build_
 # Install GPU System Processor (GSP) firmware
 %{__install} -d %{buildroot}/lib/firmware/nvidia/%{version}/
-%{__install} -p -m 0755 firmware/gsp.bin %{buildroot}/lib/firmware/nvidia/%{version}/gsp.bin
+%{__install} -p -m 0755 firmware/gsp_ad10x.bin %{buildroot}/lib/firmware/nvidia/%{version}/gsp_ad10x.bin
+%{__install} -p -m 0755 firmware/gsp_tu10x.bin %{buildroot}/lib/firmware/nvidia/%{version}/gsp_tu10x.bin
 popd
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
@@ -233,9 +234,12 @@ exit 0
 %config /usr/lib/modprobe.d/blacklist-nouveau.conf
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 %dir /lib/firmware/nvidia/%{version}/
-/lib/firmware/nvidia/%{version}/gsp.bin
+/lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Tue Nov 29 2022 Philip J Perry <phil@elrepo.org> - 525.60.11-1
+- Updated to version 525.60.11
+
 * Sun Nov 27 2022 Philip J Perry <phil@elrepo.org> - 515.86.01-1
 - Updated to version 515.86.01
 
@@ -291,70 +295,3 @@ exit 0
 * Mon Jul 19 2021 Philip J Perry <phil@elrepo.org> - 470.57.02-1
 - Updated to version 470.57.02
 - Adds nvidia-peermem kernel module
-
-* Fri Jun 04 2021 Philip J Perry <phil@elrepo.org> - 460.84-1
-- Updated to version 460.84
-
-* Tue May 18 2021 Philip J Perry <phil@elrepo.org> - 460.80-2
-- Rebuilt for RHEL 8.4
-
-* Wed May 12 2021 Philip J Perry <phil@elrepo.org> - 460.80-1
-- Updated to version 460.80
-
-* Wed Apr 14 2021 Philip J Perry <phil@elrepo.org> - 460.73.01-1
-- Updated to version 460.73.01
-
-* Fri Mar 19 2021 Philip J Perry <phil@elrepo.org> - 460.67-1
-- Updated to version 460.67
-
-* Fri Feb 26 2021 Philip J Perry <phil@elrepo.org> - 460.56-1
-- Updated to version 460.56
-
-* Mon Feb 01 2021 Philip J Perry <phil@elrepo.org> - 460.39-1
-- Updated to version 460.39
-
-* Sat Dec 19 2020 Philip J Perry <phil@elrepo.org> - 455.45.01-1
-- Updated to version 455.45.01
-  [https://elrepo.org/bugs/view.php?id=1061]
-
-* Wed Nov 04 2020 Philip J Perry <phil@elrepo.org> - 450.80.02-3
-- Rebuilt for RHEL 8.3
-
-* Wed Oct 21 2020 Philip J Perry <phil@elrepo.org> - 450.80.02-2
-- Rebuilt for kernel-4.18.0-193.28.1.el8_2.x86_64
-  [4.18.0-193.28.1.el8_2.x86_64]
-
-* Fri Oct 02 2020 Philip J Perry <phil@elrepo.org> - 450.80.02-1
-- Updated to version 450.80.02
-
-* Wed Aug 19 2020 Philip J Perry <phil@elrepo.org> - 450.66-1
-- Updated to version 450.66
-- Add missing requires for nvidia-x11-drv package
-
-* Fri Jul 10 2020 Philip J Perry <phil@elrepo.org> - 450.57-1
-- Updated to version 450.57
-
-* Thu Jun 25 2020 Philip J Perry <phil@elrepo.org> - 440.100-1
-- Updated to version 440.100
-
-* Sat May 02 2020 Philip J Perry <phil@elrepo.org> - 440.82-2
-- Rebuilt for RHEL 8.2
-
-* Wed Apr 08 2020 Philip J Perry <phil@elrepo.org> - 440.82-1
-- Updated to version 440.82
-- Update initramfs for all kABI compatible kernels
-  [https://elrepo.org/bugs/view.php?id=999]
-
-* Tue Mar 31 2020 Philip J Perry <phil@elrepo.org> - 440.64-1
-- Updated to version 440.64
-
-* Sat Feb 08 2020 Philip J Perry <phil@elrepo.org> - 440.59-1
-- Updated to version 440.59
-- Add dracut conf file to omit nouveau and add nvidia modules
-
-* Sat Jan 25 2020 Philip J Perry <phil@elrepo.org> 440.44-1
-- Updated to version 440.44
-- Rebuilt against RHEL 8.1 kernel
-
-* Sun Dec 01 2019 Philip J Perry <phil@elrepo.org> 440.36-1
-- Initial el8 build of the kmod package.

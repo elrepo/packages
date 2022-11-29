@@ -1,12 +1,12 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/515.86.01/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/525.60.11/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	515.86.01
+Version:	525.60.11
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -171,6 +171,9 @@ pushd nvidiapkg
 pushd 32
 %endif
 %{__mkdir_p} $RPM_BUILD_ROOT%{_libdir}/vdpau/
+%ifarch x86_64
+%{__install} -p -m 0755 libcudadebugger.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
+%endif
 %{__install} -p -m 0755 libcuda.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libEGL_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libGLESv1_CM_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
@@ -179,6 +182,7 @@ pushd 32
 %{__install} -p -m 0755 libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-allocator.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %ifarch x86_64
+%{__install} -p -m 0755 libnvidia-api.so.1 $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-cfg.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %endif
 %{__install} -p -m 0755 libnvidia-compiler.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
@@ -228,6 +232,9 @@ popd
 %{__install} -p -m 0755 libglxserver_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/
 
 # Create the symlinks
+%ifarch x86_64
+%{__ln_s} libcudadebugger.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libcudadebugger.so.1
+%endif
 %{__ln_s} libcuda.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libcuda.so
 %{__ln_s} libcuda.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libcuda.so.1
 %{__ln_s} libEGL_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libEGL_nvidia.so.0
@@ -431,6 +438,9 @@ fi ||:
 %endif
 
 %changelog
+* Tue Nov 29 2022 Philip J Perry <phil@elrepo.org> - 525.60.11-1
+- Updated to version 525.60.11
+
 * Sun Nov 27 2022 Philip J Perry <phil@elrepo.org> - 515.86.01-1
 - Updated to version 515.86.01
 
@@ -488,62 +498,3 @@ fi ||:
 
 * Mon Jul 19 2021 Philip J Perry <phil@elrepo.org> - 470.57.02-1
 - Updated to version 470.57.02
-
-* Fri Jun 04 2021 Philip J Perry <phil@elrepo.org> - 460.84-1
-- Updated to version 460.84
-
-* Tue May 18 2021 Philip J Perry <phil@elrepo.org> - 460.80-2
-- Rebuilt for RHEL 8.4
-
-* Wed May 12 2021 Philip J Perry <phil@elrepo.org> - 460.80-1
-- Updated to version 460.80
-
-* Wed Apr 14 2021 Philip J Perry <phil@elrepo.org> - 460.73.01-1
-- Updated to version 460.73.01
-
-* Fri Mar 19 2021 Philip J Perry <phil@elrepo.org> - 460.67-1
-- Updated to version 460.67
-
-* Fri Feb 26 2021 Philip J Perry <phil@elrepo.org> - 460.56-1
-- Updated to version 460.56
-
-* Mon Feb 01 2021 Philip J Perry <phil@elrepo.org> - 460.39-1
-- Updated to version 460.39
-
-* Sat Dec 19 2020 Philip J Perry <phil@elrepo.org> - 455.45.01-1
-- Updated to version 455.45.01
-  [https://elrepo.org/bugs/view.php?id=1061]
-
-* Wed Nov 04 2020 Philip J Perry <phil@elrepo.org> - 450.80.02-3
-- Rebuilt for RHEL 8.3
-
-* Fri Oct 02 2020 Philip J Perry <phil@elrepo.org> - 450.80.02-1
-- Updated to version 450.80.02
-
-* Wed Aug 19 2020 Philip J Perry <phil@elrepo.org> - 450.66-1
-- Updated to version 450.66
-- Add conflicts for nvidia-kmod-common
-
-* Fri Jul 10 2020 Philip J Perry <phil@elrepo.org> - 450.57-1
-- Updated to version 450.57
-
-* Thu Jun 25 2020 Philip J Perry <phil@elrepo.org> - 440.100-1
-- Updated to version 440.100
-
-* Sat May 02 2020 Philip J Perry <phil@elrepo.org> - 440.82-2
-- Rebuilt for RHEL 8.2
-
-* Wed Apr 08 2020 Philip J Perry <phil@elrepo.org> - 440.82-1
-- Updated to version 440.82
-
-* Tue Mar 31 2020 Philip J Perry <phil@elrepo.org> - 440.64-1
-- Updated to version 440.64
-
-* Sat Feb 08 2020 Philip J Perry <phil@elrepo.org> - 440.59-1
-- Updated to version 440.59
-
-* Sat Jan 25 2020 Philip J Perry <phil@elrepo.org> 440.44-1
-- Updated to version 440.44
-
-* Sun Dec 01 2019 Philip J Perry <phil@elrepo.org> 440.36-1
-- Initial el8 build of the kmod package.
