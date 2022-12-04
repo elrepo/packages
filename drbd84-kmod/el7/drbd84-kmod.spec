@@ -71,13 +71,13 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
-* Sat Apr 04 2020 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1.2.el7_8
+* Sat Apr 04 2020 Akemi Yagi <toracat@elrepo.org> - 8.4.11-1.2.el7_8
 - Rebuilt against RHEL 7.8 kernel 3.10.0-1127.el7
 
-* Fri Nov 02 2018 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1.1.el7_6
+* Fri Nov 02 2018 Akemi Yagi <toracat@elrepo.org> - 8.4.11-1.1.el7_6
 - Built against RHEL 7.6 kernel 3.10.0-957.el7
 
-* Thu Apr 26 2018 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1
+* Thu Apr 26 2018 Akemi Yagi <toracat@elrepo.org> - 8.4.11-1
 - Built against RHEL 7.5 kernel 3.10.0-862.el7
 - Updated to version 8.4.11
 
