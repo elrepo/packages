@@ -3,14 +3,14 @@
 %define real_name drbd
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.9.1.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.3.1.el8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	8.4.10
 %define 	original_release 1
-Release:	%{original_release}.18%{?dist}
+Release:	%{original_release}.20%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -73,10 +73,9 @@ It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
-%setup -n %{real_name}-%{version}-1
 %setup -n %{real_name}-%{version}-%{original_release}
 
-# %patch0 -p1
+# %%patch0 -p1
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
@@ -191,6 +190,12 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Nov 28 2022 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1.20.el8_7
+- Built against RHEL 8.7 GA kernel 4.18.0-425.3.1.el8
+
+* Fri May 13 2022 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1.19.el8
+- Source code from kernel-4.18.0-372.9.1.el8
+
 * Tue May 10 2022 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1.18.el8
 - Rebuilt against RHEL 8.6 GA kernel 4.18.0-372.9.1.el8
 
