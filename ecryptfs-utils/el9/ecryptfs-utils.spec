@@ -16,7 +16,7 @@ the interface supplied by the %{name} library.
 
 Name: ecryptfs-utils
 Version: 111
-Release: 20.1%{?dist}
+Release: 21.1%{?dist}
 Summary: The eCryptfs mount helper and support libraries
 License: GPLv2+
 URL: https://launchpad.net/ecryptfs
@@ -94,7 +94,8 @@ BuildRequires: trousers-devel nss-devel desktop-file-utils intltool
 BuildRequires: pkcs11-helper-devel
 BuildRequires: automake autoconf libtool glib2-devel gettext-devel perl-podlators libattr-devel
 
-Requires: kernel-modules, keyutils, cryptsetup-luks, util-linux, gettext
+Requires: kernel-modules, keyutils, util-linux, gettext
+Recommends: kmod-ecryptfs
 
 %description
 eCryptfs is a stacked cryptographic filesystem that ships in Linux
@@ -300,6 +301,10 @@ groupadd -r -f ecryptfs
 
 
 %changelog
+* Thu Dec 01 2022 Akemi Yagi <toracat@elrepo.org> - 111-21.1
+- cryptsetup-luks removed from Requires:
+- added 'Recommends: kmod-ecryptfs'
+
 * Fri May 20 2022 Akemi Yagi <toracat@elrepo.org> - 111-20.1
 - Rebuilt for RHEL 9
 
