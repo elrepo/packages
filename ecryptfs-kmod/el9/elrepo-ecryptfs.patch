@@ -1,0 +1,24 @@
+--- a/main.c	2022-11-26 00:24:52.000000000 -0800
++++ b/main.c	2022-12-01 09:46:51.669238127 -0800
+@@ -463,6 +463,21 @@ out:
+ 	return rc;
+ }
+ 
++/**
++ * Taken from linux-5.15  -ay (elrepo)
++ *
++ * is_idmapped_mnt - check whether a mount is mapped
++ * @mnt: the mount to check
++ *
++ * If @mnt has an idmapping attached to it @mnt is mapped.
++ *
++ * Return: true if mount is mapped, false if not.
++ */
++static inline bool is_idmapped_mnt(const struct vfsmount *mnt)
++
++	return mnt_user_ns(mnt) != &init_user_ns;
++}
++
+ struct kmem_cache *ecryptfs_sb_info_cache;
+ static struct file_system_type ecryptfs_fs_type;
+ 
