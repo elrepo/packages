@@ -1,0 +1,21 @@
+elrepo-A3818-el9.patch
+
+According to the Readme file, system requirements include:
+
+ Linux kernel Rel 2.6/3.x/4.x/5.4/5.11
+
+This patch is required to build on kernel-5.14 (el9)
+
+--- a/src/a3818.c	2022-05-27 05:15:46.000000000 -0700
++++ b/src/a3818.c	2022-11-29 17:08:16.940075130 -0800
+@@ -20,6 +20,10 @@
+ #ifndef VERSION
+ 	#define VERSION(ver,rel,seq) (((ver)<<16) | ((rel)<<8) | (seq))
+ #endif
++
++/* elrepo mod to make it buildable with kernel-5.14 (el9) */
++#define MODULE
++
+ /*
+         Version Information
+ */
