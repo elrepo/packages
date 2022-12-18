@@ -1,0 +1,50 @@
+--- a/src/r8168_n.c	2022-10-20 01:57:18.000000000 -0700
++++ b/src/r8168_n.c	2022-12-16 11:57:23.013820432 -0800
+@@ -63,9 +63,11 @@
+ 
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(5,4,0)
++#if RHEL_MAJOR != 8
+ #include <linux/pci-aspm.h>
+ #endif
+ #endif
++#endif
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,37)
+ #include <linux/prefetch.h>
+ #endif
+@@ -568,7 +570,7 @@ static void rtl8168_hw_config(struct net
+ static void rtl8168_hw_start(struct net_device *dev);
+ static int rtl8168_close(struct net_device *dev);
+ static void rtl8168_set_rx_mode(struct net_device *dev);
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,6,0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,6,0) || RHEL_MAJOR >= 8
+ static void rtl8168_tx_timeout(struct net_device *dev, unsigned int txqueue);
+ #else
+ static void rtl8168_tx_timeout(struct net_device *dev);
+@@ -5946,7 +5948,7 @@ rtl8168_wait_for_quiescence(struct net_d
+ }
+ 
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,17,0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,17,0) || RHEL_MAJOR >= 8
+ static void rtl8168_get_ringparam(struct net_device *dev,
+                                   struct ethtool_ringparam *ring,
+                                   struct kernel_ethtool_ringparam *kernel_ring,
+@@ -5964,7 +5966,7 @@ static void rtl8168_get_ringparam(struct
+         ring->tx_pending = tp->num_tx_desc;
+ }
+ 
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,17,0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,17,0) || RHEL_MAJOR >= 8
+ static int rtl8168_set_ringparam(struct net_device *dev,
+                                  struct ethtool_ringparam *ring,
+                                  struct kernel_ethtool_ringparam *kernel_ring,
+@@ -28980,7 +28982,7 @@ static void rtl8168_reset_task(struct wo
+         }
+ }
+ 
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,6,0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,6,0) || RHEL_MAJOR >= 8
+ static void
+ rtl8168_tx_timeout(struct net_device *dev, unsigned int txqueue)
+ #else
