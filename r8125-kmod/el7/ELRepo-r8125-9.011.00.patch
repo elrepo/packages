@@ -1,7 +1,16 @@
-diff -Naurp r8125-9.009.02.orig/src/r8125.h r8125-9.009.02/src/r8125.h
---- r8125-9.009.02.orig/src/r8125.h	2022-06-28 16:44:58.000000000 +0100
-+++ r8125-9.009.02/src/r8125.h	2022-10-14 06:35:25.692390620 +0100
-@@ -65,7 +65,7 @@ typedef int netdev_tx_t;
+diff -Naurp r8125-9.011.00.orig/src/r8125.h r8125-9.011.00/src/r8125.h
+--- r8125-9.011.00.orig/src/r8125.h	2022-12-12 12:22:27.000000000 +0000
++++ r8125-9.011.00/src/r8125.h	2023-01-04 20:31:45.634314744 +0000
+@@ -52,7 +52,7 @@ typedef int netdev_tx_t;
+ #endif
+ 
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(5,12,0)
+-static inline bool dev_page_is_reusable(const struct page *page)
++static inline bool dev_page_is_reusable(struct page *page)
+ {
+         return likely(page_to_nid(page) == numa_mem_id() &&
+                       !page_is_pfmemalloc(page));
+@@ -88,7 +88,7 @@ static inline bool dev_page_is_reusable(
  #define device_set_wakeup_enable(dev, val)	do {} while (0)
  #endif
  
@@ -10,10 +19,10 @@ diff -Naurp r8125-9.009.02.orig/src/r8125.h r8125-9.009.02/src/r8125.h
  static inline void ether_addr_copy(u8 *dst, const u8 *src)
  {
          u16 *a = (u16 *)dst;
-diff -Naurp r8125-9.009.02.orig/src/r8125_n.c r8125-9.009.02/src/r8125_n.c
---- r8125-9.009.02.orig/src/r8125_n.c	2022-06-28 16:32:07.000000000 +0100
-+++ r8125-9.009.02/src/r8125_n.c	2022-10-14 06:41:10.993177914 +0100
-@@ -345,7 +345,9 @@ static int rtl8125_rx_interrupt(struct n
+diff -Naurp r8125-9.011.00.orig/src/r8125_n.c r8125-9.011.00/src/r8125_n.c
+--- r8125-9.011.00.orig/src/r8125_n.c	2022-12-12 12:22:37.000000000 +0000
++++ r8125-9.011.00/src/r8125_n.c	2023-01-04 20:46:32.848406287 +0000
+@@ -359,7 +359,9 @@ static int rtl8125_rx_interrupt(struct n
  static int rtl8125_tx_interrupt(struct rtl8125_tx_ring *ring, int budget);
  static int rtl8125_tx_interrupt_with_vector(struct rtl8125_private *tp, const int message_id, int budget);
  static void rtl8125_wait_for_quiescence(struct net_device *dev);
@@ -23,8 +32,8 @@ diff -Naurp r8125-9.009.02.orig/src/r8125_n.c r8125-9.009.02/src/r8125_n.c
  static void rtl8125_down(struct net_device *dev);
  
  static int rtl8125_set_mac_address(struct net_device *dev, void *p);
-@@ -12345,7 +12347,9 @@ static const struct net_device_ops rtl81
-         .ndo_get_stats      = rtl8125_get_stats,
+@@ -13516,7 +13518,9 @@ static const struct net_device_ops rtl81
+ #endif //LINUX_VERSION_CODE >= KERNEL_VERSION(5,11,0)
          .ndo_start_xmit     = rtl8125_start_xmit,
          .ndo_tx_timeout     = rtl8125_tx_timeout,
 +#if RHEL_MAJOR != 7
@@ -33,7 +42,7 @@ diff -Naurp r8125-9.009.02.orig/src/r8125_n.c r8125-9.009.02/src/r8125_n.c
          .ndo_set_mac_address    = rtl8125_set_mac_address,
  #if LINUX_VERSION_CODE < KERNEL_VERSION(5,15,0)
          .ndo_do_ioctl       = rtl8125_do_ioctl,
-@@ -13662,6 +13666,7 @@ rtl8125_hw_start(struct net_device *dev)
+@@ -14868,6 +14872,7 @@ rtl8125_hw_start(struct net_device *dev)
          rtl8125_lib_reset_complete(tp);
  }
  
@@ -41,23 +50,23 @@ diff -Naurp r8125-9.009.02.orig/src/r8125_n.c r8125-9.009.02/src/r8125_n.c
  static int
  rtl8125_change_mtu(struct net_device *dev,
                     int new_mtu)
-@@ -13711,6 +13716,7 @@ out:
+@@ -14917,6 +14922,7 @@ out:
  err_out:
          return ret;
  }
 +#endif /* RHEL_MAJOR != 7 */
  
- static void
- rtl8125_free_rx_skb(struct rtl8125_private *tp,
-@@ -15233,9 +15239,9 @@ process_pkt:
-                         if (rtl8125_rx_vlan_skb(tp, desc, skb) < 0)
-                                 rtl8125_rx_skb(tp, skb, ring_index);
+ static inline void
+ rtl8125_mark_to_asic_v3(struct RxDescV3 *descv3,
+@@ -16704,9 +16710,9 @@ rtl8125_rx_interrupt(struct net_device *
+                 if (rtl8125_rx_vlan_skb(tp, desc, skb) < 0)
+                         rtl8125_rx_skb(tp, skb, ring_index);
  
 -#if LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0)
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0) && RHEL_MAJOR != 7
-                         dev->last_rx = jiffies;
+                 dev->last_rx = jiffies;
 -#endif //LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0)
 +#endif //LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0) && RHEL_MAJOR != 7
-                         RTLDEV->stats.rx_bytes += pkt_size;
-                         RTLDEV->stats.rx_packets++;
-                 }
+                 total_rx_bytes += skb->len;
+                 total_rx_packets++;
+ 
