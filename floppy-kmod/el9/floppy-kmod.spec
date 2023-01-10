@@ -2,9 +2,9 @@
 %define kmod_name	floppy
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.3.1.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-162.6.1.el9_1}
 
-%{!?dist: %define dist .el8}
+%{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
@@ -50,16 +50,22 @@ ExclusiveArch:	x86_64
 
 BuildRequires:	elfutils-libelf-devel
 BuildRequires:	kernel-devel = %{kmod_kernel_version}
-BuildRequires:	kernel-abi-whitelists
+BuildRequires:	kernel-abi-stablelists
 BuildRequires:	kernel-rpm-macros
 BuildRequires:	redhat-rpm-config
+BuildRequires:	gcc
+BuildRequires:	make
 
 Provides:	kernel-modules >= %{kmod_kernel_version}.%{_arch}
 Provides:	kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
 
-Requires(post):	%{_sbindir}/weak-modules
-Requires(postun):	%{_sbindir}/weak-modules
 Requires:	kernel >= %{kmod_kernel_version}
+Requires:	kernel-core-uname-r >= %{kmod_kernel_version}
+
+Requires(post):		%{_sbindir}/depmod
+Requires(postun):	%{_sbindir}/depmod
+Requires(post):		%{_sbindir}/weak-modules
+Requires(postun):	%{_sbindir}/weak-modules
 
 %description
 This package provides the %{kmod_name} kernel module(s).
@@ -74,7 +80,7 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 # % patch0 -p1
 
 %build
-%{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD
+%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
 
 whitelist="/lib/modules/kabi-current/kabi_whitelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -186,5 +192,5 @@ exit 0
 
 %changelog
 * Fri Jan 06 2022 Akemi Yagi <toracat@elrepo.org> 0.0-1
-- Initial el8 build of the kmod package.
-- Source code from RHEL 8.7 kernel
+- Initial el9 build of the kmod package.
+- Source code from RHEL 9.1 kernel
