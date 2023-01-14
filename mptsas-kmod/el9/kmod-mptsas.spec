@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	3.04.20
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -80,6 +80,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -q -n %{kmod_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "override mptctl * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 echo "override mptfc * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 echo "override mptspi * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 
@@ -102,6 +103,7 @@ sort -u greylist | uniq > greylist.txt
 %install
 %{__install} -d %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} %{kmod_name}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+%{__install} mptctl.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} mptfc.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} mptspi.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
@@ -201,6 +203,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat Jan 14 2023 Philip J Perry <phil@elrepo.org> - 3.04.20-3
+- Added mptctl module [https://elrepo.org/bugs/view.php?id=1315]
+
 * Tue Nov 15 2022 Philip J Perry <phil@elrepo.org> - 3.04.20-2
 - Rebuilt for RHEL 9.1
 - Source updated from RHEL 9.1 kernel

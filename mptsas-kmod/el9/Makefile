@@ -31,5 +31,6 @@ else
 obj-m	+= mptbase.o mptscsih.o mptspi.o
 obj-m	+= mptbase.o mptscsih.o mptfc.o
 obj-m	+= mptbase.o mptscsih.o mptsas.o
+obj-m	+= mptctl.o
 
 endif
