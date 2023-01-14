@@ -1,0 +1,167 @@
+.TH jfs_tune 8 "October 28, 2002" " " "Set JFS file system parameters."
+
+.SH NAME
+.B jfs_tune
+\- adjust tunable file system parameters on JFS
+
+.SH SYNOPSIS
+.B jfs_tune
+[options]
+.I device
+
+.SH DESCRIPTION
+.PP
+.B jfs_tune
+adjusts tunable parameters on a Linux JFS file system or external journal.
+.B jfs_tune
+must be run as root.
+
+.PP
+.I device
+is the special file name corresponding to the actual device
+.RI (e.g. " /dev/hdb1" )
+on which a JFS file system or JFS external journal has been created.
+
+.SH OPTIONS
+
+.TP
+.BI "\-J device="external-journal
+Attach the JFS external journal located on
+.I external-journal
+to the JFS file system on
+.IR device .
+.IP
+The external journal must already have been created using the command.
+More than one file system may share the same external journal.
+.IP
+.B mkfs.jfs -J journal_dev
+.I external-journal
+.IP
+Attach the external journal to the file system by using the command
+.IP
+.BI "jfs_tune -J device="external-journal
+.I device
+.IP
+Instead of specifying a device name directly,
+.I external-journal
+can also be specified by either
+.BI LABEL= label
+or
+.BI UUID= UUID
+(Use
+.BI "jfs_tune -l "device
+to display a journal device's volume label and UUID.)
+
+.TP
+.B \-l
+List the contents of the JFS file system or external journal superblock
+that resides on
+.IR device .
+
+.TP
+.BI \-L " volume-label"
+Set the volume label of the JFS file system or external journal.
+JFS labels can be at most 16 characters long; if
+.I volume-label
+is longer than 16 characters,
+.B jfs_tune
+will truncate it and print a warning.  The volume label can be used
+by
+.BR mount (8),
+.BR fsck (8),
+and
+.BR /etc/fstab (5)
+(and possibly others) by specifying
+.BI LABEL= volume_label
+instead of a block special device name like
+.BR /dev/hda5 .
+
+.TP
+.BI \-U " UUID"
+Set the universally unique identifier (UUID) of the file system or
+external journal device to
+.IR UUID .
+The format of the UUID is a series of hex digits separated by hyphens,
+like this:
+"c1b9d5a2-f162-11cf-9ece-0020afc76f16".
+The
+.I UUID
+parameter may also be one of the following:
+.RS 1.2i
+.TP
+.I clear
+clear the file system UUID
+.TP
+.I random
+generate a new randomly-generated UUID
+.TP
+.I time
+generate a new time-based UUID
+.RE
+.IP
+The UUID may be used by
+.BR mount (8),
+.BR fsck (8),
+and
+.BR /etc/fstab (5)
+(and possibly others) by specifying
+.BI UUID= uuid
+instead of a block special device name like
+.BR /dev/hda1 .
+.IP
+See
+.BR uuidgen (8)
+for more information.
+
+.TP
+.BI \-V
+Print version information and exit (regardless of any other chosen options).
+
+.SH EXAMPLES
+.LP
+Set a randomly-generated UUID for the JFS file system on the 3rd
+partition of the 2nd hard disk, and view the resultant superblock:
+.IP
+.B jfs_tune -l -U random /dev/hdb3
+.IP
+
+.LP
+Attach an already existing external journal on a device labeled JFSLog
+to a JFS file system on /dev/hda8:
+.IP
+.B jfs_tune -J device=LABEL=JFSLog /dev/hda8
+.IP
+
+.SH "REPORTING BUGS"
+.PP
+If you find a bug in
+.B JFS
+or
+.BR jfs_tune ,
+please report it via the bug tracking system ("Report Bugs" section) of the JFS project web site:
+.nf
+http://jfs.sourceforge.net/
+.fi
+.PP
+Please send as much pertinent information as possible including any error messages resulting from running
+.BR jfs_tune .
+
+.SH SEE ALSO
+.BR jfs_fsck (8) ,
+.BR jfs_mkfs (8) ,
+.BR jfs_fscklog (8) ,
+.BR jfs_logdump (8) ,
+.BR jfs_debugfs (8)
+
+
+.SH AUTHOR
+.nf
+Barry Arndt  (barndt@us.ibm.com)
+
+.fi
+.B jfs_tune
+is maintained by IBM.
+.nf
+See the JFS project web site for more details:
+http://jfs.sourceforge.net/
+.fi

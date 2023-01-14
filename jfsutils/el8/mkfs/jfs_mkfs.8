@@ -1,0 +1,222 @@
+.TH jfs_mkfs 8 "March 9, 2005" " " "JFS file system creation"
+
+.SH NAME
+.B jfs_mkfs
+\- create a JFS formatted partition
+
+.SH SYNOPSIS
+.B jfs_mkfs
+[options]
+.I device
+[ blocks ]
+
+.SH DESCRIPTION
+.PP
+.B jfs_mkfs
+is used to create (format) a JFS partition.
+.B jfs_mkfs
+must be run as root.
+
+.PP
+.I device
+is the special file name corresponding to the actual device
+.RI (e.g. " /dev/hdb1" )
+on which a JFS file system and/or JFS journal will be created.
+.I blocks
+is the number of blocks to be used for the file system.  If omitted,
+.B jfs_mkfs
+automatically figures the file system size.
+
+.PP
+The default block size is
+.BR 4096 "."
+
+.SH WARNING
+.PP
+.B jfs_mkfs
+will destroy all data on the specified device!
+
+.SH OPTIONS
+
+./"*********************************************
+./"*  block size has not been implemented yet  *
+./"*********************************************
+./".TP
+./".BI \-b " block_size"
+./"Set the block size for a new JFS partition
+./".RS
+./"
+./"Options for
+./".I block_size
+./"are:
+./".BR 512 ","
+./".BR 1024 ","
+./".BR 2048 ", or"
+./".BR 4096 "."
+./"
+./"Using small blocks (rather than large blocks) is more space efficient because it
+./"reduces the amount of internal fragmentation within files and directories.
+./"However, using large blocks (rather than small blocks) is more performance efficient
+./"because block allocation activities may occur less often .
+./"
+./"If the
+./".B \-b
+./"option is not used, the default block size is
+./".BR 4096 "."
+./".RE
+
+.TP
+.BI \-c
+Check the device for bad blocks before building the file system.
+
+./"**********************************
+./"*  use -q (quiet) instead of -f  *
+./"**********************************
+./".TP
+./".BI \-f
+./"Force - do not ask for confirmation before creating the file system.
+
+.TP
+.BI -j " journal_device"
+Create the external JFS journal on
+.I journal_device
+, create the JFS file system on
+.I device
+, and attach the external journal to the file system.
+
+.TP
+.BI \-J " journal-options"
+Create the JFS journal on its own device or attach an external JFS journal
+to the JFS file system using options specified on the command-line.
+The following journal options are supported:
+.RS 1.2i
+.TP
+.BI journal_dev
+Create an external JFS journal on the given device.
+.TP
+.BI device= external-journal
+Attach an existing external JFS journal located on
+.I external-journal
+to the JFS file system that will be created on
+.IR device .
+The external
+journal must already have been created using the command
+.IP
+.B jfs_mkfs -J journal_dev
+.I external-journal
+.IP
+Attach the external journal to the file system being created by using the command
+.IP
+.BI "jfs_mkfs -J device="external-journal
+.I device
+.IP
+Instead of specifying a device name directly,
+.I external-journal
+can also be specified by either
+.BI LABEL= label
+or
+.BI UUID= UUID
+to locate the external journal by either the volume label or UUID
+stored in the JFS external log superblock at the start of the journal.  Use
+.BR jfs_tune (8)
+to display a journal device's volume label and UUID.  (See the
+.BR -l ,
+.BR -L ,
+and
+.B -U
+options of
+.BR jfs_tune (8).)
+.RE
+.IP
+Only one of the
+.BR journal_dev " or " device=
+options can be given per
+.B jfs_mkfs
+issuance.
+
+.TP
+.BI -L " volume_label"
+Set the volume label for the newly formatted device.
+.IP
+If
+.BI -L " volume_label"
+is used along with
+.BR "-J journal_device" ,
+the volume label of the specified external journal device
+will be set to
+.IR volume_label .
+Otherwise, the volume label of the JFS file system will be set to
+.IR volume_label .
+
+.TP
+.B \-O
+Provide case-insensitive support for compatibility with OS/2.
+
+.TP
+.BI \-q
+Quiet execution - do not ask for confirmation before creating the file system.
+
+.TP
+.BI -s " log_size"
+Set the log size (in megabytes) of the inline log.  If the
+.B \-s
+option is not used, the default log size is 0.4% of the aggregate size.
+
+.TP
+.BI \-V
+Print version information and exit (regardless of any other chosen options).
+
+.SH EXAMPLES
+.LP
+Format 3rd partition on 2nd hard disk with the volume label "JFS_hdb3":
+.IP
+.B jfs_mkfs -L JFS_hdb3 /dev/hdb3
+.IP
+.LP
+Format 5th partition on 1st hard disk, verifying each block created:
+.IP
+.B jfs_mkfs -c /dev/hda5
+.IP
+.LP
+Format 3rd partition on 2nd hard disk as external journal, format 4th
+partition on 1st hard disk as JFS file system, and attach the external
+journal to the file system:
+.IP
+.B jfs_mkfs -j /dev/hdb3 /dev/hda4
+.IP
+
+.SH "REPORTING BUGS"
+.PP
+If you find a bug in
+.B JFS
+or
+.BR jfs_mkfs ,
+please report it via the bug tracking system ("Report Bugs" section) of the JFS project web site:
+.nf
+http://jfs.sourceforge.net/
+.fi
+.PP
+Please send as much pertinent information as possible including any error messages resulting from running
+.BR jfs_mkfs .
+
+.SH SEE ALSO
+.BR mkfs (8) ,
+.BR jfs_fsck (8) ,
+.BR jfs_fscklog (8) ,
+.BR jfs_tune (8) ,
+.BR jfs_logdump (8) ,
+.BR jfs_debugfs (8)
+
+
+.SH AUTHORS
+.nf
+Barry Arndt  (barndt@us.ibm.com)
+William Braswell, Jr.
+
+.fi
+.B jfs_mkfs
+is maintained by IBM.
+.nf
+See the JFS project web site for more details:
+http://jfs.sourceforge.net/
+.fi

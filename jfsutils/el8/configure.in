@@ -1,0 +1,63 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(libfs/super.c)
+
+dnl Package name and version
+AM_INIT_AUTOMAKE(jfsutils, 1.1.15)
+AM_CONFIG_HEADER(config.h)
+
+dnl Don't include maintainer make-rules by default
+AM_MAINTAINER_MODE
+
+dnl Checks for programs.
+AC_PROG_AWK
+AC_PROG_CC
+AC_PROG_INSTALL
+AC_PATH_PROG(LN, ln, ln)
+AC_PROG_LN_S
+AC_PROG_RANLIB
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS(endian.h fcntl.h mntent.h unistd.h stdbool.h stdint.h machine/endian.h sys/byteorder.h sys/mount.h sys/param.h sys/statvfs.h sys/sysmacros.h sys/disklabel.h)
+AC_CHECK_HEADERS(uuid/uuid.h,,AC_MSG_ERROR('Install e2fsprogs-libs e2fsprogs-devel or uuid-dev'))
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_C_INLINE
+AC_TYPE_MODE_T
+AC_TYPE_OFF_T
+AC_TYPE_SIZE_T
+AC_STRUCT_ST_RDEV
+AC_STRUCT_TM
+
+dnl Checks for library functions.
+AC_FUNC_MEMCMP
+AC_CHECK_FUNCS(getcwd getmntinfo strtol strtoul posix_memalign memalign)
+
+dnl large file support
+AC_SYS_LARGEFILE
+AC_FUNC_FSEEKO
+
+dnl additional compiler warnings
+if [[ "x$CC" = xgcc ]]; then
+  AC_SUBST(AM_CFLAGS, "-Wall -Wstrict-prototypes -fno-strict-aliasing")
+fi
+
+dnl By default install into system location.
+AC_PREFIX_DEFAULT(/usr)
+if [[ "x$exec_prefix" = xNONE -a "x$prefix" = xNONE ]]; then
+  sbindir="/sbin"
+fi
+
+AC_OUTPUT([
+ Makefile
+ libfs/Makefile
+ include/Makefile
+ fsck/Makefile
+ fscklog/Makefile
+ logdump/Makefile
+ mkfs/Makefile
+ tune/Makefile
+ xpeek/Makefile
+ jfsutils.spec
+])

@@ -1,0 +1,292 @@
+NEWS - list of user-visible changes between releases of jfsutils
+
+New in 1.1.15 - 2011-03-04
+* Several fixes for large filesystems where 64-bit variables are needed
+* Fix incorrect size check on directories
+* Make the timestamp format consistent
+
+New in 1.1.14 - 2009-04-06
+* Fix journal replay to handle records that span 3 pages
+* Increase the maximum inline journal size from 32 MB to 128 MB
+* Don't call ioctl(BLKFLSBUF) on a ramdisk.  It wipes out everything.
+* Fix fsck abort
+
+New in 1.1.13 - 2008-07-17
+* Rewrite a confusing error messages
+* Improve sanity checking when replaying the journal
+* Work around _LARGEFILE_SOURCE not getting defined by autoconf
+* Remove unhelpful allocation debug messages
+
+New in 1.1.12 - 2007-08-24
+* Fix build break when built against recent glibc with -DFORTIFY_SOURCE
+* Allow -n flag to be passed to jfs_fsck in conjuction with -f, -a, or -p
+* Look for external journal in /proc/mdstat in case of raid
+* netbsd support (Submitted by Gary Thorpe)
+* Fix double close of external journal descriptor
+* Fix possible array overflow
+* Fix big-endian bug with legacy partition
+
+New in 1.1.11 - 2006-06-05
+* Fix infinite loop when mkfs.jfs is invoked with -c
+* avoid infinite loop in xTree_binsrch_page
+* Fix buffer overflow
+* Fix segfault on s390
+* Fix segfault in markImap
+* Add compiler flags to generate useful warnings
+* Code cleanup
+
+New in 1.1.10 - 2005-10-19
+* More stdio cleanup
+* fsck was not recognizing the root filesystem as jfs
+
+New in 1.1.9 - 2005-10-04
+* Add support for Dragonfly BSD.  I/O to block devices must be done through
+  aligned buffers.  Change to use stream I/O to avoid problems.
+* Reduce memory usage in fsck by removing structure members and code relating
+  to OS/2 DASD limits.
+* Fix stack buffer overflow in Is_Device_Mounted
+
+New in 1.1.8 - 2005-05-03
+* fsck should not bail out if reserved (but unused) inode 1 is bad
+* code cleanup - remove unused variables, eliminate compiler warnings
+* Added blocks parameter to specify file system size
+* Ensure that data gets flushed to disk
+* Fix bug in replaying journal that corrupted inodes
+* Update directory index table when moving directory entries
+* Use O_DIRECT when checking for bad blocks (jfs_mkfs -c)
+
+New in 1.1.7 - 2004-07-22
+* --replay_journal_only shouldn't clear FM_DIRTY
+* Ensure changes to disk occur in proper order
+* Message corrections
+* Directory Index Table corrections for big-endian systems
+
+New in 1.1.6 - 2004-04-28
+* Verify Directory Index Table and reset if necessary
+
+New in 1.1.5 - 2004-03-04
+* Fix problem creating entries in lost+found
+* Fix buffer overflow
+* Fix replaying symlink journal records
+* Improve performance of duplicate block checking
+* Fix segfault printing errant message
+* Done open volume with O_EXCL unless it's necessary
+* Support sharing of journal between multiple volumes - Requires 2.6.4-rc2
+  or later kernel
+
+New in 1.1.4 - 2003-10-30
+* Work around gcc 2.95 bug
+* Handle log full without crashing
+* Message format fix
+
+New in 1.1.3 - 2003-09-05
+* jfs_fsck can now find external journal on evms release 2 volumes
+* code cleanup: fsck messaging is much cleaner
+* Don't right-justify when printing volume label
+* jfs_fsck should return zero when replaying the journal is successful
+* jfs_fsck should not require that the device is opened with O_EXCL
+  - A recent change to the 2.6.0 kernel makes O_EXCL fail when the volume
+    is mounted, even if read-only
+
+New in 1.1.2 - 2003-03-25
+* fix undefined reference to errno (G. D. Haraldsson)
+* allow jfs_mkfs to run on regular file
+* fix for-loop going past last element of vopen array
+* sanity checking on variable this_ag
+* s_label displayed incorrectly when 16 chars long
+
+New in 1.1.1 - 2002-12-17
+* fix segmentation fault in mkfs.jfs when given bad block device
+* fix jfs_debugfs to display directory index with directory entries
+
+New in 1.1.0 - 2002-11-20
+* rename jfs utilities as follows:
+    fsck.jfs -> jfs_fsck, is hard linked to fsck.jfs upon install
+    mkfs.jfs -> jfs_mkfs, is hard linked to mkfs.jfs upon install
+    jfs_tune remains the same
+    logdump -> jfs_logdump
+    xchklog, xchkdmp combined -> jfs_fscklog
+    xpeek -> jfs_debugfs
+    logredo removed, function added to jfs_fsck via --replay_journal_only option
+* update man pages appropriately for name changes
+* change jfs_fsck option -o to --omit_journal_replay
+* fix log replay errors
+* fix off-by-one error, minor formatting error in jfs_fsck
+* keep jfs_fsck from complaining during specific tree restructuring
+* fix jfs_debugfs to recognize all inode types
+* code cleanup
+
+New in 1.0.24 - 2002-10-18
+* byte-swapping fixes for big-endian hardware
+* code cleanup
+
+New in 1.0.23 - 2002-09-27
+* print fsck.jfs start timestamp correctly in fsck.jfs log
+* allow xchklog to run on a JFS file system with an external journal
+* initialize program name in logdump properly
+* code cleanup
+
+New in 1.0.22 - 2002-09-09
+* add jfs_tune utility (see jfs_tune man page for details)
+  jfs_tune allows users to:
+      attach a JFS external journal to a JFS file system
+      set/change volume label, UUID of JFS file system and external log devices
+      view superblock information of JFS file system and external log devices
+* add option '-J journal_device' to mkfs.jfs to create an external journal only
+  and optionally set its volume label (see mkfs.jfs man page)
+* add option '-J device=' to mkfs.jfs to attach an existing JFS external journal
+  to the JFS file system that will be created (see mkfs.jfs man page)
+* fix mkfs.jfs to store 16 character volume labels properly
+* code cleaup
+* add extend support to JFS FSIM for EVMS - see http://sourceforge.net/projects/evms/
+
+New in 1.0.21 - 2002-08-12
+* add external log support to xpeek
+* fix fsck.jfs to update log device number in superblock after logredo with external log.
+* fix typo in mkfs.jfs Emergency help. (Bas)
+* do not build currently unused defrag, extendfs utilities
+* eliminate uuid redefinition compiler warnings
+* add logsuper functions to libfs
+* fix printf format specifiers.  (Christoph Hellwig)
+* code cleanup (all)
+* update JFS FSIM for EVMS - see http://sourceforge.net/projects/evms/
+
+New in 1.0.20 - 2002-06-21
+* don't display heartbeat during log format if output is redirected
+  (eliminates strange characters in redirected output from mkfs.jfs with external log, fsck.jfs Phase 9)
+* fix mkfs.jfs to set version in JFS superblock properly if external log is used
+  (enables JFS external log compatibility with EVMS 1.1-pre2 or greater)
+* enhance jfsutils to support enormous disks like 8TB+ (Peter C.)
+* remove unused variables (Christoph Hellwig)
+
+New in 1.0.19 - 2002-06-07
+* fix jfsutils packaging/build error from 1.0.18
+
+New in 1.0.18 - 2002-05-24
+* add support for external log
+* endian code cleanup
+* fix typo in fsck.jfs help
+* fix fsck.jfs bug on big endian machines
+
+New in 1.0.17 - 2002-04-02
+* more rigorous dtree validation in fsck.jfs
+* fix fsck.jfs to write to the fsck.jfs log properly on big endian machines
+* fix xchklog to read the fsck.jfs log properly on big endian machines
+* fix xpeek to display/modify PXD information properly on big endian machines
+* replace fsck.jfs heartbeat with alarm() based heartbeat (Christoph Hellwig)
+* improve mkfs.jfs and fsck.jfs parameter parsing and usage alerts
+* messaging code cleanup, logredo code cleanup, general code cleanup (all)
+
+New in 1.0.16 - 2002-03-11
+* make fsck.jfs exit codes conform to fsck (see updated fsck.jfs man page)
+* display/log fsck.jfs exit code in debug exit msg
+* fix xchkdmp to print logredo messages
+* make xchkdmp print message text instead of message number
+* use PBSIZE for physical block size instead of BLKSSZGET ioctl
+  (eliminates MD error msg "used obsolete MD ioctl", fixes S/390 mkfs.jfs)
+* remove libfs open/close wrappers (Christoph Hellwig)
+* messaging code cleanup, general code cleanup (all)
+
+New in 1.0.15 - 2002-02-15
+* eliminate invalid fsck.jfs internal error 10
+* update xpeek and fsck.jfs man pages
+* better error message if device to be fsck.jfs'ed is not jfs
+* add support for 4.4 BSD-style getmntinfo (Christoph Hellwig)
+* include sys/types.h for BSD (Hiten Pandya)
+* use defacto standard autoconf macro for large file support (Christoph Hellwig)
+* general jfsutils code cleanup (all)
+
+New in 1.0.14 - 2002-01-28
+* fix typecast problem causing fsck.jfs 'corrupt superblock' error message
+* remove old types PVOID, UCHAR, USHORT, ULONG (code cleanup)
+
+New in 1.0.13 - 2002-01-25
+* update xchklog and xchkdump parameters and man pages
+* reduce/eliminate instances of 'access beyond end of device' error message
+* compatibility fix for different versions of automake
+* fix typo in spec file
+* defines cleanup (Christoph Hellwig)
+* unicode cleanup (Christoph Hellwig)
+* endian portability fix (Christoph Hellwig)
+* convert types uxx, uintxx, sxx, intxx to C99 types (code cleanup)
+
+New in 1.0.12 - 2002-01-08
+* autoheader must precede automake or config.h doesn't make the tarball
+* use current date as release date in jfs utils (Christoph Hellwig)
+* fix fsck to update maps at auto check time (fixes file system corruption).
+* fix file system utilities to be more portable (Christoph Hellwig)
+
+New in 1.0.11 - 2001-12-17
+* convert JFS utilities to use autoconf/automake (Christoph Hellwig)
+* display correct error messages for disk not accessible
+* have all utilities print version number
+
+New in 1.0.10 - 2001-11-28
+* fsck shouldn't endian swap dtree struct twice
+
+New in 1.0.9 - 2001-11-09
+* don't print heartbeat if fsck.jfs output is redirected
+* make mkfs.jfs options conform to mkfs, clean up parse code
+* fix typo in mkfs.jfs man_html page
+* allow xpeek to show us directory xtrees
+* fix fsck.jfs infinite loop on big endian hardware (jitterbug 182)
+* fix infinite loop when endian swapping bad directory tree page
+
+New in 1.0.8 - 2001-10-17
+* install prefix support for jfsutils
+* cleanup option handling make -y behave (jitterbug 177), -f override -p
+* Add more informative error message when running fsck.jfs RO, (jitterbug 173)
+* clean up remove carriage return after new line in messaging
+* print mkfs.jfs version correctly
+
+New in 1.0.7 - 2001-10-10
+* improve fsck's 'mounted' detection.
+* improve utils' checking for fs type jfs
+* replace __uX with uintX_t
+* change fsck.jfs options to be similar to e2fsck
+* set fsck.jfs default to automatically fix the file system
+
+New in 1.0.6 - 2001-09-28
+* If fsck rebuilds root directory, reset di_next_index to 2
+* fsck needs to process, validate inodes with size=0
+
+New in 1.0.5 - 2001-09-14
+* Fixed jfsprogs.spec to handle utilities not being in the file system
+  source tree
+* Cleaned up include files
+* Fixed inconsistencies in mkfs man, html pages
+
+New in 1.0.4 - 2001-08-31
+* Fixed typecast problem causing intermittent fsck failures on 64 bit
+  hardware (jitterbug 159)
+* Fixed pointer calculation problem causing intermittent fsck failures
+  on 64bit hardware
+* Fixed compiler warnings on s/390 and IA64
+* Fixed structure size mismatch between file system and utilities causing
+  fsck problems when large numbers of inodes are used
+* Fixed seg fault in fsck when logging path lengths greater than 512
+  characters
+* Fixed fsck printf format errors
+
+New in 1.0.3 - 2001-08-20
+* Fixed compiler warnings on 64 bit systems
+* Created jfsutils package
+
+New in 1.0.2 - 2001-08-03
+* Fixed mkfs to display the correct error message if device name is
+  not valid or missing
+* gzip the man pages and place /usr/share/man/man8
+* Fixed mkfs to properly setup buf_ai
+* Fixed fsck to display path correctly
+
+New in 1.0.1 - 2001-07-10
+* Updated jfsprogs.spec file make it work on more distros
+* Add force option to mkfs so the confirmation message isn't displayed
+* Fixed fsck to handle index table on the root directory.
+* Fixed error message displayed when partition was just created and haven't
+  rebooted (jitterbug 130)
+* Correctly place the built utilities in /sbin vs. /usr/sbin when using
+  the make install option.
+
+New in 1.0.0 - 2001-06-28
+* Fixed small logredo problem

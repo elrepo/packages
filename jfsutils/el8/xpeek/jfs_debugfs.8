@@ -1,0 +1,323 @@
+.TH jfs_debugfs 8 "October 29, 2002" " " "JFS file system editor"
+
+.SH NAME
+.B jfs_debugfs
+\- shell-type JFS file system editor
+
+.SH SYNOPSIS
+.B jfs_debugfs
+.I device
+
+.SH DESCRIPTION
+.PP
+.B jfs_debugfs
+is a program which can be used to perform various low-level actions on a JFS formatted device.
+.PP
+.I device
+is the special file name corresponding to the actual device to be edited
+.RB (e.g. " /dev/hdb1" ).
+.PP
+.B jfs_debugfs
+must be run as root.
+
+.SH COMMANDS
+.TP
+.BI a[lter] " <block> <offset> <hex_string>"
+ replaces the data located at the
+.I <offset>
+of
+.I <block>
+with
+.I <hex_string>
+
+.I <block>
+is the block number - given in decimal
+
+.I <offset>
+is the offset within that block - given in hexadecimal
+
+.I <hex_string>
+is an even-numbered string of hexadecimal digits to write to the disk
+
+.TP
+.BI b[tree] " <block> [<offset>]"
+.B * not implemented yet *
+ displays one node of the btree located at
+.I <offset>
+of
+.I <block>
+and enters a subcommand mode to navigate the btree
+
+.BI SUBCOMMANDS:
+ l => visit left sibling
+ m => modify current node
+ p => visit parent node
+ r => visit right sibling
+ [0-9] => visit the n'th child node
+ x => exit subcommand mode
+
+.TP
+.BI cb[blfsck]
+ displays the area used by ClearBadBlockList for communication with fsck
+
+.BI SUBCOMMANDS:
+ m => modify entries
+ x => exit subcommand mode
+
+.TP
+.BI dir[ectory] " <inode_number> [<file_set>]"
+ displays the directory entries at
+.I <inode_number>
+and enters subcommand mode
+
+.I <inode_number>
+is the directory's inode - given in decimal
+
+.I <file_set>
+currently must be zero
+
+.BI SUBCOMMANDS:
+ m => modify entries
+ x => exit subcommand mode
+
+.TP
+.BI d[isplay] " [<block> [<offset> [<format> [<count>]]]]"
+displays
+.I <count>
+objects located at the
+.I <offset>
+of
+.I <block>
+in
+.I <format>
+
+.I <block>
+is the block number - given in decimal
+
+.I <offset>
+is the offset within
+.I <block>
+- given in hexadecimal
+
+.I <format>
+is one of the following:
+ a => ascii
+ b => block allocation map
+ d => decimal
+ i => inode
+ I => inode allocation map
+ s => superblock
+ x => hexadecimal
+ X => extent allocation descriptor
+
+.I <count>
+is the number of objects to display - given in decimal
+
+.TP
+.BI dm[ap]
+ displays aggregate disk (block) map
+
+.BI SUBCOMMANDS
+ m => modify map fields
+ f => display free count
+ t => display tree levels
+ x => exit subcommand mode
+
+.TP
+.BI dt[ree] " <inode_number> [<file_set>]"
+ displays root of the directory btree located at
+.I <inode_number>
+and enters a subcommand mode to navigate the btree
+
+.I <inode_number>
+is the directory's inode - given in decimal
+
+.I <file_set>
+currently must be zero
+
+.BI SUBCOMMANDS
+ l => visit left sibling
+ m => modify current node
+ p => visit parent node (not parent directory)
+ r => visit right sibling
+ [0-9] => visit the n'th child node
+ x => exit subcommand mode
+
+.TP
+.BI fsckw[sphdr]
+ displays the header of the fsck workspace in the aggregate
+
+.BI SUBCOMMANDS:
+ m => modify entries
+ x => exit subcommand mode
+
+.TP
+.BI h[elp] " [<command>]"
+ displays help for
+.I <command>
+ if no command is given, all possible commands are displayed
+
+.TP
+.BI ia[g] " [<IAG_number>] [a | s | <file_set>]"
+ displays IAG information for
+.I <IAG_number>
+and enters subcommand mode
+
+.I <IAG_number>
+is given in decimal
+
+.I a
+is to use the primary aggregate inode table
+
+.I s
+is to use the secondary aggregate inode table
+
+.I <file_set>
+currently must be zero
+
+.BI SUBCOMMANDS
+ e => display/modify inode extents map
+ m => modify IAG
+ p => display/modify persistent map
+ w => display/modify working map
+ x => exit subcommand mode
+
+.TP
+.BI i[node] " [<inode_number>] [a | s | <file_set>]"
+ displays inode information for
+.I <inode_number>
+and enters subcommand mode
+
+.I <inode_number>
+is given in decimal
+
+.I a
+is to use the primary aggregate inode table
+
+.I s
+is to use the secondary aggregate inode table
+
+.I <file_set>
+currently must be zero
+
+.BI SUBCOMMANDS
+ a => display/modify inode's ACL
+ m => modify inode
+ x => exit subcommand mode
+
+.TP
+.BI logs[uper]
+ displays the journal log superblock and enters subcommand mode
+
+.BI SUBCOMMANDS
+ m => modify journal log superblock
+ x => exit subcommand mode
+
+.TP
+.BI q[uit]
+ exits jfs_debugfs
+
+.TP
+.BI se[t] " [<variable> <value>]"
+.B * not implemented yet *
+ set user-defined
+.I <variable>
+to
+.I <value>
+ if no arguments are given, displays all set variables
+
+.I <variable>
+must begin with an alphabetic character
+
+.TP
+.BI su[perblock] " [p | s]"
+ displays superblock data
+
+.I p
+displays the primary superblock
+
+.I s
+displays the secondary superblock
+
+.BI SUBCOMMANDS:
+ m => modify entries
+ x => exit subcommand mode
+
+.TP
+.BI s2p[erblock] " [p | s]"
+ displays alternate superblock data
+
+.I p
+displays the primary superblock
+
+.I s
+displays the secondary superblock
+
+.BI SUBCOMMANDS:
+ m => modify entries
+ x => exit subcommand mode
+
+.TP
+.BI u[nset] " <variable>"
+.B * not implemented yet *
+ deletes user-defined
+.I <variable>
+
+.TP
+.BI xt[ree] " <inode_number> [<file_set>]"
+ displays root of the non-directory btree located at
+.I <inode_number>
+and enters a subcommand mode to navigate the btree
+
+.I <inode_number>
+is the directory's inode - given in decimal
+
+.I <file_set>
+currently must be zero
+
+.BI SUBCOMMANDS
+ l => visit left sibling
+ m => modify current node
+ p => visit parent node (not parent directory)
+ r => visit right sibling
+ [0-9] => visit the n'th child node
+ x => exit subcommand mode
+
+.SH "REPORTING BUGS"
+.PP
+If you find a bug in
+.B JFS
+or
+.BR jfs_debugfs ,
+please report it via the bug tracking system ("Report Bugs" section) of the JFS project web site:
+.nf
+http://jfs.sourceforge.net/
+.fi
+.PP
+Please send as much pertinent information as possible, including the complete output of running
+.B jfs_fsck
+with the
+.B \-v
+and
+.B \-n
+options on the JFS device.
+
+.SH SEE ALSO
+.BR jfs_fsck (8),
+.BR jfs_mkfs (8),
+.BR jfs_fscklog (8),
+.BR jfs_logdump (8),
+.BR jfs_tune (8),
+
+.SH AUTHORS
+.nf
+Barry Arndt  (barndt@us.ibm.com)
+William Braswell, Jr.
+
+.fi
+.B jfs_debugfs
+is maintained by IBM.
+.nf
+See the JFS project web site for more details:
+http://jfs.sourceforge.net/
+.fi
