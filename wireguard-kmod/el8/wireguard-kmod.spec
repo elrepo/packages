@@ -2,7 +2,7 @@
 %define kmod_name		wireguard
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.3.1.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.10.1.el8_7}
 
 %{!?dist: %define dist .el8}
 
@@ -16,7 +16,7 @@ Epoch:	7
 
 Name:		kmod-%{kmod_name}
 Version:	1.0.20220627
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -191,6 +191,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat Jan 14 2023 Philip J Perry <phil@elrepo.org> 1.0.20220627-4
+- Rebuilt against kernel-4.18.0-425.10.1.el8_7
+  [http://lists.elrepo.org/pipermail/elrepo/2023-January/006336.html]
+
 * Thu Nov 10 2022 Philip J Perry <phil@elrepo.org> 1.0.20220627-3
 - Rebuilt for RHEL 8.7
 - Fix backport of ktime_get_coarse_boottime_ns on RHEL 8.7

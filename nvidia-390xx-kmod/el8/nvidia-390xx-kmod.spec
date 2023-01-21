@@ -2,13 +2,13 @@
 %define kmod_name		nvidia-390xx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.3.1.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.10.1.el8_7}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	390.157
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
 License:	Proprietary
@@ -227,6 +227,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sun Jan 15 2023 Philip J Perry <phil@elrepo.org> 390.157-2
+- Rebuilt against kernel-4.18.0-425.10.1.el8_7 due to a bug in the RHEL kernel
+  [https://access.redhat.com/solutions/6985596]
+
 * Sun Nov 27 2022 Philip J Perry <phil@elrepo.org> - 390.157-1
 - Updated to version 390.157
 

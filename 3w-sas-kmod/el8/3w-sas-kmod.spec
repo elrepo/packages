@@ -2,13 +2,13 @@
 %define kmod_name		3w-sas
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.3.1.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.10.1.el8_7}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	3.26.02.000
-Release:	8%{?dist}
+Release:	9%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -179,6 +179,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sun Jan 15 2023 Philip J Perry <phil@elrepo.org> 3.26.02.000-9
+- Rebuilt against kernel-4.18.0-425.10.1.el8_7 due to a bug in the RHEL kernel
+  [https://access.redhat.com/solutions/6985596]
+
 * Sun Nov 13 2022 Philip J Perry <phil@elrepo.org> 3.26.02.000-8
 - Rebuilt for RHEL 8.7
 
