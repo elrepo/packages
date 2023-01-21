@@ -1,38 +1,36 @@
 # Define the kmod package name here.
-%define kmod_name	be2net
+%define kmod_name		v4l2loopback
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
 %{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.10.1.el8_7}
 
 %{!?dist: %define dist .el8}
 
-Name:           kmod-%{kmod_name}
-Version:        12.0.0.0
-Release:        11%{?dist}
-Summary:        %{kmod_name} kernel module(s)
-Group:          System Environment/Kernel
-License:        GPLv2
-URL:            http://www.kernel.org/
+Name:		kmod-%{kmod_name}
+Version:	0.12.5
+Release:	6%{?dist}
+Summary:	%{kmod_name} kernel module(s)
+Group:		System Environment/Kernel
+License:	GPLv2
+URL:		https://github.com/umlaeute/v4l2loopback
 
-# Sources.
-Source0:  %{kmod_name}-%{version}.tar.gz
-Source5:  GPL-v2.0.txt
+# Sources
+Source0:	%{kmod_name}-%{version}.tar.gz
+Source5:	GPL-v2.0.txt
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
 
-%define __spec_install_post  /usr/lib/rpm/check-buildroot \
-                             /usr/lib/rpm/redhat/brp-ldconfig \
-                             /usr/lib/rpm/brp-compress \
-                             /usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump \
-                             /usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
-                             /usr/lib/rpm/brp-python-bytecompile "" 1 \
-                             /usr/lib/rpm/brp-python-hardlink \
-                             PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
+%define __spec_install_post	/usr/lib/rpm/check-buildroot \
+				/usr/lib/rpm/redhat/brp-ldconfig \
+				/usr/lib/rpm/brp-compress \
+				/usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump \
+ 				/usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
+				/usr/lib/rpm/brp-python-bytecompile "" 1 \
+				/usr/lib/rpm/brp-python-hardlink \
+				PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
 
 # Source code patches
-Patch0:   elrepo-be2net-enable-BE2-BE3-bug949.patch
-Patch1:   elrepo-be2net-extend-ringparam-el8_7.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -46,47 +44,44 @@ Patch1:   elrepo-be2net-extend-ringparam-el8_7.patch
 %global _use_internal_dependency_generator 0
 %global kernel_source() %{_usrsrc}/kernels/%{kmod_kernel_version}.%{_arch}
 
-BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
+BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
-ExclusiveArch:  x86_64
+ExclusiveArch:	x86_64
 
-BuildRequires:  elfutils-libelf-devel
-BuildRequires:  kernel-devel = %{kmod_kernel_version}
-BuildRequires:  kernel-abi-whitelists
-BuildRequires:  kernel-rpm-macros
-BuildRequires:  redhat-rpm-config
+BuildRequires:	elfutils-libelf-devel
+BuildRequires:	kernel-devel = %{kmod_kernel_version}
+BuildRequires:	kernel-abi-whitelists
+BuildRequires:	kernel-rpm-macros
+BuildRequires:	redhat-rpm-config
 
-Provides:       kernel-modules >= %{kmod_kernel_version}.%{_arch}
-Provides:       kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:	kernel-modules >= %{kmod_kernel_version}.%{_arch}
+Provides:	kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
 
-Requires(post): %{_sbindir}/weak-modules
-Requires(postun):       %{_sbindir}/weak-modules
-Requires:       kernel >= %{kmod_kernel_version}
+Requires(post):	%{_sbindir}/weak-modules
+Requires(postun):	%{_sbindir}/weak-modules
+Requires:	kernel >= %{kmod_kernel_version}
 
 %description
 This package provides the %{kmod_name} kernel module(s).
 It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
-
 %prep
-%setup -q -n %{kmod_name}-%{version}
+%setup -n %{kmod_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
-
-%patch0 -p1
-%patch1 -p1
+# % patch0 -p1
 
 %build
-%{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD CONFIG_BE2NET=m
+%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
 
 whitelist="/lib/modules/kabi-current/kabi_whitelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
-        # update greylist
-        nm -u ./$modules.ko | sed 's/.*U //' |  sed 's/^\.//' | sort -u | while read -r symbol; do
-                grep -q "^\s*$symbol\$" $whitelist || echo "$symbol" >> ./greylist
-        done
+	# update greylist
+	nm -u ./$modules.ko | sed 's/.*U //' |  sed 's/^\.//' | sort -u | while read -r symbol; do
+		grep -q "^\s*$symbol\$" $whitelist || echo "$symbol" >> ./greylist
+	done
 done
 sort -u greylist | uniq > greylist.txt
 
@@ -96,6 +91,7 @@ sort -u greylist | uniq > greylist.txt
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
+%{__install} -m 0644 %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 # strip the modules(s)
@@ -103,13 +99,13 @@ find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --str
 
 # Sign the modules(s)
 %if %{?_with_modsign:1}%{!?_with_modsign:0}
-	# If the module signing keys are not defined, define them here.
-	%{!?privkey: %define privkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.priv}
-	%{!?pubkey: %define pubkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.der}
-	for module in $(find %{buildroot} -type f -name \*.ko);
-		do %{_usrsrc}/kernels/%{kmod_kernel_version}.%{_arch}/scripts/sign-file \
-		sha256 %{privkey} %{pubkey} $module;
-	done
+# If the module signing keys are not defined, define them here.
+%{!?privkey: %define privkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.priv}
+%{!?pubkey: %define pubkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.der}
+for module in $(find %{buildroot} -type f -name \*.ko);
+do %{_usrsrc}/kernels/%{kmod_kernel_version}.%{_arch}/scripts/sign-file \
+sha256 %{privkey} %{pubkey} $module;
+done
 %endif
 
 %clean
@@ -160,8 +156,8 @@ exit 0
 
 %preun
 if rpm -q --filetriggers kmod 2> /dev/null| grep -q "Trigger for weak-modules call on kmod removal"; then
-        mkdir -p "%{kver_state_dir}"
-        touch "%{kver_state_file}"
+	mkdir -p "%{kver_state_dir}"
+	touch "%{kver_state_file}"
 fi
 
 mkdir -p "%{dup_state_dir}"
@@ -169,9 +165,9 @@ rpm -ql kmod-%{kmod_name}-%{version}-%{release}.%{_arch} | grep '\.ko$' > "%{dup
 
 %postun
 if rpm -q --filetriggers kmod 2> /dev/null| grep -q "Trigger for weak-modules call on kmod removal"; then
-        initramfs_opt="--no-initramfs"
+	initramfs_opt="--no-initramfs"
 else
-        initramfs_opt=""
+	initramfs_opt=""
 fi
 
 modules=( $(cat "%{dup_module_list}") )
@@ -189,43 +185,23 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Sun Jan 15 2023 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0-11
+* Sun Jan 15 2023 Akemi Yagi <toracat@elrepo.org> - 0.12.5-6
 - Rebuilt against kernel-4.18.0-425.10.1.el8_7 due to a bug in the RHEL kernel
   [https://access.redhat.com/solutions/6985596]
 
-* Sat Nov 19 2022 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0-10
-- Source code from RHEL 8.7 GA kernel 4.18.0-425.3.1.el8 
-- Built against RHEL kernel-4.18.0-425.3.1.el8
+* Tue Nov 08 2022 Akemi Yagi <toracat@elrepo.org> - 0.12.5-5
+- Reguilt against RHEL 8.7 kernel
 
-* Tue May 10 2022 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0-9
-- Source code updated to kernel-4.18.0-372.9.1.el8
-- Bbuilt against RHEL 8.6 GA kernel 4.18.0-372.9.1.el8
+* Thu May 12 2022 Akemi Yagi <toracat@elrepo.org> - 0.12.5-4
+- Rebuilt against RHEL 8.6 GA kernel 4.18.0-372.9.1.el8
 
-* Fri Nov 12 2021 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0-8
-- Rebuilt against RHEL 8.5 kernel
+* Fri Nov 12 2021 Akemi Yagi <toracat@elrepo.org> - 0.12.5-3
+_ Rebuilt against RHEL 8.5 kernel
 
-* Tue May 18 2021 Philip J Perry <phil@elrepo.org> 12.0.0.0.0-7
-- Rebuilt for RHEL 8.4
+* Tue May 18 2021 Philip J Perry <phil@elrepo.org> 0.12.5-2
+- Rebuilt against RHEL 8.4 kernel
 - Fix updating of initramfs image
   [https://elrepo.org/bugs/view.php?id=1060]
 
-* Mon Dec 14 2020 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0.0-6
-- Rebuilt against RHEL 8.3 kernel
-
-* Thu Jun 18 2020 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0.0-5
-- Re-enable both BE2 and BE3 that was disabled in error
-
-* Thu Apr 30 2020 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0.0-4
-- Rebuilt against RHEL 8.2 kernel
-- Source code updated to kernel-4.18.0-193
-
-* Fri Nov 09 2019 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0.0-3
-- Rebuilt against RHEL 8.1 kernel
-- Source code updated to kernel-4.18.0-147
-
-* Thu Oct 03 2019 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0.0-2
-- Enable both BE2 and BE3
-
-* Mon Sep 30 2019 Akemi Yagi <toracat@elrepo.org> - 12.0.0.0.0-1
-- Initial build for EL8
-- Built from the source for kernel-4.18.0-80.
+* Fri Mar 05 2021 Akemi Yagi <toracat@elrepo.org> - 0.12.5-1
+- Initial build for RHEL 8.3
