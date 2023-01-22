@@ -1,7 +1,7 @@
 /*
  *  nvidia-detect - A utility to detect NVIDIA graphics cards
  *
- *  Copyright (C) 2013-2022 Philip J Perry <phil@elrepo.org>
+ *  Copyright (C) 2013-2023 Philip J Perry <phil@elrepo.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@
 #endif
 
 #define PROGRAM_NAME		"nvidia-detect"
-#define NVIDIA_VERSION		"515.57"
+#define NVIDIA_VERSION		"525.85.05"
 
 #ifndef PCI_VENDOR_ID_INTEL
 #define PCI_VENDOR_ID_INTEL		0x8086
