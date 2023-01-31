@@ -8,8 +8,8 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	9.1.12
-Release:	2%{?dist}
+Version:	9.1.13
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -188,6 +188,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Jan 30 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.13-1.el8_7
+- Updated to 9.1.13
+
 * Sun Jan 15 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.12-2.el8_7
 - Rebuilt against kernel-4.18.0-425.10.1.el8_7 due to a bug in the RHEL kernel
   [https://access.redhat.com/solutions/6985596]
