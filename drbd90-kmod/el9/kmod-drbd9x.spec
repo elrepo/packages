@@ -8,7 +8,7 @@
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	9.1.12
+Version:	9.1.13
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -195,6 +195,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Jan 30 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.13-1.el9_1
+- Updated to 9.1.13
+
 * Mon Nov 14 2022 Akemi Yagi <toracat@elrepo.org> - 9.1.12.el9_1
 - Updated to 9.1.12
 - Rebuilt against RHEL 9.1 GA kernel 5.14.0-162.6.1.el9_1
