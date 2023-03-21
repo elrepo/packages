@@ -1,7 +1,7 @@
 %define real_name drbd-utils
 
 Name:    drbd9x-utils
-Version: 9.21.1
+Version: 9.23.1
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
@@ -204,6 +204,12 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Sat Mar 18 2023 Akemi Yagi <toracat@elrepo.org> - 9.23.1-1.el9
+- Updated to 9.23.1
+
+* Sat Dec 24 2022 Akemi Yagi <toracat@elrepo.org> - 9.22.0-1.el9
+- Updated to 9.22.0
+
 * Tue May 24 2022 Akemi Yagi <toracat@elrepo.org> - 9.21.1-1.el9
 - Renamed to drbd9x-utils
 - Initial build for RHEL 9
