@@ -3,13 +3,13 @@
 %define real_name 		drbd
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.10.1.el8_7}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.19.2.el8_7}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	9.1.13
-Release:	1%{?dist}
+Version:	9.1.14
+Release:	3%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -74,7 +74,8 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -n %{real_name}-%{version}
 # %patch0 -p1
-echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "override drbd * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "override drbd_transport_tcp * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 
 %build
 %{__make} %{?_smp_mflags} module KDIR=%{kernel_source}  KVER=%{kversion}
@@ -188,6 +189,15 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Apr 18 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.14-3.el8_7
+- Add missing drbd_transport_tcp to kmod-drbd90.conf
+
+* Fri Apr 14 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.14-2.el8_7
+- Rebuilt against kernel-425.19.2.el8_7
+
+* Sat Apr 08 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.14-1.el8_7
+- Updated to 9.1.14
+
 * Mon Jan 30 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.13-1.el8_7
 - Updated to 9.1.13
 
