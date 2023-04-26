@@ -10,7 +10,7 @@
 Name:		kmod-%{kmod_name}
 Version:	8.4.10
 %define 	original_release 1
-Release:	%{original_release}.21%{?dist}
+Release:	%{original_release}.22%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -76,7 +76,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 %setup -n %{real_name}-%{version}-%{original_release}
 
 # %%patch0 -p1
-echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "override %{real_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
 %{__make} -C %{kernel_source}  %{?_smp_mflags} modules M=$PWD  KVER=%{kversion} CONFIG_BLK_DEV_DRBD=m
@@ -190,6 +190,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Apr 25 2023 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1.22.el8_7
+- Correct .kmod-drbd90.conf
+
 * Sun Jan 15 2023 Akemi Yagi <toracat@elrepo.org> - 8.4.10-1.21.el8_7
 - Rebuilt against kernel-4.18.0-425.10.1.el8_7 due to a bug in the RHEL kernel
   [https://access.redhat.com/solutions/6985596]
