@@ -6,8 +6,8 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 9.1.13
-Release: 1%{?dist}
+Version: 9.1.14
+Release: 2%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: Distributed Redundant Block Device driver for Linux
@@ -36,7 +36,7 @@ high availability (HA) clusters.
 
 %prep
 %setup -n %{real_name}-%{version}
-echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "override %{real_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
 KSRC=%{_usrsrc}/kernels/%{kversion}
@@ -69,6 +69,12 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Apr 25 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.14-2.el7_9
+- Correct kmod-drbd90.conf
+
+* Sat Apr 08 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.14-1.el7_9
+- Updated to 9.1.14
+
 * Mon Jan 30 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.13-1.el7_9
 - Updated to 9.1.13
 
