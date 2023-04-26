@@ -8,7 +8,7 @@
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	9.1.13
+Version:	9.1.14
 Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -81,7 +81,8 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -n %{real_name}-%{version}
 
-echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "override %{real_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "override drbd_transport_tcp * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 
 %build
 %{__make} %{?_smp_mflags} module KDIR=%{kernel_source}  KVER=%{kversion}
@@ -195,6 +196,13 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sun Apr 23 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.14-2.el9_1
+- Correct kmod-drbd90.conf
+- 'override drbd_transport_tcp' added to kmod-drbd90.conf
+
+* Sat Apr 08 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.14-1.el9_1
+- Updated to 9.1.14
+
 * Wed Mar 29 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.13-2.el9_1
 - Rebuilt against kernel-5.14.0-162.22.2.el9_1
 
