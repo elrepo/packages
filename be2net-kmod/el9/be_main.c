@@ -744,9 +744,9 @@ void be_link_status_update(struct be_adapter *adapter, u8 link_status)
 static int be_gso_hdr_len(struct sk_buff *skb)
 {
 	if (skb->encapsulation)
-		return skb_inner_transport_offset(skb) +
-		       inner_tcp_hdrlen(skb);
-	return skb_transport_offset(skb) + tcp_hdrlen(skb);
+		return skb_inner_tcp_all_headers(skb);
+
+	return skb_tcp_all_headers(skb);
 }
 
 static void be_tx_stats_update(struct be_tx_obj *txo, struct sk_buff *skb)
@@ -2989,8 +2989,7 @@ static int be_evt_queues_create(struct be_adapter *adapter)
 			return -ENOMEM;
 		cpumask_set_cpu(cpumask_local_spread(i, numa_node),
 				eqo->affinity_mask);
-		netif_napi_add(adapter->netdev, &eqo->napi, be_poll,
-			       BE_NAPI_WEIGHT);
+		netif_napi_add(adapter->netdev, &eqo->napi, be_poll);
 	}
 	return 0;
 }
@@ -5211,7 +5210,7 @@ static void be_netdev_init(struct net_device *netdev)
 
 	netdev->flags |= IFF_MULTICAST;
 
-	netif_set_gso_max_size(netdev, BE_MAX_GSO_SIZE - ETH_HLEN);
+	netif_set_tso_max_size(netdev, BE_MAX_GSO_SIZE - ETH_HLEN);
 
 	netdev->netdev_ops = &be_netdev_ops;
 
