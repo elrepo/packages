@@ -3,13 +3,13 @@
 %define extid 22_03_04
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-162.6.1.el9_1}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-284.11.1.el9_2}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	1.5.6
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	HighPoint
@@ -196,6 +196,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue May 09 2023 Philip J Perry <phil@elrepo.org> - 1.5.6-3
+- Rebuilt for RHEL 9.2 
+
 * Tue Nov 15 2022 Philip J Perry <phil@elrepo.org> - 1.5.6-2
 - Rebuilt for RHEL 9.1
 - Fix bdev->bd_openers is of type atomic_t

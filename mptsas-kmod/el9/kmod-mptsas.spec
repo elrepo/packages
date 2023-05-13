@@ -2,13 +2,13 @@
 %define kmod_name	mptsas
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-162.6.1.el9_1}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-284.11.1.el9_2}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	3.04.20
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -203,6 +203,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue May 09 2023 Philip J Perry <phil@elrepo.org> - 3.04.20-4
+- Rebuilt for RHEL 9.2 
+- Source updated from RHEL 9.2 kernel
+
 * Sat Jan 14 2023 Philip J Perry <phil@elrepo.org> - 3.04.20-3
 - Added mptctl module [https://elrepo.org/bugs/view.php?id=1315]
 
