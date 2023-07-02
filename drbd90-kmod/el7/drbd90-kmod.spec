@@ -6,8 +6,8 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 9.1.14
-Release: 2%{?dist}
+Version: 9.1.15
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
 Summary: Distributed Redundant Block Device driver for Linux
@@ -69,6 +69,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Jun 06 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.15.1.el7_9
+- Version updated to 9.1.15.1
+
 * Tue Apr 25 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.14-2.el7_9
 - Correct kmod-drbd90.conf
 
