@@ -2,12 +2,12 @@
 %define kmod_name	hfsplus
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-70.13.1.el9_0}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-284.11.1.el9_2}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	0.4
+Version:	0.6
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -188,6 +188,15 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Jun 29 2023 Philip J Perry <phil@elrepo.org> - 0.6-1
+- Rebuilt for RHEL 9.2 
+- Source updated from RHEL 9.2 kernel
+  [https://elrepo.org/bugs/view.php?id=1360]
+
+* Tue Nov 15 2022 Philip J Perry <phil@elrepo.org> - 0.5-1
+- Rebuilt for RHEL 9.1
+- Source updated from RHEL 9.1 kernel
+
 * Sat Aug 27 2022 Akemi Yagi <toracat@elrepo.org> - 0.4-1
 - Source code from kernel-5.15.63
 
