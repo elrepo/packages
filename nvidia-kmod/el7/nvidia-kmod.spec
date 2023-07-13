@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 525.116.04
+Version: 535.54.03
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -66,7 +66,7 @@ popd
 pushd _kmod_build_
 # Install GPU System Processor (GSP) firmware
 %{__install} -d %{buildroot}/lib/firmware/nvidia/%{version}/
-%{__install} -p -m 0755 firmware/gsp_ad10x.bin %{buildroot}/lib/firmware/nvidia/%{version}/gsp_ad10x.bin
+%{__install} -p -m 0755 firmware/gsp_ga10x.bin %{buildroot}/lib/firmware/nvidia/%{version}/gsp_ga10x.bin
 %{__install} -p -m 0755 firmware/gsp_tu10x.bin %{buildroot}/lib/firmware/nvidia/%{version}/gsp_tu10x.bin
 popd
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
@@ -89,6 +89,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Jun 25 2023 Philip J Perry <phil@elrepo.org> - 535.54.03-1
+- Updated to version 535.54.03
+
 * Wed May 10 2023 Philip J Perry <phil@elrepo.org> - 525.116.04-1
 - Updated to version 525.116.04
 

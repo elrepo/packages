@@ -2,12 +2,12 @@
 %define kmod_name		nvidia
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.10.1.el8_7}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-477.10.1.el8_8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	525.116.04
+Version:	535.54.03
 Release:	1%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
@@ -116,7 +116,7 @@ popd
 pushd _kmod_build_
 # Install GPU System Processor (GSP) firmware
 %{__install} -d %{buildroot}/lib/firmware/nvidia/%{version}/
-%{__install} -p -m 0755 firmware/gsp_ad10x.bin %{buildroot}/lib/firmware/nvidia/%{version}/gsp_ad10x.bin
+%{__install} -p -m 0755 firmware/gsp_ga10x.bin %{buildroot}/lib/firmware/nvidia/%{version}/gsp_ga10x.bin
 %{__install} -p -m 0755 firmware/gsp_tu10x.bin %{buildroot}/lib/firmware/nvidia/%{version}/gsp_tu10x.bin
 popd
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
@@ -237,6 +237,12 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Sun Jun 25 2023 Philip J Perry <phil@elrepo.org> - 535.54.03-1
+- Updated to version 535.54.03
+
+* Tue May 16 2023 Philip J Perry <phil@elrepo.org> 525.116.04-2
+- Rebuilt for RHEL 8.8
+
 * Wed May 10 2023 Philip J Perry <phil@elrepo.org> - 525.116.04-1
 - Updated to version 525.116.04
 

@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/525.116.04/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/535.54.03/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 
@@ -8,7 +8,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	525.116.04
+Version:	535.54.03
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -197,11 +197,10 @@ pushd 32
 %{__install} -p -m 0755 libnvidia-api.so.1 $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-cfg.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %endif
-%{__install} -p -m 0755 libnvidia-compiler.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-eglcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %ifarch x86_64
 %{__install} -p -m 0755 libnvidia-egl-gbm.so.1.1.0 $RPM_BUILD_ROOT%{_libdir}/
-%{__install} -p -m 0755 libnvidia-egl-wayland.so.1.1.10 $RPM_BUILD_ROOT%{_libdir}/
+%{__install} -p -m 0755 libnvidia-egl-wayland.so.1.1.11 $RPM_BUILD_ROOT%{_libdir}/
 %endif
 %{__install} -p -m 0755 libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-fbc.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
@@ -218,6 +217,12 @@ pushd 32
 %{__install} -p -m 0755 libnvidia-nvvm.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-opencl.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-opticalflow.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
+%ifarch x86_64
+# Required for RHEL7 and RHEL8
+%{__install} -p -m 0755 libnvidia-pkcs11.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
+# Required on RHEL9
+## %{__install} -p -m 0755 libnvidia-pkcs11-openssl3.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
+%endif
 %{__install} -p -m 0755 libnvidia-ptxjitcompiler.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %ifarch x86_64
 %{__install} -p -m 0755 libnvidia-rtcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
@@ -265,8 +270,8 @@ popd
 %{__ln_s} libnvidia-cfg.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-cfg.so.1
 %{__ln_s} libnvidia-egl-gbm.so.1.1.0 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-gbm.so
 %{__ln_s} libnvidia-egl-gbm.so.1.1.0 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-gbm.so.1
-%{__ln_s} libnvidia-egl-wayland.so.1.1.10 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so
-%{__ln_s} libnvidia-egl-wayland.so.1.1.10 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so.1
+%{__ln_s} libnvidia-egl-wayland.so.1.1.11 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so
+%{__ln_s} libnvidia-egl-wayland.so.1.1.11 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so.1
 %endif
 %{__ln_s} libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-encode.so
 %{__ln_s} libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-encode.so.1
@@ -324,6 +329,8 @@ desktop-file-install \
 %{__install} -p -m 0644 nvidia-application-profiles-%{version}-rc $RPM_BUILD_ROOT%{_datadir}/nvidia/
 # added in 340.24
 %{__install} -p -m 0644 nvidia-application-profiles-%{version}-key-documentation $RPM_BUILD_ROOT%{_datadir}/nvidia/
+# Install data file for nvoptix
+%{__install} -p -m 0644 nvoptix.bin $RPM_BUILD_ROOT%{_datadir}/nvidia/
 
 #Install the output class config file. Requires xorg-x11-server-Xorg >= 1.16 and kernel >=3.9 with CONFIG_DRM enabled
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d/
@@ -430,6 +437,7 @@ fi ||:
 %{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
 %dir %{_datadir}/nvidia/
 %{_datadir}/nvidia/nvidia-application-profiles-*
+%{_datadir}/nvidia/*.bin
 %{_datadir}/X11/xorg.conf.d/nvidia-drm-outputclass.conf
 %{_bindir}/nvidia-bug-report.sh
 %{_bindir}/nvidia-cuda-mps-control
@@ -461,6 +469,9 @@ fi ||:
 %endif
 
 %changelog
+* Sun Jun 25 2023 Philip J Perry <phil@elrepo.org> - 535.54.03-1
+- Updated to version 535.54.03
+
 * Wed May 10 2023 Philip J Perry <phil@elrepo.org> - 525.116.04-1
 - Updated to version 525.116.04
 
