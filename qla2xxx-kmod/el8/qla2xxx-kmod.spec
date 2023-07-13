@@ -2,13 +2,13 @@
 %define kmod_name		qla2xxx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.10.1.el8_7}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-477.10.1.el8_8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	10.02.07.400
-Release:	2%{?dist}
+Version:	10.02.07.900
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,7 +19,7 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0:		elrepo-qla2xxx-revert_rhel_differences.el8.6.patch
+Patch0:		elrepo-qla2xxx-revert_rhel_differences.el8.8.patch
 Patch1:		elrepo-qla2xxx-revert-removed-devices.el8.3.patch
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
@@ -184,6 +184,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Jul 12 2023 Philip J Perry <phil@elrepo.org> 10.02.07.900-1
+- Rebuilt for RHEL 8.8
+- Source code updated from RHEL kernel-4.18.0-477.10.1.el8_8
+  [https://elrepo.org/bugs/view.php?id=1363]
+
 * Sun Jan 15 2023 Philip J Perry <phil@elrepo.org> 10.02.07.400-2
 - Rebuilt against kernel-4.18.0-425.10.1.el8_7 due to a bug in the RHEL kernel
   [https://access.redhat.com/solutions/6985596]

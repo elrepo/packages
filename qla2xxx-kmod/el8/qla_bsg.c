@@ -2437,19 +2437,23 @@ qla2x00_get_flash_image_status(struct bsg_job *bsg_job)
 	qla27xx_get_active_image(vha, &active_regions);
 	regions.global_image = active_regions.global;
 
+	if (IS_QLA27XX(ha))
+		regions.nvme_params = QLA27XX_PRIMARY_IMAGE;
+
 	if (IS_QLA28XX(ha)) {
 		qla28xx_get_aux_images(vha, &active_regions);
 		regions.board_config = active_regions.aux.board_config;
 		regions.vpd_nvram = active_regions.aux.vpd_nvram;
 		regions.npiv_config_0_1 = active_regions.aux.npiv_config_0_1;
 		regions.npiv_config_2_3 = active_regions.aux.npiv_config_2_3;
+		regions.nvme_params = active_regions.aux.nvme_params;
 	}
 
 	ql_dbg(ql_dbg_user, vha, 0x70e1,
-	    "%s(%lu): FW=%u BCFG=%u VPDNVR=%u NPIV01=%u NPIV02=%u\n",
+	    "%s(%lu): FW=%u BCFG=%u VPDNVR=%u NPIV01=%u NPIV02=%u NVME_PARAMS=%u\n",
 	    __func__, vha->host_no, regions.global_image,
 	    regions.board_config, regions.vpd_nvram,
-	    regions.npiv_config_0_1, regions.npiv_config_2_3);
+	    regions.npiv_config_0_1, regions.npiv_config_2_3, regions.nvme_params);
 
 	sg_copy_from_buffer(bsg_job->reply_payload.sg_list,
 	    bsg_job->reply_payload.sg_cnt, &regions, sizeof(regions));
@@ -2976,6 +2980,13 @@ qla24xx_bsg_timeout(struct bsg_job *bsg_job)
 
 	ql_log(ql_log_info, vha, 0x708b, "%s CMD timeout. bsg ptr %p.\n",
 	    __func__, bsg_job);
+
+	if (qla2x00_isp_reg_stat(ha)) {
+		ql_log(ql_log_info, vha, 0x9007,
+		    "PCI/Register disconnect.\n");
+		qla_pci_set_eeh_busy(vha);
+	}
+
 	/* find the bsg job from the active list of commands */
 	spin_lock_irqsave(&ha->hardware_lock, flags);
 	for (que = 0; que < ha->max_req_queues; que++) {
@@ -2993,7 +3004,8 @@ qla24xx_bsg_timeout(struct bsg_job *bsg_job)
 			    sp->u.bsg_job == bsg_job) {
 				req->outstanding_cmds[cnt] = NULL;
 				spin_unlock_irqrestore(&ha->hardware_lock, flags);
-				if (ha->isp_ops->abort_command(sp)) {
+
+				if (!ha->flags.eeh_busy && ha->isp_ops->abort_command(sp)) {
 					ql_log(ql_log_warn, vha, 0x7089,
 					    "mbx abort_command failed.\n");
 					bsg_reply->result = -EIO;
