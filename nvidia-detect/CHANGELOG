@@ -1,3 +1,7 @@
+17 Jul 2023
+	Only perform Xorg compatibility checks when -x is specified
+	[https://elrepo.org/bugs/view.php?id=1370]
+
 03 Feb 2022
 	Add support for 470.xx legacy driver
 

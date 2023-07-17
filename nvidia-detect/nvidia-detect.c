@@ -531,17 +531,17 @@ int main(int argc, char *argv[])
 
 	/* Check Xorg ABI compatibility */
 	if (ret > 0) {
-		if (opt_xorg)
+		if (opt_xorg) {
 			printf("\nChecking ABI compatibility with Xorg Server...\n");
 
-		abi_compat = check_xorg_abi_compat(ret);
+			abi_compat = check_xorg_abi_compat(ret);
 
-		if (!abi_compat)
-			fprintf(stderr, "WARNING: The driver for this device "
-			"does not support the current Xorg version\n");
-		else
-			if (opt_xorg)
-				printf("ABI compatibility check passed\n"); 
+			if (!abi_compat)
+				fprintf(stderr, "WARNING: The driver for this device "
+				"does not support the current Xorg version\n");
+			else
+				printf("ABI compatibility check passed\n");
+		}
 	}
 
 	/* Check for Optimus hardware */
