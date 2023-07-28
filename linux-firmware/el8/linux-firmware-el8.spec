@@ -1,23 +1,23 @@
 ### ELRepo -- begin
 ###
-### MAIN is c761dbe804f903cc2df81f251d367cca285eca06
-### CHECKOUT is c761dbe8
-### DSTAMP is 20230317
+### MAIN is b6ea35ff6b9869470a0c68813f1668acb3d356a8
+### CHECKOUT is b6ea35ff
+### DSTAMP is 20230725
 ###
-### linux-firmware-20230317.tar.xz
+### linux-firmware-20230725.tar.xz
 ###
 ### ELRepo -- end
 
-%global checkout c761dbe8
+%global checkout b6ea35ff
 
-%global firmware_release 110.1
+%global firmware_release 110.2
 
 %global _firmwarepath	/usr/lib/firmware
 
 %define _binaries_in_noarch_packages_terminate_build 0
 
 Name:		linux-firmware
-Version:	20230317
+Version:	20230725
 Release:	%{firmware_release}.git%{checkout}%{?dist}
 Summary:	Firmware files used by the Linux kernel
 License:	GPL+ and GPLv2+ and MIT and Redistributable, no modification permitted
@@ -431,6 +431,10 @@ sed -e 's/^/%%dir /' linux-firmware.dirs >> linux-firmware.files
 %config(noreplace) %{_firmwarepath}/netronome/nic_AMDA*
 
 %changelog
+* Wed Jul 26 2023 Akemi Yagi <toracat@elrepo.org> - 20230725-110.2.gitb6ea35ff
+- Updated to the latest from the upstream linux-firmware git tree at
+- kernel.org as of this date. [https://elrepo.org/bugs/view.php?id=1374]
+
 * Fri Mar 17 2023 Alan Bartlett <ajb@elrepo.org> -- 20230317-110.1gitc761dbe8
 - Updated to the latest from the upstream linux-firmware git tree at
 - kernel.org as of this date. [https://elrepo.org/bugs/view.php?id=1329]

@@ -1,17 +1,17 @@
 ### ELRepo -- begin
-# MAIN is ee0667aa201e7d725ec87b1e4cf08de1d748d64f
-# CHECKOUT is ee0667aa
-# DSTAMP is 20220301
+# MAIN is b6ea35ff6b9869470a0c68813f1668acb3d356a8
+# CHECKOUT is b6ea35ff
+# DSTAMP is 20230725
 ### ELRepo -- end
 
-%global checkout ee0667aa
-%global firmware_release 80.3
+%global checkout b6ea35ff
+%global firmware_release 81
 
 %global _firmwarepath /usr/lib/firmware
 %define _binaries_in_noarch_packages_terminate_build 0
 
 Name:		linux-firmware
-Version:	20220301
+Version:	20230725
 Release:	%{firmware_release}.git%{checkout}%{?dist}
 Summary:	Firmware files used by the Linux kernel
 License:	GPL+ and GPLv2+ and MIT and Redistributable, no modification permitted
@@ -439,20 +439,40 @@ fi
 ### ELRepo -- begin
 # Now list all the excluded Intel files that
 # are not placed in their own subpackage.
-%{_firmwarepath}/iwlwifi-so-a0-gf-a0-64.ucode
-%{_firmwarepath}/iwlwifi-so-a0-gf-a0-67.ucode
-%{_firmwarepath}/iwlwifi-so-a0-gf-a0-68.ucode
+%{_firmwarepath}/iwlwifi-so-a0-gf-a0-72.ucode
+%{_firmwarepath}/iwlwifi-so-a0-gf-a0-73.ucode
+%{_firmwarepath}/iwlwifi-so-a0-gf-a0-74.ucode
+%{_firmwarepath}/iwlwifi-so-a0-gf-a0-77.ucode
+%{_firmwarepath}/iwlwifi-so-a0-gf-a0-78.ucode
+%{_firmwarepath}/iwlwifi-so-a0-gf-a0-79.ucode
+%{_firmwarepath}/iwlwifi-so-a0-gf-a0-81.ucode
+%{_firmwarepath}/iwlwifi-so-a0-gf-a0-83.ucode
 %{_firmwarepath}/iwlwifi-so-a0-gf-a0.pnvm
-%{_firmwarepath}/iwlwifi-so-a0-gf4-a0-67.ucode
-%{_firmwarepath}/iwlwifi-so-a0-gf4-a0-68.ucode
+%{_firmwarepath}/iwlwifi-so-a0-gf4-a0-72.ucode
+%{_firmwarepath}/iwlwifi-so-a0-gf4-a0-73.ucode
+%{_firmwarepath}/iwlwifi-so-a0-gf4-a0-74.ucode
+%{_firmwarepath}/iwlwifi-so-a0-gf4-a0-77.ucode
+%{_firmwarepath}/iwlwifi-so-a0-gf4-a0-78.ucode
+%{_firmwarepath}/iwlwifi-so-a0-gf4-a0-79.ucode
+%{_firmwarepath}/iwlwifi-so-a0-gf4-a0-81.ucode
+%{_firmwarepath}/iwlwifi-so-a0-gf4-a0-83.ucode
 %{_firmwarepath}/iwlwifi-so-a0-gf4-a0.pnvm
-%{_firmwarepath}/iwlwifi-so-a0-hr-b0-64.ucode
-%{_firmwarepath}/iwlwifi-so-a0-hr-b0-68.ucode
-%{_firmwarepath}/iwlwifi-so-a0-jf-b0-64.ucode
-%{_firmwarepath}/iwlwifi-so-a0-jf-b0-68.ucode
+%{_firmwarepath}/iwlwifi-so-a0-hr-b0-72.ucode
+%{_firmwarepath}/iwlwifi-so-a0-hr-b0-73.ucode
+%{_firmwarepath}/iwlwifi-so-a0-hr-b0-74.ucode
+%{_firmwarepath}/iwlwifi-so-a0-hr-b0-77.ucode
+%{_firmwarepath}/iwlwifi-so-a0-hr-b0-79.ucode
+%{_firmwarepath}/iwlwifi-so-a0-hr-b0-81.ucode
+%{_firmwarepath}/iwlwifi-so-a0-jf-b0-72.ucode
+%{_firmwarepath}/iwlwifi-so-a0-jf-b0-73.ucode
+%{_firmwarepath}/iwlwifi-so-a0-jf-b0-74.ucode
+%{_firmwarepath}/iwlwifi-so-a0-jf-b0-77.ucode
 ### ELRepo -- end
 
 %changelog
+* Wed Jul 26 2023 Akemi Yagi <toracat@elrepo.org> - 20230725-81.gitb6ea35ff
+- Updated to the latest upstream (kernel.org) linux-firmware as of this date.
+
 * Tue Mar 08 2022 Alan Bartlett <ajb@elrepo.org> - 20220301-80.3.gitee0667aa
 - Updated to the latest upstream (kernel.org) linux-firmware as of this date.
 - Do not obsolete the cx18-firmware and ivtv-firmware packages.
