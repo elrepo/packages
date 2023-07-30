@@ -23,7 +23,7 @@
 /*
         Version Information
 */
-#define DRIVER_VERSION "v1.6.7s"
+#define DRIVER_VERSION "v1.6.8s"
 #define DRIVER_AUTHOR "CAEN Computing Division  support.computing@caen.it"
 #define DRIVER_DESC "CAEN A3818 PCI Express CONET2 board driver"
 
@@ -41,7 +41,7 @@
 #include <linux/pci.h>
 #if LINUX_VERSION_CODE >= VERSION(2,6,26)
 #include <linux/vmalloc.h>
-#if LINUX_VERSION_CODE < VERSION(4,18,0)
+#ifdef CAEN_ASPM_EXISTS 
 #include <linux/pci-aspm.h>
 #endif
 #endif
@@ -53,7 +53,7 @@
 #include <linux/delay.h>
 #include <linux/ioctl.h>
 #include <linux/sched.h>
-#include "../include/a3818.h"
+#include "a3818.h"
 
 /*
         ----------------------------------------------------------------------

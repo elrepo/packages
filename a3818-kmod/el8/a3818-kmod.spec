@@ -2,12 +2,12 @@
 %define kmod_name a3818
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-348.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-477.13.1.el8_8}
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
-Version:        1.6.7
+Version:        1.6.8
 Release:        1%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
@@ -188,6 +188,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat Jul 29 2023 Akemi Yagi <toracat@elrepo.org> - 1.6.8-1
+- Update version to 1.6.8
+- Built against the el8.8 kernel
+
 * Fri Jan 07 2022 Akemi Yagi <toracat@elrepo.org> - 1.6.7-1
 - Initial build for EL8
   [https://elrepo.org/bugs/view.php?id=1182]
