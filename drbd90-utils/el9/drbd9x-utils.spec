@@ -1,7 +1,7 @@
 %define real_name drbd-utils
 
 Name:    drbd9x-utils
-Version: 9.24.0
+Version: 9.25.0
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
@@ -10,7 +10,7 @@ URL:     http://www.drbd.org/
 
 Source0:   http://oss.linbit.com/drbd/drbd-utils-%{version}.tar.gz
 
-Patch1: elrepo-selinux-bug695.patch
+Patch1: elrepo-selinux-bug695v2.patch
 
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: flex
@@ -204,6 +204,10 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Sun Jul 30 2023 Akemi Yagi <toracat@elrepo.org> - 9.25.0-1.el9
+- Updated to 9.25.0-1
+- elrepo patch updated to v2.
+
 * Fri Jun 16 2023 Akemi Yagi <toracat@elrepo.org> - 9.24.0-1.el9
 - Updated to 9.24.0
 
