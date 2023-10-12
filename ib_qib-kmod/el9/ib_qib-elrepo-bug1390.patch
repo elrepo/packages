@@ -1,0 +1,38 @@
+ib_qib-elrepo-bug1390.patch
+
+https://elrepo.org/bugs/view.php?id=1390
+
+commit 32f57cb1b2c8d6f20aefec7052b1bfeb7e3b69d4
+Author: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Date:   Thu Feb 17 08:59:32 2022 -0500
+
+    IB/qib: Fix duplicate sysfs directory name
+    
+    The qib driver load has been failing with the following message:
+    
+      sysfs: cannot create duplicate filename '/devices/pci0000:80/0000:80:02.0/0000:81:00.0/infiniband/qib0/ports/1/linkcontrol'
+    
+    The patch below has two "linkcontrol" names causing the duplication.
+    
+    Fix by using the correct "diag_counters" name on the second instance.
+    
+    Fixes: 4a7aaf88c89f ("RDMA/qib: Use attributes for the port sysfs")
+    Link: https://lore.kernel.org/r/1645106372-23004-1-git-send-email-mike.marciniszyn@cornelisnetworks.com
+    Cc: <stable@vger.kernel.org>
+    Reviewed-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+    Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+    Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+
+diff --git a/drivers/infiniband/hw/qib/qib_sysfs.c b/drivers/infiniband/hw/qib/qib_sysfs.c
+index 0a3b281..41c2729 100644
+--- a/qib_sysfs.c
++++ b/qib_sysfs.c
+@@ -541,7 +541,7 @@ static ssize_t rc_delayed_comp_store(struct ib_device *ibdev, u32 port_num,
+ };
+ 
+ static const struct attribute_group port_diagc_group = {
+-	.name = "linkcontrol",
++	.name = "diag_counters",
+ 	.attrs = port_diagc_attributes,
+ };
+ 
