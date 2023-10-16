@@ -2,13 +2,13 @@
 %define kmod_name	hello-1
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-55.el9}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-284.11.1.el9_2}
 
 %{!?dist: %define dist .el9}
 
 Name:           kmod-%{kmod_name}
 Version:        0.0
-Release:        7%{?dist}
+Release:        13%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -186,6 +186,21 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Oct 04 2023 Akemi Yagi <toracat@elrepo.org> - 0.0-13
+- Rebuilt against the RHEL 9.2 GA kernel 5.14.0-284.11.1.el9_2
+
+* Sat Aug 13 2022 Akemi Yagi <toracat@elrepo.org> - 0.0-12
+- rebuilt
+
+* Fri Aug 12 2022 Akemi Yagi - 0.0-10
+- rebuilt
+
+* Fri Aug 12 2022 Akemi Yagi <toracat@elrepo.org> - 0.0-9
+- test test test
+
+* Sat Jul 09 2022 Akemi Yagi <toracat@elrepo.org> - 0.0-8
+- Rebuilt against the RHEL 9.0 GA kernel 5.14.0-70.13.1.el9_0
+
 * Fri Apr 22 2022 Akemi Yagi <toracat@elrepo.org> - 0.0-7
 - spec file improvement
 
@@ -196,7 +211,7 @@ exit 0
 * Sun Feb 13 2022 Akemi Yagi <toracat@elrepo.org> - 0.0-5
 - Rebuilt against kernel-5.14.0-55.el9
 
-* Tue Jan 31 2022 Akemi Yagi <toracat@elrepo.org> - 0.0-4
+* Mon Jan 31 2022 Akemi Yagi <toracat@elrepo.org> - 0.0-4
 - Rebuilt against kernel-5.14.0-47.el9
 
 * Tue Jan 18 2022 Akemi Yagi <toracat@elrepo.org> - 0.0-3
