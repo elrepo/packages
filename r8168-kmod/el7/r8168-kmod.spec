@@ -8,7 +8,7 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 8.050.03
+Version: 8.052.01
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -81,6 +81,12 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Oct 22 2023 Akemi Yagi <toracat@elrepo.org> - 8.052.01-1
+- Updated to version 8.052.01
+
+* Wed Dec 07 2022 Akemi Yagi <toracat@elrepo.org> - 8.051.02-1
+- Updated to version 8.051.02
+
 * Wed Sep 21 2022 Akemi Yagi <toracat@elrepo.org> - 8.050.03-1
 - Updated to version 8.050.03
 - Enabled -DCONFIG_DYNAMIC_ASPM

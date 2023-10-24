@@ -1,6 +1,7 @@
---- a/src/r8168.h	2022-05-17 02:12:20.000000000 -0700
-+++ b/src/r8168.h.new	2022-09-21 15:22:04.683937915 -0700
-@@ -49,7 +49,7 @@ typedef int netdev_tx_t;
+diff -uNpr r8168-8.052.01/src/r8168.h r8168-8.052.01.new/src/r8168.h
+--- a/src/r8168.h	2023-09-26 07:29:21.000000000 -0700
++++ b/src/r8168.h	2023-10-22 08:57:22.900958671 -0700
+@@ -61,7 +61,7 @@ typedef int netdev_tx_t;
  #define device_set_wakeup_enable(dev, val)	do {} while (0)
  #endif
  
@@ -9,19 +10,22 @@
  static inline void ether_addr_copy(u8 *dst, const u8 *src)
  {
          u16 *a = (u16 *)dst;
---- a/src/r8168_n.c	2022-05-17 02:12:17.000000000 -0700
-+++ b/src/r8168_n.c.new	2022-09-21 15:32:28.731303592 -0700
-@@ -575,7 +575,9 @@ static void rtl8168_tx_timeout(struct ne
+diff -uNpr r8168-8.052.01/src/r8168_n.c r8168-8.052.01.new/src/r8168_n.c
+--- a/src/r8168_n.c	2023-09-26 07:26:06.000000000 -0700
++++ b/src/r8168_n.c	2023-10-22 09:08:31.036613805 -0700
+@@ -604,9 +604,10 @@ static irqreturn_t rtl8168_interrupt_msi
+ static irqreturn_t rtl8168_interrupt_msix(int irq, void *dev_instance);
  #endif
- static struct net_device_stats *rtl8168_get_stats(struct net_device *dev);
- static int rtl8168_rx_interrupt(struct net_device *, struct rtl8168_private *, napi_budget);
+ static void rtl8168_wait_for_quiescence(struct net_device *dev);
 +#if RHEL_MAJOR != 7
  static int rtl8168_change_mtu(struct net_device *dev, int new_mtu);
 +#endif /* RHEL_MAJOR != 7 */
  static void rtl8168_down(struct net_device *dev);
- 
+-
  static int rtl8168_set_mac_address(struct net_device *dev, void *p);
-@@ -26765,7 +26767,9 @@ static const struct net_device_ops rtl81
+ void rtl8168_rar_set(struct rtl8168_private *tp, const u8 *addr);
+ static void rtl8168_desc_addr_fill(struct rtl8168_private *);
+@@ -28213,7 +28214,9 @@ static const struct net_device_ops rtl81
          .ndo_get_stats      = rtl8168_get_stats,
          .ndo_start_xmit     = rtl8168_start_xmit,
          .ndo_tx_timeout     = rtl8168_tx_timeout,
@@ -31,15 +35,15 @@
          .ndo_set_mac_address    = rtl8168_set_mac_address,
  #if LINUX_VERSION_CODE < KERNEL_VERSION(5,15,0)
          .ndo_do_ioctl       = rtl8168_do_ioctl,
-@@ -28361,6 +28365,7 @@ rtl8168_hw_start(struct net_device *dev)
-         rtl8168_enable_hw_interrupt(tp);
+@@ -30117,6 +30120,7 @@ rtl8168_hw_start(struct net_device *dev)
+         rtl8168_lib_reset_complete(tp);
  }
  
 +#if RHEL_MAJOR != 7
  static int
  rtl8168_change_mtu(struct net_device *dev,
                     int new_mtu)
-@@ -28420,6 +28425,7 @@ out:
+@@ -30166,6 +30170,7 @@ out:
  err_out:
          return ret;
  }
@@ -47,15 +51,15 @@
  
  static inline void
  rtl8168_make_unusable_by_asic(struct RxDesc *desc)
-@@ -29483,9 +29489,9 @@ process_pkt:
+@@ -31502,9 +31507,9 @@ rtl8168_rx_interrupt(struct net_device *
  
-                         if (rtl8168_rx_vlan_skb(tp, desc, skb) < 0)
-                                 rtl8168_rx_skb(tp, skb);
+                 if (rtl8168_rx_vlan_skb(tp, desc, skb) < 0)
+                         rtl8168_rx_skb(tp, skb, ring_index);
 -#if LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0)
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0) && RHEL_MAJOR != 7
-                         dev->last_rx = jiffies;
+                 dev->last_rx = jiffies;
 -#endif //LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0)
 +#endif //LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0) && RHEL_MAJOR != 7
-                         RTLDEV->stats.rx_bytes += pkt_size;
-                         RTLDEV->stats.rx_packets++;
-                 }
+                 RTLDEV->stats.rx_bytes += pkt_size;
+                 RTLDEV->stats.rx_packets++;
+ 
