@@ -190,6 +190,12 @@ exit 0
 %changelog
 * Wed Oct 25 2023 Philip J Perry <phil@elrepo.org> 8.052.01-1
 - Update to version 8.052.01
+- Rebuilt for RHEL 8.8
+
+* Fri Dec 16 2022 Akemi Yagi <toracat@elrepo.org> 8.051.02-1
+- Update to version 8.051.02
+- Rebuilt for RHEL 8.7
+- Updated the patch (ELRepo-r8168-8.051.02.patch)
 
 * Wed Sep 21 2022 Akemi Yagi <toracat@elrepo.org> 8.050.03-1
 - Update to version 8.050.03
