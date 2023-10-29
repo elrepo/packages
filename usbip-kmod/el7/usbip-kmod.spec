@@ -22,8 +22,8 @@ Source5:  GPL-v2.0.txt
 Source10: kmodtool-%{kmod_name}-el7.sh
 
 # Patches.
-Patch0: ELRepo-%{kmod_name}-%{version}-Makefile.patch
-Patch1: usbip_common_h_7_6.patch
+Patch0: ELRepo-%{kmod_name}-Makefile.patch
+Patch1: ELRepo-usbip_common.patch
 
 # Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}

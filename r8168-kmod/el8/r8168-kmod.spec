@@ -20,7 +20,7 @@ Source5:	GPL-v2.0.txt
 Source10:	ELRepo-Makefile-%{kmod_name}
 
 # Patches
-Patch0: ELRepo-r8168-%{version}.patch
+Patch0: ELRepo-r8168.patch
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
                             /usr/lib/rpm/redhat/brp-ldconfig \
