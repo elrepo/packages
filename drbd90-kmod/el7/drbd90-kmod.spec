@@ -6,7 +6,7 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 9.1.16
+Version: 9.1.17
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -69,6 +69,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Tue Oct 31 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.17-1.el7_9
+- Version updated to 9.1.17
+
 * Sat Aug 12 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.16-1.el7_9
 - Version updated to 9.1.16
 
@@ -112,7 +115,7 @@ done
 - Updated to 9.1.5-1
   [https://elrepo.org/bugs/view.php?id=1171]
 
-* Wed Oct 05 2021 Akemi Yagi <toracat@elrepo.org> - 9.1.4-1.el7_9
+* Tue Oct 05 2021 Akemi Yagi <toracat@elrepo.org> - 9.1.4-1.el7_9
 - Updated to 9.1.4-1
   [https://elrepo.org/bugs/view.php?id=1146]
 

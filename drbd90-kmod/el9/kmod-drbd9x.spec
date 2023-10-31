@@ -3,12 +3,12 @@
 %define real_name 		drbd
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-284.11.1.el9_2}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-284.30.1.el9_2}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	9.1.16
+Version:	9.1.17
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -196,6 +196,13 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Oct 31 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.17-1.el9_2
+- Version updated to 9.1.17
+
+* Fri Sep 22 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.16-2.el9_2
+- Rebuilt against kernel-5.14.0-284.30.1.el9_2
+  [https://elrepo.org/bugs/view.php?id=1386]
+
 * Sat Aug 12 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.16-1.el9_2
 - Version updated to 9.1.16
 
