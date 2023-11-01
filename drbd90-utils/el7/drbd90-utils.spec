@@ -1,7 +1,7 @@
 %define real_name drbd-utils
 
 Name:    drbd90-utils
-Version: 9.25.0
+Version: 9.26.0
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
@@ -20,6 +20,8 @@ BuildRequires: docbook-style-xsl
 BuildRequires: po4a
 # Build Requires rubygem-asciidoctor from EPEL
 BuildRequires: asciidoctor
+# as of 9.26.0
+BuildRequires: keyutils-libs-devel
 
 Requires: udev
 Requires(post):   systemd-units
@@ -180,6 +182,10 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Tue Oct 31 2023 Akemi Yagi <toracat@elrepo.org> - 9.26.0-1
+- Updated to 9.26.0
+- BuildRequires: keyutils-libs-devel needed to build in mock.
+
 * Sun Jul 30 2023 Akemi Yagi <toracat@elrepo.org> - 9.25.0-1
 - Updated to 9.25.0-1
 - elrepo patch updated to v2.

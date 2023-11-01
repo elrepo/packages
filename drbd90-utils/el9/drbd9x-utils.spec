@@ -1,7 +1,7 @@
 %define real_name drbd-utils
 
 Name:    drbd9x-utils
-Version: 9.25.0
+Version: 9.26.0
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
@@ -18,6 +18,8 @@ BuildRequires: udev
 BuildRequires: libxslt
 BuildRequires: docbook-style-xsl
 BuildRequires: po4a
+# as of 9.26.0
+BuildRequires: keyutils-libs-devel
 
 Requires: udev
 Requires(post):   systemd-units
@@ -158,6 +160,7 @@ fi
 /usr/lib/systemd/system/drbd@.service
 /usr/lib/systemd/system/drbd@.target
 /usr/lib/systemd/system/ocf.ra@.service
+/usr/lib/systemd/system/drbd-graceful-shutdown.service
 %{_sbindir}/drbdadm
 %{_sbindir}/drbdmeta
 %{_sbindir}/drbdsetup
@@ -204,6 +207,10 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Tue Oct 31 2023 Akemi Yagi <toracat@elrepo.org> - 9.26.0-1.el9
+- Updated to 9.26.0
+- BuildRequires: keyutils-libs-devel needed to build in mock.
+
 * Sun Jul 30 2023 Akemi Yagi <toracat@elrepo.org> - 9.25.0-1.el9
 - Updated to 9.25.0-1
 - elrepo patch updated to v2.
