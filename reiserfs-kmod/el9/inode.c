@@ -167,10 +167,10 @@ inline void make_le_item_head(struct item_head *ih, const struct cpu_key *key,
  * cutting the code is fine, since it really isn't in use yet and is easy
  * to add back in.  But, Vladimir has a really good idea here.  Think
  * about what happens for reading a file.  For each page,
- * The VFS layer calls reiserfs_readpage, who searches the tree to find
+ * The VFS layer calls reiserfs_read_folio, who searches the tree to find
  * an indirect item.  This indirect item has X number of pointers, where
  * X is a big number if we've done the block allocation right.  But,
- * we only use one or two of these pointers during each call to readpage,
+ * we only use one or two of these pointers during each call to read_folio,
  * needlessly researching again later on.
  *
  * The size of the cache could be dynamic based on the size of the file.
@@ -966,7 +966,7 @@ research:
 			 * it is important the set_buffer_uptodate is done
 			 * after the direct2indirect.  The buffer might
 			 * contain valid data newer than the data on disk
-			 * (read by readpage, changed, and then sent here by
+			 * (read by read_folio, changed, and then sent here by
 			 * writepage).  direct2indirect needs to know if unbh
 			 * was already up to date, so it can decide if the
 			 * data in unbh needs to be replaced with data from
@@ -2664,7 +2664,7 @@ static int reiserfs_write_full_page(struct page *page,
 	do {
 		struct buffer_head *next = bh->b_this_page;
 		if (buffer_async_write(bh)) {
-			submit_bh(REQ_OP_WRITE, 0, bh);
+			submit_bh(REQ_OP_WRITE, bh);
 			nr++;
 		}
 		put_bh(bh);
@@ -2724,7 +2724,7 @@ fail:
 		struct buffer_head *next = bh->b_this_page;
 		if (buffer_async_write(bh)) {
 			clear_buffer_dirty(bh);
-			submit_bh(REQ_OP_WRITE, 0, bh);
+			submit_bh(REQ_OP_WRITE, bh);
 			nr++;
 		}
 		put_bh(bh);
@@ -2733,9 +2733,9 @@ fail:
 	goto done;
 }
 
-static int reiserfs_readpage(struct file *f, struct page *page)
+static int reiserfs_read_folio(struct file *f, struct folio *folio)
 {
-	return block_read_full_page(page, reiserfs_get_block);
+	return block_read_full_folio(folio, reiserfs_get_block);
 }
 
 static int reiserfs_writepage(struct page *page, struct writeback_control *wbc)
@@ -2753,7 +2753,7 @@ static void reiserfs_truncate_failed_write(struct inode *inode)
 
 static int reiserfs_write_begin(struct file *file,
 				struct address_space *mapping,
-				loff_t pos, unsigned len, unsigned flags,
+				loff_t pos, unsigned len,
 				struct page **pagep, void **fsdata)
 {
 	struct inode *inode;
@@ -2771,7 +2771,7 @@ static int reiserfs_write_begin(struct file *file,
 	}
 
 	index = pos >> PAGE_SHIFT;
-	page = grab_cache_page_write_begin(mapping, index, flags);
+	page = grab_cache_page_write_begin(mapping, index);
 	if (!page)
 		return -ENOMEM;
 	*pagep = page;
@@ -3201,14 +3201,14 @@ out:
 	return;
 }
 
-static int reiserfs_set_page_dirty(struct page *page)
+static bool reiserfs_dirty_folio(struct address_space *mapping,
+		struct folio *folio)
 {
-	struct inode *inode = page->mapping->host;
-	if (reiserfs_file_data_log(inode)) {
-		SetPageChecked(page);
-		return __set_page_dirty_nobuffers(page);
+	if (reiserfs_file_data_log(mapping->host)) {
+		folio_set_checked(folio);
+		return filemap_dirty_folio(mapping, folio);
 	}
-	return __set_page_dirty_buffers(page);
+	return block_dirty_folio(mapping, folio);
 }
 
 /*
@@ -3427,7 +3427,7 @@ out:
 
 const struct address_space_operations reiserfs_address_space_operations = {
 	.writepage = reiserfs_writepage,
-	.readpage = reiserfs_readpage,
+	.read_folio = reiserfs_read_folio,
 	.readahead = reiserfs_readahead,
 	.releasepage = reiserfs_releasepage,
 	.invalidatepage = reiserfs_invalidatepage,
@@ -3435,5 +3435,5 @@ const struct address_space_operations reiserfs_address_space_operations = {
 	.write_end = reiserfs_write_end,
 	.bmap = reiserfs_aop_bmap,
 	.direct_IO = reiserfs_direct_IO,
-	.set_page_dirty = reiserfs_set_page_dirty,
+	.dirty_folio = reiserfs_dirty_folio,
 };

@@ -2,13 +2,13 @@
 %define kmod_name	a2818
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-284.11.1.el9_2}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-362.8.1.el9_3}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	1.23
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	CAEN_License
@@ -196,6 +196,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Nov 08 2023 Akemi Yagi <toracat@elrepo.org> - 1.23-2
+- Rebuilt against 9.3 GA kernel 5.14.0-362.8.1.el9_3
+
 * Thu Aug 24 2023 Akemi Yagi <toracat@elrepo.org> - 1.23-1
 - Initial build for RHEL 9.2
 - Source code submitted by jcpunk for el7 build

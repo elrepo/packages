@@ -2,12 +2,12 @@
 %define kmod_name	reiserfs
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-55.el9}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-362.8.1.el9_3}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	0.2
+Version:	0.3
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -188,6 +188,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Nov 08 2023 Akemi Yagi <toracat@elrepo.org> - 0.3-1
+- Rebuilt against 9.3 GA kernel 5.14.0-362.8.1.el9_3
+- Source code from kernel-5.14.0-362.8.1.el9_3
+
 * Mon May 09 2022 Akemi Yagi <toracat@elrepo.org> - 0.2-1
 - Initial build for RHEL 9
 - Source code from RHEL 9 GA kernel

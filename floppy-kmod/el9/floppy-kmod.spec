@@ -2,13 +2,13 @@
 %define kmod_name	floppy
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-284.11.1.el9_2}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-362.8.1.el9_3}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -191,10 +191,14 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 07 2023 Akemi Yagi <toracat@elrepo.org> - 0.0-3
+- Rebuilt against 9.3 GA kernel 5.14.0-362.8.1.el9_3
+- Source code from kernel-5.14.0-362.8.1.el9_3
+
 * Tue May 09 2023 Akemi Yagi <toracat@elrepo.org> - 0.0-2
 - Rebuilt against RHEL 9.2 GA kernel 5.14.0-284.11.1.el9_2
 - Source code from kernel-5.14.0-284.11.1.el9_2
 
-* Fri Jan 06 2022 Akemi Yagi <toracat@elrepo.org> 0.0-1
+* Fri Jan 07 2022 Akemi Yagi <toracat@elrepo.org> 0.0-1
 - Initial el9 build of the kmod package.
 - Source code from RHEL 9.1 kernel
