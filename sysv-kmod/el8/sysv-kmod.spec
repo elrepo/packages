@@ -8,7 +8,7 @@
 
 Name:           kmod-%{kmod_name}
 Version:        0.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -186,6 +186,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sun Nov 19 2023 Akemi Yagi <toracat@elrepo.org> - 0.0-3
+- Rebuilt against the RHEL 8.9 GA kernel
+
 * Fri Nov 17 2023 Akemi Yagi <toracat@elrepo.org> - 0.0-2
 - Initial build for RHEL 8.8
 - Source from RHEL 8.8 kernel-4.18.0-477.10.1.el8_8
