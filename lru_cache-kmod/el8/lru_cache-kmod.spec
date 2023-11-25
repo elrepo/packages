@@ -2,13 +2,13 @@
 %define kmod_name	lru_cache
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-348.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
 Version:        0.0
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -96,7 +96,7 @@ sort -u greylist | uniq > greylist.txt
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 # strip the modules(s)
-find %{buildroot} -type f -name \*.ko -exec %{__strip} --strip-debug \{\} \;
+find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --strip-debug
 
 # Sign the modules(s)
 %if %{?_with_modsign:1}%{!?_with_modsign:0}
@@ -186,6 +186,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 14 2023 Akemi Yagi <toracat@elrepo.org> - 0.0-4
+- Rebuilt against RHEL 8.9 GA kernel-4.18.0-513.5.1.el8_9
+
 * Tue Nov 09 2021 Akemi Yagi <toracat@elrepo.org> - 0.0-3
 - Rebuilt against RHEL 8.5 GA kernel 4.18.0-348.el8
 
