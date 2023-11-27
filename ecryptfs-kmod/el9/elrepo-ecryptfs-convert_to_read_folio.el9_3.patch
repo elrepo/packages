@@ -1,0 +1,34 @@
+diff -Naurp ecryptfs-0.2.orig/mmap.c ecryptfs-0.2/mmap.c
+--- ecryptfs-0.2.orig/mmap.c	2023-10-03 13:09:50.000000000 +0100
++++ ecryptfs-0.2/mmap.c	2023-11-11 16:33:52.044540646 +0000
+@@ -170,16 +170,17 @@ out:
+ }
+ 
+ /**
+- * ecryptfs_readpage
++ * ecryptfs_read_folio
+  * @file: An eCryptfs file
+- * @page: Page from eCryptfs inode mapping into which to stick the read data
++ * @folio: Folio from eCryptfs inode mapping into which to stick the read data
+  *
+- * Read in a page, decrypting if necessary.
++ * Read in a folio, decrypting if necessary.
+  *
+  * Returns zero on success; non-zero on error.
+  */
+-static int ecryptfs_readpage(struct file *file, struct page *page)
++static int ecryptfs_read_folio(struct file *file, struct folio *folio)
+ {
++	struct page *page = &folio->page;
+ 	struct ecryptfs_crypt_stat *crypt_stat =
+ 		&ecryptfs_inode_to_private(page->mapping->host)->crypt_stat;
+ 	int rc = 0;
+@@ -549,7 +550,7 @@ const struct address_space_operations ec
+ 	.invalidate_folio = block_invalidate_folio,
+ #endif
+ 	.writepage = ecryptfs_writepage,
+-	.readpage = ecryptfs_readpage,
++	.read_folio = ecryptfs_read_folio,
+ 	.write_begin = ecryptfs_write_begin,
+ 	.write_end = ecryptfs_write_end,
+ 	.bmap = ecryptfs_bmap,

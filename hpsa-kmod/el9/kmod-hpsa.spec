@@ -194,6 +194,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 07 2023 Philip J Perry <phil@elrepo.org> - 3.4.20-10
+- Rebuilt for RHEL 9.3
+- Source updated from RHEL 9.3 kernel
+
 * Tue May 09 2023 Akemi Yagi <toracat@elrepo.org> - 3.4.20-9
 - Rebuilt against RHEL 9.2 GA kernel 5.14.0-284.11.1.el9_2
 

@@ -1,0 +1,48 @@
+diff -Naurp hfsplus-0.7.orig/extents.c hfsplus-0.7/extents.c
+--- hfsplus-0.7.orig/extents.c	2023-10-03 13:09:50.000000000 +0100
++++ hfsplus-0.7/extents.c	2023-11-11 18:35:09.984412209 +0000
+@@ -554,15 +554,15 @@ void hfsplus_file_truncate(struct inode
+ 	if (inode->i_size > hip->phys_size) {
+ 		struct address_space *mapping = inode->i_mapping;
+ 		struct page *page;
+-		void *fsdata;
++		void *fsdata = NULL;
+ 		loff_t size = inode->i_size;
+ 
+-		res = pagecache_write_begin(NULL, mapping, size, 0, 0,
+-					    &page, &fsdata);
++		res = hfsplus_write_begin(NULL, mapping, size, 0,
++					  &page, &fsdata);
+ 		if (res)
+ 			return;
+-		res = pagecache_write_end(NULL, mapping, size,
+-			0, 0, page, fsdata);
++		res = generic_write_end(NULL, mapping, size, 0, 0,
++					page, fsdata);
+ 		if (res < 0)
+ 			return;
+ 		mark_inode_dirty(inode);
+diff -Naurp hfsplus-0.7.orig/hfsplus_fs.h hfsplus-0.7/hfsplus_fs.h
+--- hfsplus-0.7.orig/hfsplus_fs.h	2023-10-03 13:09:50.000000000 +0100
++++ hfsplus-0.7/hfsplus_fs.h	2023-11-11 18:47:59.483965812 +0000
+@@ -468,6 +468,8 @@ extern const struct address_space_operat
+ extern const struct address_space_operations hfsplus_btree_aops;
+ extern const struct dentry_operations hfsplus_dentry_operations;
+ 
++int hfsplus_write_begin(struct file *file, struct address_space *mapping,
++		loff_t pos, unsigned len, struct page **pagep, void **fsdata);
+ struct inode *hfsplus_new_inode(struct super_block *sb, struct inode *dir,
+ 				umode_t mode);
+ void hfsplus_delete_inode(struct inode *inode);
+diff -Naurp hfsplus-0.7.orig/inode.c hfsplus-0.7/inode.c
+--- hfsplus-0.7.orig/inode.c	2023-10-03 13:09:50.000000000 +0100
++++ hfsplus-0.7/inode.c	2023-11-11 18:54:53.750386508 +0000
+@@ -43,7 +43,7 @@ static void hfsplus_write_failed(struct
+ 	}
+ }
+ 
+-static int hfsplus_write_begin(struct file *file, struct address_space *mapping,
++int hfsplus_write_begin(struct file *file, struct address_space *mapping,
+ 			loff_t pos, unsigned len,
+ 			struct page **pagep, void **fsdata)
+ {

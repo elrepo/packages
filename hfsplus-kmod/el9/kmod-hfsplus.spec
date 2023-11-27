@@ -18,6 +18,10 @@ URL:		http://www.kernel.org/
 Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
+# Patches.
+Patch0:		elrepo-%{kmod_name}-convert_to_release_folio.el9_3.patch
+Patch1:		elrepo-%{kmod_name}-pagecache_write_begin_end.el9_3.patch
+
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
 
@@ -75,6 +79,10 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -q -n %{kmod_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+
+# Apply patch(es)
+%patch0 -p1
+%patch1 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
@@ -188,9 +196,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Tue Nov 07 2023 Akemi Yagi <toracat@elrepo.org> - 0.7-1
-- Rebuilt against 9.3 GA kernel 5.14.0-362.8.1.el9_3
-- Source code from kernel-5.14.0-362.8.1.el9_3
+* Tue Nov 07 2023 Philip J Perry <phil@elrepo.org> - 0.7-1
+- Rebuilt for RHEL 9.3
+- Source updated from RHEL 9.3 kernel
 
 * Thu Jun 29 2023 Philip J Perry <phil@elrepo.org> - 0.6-1
 - Rebuilt for RHEL 9.2 

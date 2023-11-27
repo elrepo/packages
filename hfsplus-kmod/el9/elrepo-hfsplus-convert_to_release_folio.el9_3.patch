@@ -1,0 +1,81 @@
+diff -Naurp hfsplus-0.7.orig/inode.c hfsplus-0.7/inode.c
+--- hfsplus-0.7.orig/inode.c	2023-10-03 13:09:50.000000000 +0100
++++ hfsplus-0.7/inode.c	2023-11-11 17:07:50.471274961 +0000
+@@ -64,14 +64,15 @@ static sector_t hfsplus_bmap(struct addr
+ 	return generic_block_bmap(mapping, block, hfsplus_get_block);
+ }
+ 
+-static int hfsplus_releasepage(struct page *page, gfp_t mask)
++static bool hfsplus_release_folio(struct folio *folio, gfp_t mask)
+ {
+-	struct inode *inode = page->mapping->host;
++	struct inode *inode = folio->mapping->host;
+ 	struct super_block *sb = inode->i_sb;
+ 	struct hfs_btree *tree;
+ 	struct hfs_bnode *node;
+ 	u32 nidx;
+-	int i, res = 1;
++	int i;
++	bool res = true;
+ 
+ 	switch (inode->i_ino) {
+ 	case HFSPLUS_EXT_CNID:
+@@ -85,26 +86,26 @@ static int hfsplus_releasepage(struct pa
+ 		break;
+ 	default:
+ 		BUG();
+-		return 0;
++		return false;
+ 	}
+ 	if (!tree)
+-		return 0;
++		return false;
+ 	if (tree->node_size >= PAGE_SIZE) {
+-		nidx = page->index >>
++		nidx = folio->index >>
+ 			(tree->node_size_shift - PAGE_SHIFT);
+ 		spin_lock(&tree->hash_lock);
+ 		node = hfs_bnode_findhash(tree, nidx);
+ 		if (!node)
+ 			;
+ 		else if (atomic_read(&node->refcnt))
+-			res = 0;
++			res = false;
+ 		if (res && node) {
+ 			hfs_bnode_unhash(node);
+ 			hfs_bnode_free(node);
+ 		}
+ 		spin_unlock(&tree->hash_lock);
+ 	} else {
+-		nidx = page->index <<
++		nidx = folio->index <<
+ 			(PAGE_SHIFT - tree->node_size_shift);
+ 		i = 1 << (PAGE_SHIFT - tree->node_size_shift);
+ 		spin_lock(&tree->hash_lock);
+@@ -113,7 +114,7 @@ static int hfsplus_releasepage(struct pa
+ 			if (!node)
+ 				continue;
+ 			if (atomic_read(&node->refcnt)) {
+-				res = 0;
++				res = false;
+ 				break;
+ 			}
+ 			hfs_bnode_unhash(node);
+@@ -121,7 +122,7 @@ static int hfsplus_releasepage(struct pa
+ 		} while (--i && nidx < tree->node_count);
+ 		spin_unlock(&tree->hash_lock);
+ 	}
+-	return res ? try_to_free_buffers(page) : 0;
++	return res ? try_to_free_buffers(folio) : false;
+ }
+ 
+ static ssize_t hfsplus_direct_IO(struct kiocb *iocb, struct iov_iter *iter)
+@@ -163,7 +164,7 @@ const struct address_space_operations hf
+ 	.write_begin	= hfsplus_write_begin,
+ 	.write_end	= generic_write_end,
+ 	.bmap		= hfsplus_bmap,
+-	.releasepage	= hfsplus_releasepage,
++	.release_folio	= hfsplus_release_folio,
+ };
+ 
+ const struct address_space_operations hfsplus_aops = {

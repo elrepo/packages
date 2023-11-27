@@ -19,8 +19,7 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Patches.
-Patch0:		ecryptfs-makefile.patch
-Patch1:		elrepo-ecryptfs.patch
+Patch0:		elrepo-%{kmod_name}-convert_to_read_folio.el9_3.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -82,7 +81,6 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 
 # Apply patch(es)
 %patch0 -p1
-%patch1 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
@@ -196,8 +194,13 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Tue Nov 07 2023 Akemi Yagi <toracat@elrepo.org> - 0.2-3
-- Rebuilt against 9.3 GA kernel 5.14.0-362.8.1.el9_3
+* Tue Nov 07 2023 Philip J Perry <phil@elrepo.org> - 0.2-4
+- Rebuilt for RHEL 9.3
+- Source updated from RHEL 9.3 kernel
+
+* Wed Sep 20 2023 Akemi Yagi <toracat@elrepo.org> - 0.2-3
+- Rebuilt against kernel 5.14.0-284.30.1.el9_2
+  [https://elrepo.org/bugs/view.php?id=1384]
 
 * Tue May 09 2023 Akemi Yagi <toracat@elrepo.org> - 0.2-2
 - Rebuilt against RHEL 9.2 GA kernel 5.14.0-284.11.1.el9_2

@@ -2,13 +2,13 @@
 %define kmod_name	mptsas
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-284.11.1.el9_2}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-362.8.1.el9_3}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	3.04.20
-Release:	4%{?dist}
+Release:	5%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -203,6 +203,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 07 2023 Philip J Perry <phil@elrepo.org> - 3.04.20-5
+- Rebuilt for RHEL 9.3
+- Source updated from RHEL 9.3 kernel
+
 * Tue May 09 2023 Philip J Perry <phil@elrepo.org> - 3.04.20-4
 - Rebuilt for RHEL 9.2 
 - Source updated from RHEL 9.2 kernel
