@@ -2,13 +2,13 @@
 %define kmod_name		3c59x
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.9.1.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	5%{?dist}
+Release:	6%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -179,6 +179,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 14 2023 Philip J Perry <phil@elrepo.org> 0.0-6
+- Rebuilt for RHEL 8.9
+
 * Tue May 10 2022 Philip J Perry <phil@elrepo.org> 0.0-5
 - Rebuilt for RHEL 8.6
 - Fix SB-signing issue caused by /usr/lib/rpm/brp-strip

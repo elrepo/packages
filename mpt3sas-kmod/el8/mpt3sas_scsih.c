@@ -3305,7 +3305,7 @@ scsih_abort(struct scsi_cmnd *scmd)
 	sdev_printk(KERN_INFO, scmd->device, "attempting task abort!"
 	    "scmd(0x%p), outstanding for %u ms & timeout %u ms\n",
 	    scmd, jiffies_to_msecs(jiffies - scmd->jiffies_at_alloc),
-	    (scmd->request->timeout / HZ) * 1000);
+	    (scsi_cmd_to_rq(scmd)->timeout / HZ) * 1000);
 	_scsih_tm_display_info(ioc, scmd);
 
 	sas_device_priv_data = scmd->device->hostdata;
@@ -3670,6 +3670,7 @@ static struct fw_event_work *dequeue_next_fw_event(struct MPT3SAS_ADAPTER *ioc)
 		fw_event = list_first_entry(&ioc->fw_event_list,
 				struct fw_event_work, list);
 		list_del_init(&fw_event->list);
+		fw_event_work_put(fw_event);
 	}
 	spin_unlock_irqrestore(&ioc->fw_event_lock, flags);
 
@@ -3751,7 +3752,6 @@ _scsih_fw_event_cleanup_queue(struct MPT3SAS_ADAPTER *ioc)
 		if (cancel_work_sync(&fw_event->work))
 			fw_event_work_put(fw_event);
 
-		fw_event_work_put(fw_event);
 	}
 	ioc->fw_events_cleanup = 0;
 }
@@ -5075,7 +5075,7 @@ _scsih_setup_eedp(struct MPT3SAS_ADAPTER *ioc, struct scsi_cmnd *scmd,
 		    MPI2_SCSIIO_EEDPFLAGS_CHECK_REFTAG |
 		    MPI2_SCSIIO_EEDPFLAGS_CHECK_GUARD;
 		mpi_request->CDB.EEDP32.PrimaryReferenceTag =
-		    cpu_to_be32(t10_pi_ref_tag(scmd->request));
+		    cpu_to_be32(t10_pi_ref_tag(scsi_cmd_to_rq(scmd)));
 		break;
 
 	case SCSI_PROT_DIF_TYPE3:
@@ -5144,7 +5144,7 @@ scsih_qcmd(struct Scsi_Host *shost, struct scsi_cmnd *scmd)
 	struct MPT3SAS_DEVICE *sas_device_priv_data;
 	struct MPT3SAS_TARGET *sas_target_priv_data;
 	struct _raid_device *raid_device;
-	struct request *rq = scmd->request;
+	struct request *rq = scsi_cmd_to_rq(scmd);
 	int class;
 	Mpi25SCSIIORequest_t *mpi_request;
 	struct _pcie_device *pcie_device = NULL;
@@ -5172,6 +5172,20 @@ scsih_qcmd(struct Scsi_Host *shost, struct scsi_cmnd *scmd)
 
 	/* invalid device handle */
 	handle = sas_target_priv_data->handle;
+
+	/*
+	 * Avoid error handling escallation when device is disconnected
+	 */
+	if (handle == MPT3SAS_INVALID_DEVICE_HANDLE || sas_device_priv_data->block) {
+		if (scmd->device->host->shost_state == SHOST_RECOVERY &&
+		    scmd->cmnd[0] == TEST_UNIT_READY) {
+			scsi_build_sense_buffer(0, scmd->sense_buffer, UNIT_ATTENTION, 0x29, 0x07);
+			scmd->result = SAM_STAT_CHECK_CONDITION;
+			scmd->scsi_done(scmd);
+			return 0;
+		}
+	}
+
 	if (handle == MPT3SAS_INVALID_DEVICE_HANDLE) {
 		scmd->result = DID_NO_CONNECT << 16;
 		scmd->scsi_done(scmd);
@@ -5310,7 +5324,7 @@ _scsih_normalize_sense(char *sense_buffer, struct sense_info *data)
 }
 
 /**
- * _scsih_scsi_ioc_info - translated non-succesfull SCSI_IO request
+ * _scsih_scsi_ioc_info - translated non-successful SCSI_IO request
  * @ioc: per adapter object
  * @scmd: pointer to scsi command object
  * @mpi_reply: reply mf payload returned from firmware
@@ -11962,7 +11976,7 @@ static struct scsi_host_template mpt3sas_driver_template = {
 	.this_id			= -1,
 	.sg_tablesize			= MPT3SAS_SG_DEPTH,
 	.max_sectors			= 32767,
-	.cmd_per_lun			= 7,
+	.cmd_per_lun			= 128,
 	.use_clustering			= ENABLE_CLUSTERING,
 	.shost_attrs			= mpt3sas_host_attrs,
 	.sdev_attrs			= mpt3sas_dev_attrs,
@@ -12051,6 +12065,7 @@ _scsih_determine_hba_mpi_version(struct pci_dev *pdev)
 	return 0;
 }
 
+#ifdef CONFIG_RHEL_DIFFERENCES
 static const struct pci_device_id rh_deprecated_pci_table[] = {
 	/* Thunderbolt ~ 2208 */
 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2208_1,
@@ -12107,6 +12122,7 @@ static const struct pci_device_id rh_disabled_pci_table[] = {
 
 	{0}     /* Terminating entry */
 };
+#endif
 
 /**
  * _scsih_probe - attach and add scsi host
@@ -12123,11 +12139,13 @@ _scsih_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	int rv;
 	u16 hba_mpi_version;
 
+#ifdef CONFIG_RHEL_DIFFERENCES
 	if (pci_hw_disabled(rh_disabled_pci_table, pdev))
 		return -ENODEV;
 
 	pci_hw_deprecated(rh_deprecated_pci_table, pdev);
 	pci_hw_unmaintained(rh_unmaintained_pci_table, pdev);
+#endif
 
 	/* Determine in which MPI version class this pci device belongs */
 	hba_mpi_version = _scsih_determine_hba_mpi_version(pdev);
@@ -12453,7 +12471,6 @@ scsih_suspend(struct device *dev)
 		return rc;
 
 	mpt3sas_base_stop_watchdog(ioc);
-	flush_scheduled_work();
 	scsi_block_requests(shost);
 	_scsih_nvme_shutdown(ioc);
 	ioc_info(ioc, "pdev=0x%p, slot=%s, entering operating state\n",
@@ -12776,6 +12793,12 @@ static const struct pci_device_id mpt3sas_pci_table[] = {
 		PCI_ANY_ID, PCI_ANY_ID },
 
 	/*
+	 * ATTO Branded ExpressSAS H12xx GT
+	 */
+	{ MPI2_MFGPAGE_VENDORID_ATTO, MPI26_MFGPAGE_DEVID_HARD_SEC_3816,
+		PCI_ANY_ID, PCI_ANY_ID },
+
+	/*
 	 *  Sea SI –> 0x00E4 Invalid, 0x00E7 Tampered
 	 */
 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI26_MFGPAGE_DEVID_INVALID0_3816,
@@ -12955,9 +12978,9 @@ _mpt3sas_exit(void)
 	pr_info("mpt3sas version %s unloading\n",
 				MPT3SAS_DRIVER_VERSION);
 
-	mpt3sas_ctl_exit(hbas_to_enumerate);
-
 	pci_unregister_driver(&mpt3sas_driver);
+
+	mpt3sas_ctl_exit(hbas_to_enumerate);
 
 	scsih_exit();
 }

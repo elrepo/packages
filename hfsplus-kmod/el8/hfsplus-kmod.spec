@@ -2,13 +2,13 @@
 %define kmod_name hfsplus
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-348.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
-Version:        0.1
-Release:        2%{?dist}
+Version:        0.3
+Release:        1%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -74,7 +74,7 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 # Apply patch(es)
 
 %build
-%{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD CONFIG_BE2NET=m
+%{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD
 
 whitelist="/lib/modules/kabi-current/kabi_whitelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -184,12 +184,29 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sun Nov 19 2023 Philip J Perry <phil@elrepo.org> - 0.3-1
+- Reguilt against RHEL 8.9 kernel
+- Source code from RHEL 8.9 GA kernel-4.18.0-513.5.1.el8_9
+
+* Tue May 16 2023 Akemi Yagi <toracat@elrepo.org> - 0.2-2
+- Rebuilt against RHEL 8.8 GA kernel-4.18.0-477.10.1.el8_8
+
+* Mon May 23 2022 Akemi Yagi <toracat@elrepo.org> - 0.2-1
+- Source code taken from kernel-4.18.0-372.9.1.el8
+- Built against RHEL 8.6 GA kernel 4.18.0-372.9.1.el8
+
 * Mon Nov 15 2021 Akemi Yagi <toracat@elrepo.org> - 0.1-2
 - correct symvers.gz location
 
 * Fri Nov 12 2021 Akemi Yagi <toracat@elrepo.org> - 0.1-1
 - Source code taken from kernel-4.18.0-348.el8
 - Built against RHEL 8.5 kernel
+
+* Tue May 18 2021 Philip J Perry <phil@elrepo.org> 0.0-4
+- Rebuilt against RHEL 8.4 kernel
+- Source backported from kernel-4.18.0-305.el8
+- Fix updating of initramfs image
+  [https://elrepo.org/bugs/view.php?id=1060]
 
 * Sun Nov 08 2020 Akemi Yagi <toracat@elrepo.org> - 0.0-3
 - Rebuilt against RHEL 8.3 kernel

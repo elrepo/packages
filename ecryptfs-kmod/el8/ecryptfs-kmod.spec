@@ -2,13 +2,13 @@
 %define kmod_name		ecryptfs
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.3.1.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
 Version:        0.0
-Release:        5%{?dist}
+Release:        7%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -183,6 +183,13 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sun Nov 19 2023 Philip J Perry <phil@elrepo.org> - 0.0-7
+- Reguilt against RHEL 8.9 kernel
+- Source code from RHEL 8.9 GA kernel-4.18.0-513.5.1.el8_9
+
+* Tue May 16 2023 Akemi Yagi <toracat@elrepo.org> - 0.0-6
+- Rebuilt against RHEL 8.8 GA kernel-4.18.0-477.10.1.el8_8
+
 * Tue Nov 08 2022 Akemi Yagi <toracat@elrepo.org> - 0.0-5
 - Reguilt against RHEL 8.7 kernel
 

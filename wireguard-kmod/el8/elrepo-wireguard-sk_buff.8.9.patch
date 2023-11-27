@@ -1,0 +1,14 @@
+diff -Naurp wireguard-linux-compat-1.0.20220627.orig/src/queueing.h wireguard-linux-compat-1.0.20220627/src/queueing.h
+--- wireguard-linux-compat-1.0.20220627.orig/src/queueing.h	2022-06-27 11:54:37.000000000 +0100
++++ wireguard-linux-compat-1.0.20220627/src/queueing.h	2023-11-18 15:46:05.410805711 +0000
+@@ -81,9 +81,7 @@ static inline void wg_reset_packet(struc
+ 	u8 sw_hash = skb->sw_hash;
+ 
+ 	skb_scrub_packet(skb, true);
+-	memset(&skb->headers_start, 0,
+-	       offsetof(struct sk_buff, headers_end) -
+-		       offsetof(struct sk_buff, headers_start));
++	memset(&skb->headers, 0, sizeof(skb->headers));
+ 	skb->pfmemalloc = pfmemalloc;
+ 	if (encapsulating) {
+ 		skb->hash = hash;

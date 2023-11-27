@@ -1,0 +1,12 @@
+diff -Naurp e100-3.5.24.orig/e100.c e100-3.5.24/e100.c
+--- e100-3.5.24.orig/e100.c	2020-11-05 20:25:29.000000000 +0000
++++ e100-3.5.24/e100.c	2023-11-14 17:05:37.981430176 +0000
+@@ -2832,7 +2832,7 @@ static int e100_probe(struct pci_dev *pd
+ 	strncpy(netdev->name, pci_name(pdev), sizeof(netdev->name) - 1);
+ 
+ 	nic = netdev_priv(netdev);
+-	netif_napi_add(netdev, &nic->napi, e100_poll, E100_NAPI_WEIGHT);
++	netif_napi_add(netdev, &nic->napi, e100_poll);
+ 	nic->netdev = netdev;
+ 	nic->pdev = pdev;
+ 	nic->msg_enable = (1 << debug) - 1;

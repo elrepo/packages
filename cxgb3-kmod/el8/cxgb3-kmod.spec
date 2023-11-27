@@ -2,13 +2,13 @@
 %define kmod_name		cxgb3
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.10.1.el8_7}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	1.1.5
-Release:	9%{?dist}
+Release:	11%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -20,6 +20,7 @@ Source5:	GPL-v2.0.txt
 
 # Source code patches
 Patch0:		elrepo-cxgb3-extend-structs.el8_7.patch
+Patch1:		elrepo-cxgb3-netif_napi_add.el8_8.patch
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
                             /usr/lib/rpm/redhat/brp-ldconfig \
@@ -70,6 +71,7 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 
 # Apply patch(es)
 %patch0 -p0
+%patch1 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
@@ -183,6 +185,13 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 14 2023 Philip J Perry <phil@elrepo.org> 1.1.5-11
+- Rebuilt for RHEL 8.9
+
+* Tue May 16 2023 Philip J Perry <phil@elrepo.org> 1.1.5-10
+- Rebuilt for RHEL 8.8
+- Fix netif_napi_add()
+
 * Sun Jan 15 2023 Philip J Perry <phil@elrepo.org> 1.1.5-9
 - Rebuilt against kernel-4.18.0-425.10.1.el8_7 due to a bug in the RHEL kernel
   [https://access.redhat.com/solutions/6985596]

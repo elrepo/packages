@@ -1,0 +1,13 @@
+diff -Naurp cxgb3-1.1.5.orig/cxgb3_main.c cxgb3-1.1.5/cxgb3_main.c
+--- cxgb3-1.1.5.orig/cxgb3_main.c	2018-11-21 08:22:14.000000000 +0000
++++ cxgb3-1.1.5/cxgb3_main.c	2023-05-16 19:26:24.721713777 +0100
+@@ -611,8 +611,7 @@ static void init_napi(struct adapter *ad
+ 		struct sge_qset *qs = &adap->sge.qs[i];
+ 
+ 		if (qs->adap)
+-			netif_napi_add(qs->netdev, &qs->napi, qs->napi.poll,
+-				       64);
++			netif_napi_add(qs->netdev, &qs->napi, qs->napi.poll);
+ 	}
+ 
+ 	/*

@@ -2,13 +2,13 @@
 %define kmod_name		e100
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.10.1.el8_7}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	3.5.24
-Release:	8%{?dist}
+Release:	9%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -20,6 +20,7 @@ Source5:	GPL-v2.0.txt
 
 # Source code patches
 Patch0:		elrepo-e100-extend-ringparam.el8.7.patch
+Patch1:		elrepo-e100-netif-napi-add.el8_9.patch
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
                             /usr/lib/rpm/redhat/brp-ldconfig \
@@ -66,6 +67,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -q -n %{kmod_name}-%{version}
 %patch0 -p1
+%patch1 -p1
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
@@ -180,6 +182,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 14 2023 Philip J Perry <phil@elrepo.org> 3.5.24-9
+- Rebuilt for RHEL 8.9
+- Fix netif_napi_add function
+
 * Sun Jan 15 2023 Philip J Perry <phil@elrepo.org> 3.5.24-8
 - Rebuilt against kernel-4.18.0-425.10.1.el8_7 due to a bug in the RHEL kernel
   [https://access.redhat.com/solutions/6985596]

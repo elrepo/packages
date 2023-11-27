@@ -1,0 +1,13 @@
+diff -Naurp wireguard-linux-compat-1.0.20220627.orig/src/peer.c wireguard-linux-compat-1.0.20220627/src/peer.c
+--- wireguard-linux-compat-1.0.20220627.orig/src/peer.c	2022-06-27 11:54:37.000000000 +0100
++++ wireguard-linux-compat-1.0.20220627/src/peer.c	2023-05-16 19:45:17.414882548 +0100
+@@ -54,8 +54,7 @@ struct wg_peer *wg_peer_create(struct wg
+ 	skb_queue_head_init(&peer->staged_packet_queue);
+ 	wg_noise_reset_last_sent_handshake(&peer->last_sent_handshake);
+ 	set_bit(NAPI_STATE_NO_BUSY_POLL, &peer->napi.state);
+-	netif_napi_add(wg->dev, &peer->napi, wg_packet_rx_poll,
+-		       NAPI_POLL_WEIGHT);
++	netif_napi_add(wg->dev, &peer->napi, wg_packet_rx_poll);
+ 	napi_enable(&peer->napi);
+ 	list_add_tail(&peer->peer_list, &wg->peer_list);
+ 	INIT_LIST_HEAD(&peer->allowedips_list);

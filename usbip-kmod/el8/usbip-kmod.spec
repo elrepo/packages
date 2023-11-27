@@ -2,13 +2,13 @@
 %define kmod_name		usbip
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.10.1.el8_7}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	11%{?dist}
+Release:	13%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -185,6 +185,14 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 14 2023 Philip J Perry <phil@elrepo.org> 1.2.1-9
+- Rebuilt for RHEL 8.9
+- Source code updated from RHEL kernel-4.18.0-513.5.1.el8_9.x86_64
+
+* Tue May 16 2023 Philip J Perry <phil@elrepo.org> 0.0-8
+- Rebuilt for RHEL 8.8
+- Source code updated from RHEL kernel-4.18.0-477.10.1.el8
+
 * Sun Jan 15 2023 Philip J Perry <phil@elrepo.org> 0.0-11
 - Rebuilt against kernel-4.18.0-425.10.1.el8_7 due to a bug in the RHEL kernel
   [https://access.redhat.com/solutions/6985596]

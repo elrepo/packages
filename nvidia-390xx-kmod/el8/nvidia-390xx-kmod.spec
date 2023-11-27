@@ -2,13 +2,13 @@
 %define kmod_name		nvidia-390xx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.10.1.el8_7}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	390.157
-Release:	2%{?dist}
+Release:	4%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
 License:	Proprietary
@@ -18,6 +18,9 @@ URL:		http://www.nvidia.com/
 Source0:  ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 Source1:  blacklist-nouveau.conf
 Source2:  dracut-nvidia.conf
+
+# Source code patches
+Patch0:		nvidia-390xx-buildfix-el8_9.patch
 
 NoSource: 0
 
@@ -85,6 +88,7 @@ echo "override nvidia-drm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 echo "override nvidia-modeset * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 echo "override nvidia-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.config
 sh %{SOURCE0} --extract-only --target nvidiapkg
+%patch0 -p1
 %{__cp} -a nvidiapkg _kmod_build_
 
 %build
@@ -227,7 +231,15 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Sun Jan 15 2023 Philip J Perry <phil@elrepo.org> 390.157-2
+* Thu Nov 23 2023 Philip J Perry <phil@elrepo.org> - 390.157-4
+- Rebuilt for RHEL 8.9
+- Fix build issues on RHEL 8.9
+  [https://elrepo.org/bugs/view.php?id=1404]
+
+* Tue May 16 2023 Philip J Perry <phil@elrepo.org> - 390.157-3
+- Rebuilt for RHEL 8.8
+
+* Sun Jan 15 2023 Philip J Perry <phil@elrepo.org> - 390.157-2
 - Rebuilt against kernel-4.18.0-425.10.1.el8_7 due to a bug in the RHEL kernel
   [https://access.redhat.com/solutions/6985596]
 

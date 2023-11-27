@@ -2,13 +2,13 @@
 %define kmod_name		iwlegacy
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.10.1.el8_7}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	9%{?dist}
+Release:	11%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,7 +19,7 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0:	elrepo-iwlegacy-revert-convert-tasklets.8.4.patch
+Patch0:	elrepo-iwlegacy-revert-convert-tasklets.8.8.patch
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
                             /usr/lib/rpm/redhat/brp-ldconfig \
@@ -69,7 +69,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
-%{__make} -C %{kernel_source} modules M=$PWD KCFLAGS='-DCONFIG_IWLEGACY_DEBUG -DCONFIG_IWLEGACY_DEBUGFS -DCONFIG_IWL4965_MODULE -DCONFIG_IWL3945_MODULE'
+%{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD KCFLAGS='-DCONFIG_IWLEGACY_DEBUG -DCONFIG_IWLEGACY_DEBUGFS -DCONFIG_IWL4965_MODULE -DCONFIG_IWL3945_MODULE'
 
 whitelist="/lib/modules/kabi-current/kabi_whitelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -182,6 +182,14 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 14 2023 Philip J Perry <phil@elrepo.org> 0.0-11
+- Rebuilt for RHEL 8.9
+- Rebase to kernel-6.1.62
+
+* Tue May 16 2023 Philip J Perry <phil@elrepo.org> 0.0-10
+- Rebuilt for RHEL 8.8
+- Backported from kernel-6.1.28
+
 * Sun Jan 15 2023 Akemi Yagi <toracat@elrepo.org> - 0.0-9
 - Rebuilt against kernel-4.18.0-425.10.1.el8_7 due to a bug in the RHEL kernel
   [https://access.redhat.com/solutions/6985596]

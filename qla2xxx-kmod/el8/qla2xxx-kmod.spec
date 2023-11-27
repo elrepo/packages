@@ -2,12 +2,12 @@
 %define kmod_name		qla2xxx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-477.10.1.el8_8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	10.02.07.900
+Version:	10.02.08.200
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -184,6 +184,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 14 2023 Philip J Perry <phil@elrepo.org> 10.02.08.200-1
+- Rebuilt for RHEL 8.9
+- Source code updated from RHEL kernel-4.18.0-513.5.1.el8_9.x86_64
+
 * Wed Jul 12 2023 Philip J Perry <phil@elrepo.org> 10.02.07.900-1
 - Rebuilt for RHEL 8.8
 - Source code updated from RHEL kernel-4.18.0-477.10.1.el8_8

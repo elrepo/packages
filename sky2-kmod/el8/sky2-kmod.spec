@@ -2,13 +2,13 @@
 %define kmod_name		sky2
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.10.1.el8_7}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	1.30
-Release:	8%{?dist}
+Release:	10%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -22,6 +22,7 @@ Source5:	GPL-v2.0.txt
 Patch0:		elrepo-sky2-extend-coalesce.el8.6.patch
 Patch1:		elrepo-sky2-of_get_mac_address.el8.6.patch
 Patch2:		elrepo-sky2-extend-ringparam.el8.7.patch
+Patch3:		elrepo-sky2-netif_napi_add.el8.8.patch
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
                             /usr/lib/rpm/redhat/brp-ldconfig \
@@ -70,6 +71,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 %patch0 -p0
 %patch1 -p0
 %patch2 -p1
+%patch3 -p1
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
@@ -184,6 +186,13 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 14 2023 Philip J Perry <phil@elrepo.org> 1.30-10
+- Rebuilt for RHEL 8.9
+
+* Tue May 16 2023 Philip J Perry <phil@elrepo.org> 1.30-9
+- Rebuilt for RHEL 8.8
+- Fix netif_napi_add()
+
 * Sun Jan 15 2023 Philip J Perry <phil@elrepo.org> 1.30-8
 - Rebuilt against kernel-4.18.0-425.10.1.el8_7 due to a bug in the RHEL kernel
   [https://access.redhat.com/solutions/6985596]

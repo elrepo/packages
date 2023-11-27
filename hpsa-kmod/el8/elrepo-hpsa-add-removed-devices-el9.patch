@@ -1,0 +1,35 @@
+--- a/hpsa.c	2022-04-15 17:03:46.000000000 -0700
++++ b/hpsa.c	2022-05-10 11:03:20.675490085 -0700
+@@ -91,6 +91,11 @@
+ 
+ /* define the PCI info for the cards we can control */
+ static const struct pci_device_id hpsa_pci_device_id[] = {
++	{PCI_VENDOR_ID_HP,     PCI_DEVICE_ID_HP_CISSC,     0x103C, 0x3223},
++	{PCI_VENDOR_ID_HP,     PCI_DEVICE_ID_HP_CISSC,     0x103C, 0x3234},
++	{PCI_VENDOR_ID_HP,     PCI_DEVICE_ID_HP_CISSC,     0x103C, 0x3235},
++	{PCI_VENDOR_ID_HP,     PCI_DEVICE_ID_HP_CISSC,     0x103C, 0x3237},
++	{PCI_VENDOR_ID_HP,     PCI_DEVICE_ID_HP_CISSC,     0x103C, 0x323D},
+ 	{PCI_VENDOR_ID_HP,     PCI_DEVICE_ID_HP_CISSE,     0x103C, 0x3241},
+ 	{PCI_VENDOR_ID_HP,     PCI_DEVICE_ID_HP_CISSE,     0x103C, 0x3243},
+ 	{PCI_VENDOR_ID_HP,     PCI_DEVICE_ID_HP_CISSE,     0x103C, 0x3245},
+@@ -144,6 +149,10 @@
+ 	{PCI_VENDOR_ID_HP_3PAR, 0x0075, 0x1590, 0x007D},
+ 	{PCI_VENDOR_ID_HP_3PAR, 0x0075, 0x1590, 0x0088},
+ 	{PCI_VENDOR_ID_HP, 0x333f, 0x103c, 0x333f},
++	{PCI_VENDOR_ID_HP,     PCI_ANY_ID,	PCI_ANY_ID, PCI_ANY_ID,
++		PCI_CLASS_STORAGE_RAID << 8, 0xffff << 8, 0},
++	{PCI_VENDOR_ID_COMPAQ,     PCI_ANY_ID,	PCI_ANY_ID, PCI_ANY_ID,
++		PCI_CLASS_STORAGE_RAID << 8, 0xffff << 8, 0},
+ 	{0,}
+ };
+ 
+@@ -8652,9 +8661,6 @@
+ 	unsigned long flags;
+ 	u32 board_id;
+ 
+-#ifdef CONFIG_RHEL_DIFFERENCES
+-	pci_hw_deprecated(hpsa_pci_device_id, pdev);
+-#endif
+ 
+ 	if (number_of_controllers == 0)
+ 		printk(KERN_INFO DRIVER_NAME "\n");

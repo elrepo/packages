@@ -1,0 +1,21 @@
+diff -Naurp mpt3sas-43.100.00.00.orig/mpt3sas_scsih.c mpt3sas-43.100.00.00/mpt3sas_scsih.c
+--- mpt3sas-43.100.00.00.orig/mpt3sas_scsih.c	2023-09-29 09:48:44.000000000 +0100
++++ mpt3sas-43.100.00.00/mpt3sas_scsih.c	2023-11-14 17:21:38.227860601 +0000
+@@ -12065,7 +12065,7 @@ _scsih_determine_hba_mpi_version(struct
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_RHEL_DIFFERENCES
++#ifdef CONFIG_ELREPO_DIFFERENCES
+ static const struct pci_device_id rh_deprecated_pci_table[] = {
+ 	/* Thunderbolt ~ 2208 */
+ 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2208_1,
+@@ -12139,7 +12139,7 @@ _scsih_probe(struct pci_dev *pdev, const
+ 	int rv;
+ 	u16 hba_mpi_version;
+ 
+-#ifdef CONFIG_RHEL_DIFFERENCES
++#ifdef CONFIG_ELREPO_DIFFERENCES
+ 	if (pci_hw_disabled(rh_disabled_pci_table, pdev))
+ 		return -ENODEV;
+ 

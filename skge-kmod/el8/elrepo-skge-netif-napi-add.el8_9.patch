@@ -1,0 +1,12 @@
+diff -Naurp skge-1.14.orig/skge.c skge-1.14/skge.c
+--- skge-1.14.orig/skge.c	2021-04-13 19:41:34.000000000 +0100
++++ skge-1.14/skge.c	2023-11-14 17:13:14.150409051 +0000
+@@ -3871,7 +3871,7 @@ static struct net_device *skge_devinit(s
+ 		dev->features |= NETIF_F_HIGHDMA;
+ 
+ 	skge = netdev_priv(dev);
+-	netif_napi_add(dev, &skge->napi, skge_poll, NAPI_WEIGHT);
++	netif_napi_add(dev, &skge->napi, skge_poll);
+ 	skge->netdev = dev;
+ 	skge->hw = hw;
+ 	skge->msg_enable = netif_msg_init(debug, default_msg);

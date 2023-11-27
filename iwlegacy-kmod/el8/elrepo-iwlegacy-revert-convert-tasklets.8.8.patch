@@ -1,7 +1,7 @@
 diff -Naurp iwlegacy-0.0.orig/3945-mac.c iwlegacy-0.0/3945-mac.c
---- iwlegacy-0.0.orig/3945-mac.c	2021-05-22 10:40:55.000000000 +0100
-+++ iwlegacy-0.0/3945-mac.c	2021-05-23 09:42:52.063292849 +0100
-@@ -1374,9 +1374,9 @@ il3945_dump_nic_error_log(struct il_priv
+--- iwlegacy-0.0.orig/3945-mac.c	2023-05-11 15:04:52.000000000 +0100
++++ iwlegacy-0.0/3945-mac.c	2023-05-16 20:32:57.509164400 +0100
+@@ -1372,9 +1372,9 @@ il3945_dump_nic_error_log(struct il_priv
  }
  
  static void
@@ -21,13 +21,13 @@ diff -Naurp iwlegacy-0.0.orig/3945-mac.c iwlegacy-0.0/3945-mac.c
 +	tasklet_init(&il->irq_tasklet,
 +		     il3945_irq_tasklet,
 +		     (unsigned long)il);
- }
  
- static void
+ 	return 0;
+ }
 diff -Naurp iwlegacy-0.0.orig/4965-mac.c iwlegacy-0.0/4965-mac.c
---- iwlegacy-0.0.orig/4965-mac.c	2021-05-22 10:40:55.000000000 +0100
-+++ iwlegacy-0.0/4965-mac.c	2021-05-23 09:40:40.230388442 +0100
-@@ -4339,9 +4339,9 @@ il4965_synchronize_irq(struct il_priv *i
+--- iwlegacy-0.0.orig/4965-mac.c	2023-05-11 15:04:52.000000000 +0100
++++ iwlegacy-0.0/4965-mac.c	2023-05-16 20:31:03.353430015 +0100
+@@ -4338,9 +4338,9 @@ il4965_synchronize_irq(struct il_priv *i
  }
  
  static void
@@ -39,7 +39,7 @@ diff -Naurp iwlegacy-0.0.orig/4965-mac.c iwlegacy-0.0/4965-mac.c
  	u32 inta, handled = 0;
  	u32 inta_fh;
  	unsigned long flags;
-@@ -6233,7 +6233,9 @@ il4965_setup_deferred_work(struct il_pri
+@@ -6234,7 +6234,9 @@ il4965_setup_deferred_work(struct il_pri
  
  	timer_setup(&il->watchdog, il_bg_watchdog, 0);
  
@@ -47,6 +47,6 @@ diff -Naurp iwlegacy-0.0.orig/4965-mac.c iwlegacy-0.0/4965-mac.c
 +	tasklet_init(&il->irq_tasklet,
 +		     il4965_irq_tasklet,
 +		     (unsigned long)il);
- }
  
- static void
+ 	return 0;
+ }

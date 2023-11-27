@@ -2,21 +2,21 @@
 %define kmod_name		wireguard
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-425.10.1.el8_7}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
 
 %{!?dist: %define dist .el8}
 
 # define epoch to equal minor point release to ensure
 # newer versions are not installed on older kernels
-%if "%{kmod_kernel_version}" == "4.18.0-372.13.1.el8_6"
-Epoch:	6
+%if "%{kmod_kernel_version}" == "4.18.0-477.10.1.el8_8"
+Epoch:	8
 %else
-Epoch:	7
+Epoch:	9
 %endif
 
 Name:		kmod-%{kmod_name}
 Version:	1.0.20220627
-Release:	4%{?dist}
+Release:	6%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -28,6 +28,8 @@ Source5:  https://raw.githubusercontent.com/elrepo/packages/master/wireguard-kmo
 
 # Source code patches
 Patch0:		elrepo-wireguard-backports.el8_7.patch
+Patch1:		elrepo-wireguard-netif_napi_add.el8_8.patch
+Patch2:		elrepo-wireguard-sk_buff.8.9.patch
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
                             /usr/lib/rpm/redhat/brp-ldconfig \
@@ -191,6 +193,13 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 14 2023 Philip J Perry <phil@elrepo.org> 1.0.20220627-6
+- Rebuilt for RHEL 8.9
+
+* Tue May 16 2023 Philip J Perry <phil@elrepo.org> 1.0.20220627-5
+- Rebuilt for RHEL 8.8
+- Fix netif_napi_add() on RHEL 8.8
+
 * Sat Jan 14 2023 Philip J Perry <phil@elrepo.org> 1.0.20220627-4
 - Rebuilt against kernel-4.18.0-425.10.1.el8_7
   [http://lists.elrepo.org/pipermail/elrepo/2023-January/006336.html]
