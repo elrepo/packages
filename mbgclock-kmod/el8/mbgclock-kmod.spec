@@ -1,13 +1,15 @@
+# Define upstream file name here.
+%define upstream_name		mbgtools-lx
 # Define the kmod package name here.
 %define kmod_name		mbgclock
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.9.1.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-477.10.1.el8_8}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	4.2.18
+Version:	4.2.24
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -15,7 +17,7 @@ License:	GPLv2
 URL:		http://www.kernel.org/
 
 # Sources
-Source0:	%{kmod_name}-%{version}.tar.gz
+Source0:	%{upstream_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
@@ -74,7 +76,7 @@ Group: System Environment/Kernel
 Userspace utilities for %{kmod_name}
 
 %prep
-%setup -n %{kmod_name}-%{version}
+%setup -n %{upstream_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
@@ -83,7 +85,8 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 %build
 # %%{__make} -C %%{kernel_source} %%{?_smp_mflags} V=1 modules M=$PWD
 # KSRC=%%{_usrsrc}/kernels/%%{kversion}
-%{__make} -C $PWD %{?_smp_mflags} BUILD_DIR="%{kernel_source}"
+# Note: make is not stable with _smp_mflags 
+%{__make} -C $PWD BUILD_DIR="%{kernel_source}"
 
 whitelist="/lib/modules/kabi-current/kabi_whitelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -209,6 +212,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Nov 16 2023 Tuan Hoang <tqhoang@elrepo.org> - 4.2.24-1
+- Updated to version 4.2.24
+- Restrict make to single thread for build stability
+- Rebuilt against RHEL 8.8 GA kernel 4.18.0-477.10.1
+
 * Thu May 12 2022 Akemi Yagi <toracat@elrepo.org> - 4.2.18-1
 - Updated to version 4.2.18
 - Rebuilt against RHEL 8.6 GA kernel 4.18.0-372.9.1.el8
