@@ -1,0 +1,94 @@
+--- floppy/floppy.el8.c	2023-04-05 12:44:47.000000000 -0400
++++ floppy/floppy.c	2023-10-24 00:05:23.464458678 -0400
+@@ -572,6 +572,7 @@ static void floppy_release_irq_and_dma(v
+  * output_byte is automatically disabled when reset is set.
+  */
+ static void reset_fdc(void);
++static int floppy_revalidate(struct gendisk *disk);
+ 
+ /*
+  * These are global variables, as that's the easiest way to give
+@@ -3222,7 +3223,8 @@ static int invalidate_drive(struct block
+ 	/* invalidate the buffer track to force a reread */
+ 	set_bit((long)bdev->bd_disk->private_data, &fake_change);
+ 	process_fd_request();
+-	check_disk_change(bdev);
++	if (bdev_check_media_change(bdev))
++		floppy_revalidate(bdev->bd_disk);
+ 	return 0;
+ }
+ 
+@@ -4033,7 +4035,8 @@ static int floppy_open(struct block_devi
+ 		if (mode & (FMODE_READ|FMODE_WRITE)) {
+ 			UDRS->last_checked = 0;
+ 			clear_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags);
+-			check_disk_change(bdev);
++			if (bdev_check_media_change(bdev))
++				floppy_revalidate(bdev->bd_disk);
+ 			if (test_bit(FD_DISK_CHANGED_BIT, &UDRS->flags))
+ 				goto out;
+ 			if (test_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags))
+@@ -4490,17 +4493,6 @@ static bool floppy_available(int drive)
+ 	return true;
+ }
+ 
+-static struct kobject *floppy_find(dev_t dev, int *part, void *data)
+-{
+-	int drive = (*part & 3) | ((*part & 0x80) >> 5);
+-	if (drive >= N_DRIVE || !floppy_available(drive))
+-		return NULL;
+-	if (((*part >> 2) & 0x1f) >= ARRAY_SIZE(floppy_type))
+-		return NULL;
+-	*part = 0;
+-	return get_disk_and_module(disks[drive]);
+-}
+-
+ static int __init do_floppy_init(void)
+ {
+ 	int i, unit, drive, err;
+@@ -4553,9 +4545,6 @@ static int __init do_floppy_init(void)
+ 	if (err)
+ 		goto out_unreg_blkdev;
+ 
+-	blk_register_region(MKDEV(FLOPPY_MAJOR, 0), 256, THIS_MODULE,
+-			    floppy_find, NULL, NULL);
+-
+ 	for (i = 0; i < 256; i++)
+ 		if (ITYPE(i))
+ 			floppy_sizes[i] = floppy_type[ITYPE(i)].size;
+@@ -4584,7 +4573,7 @@ static int __init do_floppy_init(void)
+ 	if (fdc_state[0].address == -1) {
+ 		cancel_delayed_work(&fd_timeout);
+ 		err = -ENODEV;
+-		goto out_unreg_region;
++		goto out_unreg_driver;
+ 	}
+ #if N_FDC > 1
+ 	fdc_state[1].address = FDC2;
+@@ -4595,7 +4584,7 @@ static int __init do_floppy_init(void)
+ 	if (err) {
+ 		cancel_delayed_work(&fd_timeout);
+ 		err = -EBUSY;
+-		goto out_unreg_region;
++		goto out_unreg_driver;
+ 	}
+ 
+ 	/* initialise drive state */
+@@ -4690,8 +4679,7 @@ out_remove_drives:
+ out_release_dma:
+ 	if (atomic_read(&usage_count))
+ 		floppy_release_irq_and_dma();
+-out_unreg_region:
+-	blk_unregister_region(MKDEV(FLOPPY_MAJOR, 0), 256);
++out_unreg_driver:
+ 	platform_driver_unregister(&floppy_driver);
+ out_unreg_blkdev:
+ 	unregister_blkdev(FLOPPY_MAJOR, "fd");
+@@ -4918,7 +4906,6 @@ static void __exit floppy_module_exit(vo
+ {
+ 	int drive;
+ 
+-	blk_unregister_region(MKDEV(FLOPPY_MAJOR, 0), 256);
+ 	unregister_blkdev(FLOPPY_MAJOR, "fd");
+ 	platform_driver_unregister(&floppy_driver);
+ 
