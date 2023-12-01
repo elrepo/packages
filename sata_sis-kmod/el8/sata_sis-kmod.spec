@@ -8,7 +8,7 @@
 
 Name:           kmod-%{kmod_name}
 Version:        1.0
-Release:        9%{?dist}
+Release:        11%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -32,6 +32,7 @@ Source7:  scsi_transport_api.h
 # Source code patches
 Patch0:  elrepo-libata-eh.patch
 Patch1:  elrepo-libata.patch
+Patch2:  sata_sis-workaround-missing-symbol-version-el8-el9.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -61,7 +62,6 @@ Provides:       kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires(post): %{_sbindir}/weak-modules
 Requires(postun):       %{_sbindir}/weak-modules
 Requires:       kernel >= %{kmod_kernel_version}
-Requires:       kmod-pata_sis
 
 %description
 This package provides the %{kmod_name} kernel module(s).
@@ -78,6 +78,7 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 # Apply patch(es)
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD CONFIG_SATA_SIS=m
@@ -190,6 +191,13 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Nov 16 2023 Tuan Hoang <tqhoang@elrepo.org> - 1.0-11
+- Remove requires for kmod-pata_sis
+
+* Thu Nov 16 2023 Tuan Hoang <tqhoang@elrepo.org> - 1.0-10
+- Fix missing symbols error with weak-modules script
+  [https://elrepo.org/bugs/view.php?id=1399]
+
 * Mon Aug 07 2023 Akemi Yagi <toracat@elrepo.org> - 1.0-9
 - Rebuilt against RHEL 8.8 GA kernel
 - Source code from kernel-4.18.0-477.10.1
