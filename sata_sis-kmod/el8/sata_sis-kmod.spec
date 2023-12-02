@@ -2,13 +2,13 @@
 %define kmod_name		sata_sis
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-477.10.1.el8_8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
 Version:        1.0
-Release:        11%{?dist}
+Release:        12%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -191,6 +191,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sun Nov 19 2023 Tuan Hoang <tqhoang@elrepo.org> - 1.0-12
+- Rebuilt against RHEL 8.9 GA kernel
+- Source code from kernel-4.18.0-513.5.1.el8_9
+
 * Thu Nov 16 2023 Tuan Hoang <tqhoang@elrepo.org> - 1.0-11
 - Remove requires for kmod-pata_sis
 

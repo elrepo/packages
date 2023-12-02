@@ -2,14 +2,14 @@
 %define kmod_name		moxa-mxupcie
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-372.9.1.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
 
 %{!?dist: %define dist .el8}
 
 Summary:	Moxa %{kmod_name} kernel module(s)
 Name:		kmod-%{kmod_name}
 Version:	4.1
-Release:	3%{?dist}
+Release:	4%{?dist}
 License:	GPLv2+
 URL:		https://www.moxa.com/
 
@@ -69,10 +69,12 @@ This package provides the mxupcie kernel module.
 It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
-%package	tools
+%package -n	%{kmod_name}-tools
 Summary:	Tools for %{kmod_name} kernel modules
+Obsoletes:	kmod-%{kmod_name}-tools
+Provides:	kmod-%{kmod_name}-tools
 
-%description	tools
+%description -n	%{kmod_name}-tools
 This package provides tools for %{kmod_name} kernel modules.
 
 %prep
@@ -196,7 +198,7 @@ rmdir "%{dup_state_dir}" 2> /dev/null
 
 exit 0
 
-%files tools
+%files -n %{kmod_name}-tools
 %{_bindir}/muestty
 %{_bindir}/msdiag
 %{_bindir}/msmon
@@ -209,6 +211,11 @@ exit 0
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
 
 %changelog
+* Sun Nov 19 2023 Tuan Hoang <tqhoang@elrepo.org> - 4.1-4
+- Fix naming of tools sub-package
+- Rebuilt against RHEL 8.9 GA kernel
+- Source code from kernel-4.18.0-513.5.1.el8_9
+
 * Tue May 31 2022 Akemi Yagi <toracat@elrepo.org> - 4.1-3
 - Rebuilt against RHEL 8.6 GA kernel 4.18.0-372.9.1.el8
 - Patch mxpcie.c.diff applied
