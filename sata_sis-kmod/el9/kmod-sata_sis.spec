@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	1.0
-Release:	4%{?dist}
+Release:	5%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -33,7 +33,8 @@ Source7:	scsi_transport_api.h
 		/usr/lib/rpm/redhat/brp-mangle-shebangs
 
 # Source code patches
-Patch0: elrepo-libata-eh.patch
+Patch0:		elrepo-libata-eh.patch
+Patch1:		sata_sis-workaround-missing-symbol-version-el8-el9.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -84,6 +85,7 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 
 # Apply patch(es)
 %patch0 -p1
+%patch1 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD CONFIG_SATA_SIS=m
@@ -197,6 +199,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri Dec 01 2023 Tuan Hoang <tqhoang@elrepo.org> - 1.0-5
+- Fix missing symbols error with weak-modules script
+  [https://elrepo.org/bugs/view.php?id=1399]
+
 * Wed Nov 08 2023 Akemi Yagi <toracat@elrepo.org> - 1.0-4
 - Rebuilt against 9.3 GA kernel 5.14.0-362.8.1.el9_3
 - Source code from kernel-5.14.0-362.8.1.el9_3

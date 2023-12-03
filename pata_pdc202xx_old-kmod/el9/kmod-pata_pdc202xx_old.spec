@@ -1,5 +1,5 @@
 # Define the kmod package name here.
-%define kmod_name	pata_sis
+%define kmod_name	pata_pdc202xx_old
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
 %{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-362.8.1.el9_3}
@@ -7,8 +7,8 @@
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	0.5.2
-Release:	4%{?dist}
+Version:	0.4.3
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -86,7 +86,7 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 %patch0 -p1
 
 %build
-%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD CONFIG_PATA_SIS=m
+%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD CONFIG_PATA_PDC_OLD=m
 
 whitelist="/lib/modules/kabi-current/kabi_stablelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -197,18 +197,7 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Tue Nov 07 2023 Akemi Yagi <toracat@elrepo.org> - 0.5.2-4
+* Fri Dec 01 2023 Tuan Hoang <tqhoang@elrepo.org> - 0.4.3-1
+- Initial build for el9
 - Rebuilt against 9.3 GA kernel 5.14.0-362.8.1.el9_3
 - Source code from kernel-5.14.0-362.8.1.el9_3
-
-* Tue May 09 2023 Akemi Yagi <toracat@elrepo.org> - 0.5.2-3
-- Rebuilt against RHEL 9.2 GA kernel 5.14.0-284.11.1.el9_2
-- Source code from kernel-5.14.0-284.11.1.el9_2
-
-* Tue Nov 15 2022 Akemi Yagi <toracat@elrepo.org> - 0.5.2-2
-- Rebuilt against RHEL 9.1 GA kernel 5.14.0-162.6.1.el9_1
-- Source code from kernel-5.14.0-162.6.1.el9_1
-
-* Tue May 17 2022 Akemi Yagi <toracat@elrepo.org> - 0.5.2-1
-- Rebuilt against RHEL 9.0 GA kernel 5.14.0-70.13.1.el9_0
-- Source code from kernel-5.14.0-70.13.1.el9_0
