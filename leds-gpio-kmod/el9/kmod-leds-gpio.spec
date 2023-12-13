@@ -32,6 +32,7 @@ Source5:	GPL-v2.0.txt
 		/usr/lib/rpm/redhat/brp-mangle-shebangs
 
 # Source code patches
+Patch0:		leds-gpio-fix-el9_3.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -79,7 +80,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
-# %%patch0 -p1
+%patch0 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD CONFIG_LEDS_GPIO=m
@@ -193,8 +194,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Tue Nov 07 2023 Akemi Yagi <toracat@elrepo.org> - 0.0-4
-- Rebuilt against 9.3 GA kernel 5.14.0-362.8.1.el9_3
+* Wed Dec 13 2023 Tuan Hoang <tqhoang@elrepo.org> - 0.0-4
+- Rebuilt against RHEL 9.3 GA kernel 5.14.0-362.8.1.el9_3
+- Add patch to fix build for el9_3
 
 * Tue May 09 2023 Akemi Yagi <toracat@elrepo.org> - 0.0-3
 - Rebuilt against RHEL 9.2 GA kernel 5.14.0-284.11.1.el9_2
