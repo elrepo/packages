@@ -195,7 +195,7 @@ exit 0
 
 %changelog
 * Fri Dec 15 2023 Tuan Hoang <tqhoang@elrepo.org> - 0.0-5
-- Rebuilt against RHEL 9.3 GA kernel 5.14.0-362.13.1.el9_3
+- Rebuilt against RHEL 9.3 errata kernel 5.14.0-362.13.1.el9_3
 
 * Wed Dec 13 2023 Tuan Hoang <tqhoang@elrepo.org> - 0.0-4
 - Rebuilt against RHEL 9.3 GA kernel 5.14.0-362.8.1.el9_3
