@@ -1,6 +1,6 @@
-diff -Naurp r8125-9.011.00.orig/src/r8125.h r8125-9.011.00/src/r8125.h
---- r8125-9.011.00.orig/src/r8125.h	2022-12-12 12:22:27.000000000 +0000
-+++ r8125-9.011.00/src/r8125.h	2023-01-04 20:31:45.634314744 +0000
+diff -uNpr r8125-9.011.01.orig/src/r8125.h r8125-9.011.01/src/r8125.h
+--- r8125-9.011.01.orig/src/r8125.h	2023-04-12 07:58:35.000000000 -0700
++++ r8125-9.011.01/src/r8125.h	2023-05-31 11:23:29.656200306 -0700
 @@ -52,7 +52,7 @@ typedef int netdev_tx_t;
  #endif
  
@@ -19,9 +19,9 @@ diff -Naurp r8125-9.011.00.orig/src/r8125.h r8125-9.011.00/src/r8125.h
  static inline void ether_addr_copy(u8 *dst, const u8 *src)
  {
          u16 *a = (u16 *)dst;
-diff -Naurp r8125-9.011.00.orig/src/r8125_n.c r8125-9.011.00/src/r8125_n.c
---- r8125-9.011.00.orig/src/r8125_n.c	2022-12-12 12:22:37.000000000 +0000
-+++ r8125-9.011.00/src/r8125_n.c	2023-01-04 20:46:32.848406287 +0000
+diff -uNpr r8125-9.011.01.orig/src/r8125_n.c r8125-9.011.01/src/r8125_n.c
+--- r8125-9.011.01.orig/src/r8125_n.c	2023-04-12 07:58:41.000000000 -0700
++++ r8125-9.011.01/src/r8125_n.c	2023-05-31 11:30:11.783734240 -0700
 @@ -359,7 +359,9 @@ static int rtl8125_rx_interrupt(struct n
  static int rtl8125_tx_interrupt(struct rtl8125_tx_ring *ring, int budget);
  static int rtl8125_tx_interrupt_with_vector(struct rtl8125_private *tp, const int message_id, int budget);
@@ -58,7 +58,7 @@ diff -Naurp r8125-9.011.00.orig/src/r8125_n.c r8125-9.011.00/src/r8125_n.c
  
  static inline void
  rtl8125_mark_to_asic_v3(struct RxDescV3 *descv3,
-@@ -16704,9 +16710,9 @@ rtl8125_rx_interrupt(struct net_device *
+@@ -16706,9 +16712,9 @@ rtl8125_rx_interrupt(struct net_device *
                  if (rtl8125_rx_vlan_skb(tp, desc, skb) < 0)
                          rtl8125_rx_skb(tp, skb, ring_index);
  
@@ -67,6 +67,6 @@ diff -Naurp r8125-9.011.00.orig/src/r8125_n.c r8125-9.011.00/src/r8125_n.c
                  dev->last_rx = jiffies;
 -#endif //LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0)
 +#endif //LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0) && RHEL_MAJOR != 7
-                 total_rx_bytes += skb->len;
                  total_rx_packets++;
  
+ #ifdef ENABLE_PAGE_REUSE

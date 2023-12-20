@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 9.011.00
+Version: 9.011.01
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -22,7 +22,7 @@ Source10: kmodtool-%{kmod_name}-el7.sh
 Source20: ELRepo-Makefile-%{kmod_name}
 
 # Patches.
-Patch0: ELRepo-r8125.patch
+Patch0: ELRepo-r8125-%{version}.patch
 
 # Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
@@ -73,6 +73,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed May 31 2023 Akemi Yagi <toracat@elrepo.org> - 9.011.01-1
+- Update to version 9.011.01
+  [https://elrepo.org/bugs/view.php?id=1356]
+
 * Wed Jan 04 2023 Philip J Perry <phil@elrepo.org> - 9.011.00-1
 - Update to version 9.011.00
   [https://elrepo.org/bugs/view.php?id=1305]
