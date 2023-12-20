@@ -22,7 +22,7 @@ Source10: kmodtool-%{kmod_name}-el7.sh
 Source20: ELRepo-Makefile-%{kmod_name}
 
 # Patches.
-Patch0: ELRepo-r8125-%{version}.patch
+Patch0: ELRepo-r8125.patch
 
 # Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
