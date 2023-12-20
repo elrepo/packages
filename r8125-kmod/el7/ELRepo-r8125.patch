@@ -1,16 +1,25 @@
-diff -uNpr r8125-9.011.01.orig/src/r8125.h r8125-9.011.01/src/r8125.h
---- r8125-9.011.01.orig/src/r8125.h	2023-04-12 07:58:35.000000000 -0700
-+++ r8125-9.011.01/src/r8125.h	2023-05-31 11:23:29.656200306 -0700
-@@ -52,7 +52,7 @@ typedef int netdev_tx_t;
+diff -Naurp r8125-9.012.03.orig/src/r8125.h r8125-9.012.03/src/r8125.h
+--- r8125-9.012.03.orig/src/r8125.h	2023-12-20 11:33:05.942935688 -0500
++++ r8125-9.012.03/src/r8125.h	2023-12-20 11:32:27.010039596 -0500
+@@ -47,7 +47,7 @@
+ #include "r8125_lib.h"
  #endif
  
- #if LINUX_VERSION_CODE < KERNEL_VERSION(5,12,0)
--static inline bool dev_page_is_reusable(const struct page *page)
-+static inline bool dev_page_is_reusable(struct page *page)
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(4,3,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4,3,0) && RHEL_MAJOR != 7
+ static inline
+ ssize_t strscpy(char *dest, const char *src, size_t count)
  {
-         return likely(page_to_nid(page) == numa_mem_id() &&
-                       !page_is_pfmemalloc(page));
-@@ -88,7 +88,7 @@ static inline bool dev_page_is_reusable(
+@@ -75,7 +75,7 @@ ssize_t strscpy(char *dest, const char *
+ }
+ #endif
+ 
+-#if (LINUX_VERSION_CODE < KERNEL_VERSION(4,6,0))
++#if (LINUX_VERSION_CODE < KERNEL_VERSION(4,6,0)) && RHEL_MAJOR != 7
+ static inline unsigned char *skb_checksum_start(const struct sk_buff *skb)
+ {
+ #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,22))
+@@ -147,7 +147,7 @@ static inline bool dev_page_is_reusable(
  #define device_set_wakeup_enable(dev, val)	do {} while (0)
  #endif
  
@@ -19,46 +28,22 @@ diff -uNpr r8125-9.011.01.orig/src/r8125.h r8125-9.011.01/src/r8125.h
  static inline void ether_addr_copy(u8 *dst, const u8 *src)
  {
          u16 *a = (u16 *)dst;
-diff -uNpr r8125-9.011.01.orig/src/r8125_n.c r8125-9.011.01/src/r8125_n.c
---- r8125-9.011.01.orig/src/r8125_n.c	2023-04-12 07:58:41.000000000 -0700
-+++ r8125-9.011.01/src/r8125_n.c	2023-05-31 11:30:11.783734240 -0700
-@@ -359,7 +359,9 @@ static int rtl8125_rx_interrupt(struct n
- static int rtl8125_tx_interrupt(struct rtl8125_tx_ring *ring, int budget);
- static int rtl8125_tx_interrupt_with_vector(struct rtl8125_private *tp, const int message_id, int budget);
- static void rtl8125_wait_for_quiescence(struct net_device *dev);
-+#if RHEL_MAJOR != 7
- static int rtl8125_change_mtu(struct net_device *dev, int new_mtu);
-+#endif /* RHEL_MAJOR != 7 */
- static void rtl8125_down(struct net_device *dev);
- 
- static int rtl8125_set_mac_address(struct net_device *dev, void *p);
-@@ -13516,7 +13518,9 @@ static const struct net_device_ops rtl81
+diff -Naurp r8125-9.012.03.orig/src/r8125_n.c r8125-9.012.03/src/r8125_n.c
+--- r8125-9.012.03.orig/src/r8125_n.c	2023-12-20 11:33:05.944935734 -0500
++++ r8125-9.012.03/src/r8125_n.c	2023-12-20 11:33:57.834126755 -0500
+@@ -16967,7 +16967,11 @@ static const struct net_device_ops rtl81
  #endif //LINUX_VERSION_CODE >= KERNEL_VERSION(5,11,0)
          .ndo_start_xmit     = rtl8125_start_xmit,
          .ndo_tx_timeout     = rtl8125_tx_timeout,
-+#if RHEL_MAJOR != 7
++#if RHEL_MAJOR == 7
++        .ndo_change_mtu_rh74= rtl8125_change_mtu,
++#else
          .ndo_change_mtu     = rtl8125_change_mtu,
-+#endif /* RHEL_MAJOR != 7 */
++#endif
          .ndo_set_mac_address    = rtl8125_set_mac_address,
  #if LINUX_VERSION_CODE < KERNEL_VERSION(5,15,0)
          .ndo_do_ioctl       = rtl8125_do_ioctl,
-@@ -14868,6 +14872,7 @@ rtl8125_hw_start(struct net_device *dev)
-         rtl8125_lib_reset_complete(tp);
- }
- 
-+#if RHEL_MAJOR != 7
- static int
- rtl8125_change_mtu(struct net_device *dev,
-                    int new_mtu)
-@@ -14917,6 +14922,7 @@ out:
- err_out:
-         return ret;
- }
-+#endif /* RHEL_MAJOR != 7 */
- 
- static inline void
- rtl8125_mark_to_asic_v3(struct RxDescV3 *descv3,
-@@ -16706,9 +16712,9 @@ rtl8125_rx_interrupt(struct net_device *
+@@ -20368,9 +20372,9 @@ rtl8125_rx_interrupt(struct net_device *
                  if (rtl8125_rx_vlan_skb(tp, desc, skb) < 0)
                          rtl8125_rx_skb(tp, skb, ring_index);
  
