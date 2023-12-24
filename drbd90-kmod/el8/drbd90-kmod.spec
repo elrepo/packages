@@ -8,8 +8,8 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	9.1.17
-Release:	2%{?dist}
+Version:	9.1.18
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -189,6 +189,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri Dec 22 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.18-1.el8_9
+- Version updated to 9.1.18
+
 * Tue Nov 14 2023 Akemi Yagi <toracat@elrepo.org> -9.1.17-2.el8_9
 - Rebuilt against el8.9 GA kernel-4.18.0-513.5.1.el8_9
 
