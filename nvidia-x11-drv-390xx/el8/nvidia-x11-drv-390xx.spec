@@ -1,23 +1,23 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/390.157/README/minimumrequirements.html
+# https://download.nvidia.com/XFree86/Linux-x86_64/390.157/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv-390xx
 Version:	390.157
-Release:	4%{?dist}
+Release:	5%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
-URL:		http://www.nvidia.com/
+URL:		https://www.nvidia.com/
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 ExclusiveArch:	i686 x86_64
 
 # Sources.
-Source0:	http://us.download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+Source0:	https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 NoSource: 0
 
 Source1:	alternate-install-present
@@ -45,18 +45,12 @@ Requires(preun): grubby
 
 # elrepo
 Conflicts:	nvidia-x11-drv
-Conflicts:	nvidia-x11-drv-32bit
-Conflicts:	nvidia-x11-drv-libs
+Conflicts:	nvidia-x11-drv-470xx
 Conflicts:	nvidia-x11-drv-367xx
-Conflicts:	nvidia-x11-drv-367xx-32bit
 Conflicts:	nvidia-x11-drv-340xx
-Conflicts:	nvidia-x11-drv-340xx-32bit
 Conflicts:	nvidia-x11-drv-304xx
-Conflicts:	nvidia-x11-drv-304xx-32bit
 Conflicts:	nvidia-x11-drv-173xx
-Conflicts:	nvidia-x11-drv-173xx-32bit
 Conflicts:	nvidia-x11-drv-96xx
-Conflicts:	nvidia-x11-drv-96xx-32bit
 
 # negativo17.org
 Conflicts:	nvidia-kmod-common
@@ -75,6 +69,8 @@ Conflicts:	xorg-x11-drv-nvidia-173xx
 Conflicts:	xorg-x11-drv-nvidia-304xx
 Conflicts:	xorg-x11-drv-nvidia-340xx
 Conflicts:	xorg-x11-drv-nvidia-367xx
+Conflicts:	xorg-x11-drv-nvidia-390xx
+Conflicts:	xorg-x11-drv-nvidia-470xx
 
 %description
 This package provides the proprietary NVIDIA OpenGL X11 display driver files.
@@ -94,6 +90,21 @@ Requires:	egl-wayland%{?_isa}
 Requires:	opencl-filesystem
 Requires:	ocl-icd
 Requires:	vulkan-loader
+
+Conflicts:	nvidia-x11-drv-libs
+Conflicts:	nvidia-x11-drv-470xx-libs
+Conflicts:	nvidia-x11-drv-367xx-libs
+Conflicts:	nvidia-x11-drv-340xx-libs
+Conflicts:	nvidia-x11-drv-304xx-libs
+Conflicts:	nvidia-x11-drv-173xx-libs
+Conflicts:	nvidia-x11-drv-96xx-libs
+Conflicts:	nvidia-x11-drv-32bit
+Conflicts:	nvidia-x11-drv-470xx-32bit
+Conflicts:	nvidia-x11-drv-367xx-32bit
+Conflicts:	nvidia-x11-drv-340xx-32bit
+Conflicts:	nvidia-x11-drv-304xx-32bit
+Conflicts:	nvidia-x11-drv-173xx-32bit
+Conflicts:	nvidia-x11-drv-96xx-32bit
 
 %description libs
 This package provides libraries for the Proprietary NVIDIA driver.
@@ -352,6 +363,9 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Wed Jan 10 2024 Tuan Hoang <tqhoang@elrepo.org> - 390.157-5
+- Add libs package conflicts
+
 * Tue Nov 14 2023 Philip J Perry <phil@elrepo.org> - 390.157-4
 - Rebuilt for RHEL 8.9
 
