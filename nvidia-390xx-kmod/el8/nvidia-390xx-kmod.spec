@@ -8,14 +8,14 @@
 
 Name:		kmod-%{kmod_name}
 Version:	390.157
-Release:	4%{?dist}
+Release:	5%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
 License:	Proprietary
-URL:		http://www.nvidia.com/
+URL:		https://www.nvidia.com/
 
 # Sources
-Source0:  ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+Source0:  https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 Source1:  blacklist-nouveau.conf
 Source2:  dracut-nvidia.conf
 
@@ -86,7 +86,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override nvidia * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 echo "override nvidia-drm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 echo "override nvidia-modeset * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
-echo "override nvidia-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.config
+echo "override nvidia-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 sh %{SOURCE0} --extract-only --target nvidiapkg
 %patch0 -p1
 %{__cp} -a nvidiapkg _kmod_build_
@@ -231,6 +231,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Jan 10 2024 Tuan Hoang <tqhoang@elrepo.org> - 390.157-5
+- Fix missing uvm line from depmod conf file
+- Revise patch to use RHEL_MAJOR define
+
 * Thu Nov 23 2023 Philip J Perry <phil@elrepo.org> - 390.157-4
 - Rebuilt for RHEL 8.9
 - Fix build issues on RHEL 8.9
