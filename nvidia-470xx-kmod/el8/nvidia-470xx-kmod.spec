@@ -8,14 +8,14 @@
 
 Name:		kmod-%{kmod_name}
 Version:	470.223.02
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
 License:	Proprietary
-URL:		http://www.nvidia.com/
+URL:		https://www.nvidia.com/
 
 # Sources
-Source0:  ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+Source0:  https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 Source1:  blacklist-nouveau.conf
 Source2:  dracut-nvidia.conf
 
@@ -83,8 +83,8 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override nvidia * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 echo "override nvidia-drm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 echo "override nvidia-modeset * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
-echo "override nvidia-peermem * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.config
-echo "override nvidia-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.config
+echo "override nvidia-peermem * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+echo "override nvidia-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 sh %{SOURCE0} --extract-only --target nvidiapkg
 %{__cp} -a nvidiapkg _kmod_build_
 
@@ -236,6 +236,9 @@ exit 0
 /lib/firmware/nvidia/%{version}/gsp.bin
 
 %changelog
+* Wed Jan 10 2024 Tuan Hoang <tqhoang@elrepo.org> - 470.223.02-3
+- Fix missing peermem and uvm lines from depmod conf file
+
 * Tue Nov 14 2023 Philip J Perry <phil@elrepo.org> - 470.223.02-2
 - Rebuilt for RHEL 8.9
 
