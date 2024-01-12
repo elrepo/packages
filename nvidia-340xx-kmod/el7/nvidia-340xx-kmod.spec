@@ -2,28 +2,28 @@
 %define kmod_name nvidia-340xx
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-1062.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 340.107
-Release: 3%{?dist}
+Version: 340.108
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
-URL:	 http://www.nvidia.com/
+URL:	 https://www.nvidia.com/
 
 BuildRequires: perl
 BuildRequires: redhat-rpm-config
 ExclusiveArch: x86_64
 
 # Sources.
-Source0:  ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+Source0:  https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 Source1:  blacklist-nouveau.conf
 Source10: kmodtool-%{kmod_name}-el7.sh
 
 # Patch0: legacy340.patch
-# Patch1:   nvidia-340.106-el7.5-get-user-pages.patch
-Patch2:	nvidia-340.107-rhel7_7.patch
+# Patch1: nvidia-340.106-el7.5-get-user-pages.patch
+# Patch2: nvidia-340.107-rhel7_7.patch
 
 NoSource: 0
 
@@ -46,7 +46,7 @@ sh %{SOURCE0} --extract-only --target nvidiapkg
 
 # %patch0 -p1
 # %patch1 -p1
-%patch2 -p1
+# %patch2 -p1
 
 %{__cp} -a nvidiapkg _kmod_build_
 
@@ -87,6 +87,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Jan 11 2024 Tuan Hoang <tqhoang@elrepo.org> - 340.108-1
+- Rebuilt against RHEL 7.9 GA kernel
+- Updated to version 340.108
+
 * Sat Aug 10 2019 Philip J Perry <phil@elrepo.org> - 340.107-3
 - Rebuilt against RHEL 7.7 kernel
 - Patch to fix compilation on RHEL 7.7 applied
