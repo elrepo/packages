@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/535.129.03/README/minimumrequirements.html
+# https://download.nvidia.com/XFree86/Linux-x86_64/535.146.02/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 
@@ -8,21 +8,21 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	535.129.03
+Version:	535.146.02
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
-URL:		http://www.nvidia.com/
+URL:		https://www.nvidia.com/
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 ExclusiveArch:	i686 x86_64
 
 # Sources.
-Source0:	http://us.download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+Source0:	https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 NoSource: 0
 
-Source1:    nvidia-provides.sh
+Source1:	nvidia-provides.sh
 Source2:	nvidia-xorg.conf
 Source3:	alternate-install-present
 
@@ -451,7 +451,6 @@ fi ||:
 %{_bindir}/nvidia-smi
 %{_bindir}/nvidia-xconfig
 %config %{_sysconfdir}/X11/nvidia-xorg.conf
-%{_sysconfdir}/OpenCL/
 %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %dir %{_prefix}/lib/nvidia/
 %{_prefix}/lib/nvidia/alternate-install*
@@ -469,6 +468,10 @@ fi ||:
 %endif
 
 %changelog
+* Thu Jan 11 2024 Tuan Hoang <tqhoang@elrepo.org> - 535.146.02-1
+- Updated to version 535.146.02
+- Fix 'file listed twice' rpmbuild warning for nvidia.icd
+
 * Wed Nov 08 2023 Philip J Perry <phil@elrepo.org> - 535.129.03-1
 - Updated to version 535.129.03
 
