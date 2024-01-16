@@ -1,7 +1,7 @@
 %define real_name drbd-utils
 
 Name:    drbd84-utils
-Version: 9.15.1
+Version: 9.22.0
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
@@ -181,6 +181,9 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Sat Dec 24 2022 Akemi Yagi <toracat@elrepo.org> - 9.22.0-1
+- Updated to 9.22.0
+ 
 * Wed Feb 17 2021 Akemi Yagi <toracat@elrepo.org> - 9.15.1-1
 - Initial build for RHEL 8
 
