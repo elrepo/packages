@@ -1,7 +1,7 @@
 %define real_name drbd-utils
 
 Name:    drbd84-utils
-Version: 9.22.0
+Version: 9.27.0
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
@@ -10,7 +10,7 @@ URL:     http://www.drbd.org/
 
 Source0:   http://oss.linbit.com/drbd/drbd-utils-%{version}.tar.gz
 
-Patch1: elrepo-selinux-bug695.patch
+Patch1: elrepo-selinux-bug695-2.patch
 
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: flex
@@ -18,6 +18,9 @@ BuildRequires: udev
 BuildRequires: libxslt
 BuildRequires: docbook-style-xsl
 BuildRequires: po4a
+# as of 9.26.0
+BuildRequires: keyutils-libs-devel
+BuildRequires: rubygem-asciidoctor
 
 Requires: udev
 Requires(post):   systemd-units
@@ -121,6 +124,15 @@ fi
 %doc %{_mandir}/ja/man8/drbd*
 %doc %{_mandir}/man7/ocf_linbit_drbd.7.gz
 %doc %{_mandir}/man7/ocf_linbit_drbd-attr.7.gz
+%doc %{_mandir}/man7/drbd-lvchange@.service.7.gz
+%doc %{_mandir}/man7/drbd-promote@.service.7.gz
+%doc %{_mandir}/man7/drbd-reconfigure-suspend-or-error@.service.7.gz
+%doc %{_mandir}/man7/drbd-services@.target.7.gz
+%doc %{_mandir}/man7/drbd-wait-promotable@.service.7.gz
+%doc %{_mandir}/man7/drbd.service.7.gz
+%doc %{_mandir}/man7/drbd@.service.7.gz
+%doc %{_mandir}/man7/drbd@.target.7.gz
+%doc %{_mandir}/man7/ocf.ra@.service.7.gz
 %config %{_sysconfdir}/bash_completion.d/drbdadm
 %config %{_prefix}/lib/udev/rules.d/65-drbd.rules
 %config(noreplace) %{_sysconfdir}/drbd.conf
@@ -132,9 +144,22 @@ fi
 %config %{_unitdir}/drbd.service
 %dir %{_localstatedir}/lib/drbd/
 %dir /lib/drbd/
-/lib/drbd/drbd
 /lib/drbd/drbdadm-84
 /lib/drbd/drbdsetup-84
+/lib/drbd/scripts/drbd
+/lib/drbd/scripts/drbd-service-shim.sh
+/lib/drbd/scripts/drbd-wait-promotable.sh
+/lib/drbd/scripts/ocf.ra.wrapper.sh
+/usr/lib/systemd/system/drbd-demote-or-escalate@.service
+/usr/lib/systemd/system/drbd-lvchange@.service
+/usr/lib/systemd/system/drbd-promote@.service
+/usr/lib/systemd/system/drbd-reconfigure-suspend-or-error@.service
+/usr/lib/systemd/system/drbd-services@.target
+/usr/lib/systemd/system/drbd-wait-promotable@.service
+/usr/lib/systemd/system/drbd@.service
+/usr/lib/systemd/system/drbd@.target
+/usr/lib/systemd/system/ocf.ra@.service
+/usr/lib/systemd/system/drbd-graceful-shutdown.service
 %{_sbindir}/drbdadm
 %{_sbindir}/drbdmeta
 %{_sbindir}/drbdsetup
@@ -181,6 +206,10 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Mon Jan 15 2024 Akemi Yagi <toracat@elrepo.org> - 9.27.0-1
+- Updated to 9.27.0
+- BuildRequires: keyutils-libs-devel needed to build in mock.
+
 * Sat Dec 24 2022 Akemi Yagi <toracat@elrepo.org> - 9.22.0-1
 - Updated to 9.22.0
  

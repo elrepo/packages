@@ -1,0 +1,6 @@
+--- a/scripts/drbd.tmpfiles.conf	2023-07-07 00:16:28.000000000 -0700
++++ b/scripts/drbd.tmpfiles.conf	2024-01-15 15:41:08.375991224 -0800
+@@ -1,2 +1,3 @@
+ d /run/drbd 0700 root root -
+ d /run/drbd/lock 0700 root root -
++Z /run/drbd - - -

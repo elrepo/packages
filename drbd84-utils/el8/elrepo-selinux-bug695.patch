@@ -1,5 +1,0 @@
---- a/scripts/drbd.tmpfiles.conf	2015-03-09 07:58:51.000000000 -0400
-+++ b/scripts/drbd.tmpfiles.conf	2016-12-03 14:23:40.410993104 -0500
-@@ -1 +1,2 @@
- d /run/drbd 0700 root root -
-+Z /run/drbd - - -
