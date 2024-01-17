@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	535.146.02
+Version:	535.154.05
 Release:	1%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
@@ -237,8 +237,8 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
-* Wed Jan 10 2024 Tuan Hoang <tqhoang@elrepo.org> - 535.146.02-1
-- Updated to version 535.146.02
+* Wed Jan 17 2024 Tuan Hoang <tqhoang@elrepo.org> - 535.154.05-1
+- Updated to version 535.154.05
 - Fix missing peermem and uvm lines from depmod conf file
 
 * Tue Nov 14 2023 Philip J Perry <phil@elrepo.org> - 535.129.03-2

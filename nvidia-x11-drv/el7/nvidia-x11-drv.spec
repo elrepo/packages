@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# https://download.nvidia.com/XFree86/Linux-x86_64/535.146.02/README/minimumrequirements.html
+# https://download.nvidia.com/XFree86/Linux-x86_64/535.154.05/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 
@@ -8,7 +8,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	535.146.02
+Version:	535.154.05
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -468,8 +468,8 @@ fi ||:
 %endif
 
 %changelog
-* Thu Jan 11 2024 Tuan Hoang <tqhoang@elrepo.org> - 535.146.02-1
-- Updated to version 535.146.02
+* Wed Jan 17 2024 Tuan Hoang <tqhoang@elrepo.org> - 535.154.05-1
+- Updated to version 535.154.05
 - Fix 'file listed twice' rpmbuild warning for nvidia.icd
 
 * Wed Nov 08 2023 Philip J Perry <phil@elrepo.org> - 535.129.03-1

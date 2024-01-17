@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 535.146.02
+Version: 535.154.05
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -51,8 +51,7 @@ sh %{SOURCE0} --extract-only --target nvidiapkg
 %build
 export SYSSRC=%{_usrsrc}/kernels/%{kversion}
 pushd _kmod_build_/kernel
-# Note: make is not stable with _smp_mflags 
-%{__make} module
+%{__make} %{?_smp_mflags} module
 popd
 
 %install
@@ -90,9 +89,8 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
-* Thu Jan 11 2024 Tuan Hoang <tqhoang@elrepo.org> - 535.146.02-1
-- Updated to version 535.146.02
-- Restrict make to single thread for build stability
+* Wed Jan 17 2024 Tuan Hoang <tqhoang@elrepo.org> - 535.154.05-1
+- Updated to version 535.154.05
 
 * Wed Nov 08 2023 Philip J Perry <phil@elrepo.org> - 535.129.03-1
 - Updated to version 535.129.03
