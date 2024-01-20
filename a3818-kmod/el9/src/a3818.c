@@ -1560,7 +1560,11 @@ static int __init a3818_init(void) {
           printk("  Error getting Major Number.\n");
           return -ENODEV;
       }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 4, 0)
 	  a3818_class = class_create(THIS_MODULE, "a3818");
+#else
+	  a3818_class = class_create("a3818");
+#endif
 	  s = devs;
 	  while(s) {
 		for (i=0;i< s->NumOfLink;i++) {

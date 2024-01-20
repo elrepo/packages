@@ -23,6 +23,7 @@
   Rel. 1.6.6  - Aug    	 2021
   Rel. 1.6.7  - Oct    	 2021
   Rel. 1.6.8  - May    	 2022
+  Rel. 1.6.9  - Nov    	 2023
 
   -----------------------------------------------------------------------------
 
@@ -40,9 +41,13 @@
  -------------------
 
   - CAEN A3818 PCIe Board
-  - Linux kernel 2.6/3.x/4.x/5.4/5.11 and GNU C/C++ compiler
-  - Tested on Linux kernel 4.18, 5.4 and 5.11
+  - Linux kernel 2.6/3.x/4.x/5.4/5.11/6.5 and GNU C/C++ compiler
+  - Tested on Linux kernel 4.18, 5.4, 5.11 and 6.5
 
+  What's New in Rel. 1.6.8
+  -------------------------
+  - added compatibility with kernel up to 6.5
+  
   What's New in Rel. 1.6.8
   -------------------------
   - fixed compilation bug with kernel from version 4.9 to 5.3

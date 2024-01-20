@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 1.6.8
+Version: 1.6.9
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Other
@@ -16,7 +16,7 @@ BuildRequires: redhat-rpm-config, perl
 ExclusiveArch: x86_64
 
 # Sources.
-Source0:  A3818Drv-%{version}.tgz
+Source0:  A3818Drv-%{version}.tar.gz
 Source5:  CAEN_License_Agreement.txt
 Source10: kmodtool-%{kmod_name}-el7.sh
 
@@ -65,6 +65,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri Jan 19 2024 Akemi Yagi <toracat@elrepo.org> - 1.6.9-1
+- Update version to 1.6.9 [https://elrepo.org/bugs/view.php?id=1420]
+
 * Fri Jul 28 2023 Akemi Yagi <toracat@elrepo.org> - 1.6.8-1
 - Updated to version 1.6.8 [https://elrepo.org/bugs/view.php?id=1376]
 
