@@ -7,8 +7,8 @@
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
-Version:        1.6.8
-Release:        2%{?dist}
+Version:        1.6.9
+Release:        1%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -188,6 +188,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri Jan 19 2024 Akemi Yagi <toracat@elrepo.org> - 1.6.9-1
+- Update version to 1.6.9
+
 * Sun Nov 19 2023 Philip J Perry <phil@elrepo.org> - 1.6.8-2
 - Rebuilt for RHEL 8.9
 
