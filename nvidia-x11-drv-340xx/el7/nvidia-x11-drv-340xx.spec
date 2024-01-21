@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# ftp://download.nvidia.com/XFree86/Linux-x86_64/340.107/README/minimumrequirements.html
+# https://download.nvidia.com/XFree86/Linux-x86_64/340.108/README/minimumrequirements.html
 %define		max_xorg_ver	1.20.99
 
 %define		nvidialibdir	%{_libdir}/nvidia
@@ -9,18 +9,18 @@
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv-340xx
-Version:	340.107
-Release:	3%{?dist}
+Version:	340.108
+Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
-URL:		http://www.nvidia.com/
+URL:		https://www.nvidia.com/
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-build-%(%{__id_u} -n)
 ExclusiveArch:	x86_64
 
 # Sources.
-Source0:	ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+Source0:	https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 NoSource: 0
 
 Source1:	nvidia-xorg.conf
@@ -419,6 +419,9 @@ fi ||:
 %{_prefix}/lib/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Thu Jan 11 2024 Tuan Hoang <tqhoang@elrepo.org> - 340.108-1
+- Updated to version 340.108
+
 * Sat Mar 08 2019 Philip J Perry <phil@elrepo.org> - 340.107-3
 - Revert previous GLVND commit
 - Filter requires and provides for libs that clash with GLVND in RHEL7.6

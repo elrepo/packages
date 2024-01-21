@@ -7,10 +7,10 @@ installed on this system. If you wish to install the NVIDIA driver using
 the NVIDIA installer you MUST first uninstall the RPM packaged version of
 the driver. To uninstall the packaged version of the driver, please run:
 
-rpm -e kmod-nvidia-340xx
+rpm -e kmod-nvidia
 
 or
 
-yum erase kmod-nvidia-340xx
+yum erase kmod-nvidia
 
 and then reboot your system. It is then safe to run the NVIDIA installer.

@@ -5,19 +5,19 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 535.129.03
+Version: 535.154.05
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
 Summary: NVIDIA OpenGL kernel driver module
-URL:	 http://www.nvidia.com/
+URL:	 https://www.nvidia.com/
 
 BuildRequires: perl
 BuildRequires: redhat-rpm-config
 ExclusiveArch: x86_64
 
 # Sources.
-Source0:  ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+Source0:  https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 Source1:  blacklist-nouveau.conf
 Source10: kmodtool-%{kmod_name}-el7.sh
 Source15: nvidia-provides.sh
@@ -89,6 +89,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Jan 17 2024 Tuan Hoang <tqhoang@elrepo.org> - 535.154.05-1
+- Updated to version 535.154.05
+
 * Wed Nov 08 2023 Philip J Perry <phil@elrepo.org> - 535.129.03-1
 - Updated to version 535.129.03
 
