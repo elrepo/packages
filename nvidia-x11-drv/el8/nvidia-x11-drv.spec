@@ -37,7 +37,7 @@ BuildRequires:	perl
 # For systemd_ scriptlets
 BuildRequires:	systemd-rpm-macros
 
-Requires:	perl
+Requires:	perl-interpreter
 Requires:	xorg-x11-server-Xorg <= %{max_xorg_ver}
 
 Requires:	%{name}-libs%{?_isa} = %{?epoch:%{epoch}:}%{version}-%{release}
@@ -458,6 +458,8 @@ fi ||:
 * Wed Jan 17 2024 Tuan Hoang <tqhoang@elrepo.org> - 535.154.05-1
 - Updated to version 535.154.05-1
 - Add libs package conflicts
+- Change requirement perl to perl-interpreter
+  [https://elrepo.org/bugs/view.php?id=1419]
 
 * Tue Nov 14 2023 Philip J Perry <phil@elrepo.org> - 535.129.03-2
 - Rebuilt for RHEL 8.9

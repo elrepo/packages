@@ -35,7 +35,7 @@ Provides:	libglxserver_nvidia.so()(64bit)
 BuildRequires:	desktop-file-utils
 BuildRequires:	perl
 
-Requires:	perl
+Requires:	perl-interpreter
 Requires:	xorg-x11-server-Xorg <= %{max_xorg_ver}
 
 Requires:	%{name}-libs%{?_isa} = %{?epoch:%{epoch}:}%{version}-%{release}
@@ -419,6 +419,8 @@ fi ||:
 %changelog
 * Wed Jan 10 2024 Tuan Hoang <tqhoang@elrepo.org> - 470.223.02-3
 - Add libs package conflicts
+- Change requirement perl to perl-interpreter
+  [https://elrepo.org/bugs/view.php?id=1419]
 
 * Tue Nov 14 2023 Philip J Perry <phil@elrepo.org> - 470.223.02-2
 - Rebuilt for RHEL 8.9

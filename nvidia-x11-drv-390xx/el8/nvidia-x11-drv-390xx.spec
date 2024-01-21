@@ -32,7 +32,7 @@ Provides:	nvidia-drivers = %{version}
 BuildRequires:	desktop-file-utils
 BuildRequires:	perl
 
-Requires:	perl
+Requires:	perl-interpreter
 Requires:	xorg-x11-server-Xorg <= %{max_xorg_ver}
 Requires:	%{name}-libs%{?_isa} = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:	kmod-nvidia-390xx = %{?epoch:%{epoch}:}%{version}
@@ -365,6 +365,8 @@ fi ||:
 %changelog
 * Wed Jan 10 2024 Tuan Hoang <tqhoang@elrepo.org> - 390.157-5
 - Add libs package conflicts
+- Change requirement perl to perl-interpreter
+  [https://elrepo.org/bugs/view.php?id=1419]
 
 * Tue Nov 14 2023 Philip J Perry <phil@elrepo.org> - 390.157-4
 - Rebuilt for RHEL 8.9
