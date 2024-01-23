@@ -422,7 +422,7 @@ fi ||:
 * Thu Jan 11 2024 Tuan Hoang <tqhoang@elrepo.org> - 340.108-1
 - Updated to version 340.108
 
-* Sat Mar 08 2019 Philip J Perry <phil@elrepo.org> - 340.107-3
+* Sat Mar 09 2019 Philip J Perry <phil@elrepo.org> - 340.107-3
 - Revert previous GLVND commit
 - Filter requires and provides for libs that clash with GLVND in RHEL7.6
 
