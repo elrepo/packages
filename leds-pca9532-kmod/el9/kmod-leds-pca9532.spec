@@ -2,13 +2,13 @@
 %define kmod_name	leds-pca9532
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-362.8.1.el9_3}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-362.18.1.el9_3}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	4%{?dist}
+Release:	5%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -193,6 +193,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat Jan 27 2024 Tuan Hoang <tqhoang@elrepo.org> - 0.0-5
+- Rebuilt against RHEL 9.3 errata kernel 5.14.0-362.18.1.el9_3
+
 * Tue Nov 07 2023 Akemi Yagi <toracat@elrepo.org> - 0.0-4 
 - Rebuilt against 9.3 GA kernel 5.14.0-362.8.1.el9_3
 - Source code from kernel-5.14.0-362.8.1.el9_3
