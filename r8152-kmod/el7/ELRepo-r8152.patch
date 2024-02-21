@@ -1,0 +1,27 @@
+diff -Naurp r8152-2.17.1.orig/compatibility.h r8152-2.17.1/compatibility.h
+--- r8152-2.17.1.orig/compatibility.h	2023-04-26 03:58:19.000000000 -0400
++++ r8152-2.17.1/compatibility.h	2024-01-28 09:57:19.444957992 -0500
+@@ -73,7 +73,7 @@
+ 	#endif
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(4,9,0)
+ 	#define BMCR_SPEED10				0x0000
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(4,5,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4,5,0) && RHEL_MAJOR != 7
+ 	#define NETIF_F_CSUM_MASK			NETIF_F_ALL_CSUM
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(4,1,0)
+ 	#define IS_REACHABLE(option)			(defined(option) || \
+diff -Naurp r8152-2.17.1.orig/r8152.c r8152-2.17.1/r8152.c
+--- r8152-2.17.1.orig/r8152.c	2023-06-13 03:19:38.000000000 -0400
++++ r8152-2.17.1/r8152.c	2024-01-28 12:18:39.802804500 -0500
+@@ -19928,7 +19928,11 @@ static const struct net_device_ops rtl81
+ #endif /* LINUX_VERSION_CODE < KERNEL_VERSION(3,0,0) */
+ 	.ndo_set_rx_mode	= rtl8152_set_rx_mode,
+ 	.ndo_set_mac_address	= rtl8152_set_mac_address,
++#if RHEL_MAJOR == 7
++	.ndo_change_mtu_rh74	= rtl8152_change_mtu,
++#else
+ 	.ndo_change_mtu		= rtl8152_change_mtu,
++#endif /* RHEL_MAJOR == 7 */
+ 	.ndo_validate_addr	= eth_validate_addr,
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,18,4)
+ 	.ndo_features_check	= rtl8152_features_check,

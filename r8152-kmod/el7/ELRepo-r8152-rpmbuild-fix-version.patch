@@ -1,0 +1,12 @@
+diff -Naurp r8152-2.17.1.fixversion/r8152.c r8152-2.17.1/r8152.c
+--- r8152-2.17.1.fixversion/r8152.c	2024-01-28 12:18:39.802804500 -0500
++++ r8152-2.17.1/r8152.c	2024-01-28 12:49:54.019449278 -0500
+@@ -32,7 +32,7 @@
+ #include "compatibility.h"
+ 
+ /* Version Information */
+-#define DRIVER_VERSION "v2.17.1 (2023/06/13)"
++#define DRIVER_VERSION "v2.17.1"
+ #define DRIVER_AUTHOR "Realtek nic sw <nic_swsd@realtek.com>"
+ #define DRIVER_DESC "Realtek RTL8152/RTL8153 Based USB Ethernet Adapters"
+ #define MODULENAME "r8152"
