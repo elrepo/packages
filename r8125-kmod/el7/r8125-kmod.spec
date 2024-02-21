@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 9.012.03
+Version: 9.012.04
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -73,6 +73,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sun Jan 28 2024 Tuan Hoang <tqhoang@elrepo.org> - 9.012.04-1
+- Update to version 9.012.04
+
 * Wed Dec 20 2023 Tuan Hoang <tqhoang@elrepo.org> - 9.012.03-1
 - Update to version 9.012.03 (support 5 Gigabit adapters)
 

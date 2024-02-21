@@ -170,7 +170,7 @@ EOF
 
 cat <<EOF
 %description   -n kmod-${kmod_name}${dashvariant}
-This package provides the ${kmod_name} kernel module(s) for Realtek RTL8125 2.5G Ethernet
+This package provides the ${kmod_name} kernel module(s) for Realtek RTL8125 2.5G/5G Ethernet
 NICs built for the Linux kernel using the %{_target_cpu} family of processors.
 EOF
 
