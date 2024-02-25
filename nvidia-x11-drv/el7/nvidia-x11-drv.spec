@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# https://download.nvidia.com/XFree86/Linux-x86_64/535.154.05/README/minimumrequirements.html
+# https://download.nvidia.com/XFree86/Linux-x86_64/550.54.14/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 
@@ -8,7 +8,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv
-Version:	535.154.05
+Version:	550.54.14
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -104,8 +104,6 @@ This package provides the proprietary NVIDIA OpenGL X11 display driver files.
 %package libs
 Summary:	Libraries for the Proprietary NVIDIA driver
 Group:		User Interface/X Hardware Support
-# Fix broken SONAME dependency chain
-Provides:	libnvidia-vulkan-producer.so()(64bit)
 ## Remove requires for nvidia-x11-drv to allow installation of
 ## nvidia-x11-drv-libs on headless systems. See bug 
 ## https://elrepo.org/bugs/view.php?id=926
@@ -207,6 +205,7 @@ pushd 32
 %{__install} -p -m 0755 libnvidia-glcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-glsi.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-glvkspirv.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
+%{__install} -p -m 0755 libnvidia-gpucomp.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %ifarch x86_64
 %{__install} -p -m 0755 libnvidia-gtk3.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %endif
@@ -229,7 +228,6 @@ pushd 32
 %endif
 %{__install} -p -m 0755 libnvidia-tls.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %ifarch x86_64
-%{__install} -p -m 0755 libnvidia-vulkan-producer.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-wayland-client.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvoptix.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %endif
@@ -289,7 +287,6 @@ popd
 %{__ln_s} libnvidia-opticalflow.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-opticalflow.so.1
 %{__ln_s} libnvidia-ptxjitcompiler.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ptxjitcompiler.so.1
 %ifarch x86_64
-%{__ln_s} libnvidia-vulkan-producer.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-vulkan-producer.so
 %{__ln_s} libnvoptix.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvoptix.so.1
 %endif
 %{__ln_s} libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{_libdir}/libOpenCL.so
@@ -468,6 +465,9 @@ fi ||:
 %endif
 
 %changelog
+* Sun Feb 25 2024 Philip J Perry <phil@elrepo.org> - 550.54.14-1
+- Updated to version 550.54.14
+
 * Wed Jan 17 2024 Tuan Hoang <tqhoang@elrepo.org> - 535.154.05-1
 - Updated to version 535.154.05
 - Fix 'file listed twice' rpmbuild warning for nvidia.icd
