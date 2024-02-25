@@ -194,7 +194,7 @@ pushd 32
 %endif
 %{__install} -p -m 0755 libnvidia-eglcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %ifarch x86_64
-%{__install} -p -m 0755 libnvidia-egl-gbm.so.1.1.0 $RPM_BUILD_ROOT%{_libdir}/
+%{__install} -p -m 0755 libnvidia-egl-gbm.so.1.1.1 $RPM_BUILD_ROOT%{_libdir}/
 %endif
 %{__install} -p -m 0755 libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-fbc.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
@@ -260,8 +260,8 @@ popd
 %{__ln_s} libnvidia-allocator.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-allocator.so.1
 %ifarch x86_64
 %{__ln_s} libnvidia-cfg.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-cfg.so.1
-%{__ln_s} libnvidia-egl-gbm.so.1.1.0 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-gbm.so
-%{__ln_s} libnvidia-egl-gbm.so.1.1.0 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-gbm.so.1
+%{__ln_s} libnvidia-egl-gbm.so.1.1.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-gbm.so
+%{__ln_s} libnvidia-egl-gbm.so.1.1.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-gbm.so.1
 %endif
 %{__ln_s} libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-encode.so
 %{__ln_s} libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-encode.so.1
