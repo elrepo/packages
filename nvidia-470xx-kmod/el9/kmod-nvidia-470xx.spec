@@ -1,18 +1,18 @@
 # Define the kmod package name here.
-%define kmod_name		nvidia-470xx
+%define kmod_name	nvidia-470xx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-362.18.1.el9_3}
 
-%{!?dist: %define dist .el8}
+%{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	470.239.06
 Release:	1%{?dist}
-Summary:	NVIDIA OpenGL kernel driver module
+Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
-License:	Proprietary
-URL:		https://www.nvidia.com/
+License:	GPLv2
+URL:		http://www.nvidia.com/
 
 # Sources
 Source0:  https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
@@ -21,14 +21,15 @@ Source2:  dracut-nvidia.conf
 
 NoSource: 0
 
-%define __spec_install_post /usr/lib/rpm/check-buildroot \
-                            /usr/lib/rpm/redhat/brp-ldconfig \
-                            /usr/lib/rpm/brp-compress \
-                            /usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump \
-                            /usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
-                            /usr/lib/rpm/brp-python-bytecompile "" 1 \
-                            /usr/lib/rpm/brp-python-hardlink \
-                            PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
+%define __spec_install_post \
+		/usr/lib/rpm/check-buildroot \
+		/usr/lib/rpm/redhat/brp-ldconfig \
+		/usr/lib/rpm/brp-compress \
+		/usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump \
+		/usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
+		/usr/lib/rpm/redhat/brp-python-bytecompile "" "1" "0" \
+		/usr/lib/rpm/brp-python-hardlink \
+		/usr/lib/rpm/redhat/brp-mangle-shebangs
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
 %define __find_provides /usr/lib/rpm/redhat/find-provides.ksyms %{kmod_name} %{?epoch:%{epoch}:}%{version}-%{release}
@@ -41,40 +42,33 @@ NoSource: 0
 %global _use_internal_dependency_generator 0
 %global kernel_source() %{_usrsrc}/kernels/%{kmod_kernel_version}.%{_arch}
 
-BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
+BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
-ExclusiveArch:	x86_64
+ExclusiveArch:		x86_64
 
-BuildRequires:	elfutils-libelf-devel
-BuildRequires:	kernel-devel = %{kmod_kernel_version}
-BuildRequires:	kernel-abi-whitelists
-BuildRequires:	kernel-rpm-macros
-BuildRequires:	redhat-rpm-config
+BuildRequires:		elfutils-libelf-devel
+BuildRequires:		kernel-abi-stablelists
+BuildRequires:		kernel-devel = %{kmod_kernel_version}
+BuildRequires:		kernel-rpm-macros
+BuildRequires:		redhat-rpm-config
+BuildRequires:		rpm-build
+BuildRequires:		gcc
+BuildRequires:		make
 
-# ensure version of gcc matches that used to build the kernel
-%if "%{kmod_kernel_version}" == "4.18.0-80.el8"
-BuildRequires:	gcc = 8.2.1
-%endif
-%if "%{kmod_kernel_version}" == "4.18.0-147.el8"
-BuildRequires:	gcc = 8.3.1
-%endif
-%if "%{kmod_kernel_version}" == "4.18.0-305.el8"
-BuildRequires:	gcc = 8.4.1
-%endif
-%if "%{kmod_kernel_version}" >= "4.18.0-348.el8"
-BuildRequires:	gcc = 8.5.0
-%endif
+Provides:			kernel-modules >= %{kmod_kernel_version}.%{_arch}
+Provides:			kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
 
-Provides:	kernel-modules >= %{kmod_kernel_version}.%{_arch}
-Provides:	kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:			kernel >= %{kmod_kernel_version}
+Requires:			kernel-core-uname-r >= %{kmod_kernel_version}
+Requires:			nvidia-x11-drv-470xx = %{?epoch:%{epoch}:}%{version}
 
-Requires:	nvidia-x11-drv-470xx = %{?epoch:%{epoch}:}%{version}
-Requires(post):	%{_sbindir}/weak-modules
+Requires(post):		%{_sbindir}/depmod
+Requires(postun):	%{_sbindir}/depmod
+Requires(post):		%{_sbindir}/weak-modules
 Requires(postun):	%{_sbindir}/weak-modules
-Requires:	kernel >= %{kmod_kernel_version}
 
 %description
-This package provides the proprietary NVIDIA OpenGL kernel driver module.
+This package provides the proprietary NVIDIA OpenGL kernel driver modules.
 It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
@@ -89,13 +83,13 @@ sh %{SOURCE0} --extract-only --target nvidiapkg
 %{__cp} -a nvidiapkg _kmod_build_
 
 %build
-# export IGNORE_CC_MISMATCH=1
+## %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
 export SYSSRC=%{_usrsrc}/kernels/%{kmod_kernel_version}.%{_arch}
 pushd _kmod_build_/kernel
 %{__make} %{?_smp_mflags} module
 popd
 
-whitelist="/lib/modules/kabi-current/kabi_whitelist_%{_target_cpu}"
+whitelist="/lib/modules/kabi-current/kabi_stablelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
 	# update greylist
 	nm -u ./$modules.ko | sed 's/.*U //' |  sed 's/^\.//' | sort -u | while read -r symbol; do
@@ -132,13 +126,13 @@ find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --str
 
 # Sign the modules(s)
 %if %{?_with_modsign:1}%{!?_with_modsign:0}
-# If the module signing keys are not defined, define them here.
-%{!?privkey: %define privkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.priv}
-%{!?pubkey: %define pubkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.der}
-for module in $(find %{buildroot} -type f -name \*.ko);
-do %{_usrsrc}/kernels/%{kmod_kernel_version}.%{_arch}/scripts/sign-file \
-sha256 %{privkey} %{pubkey} $module;
-done
+#	If the module signing keys are not defined, define them here.
+	%{!?privkey: %define privkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.priv}
+	%{!?pubkey: %define pubkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.der}
+	for module in $(find %{buildroot} -type f -name \*.ko);
+		do %{_usrsrc}/kernels/%{kmod_kernel_version}.%{_arch}/scripts/sign-file \
+			sha256 %{privkey} %{pubkey} $module;
+	done
 %endif
 
 %clean
@@ -157,30 +151,30 @@ exit 0
 # We have to re-implement part of weak-modules here because it doesn't allow
 # calling initramfs regeneration separately
 if [ -f "%{kver_state_file}" ]; then
-#	kver_base="%{kmod_kernel_version}"
-#	kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
+#        kver_base="%{kmod_kernel_version}"
+#        kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
 #
-#	for k_dir in $kvers; do
-#		k="${k_dir#/lib/modules/}"
+#        for k_dir in $kvers; do
+#                k="${k_dir#/lib/modules/}"
 #
-#		tmp_initramfs="/boot/initramfs-$k.tmp"
-#		dst_initramfs="/boot/initramfs-$k.img"
+#                tmp_initramfs="/boot/initramfs-$k.tmp"
+#                dst_initramfs="/boot/initramfs-$k.img"
 #
-#		# The same check as in weak-modules: we assume that the kernel present
-#		# if the symvers file exists.
-#		if [ -e "$k_dir/symvers.gz" ]; then
-#			/usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
-#			cmp -s "$tmp_initramfs" "$dst_initramfs"
-#			if [ "$?" = 1 ]; then
-#				mv "$tmp_initramfs" "$dst_initramfs"
-#			else
-#				rm -f "$tmp_initramfs"
-#			fi
-#		fi
-#	done
+#                # The same check as in weak-modules: we assume that the kernel present
+#                # if the symvers file exists.
+#                if [ -e "/$k_dir/symvers.gz" ]; then
+#                        /usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
+#                        cmp -s "$tmp_initramfs" "$dst_initramfs"
+#                        if [ "$?" = 1 ]; then
+#                                mv "$tmp_initramfs" "$dst_initramfs"
+#                        else
+#                                rm -f "$tmp_initramfs"
+#                        fi
+#                fi
+#        done
 
-	rm -f "%{kver_state_file}"
-	rmdir "%{kver_state_dir}" 2> /dev/null
+        rm -f "%{kver_state_file}"
+        rmdir "%{kver_state_dir}" 2> /dev/null
 fi
 
 rmdir "%{dup_state_dir}" 2> /dev/null
@@ -203,8 +197,8 @@ exit 0
 
 %preun
 if rpm -q --filetriggers kmod 2> /dev/null| grep -q "Trigger for weak-modules call on kmod removal"; then
-	mkdir -p "%{kver_state_dir}"
-	touch "%{kver_state_file}"
+        mkdir -p "%{kver_state_dir}"
+        touch "%{kver_state_file}"
 fi
 
 mkdir -p "%{dup_state_dir}"
@@ -212,9 +206,9 @@ rpm -ql kmod-%{kmod_name}-%{version}-%{release}.%{_arch} | grep '\.ko$' > "%{dup
 
 %postun
 if rpm -q --filetriggers kmod 2> /dev/null| grep -q "Trigger for weak-modules call on kmod removal"; then
-	initramfs_opt="--no-initramfs"
+        initramfs_opt="--no-initramfs"
 else
-	initramfs_opt=""
+        initramfs_opt=""
 fi
 
 modules=( $(cat "%{dup_module_list}") )
@@ -233,81 +227,9 @@ exit 0
 %config /usr/lib/modprobe.d/blacklist-nouveau.conf
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 %dir /lib/firmware/nvidia/%{version}/
-/lib/firmware/nvidia/%{version}/gsp.bin
+/lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
 * Fri Mar 01 2024 Tuan Hoang <tqhoang@elrepo.org> - 470.239.06-1
-- Updated to version 470.239.06
+- Initial build for EL 9.3
 
-* Wed Jan 10 2024 Tuan Hoang <tqhoang@elrepo.org> - 470.223.02-3
-- Fix missing peermem and uvm lines from depmod conf file
-
-* Tue Nov 14 2023 Philip J Perry <phil@elrepo.org> - 470.223.02-2
-- Rebuilt for RHEL 8.9
-
-* Wed Nov 08 2023 Philip J Perry <phil@elrepo.org> - 470.223.02-1
-- Updated to version 470.223.02
-
-* Wed Jul 05 2023 Philip J Perry <phil@elrepo.org> - 470.199.02-1
-- Updated to version 470.199.02
-
-* Tue May 16 2023 Philip J Perry <phil@elrepo.org> 470.182.03-2
-- Rebuilt for RHEL 8.8
-
-* Fri Mar 31 2023 Philip J Perry <phil@elrepo.org> - 470.182.03-1
-- Updated to version 470.182.03
-
-* Sun Jan 15 2023 Philip J Perry <phil@elrepo.org> 470.161.03-2
-- Rebuilt against kernel-4.18.0-425.10.1.el8_7 due to a bug in the RHEL kernel
-  [https://access.redhat.com/solutions/6985596]
-
-* Sun Nov 27 2022 Philip J Perry <phil@elrepo.org> - 470.161.03-1
-- Updated to version 470.161.03
-
-* Tue Nov 08 2022 Philip J Perry <phil@elrepo.org> - 470.141.03-2
-- Rebuilt for RHEL 8.7
-
-* Sun Aug 07 2022 Philip J Perry <phil@elrepo.org> - 470.141.03-1
-- Updated to version 470.141.03
-
-* Fri Jul 01 2022 Philip J Perry <phil@elrepo.org> - 470.129.06-1
-- Forked to legacy release nvidia-470xx
-- Trim changelog
-
-* Mon May 23 2022 Philip J Perry <phil@elrepo.org> - 470.129.06-1
-- Updated to version 470.129.06
-
-* Tue May 10 2022 Philip J Perry <phil@elrepo.org> - 470.103.01-2
-- Rebuilt for RHEL 8.6
-
-* Tue Feb 01 2022 Philip J Perry <phil@elrepo.org> - 470.103.01-1
-- Updated to version 470.103.01
-
-* Tue Dec 14 2021 Philip J Perry <phil@elrepo.org> - 470.94-1
-- Updated to version 470.94
-
-* Thu Nov 11 2021 Philip J Perry <phil@elrepo.org> - 470.86-1
-- Updated to version 470.86
-- Fix modes on source files
-
-* Wed Nov 10 2021 Philip J Perry <phil@elrepo.org> - 470.82.00-2
-- Rebuilt for RHEL8.5
-- Fix SB-signing issue caused by /usr/lib/rpm/brp-strip
-  [https://bugzilla.redhat.com/show_bug.cgi?id=1967291]
-- Update stripping of modules
-
-* Thu Oct 28 2021 Philip J Perry <phil@elrepo.org> - 470.82.00-1
-- Updated to version 470.82.00
-
-* Tue Sep 21 2021 Philip J Perry <phil@elrepo.org> - 470.74-1
-- Updated to version 470.74
-- Removed conflict with centos-stream-release
-  [https://elrepo.org/bugs/view.php?id=1139]
-
-* Wed Aug 11 2021 Philip J Perry <phil@elrepo.org> - 470.63.01-1
-- Updated to version 470.63.01
-- Add firmware for nvidia.ko module
-
-* Mon Jul 19 2021 Philip J Perry <phil@elrepo.org> - 470.57.02-1
-- Updated to version 470.57.02
-- Adds nvidia-peermem kernel module
