@@ -1,3 +1,6 @@
+01 Mar 2024
+	Add support for RHEL 9
+
 17 Jul 2023
 	Only perform Xorg compatibility checks when -x is specified
 	[https://elrepo.org/bugs/view.php?id=1370]

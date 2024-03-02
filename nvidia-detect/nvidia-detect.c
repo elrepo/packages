@@ -37,15 +37,24 @@
 #define NVIDIA_VERSION		"550.54.14"
 
 #ifndef PCI_VENDOR_ID_INTEL
-#define PCI_VENDOR_ID_INTEL		0x8086
+#define PCI_VENDOR_ID_INTEL	0x8086
 #endif
 #ifndef PCI_VENDOR_ID_NVIDIA
 #define PCI_VENDOR_ID_NVIDIA	0x10de
 #endif
 
 /* Only recommend elrepo drivers on RHEL*/
-#if RHEL_MAJOR == 8
-#define KMOD_NVIDIA			"kmod-nvidia"
+#if RHEL_MAJOR == 9
+#define KMOD_NVIDIA		"kmod-nvidia"
+#define KMOD_NVIDIA_470XX	"kmod-nvidia-470xx"
+#define KMOD_NVIDIA_390XX	"kmod-nvidia-390xx"
+#define KMOD_NVIDIA_367XX	""	/* No longer supported on RHEL */
+#define KMOD_NVIDIA_340XX	""	/* No longer supported on RHEL */
+#define KMOD_NVIDIA_304XX	""	/* No longer supported on RHEL */
+#define KMOD_NVIDIA_173XX	""	/* No longer supported on RHEL */
+#define KMOD_NVIDIA_96XX	""	/* No longer supported on RHEL */
+#elif RHEL_MAJOR == 8
+#define KMOD_NVIDIA		"kmod-nvidia"
 #define KMOD_NVIDIA_470XX	"kmod-nvidia-470xx"
 #define KMOD_NVIDIA_390XX	"kmod-nvidia-390xx"
 #define KMOD_NVIDIA_367XX	""	/* No longer supported on RHEL */
@@ -54,7 +63,7 @@
 #define KMOD_NVIDIA_173XX	""	/* No longer supported on RHEL */
 #define KMOD_NVIDIA_96XX	""	/* No longer supported on RHEL */
 #elif RHEL_MAJOR == 7
-#define KMOD_NVIDIA			"kmod-nvidia"
+#define KMOD_NVIDIA		"kmod-nvidia"
 #define KMOD_NVIDIA_470XX	"kmod-nvidia-470xx"
 #define KMOD_NVIDIA_390XX	"kmod-nvidia-390xx"
 #define KMOD_NVIDIA_367XX	""	/* No longer supported on RHEL */
