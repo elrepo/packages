@@ -231,6 +231,6 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
-* Sat Apr 23 2022 Philip J Perry <phil@elrepo.org> - 0.0-1
-- Initial build for RHEL 9
-- Backported from kernel-5.14.21
+* Sun Feb 25 2024 Philip J Perry <phil@elrepo.org> - 550.54.14-1
+- Updated to version 550.54.14
+- Fork for RHEL9
