@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	11%{?dist}
+Release:	12%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -182,6 +182,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat Mar 23 2024 Tuan Hoang <tqhoang@elrepo.org> 0.0-12
+- Rebase to kernel-6.4 to fix RHEL 8.9 compatibility
+  [https://elrepo.org/bugs/view.php?id=1413]
+
 * Tue Nov 14 2023 Philip J Perry <phil@elrepo.org> 0.0-11
 - Rebuilt for RHEL 8.9
 - Rebase to kernel-6.1.62
