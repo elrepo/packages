@@ -176,7 +176,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Tue Nov 14 2023 Philip J Perry <phil@elrepo.org> 1.2.1-9
+* Mon Mar 25 2024 Tuan Hoang <tqhoang@elrepo.org> 0.0-10
+- Rebase to kernel-6.4 to fix RHEL 8.9 compatibility
+  [https://elrepo.org/bugs/view.php?id=1437]
+
+* Tue Nov 14 2023 Philip J Perry <phil@elrepo.org> 0.0-9
 - Rebuilt for RHEL 8.9
 - Rebase to kernel-6.1.62
 
