@@ -9,8 +9,8 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	4.2.24
-Release:	2%{?dist}
+Version:	4.2.26
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -99,7 +99,7 @@ sort -u greylist | uniq > greylist.txt
 
 %install
 # Install udev rules for kmod device
-%{__install} -Dp -m0644 mbgclock/55-mbgclock.rules %{buildroot}/etc/udev/rules.d/55-mbgclock.rules
+%{__install} -Dp -m0644 udev/55-mbgclock.rules %{buildroot}/etc/udev/rules.d/55-mbgclock.rules
 
 %{__install} -d %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install}  mbgclock/*.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
@@ -212,6 +212,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri Apr 12 2024 Tuan Hoang <tqhoang@elrepo.org> - 4.2.26-1
+- Updated to version 4.2.26
+
 * Sun Nov 19 2023 Tuan Hoang <tqhoang@elrepo.org> - 4.2.24-2
 - Rebuilt against RHEL 8.9 GA kernel
 - Source code from kernel-4.18.0-513.5.1.el8_9

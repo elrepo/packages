@@ -1,11 +1,14 @@
+# Define upstream file name here.
+%define upstream_name mbgtools-lx
+
 # Define the kmod package name here.
 %define kmod_name mbgclock
 
 # If kversion isn't defined on the rpmbuild line, define it here.
-%{!?kversion: %define kversion 3.10.0-1127.el7.%{_target_cpu}}
+%{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 4.2.10
+Version: 4.2.26
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -16,7 +19,7 @@ BuildRequires: redhat-rpm-config
 ExclusiveArch: x86_64
 
 # Sources.
-Source0:  %{kmod_name}-%{version}.tar.gz
+Source0:  %{upstream_name}-%{version}.tar.gz
 Source5:  GPL-v2.0.txt
 Source10: kmodtool-%{kmod_name}-el7.sh
 
@@ -41,7 +44,7 @@ Group: System Environment/Kernel
 Userspace utilities for %{kmod_name}
 
 %prep
-%setup -q -n %{kmod_name}-%{version}
+%setup -q -n %{upstream_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
@@ -51,7 +54,7 @@ KSRC=%{_usrsrc}/kernels/%{kversion}
 
 %install
 # Install udev rules for kmod device
-%{__install} -Dp -m0644 mbgclock/55-mbgclock.rules %{buildroot}/etc/udev/rules.d/55-mbgclock.rules
+%{__install} -Dp -m0644 udev/55-mbgclock.rules %{buildroot}/etc/udev/rules.d/55-mbgclock.rules
 
 %{__install} -d %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 %{__install} mbgclock/*.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
@@ -93,6 +96,8 @@ done
 /etc/udev/rules.d/55-mbgclock.rules
 
 %changelog
+* Fri Apr 12 2024 Tuan Hoang <tqhoang@elrepo.org> - 4.2.26-1
+- Updated to version 4.2.26
+
 * Fri Apr 24 2020 Akemi Yagi <toracat@elrepo.org> - 4.2.10-1
 - Initial build for el7 [http://elrepo.org/bugs/view.php?id=1002]
-- Built against EL 8.1 kernel.
