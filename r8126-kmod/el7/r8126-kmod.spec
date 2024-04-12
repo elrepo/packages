@@ -1,11 +1,11 @@
 # Define the kmod package name here.
-%define kmod_name r8125
+%define kmod_name r8126
 
 # If kversion isn't defined on the rpmbuild line, define it here.
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 9.013.02
+Version: 10.013.00
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -22,7 +22,7 @@ Source10: kmodtool-%{kmod_name}-el7.sh
 Source20: ELRepo-Makefile-%{kmod_name}
 
 # Patches.
-Patch0: ELRepo-r8125.patch
+Patch0: ELRepo-r8126.patch
 
 # Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
@@ -73,46 +73,6 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
-* Fri Apr 12 2024 Tuan Hoang <tqhoang@elrepo.org> - 9.013.02-1
-- Update to version 9.013.02
-  Adds support for RTL8125BP and RTL8125D revisions
-  Removes support for RTL8126 (5 Gigabit adapters)
-- Add makefile options:
-  ENABLE_MULTIPLE_TX_QUEUE
-  ENABLE_PTP_SUPPORT
-  ENABLE_PTP_MASTER_MODE
-
-* Sun Jan 28 2024 Tuan Hoang <tqhoang@elrepo.org> - 9.012.04-1
-- Update to version 9.012.04
-
-* Wed Dec 20 2023 Tuan Hoang <tqhoang@elrepo.org> - 9.012.03-1
-- Update to version 9.012.03 (support 5 Gigabit adapters)
-
-* Wed May 31 2023 Akemi Yagi <toracat@elrepo.org> - 9.011.01-1
-- Update to version 9.011.01
-  [https://elrepo.org/bugs/view.php?id=1356]
-
-* Wed Jan 04 2023 Philip J Perry <phil@elrepo.org> - 9.011.00-1
-- Update to version 9.011.00
-  [https://elrepo.org/bugs/view.php?id=1305]
-- Enable Double VLAN
-
-* Fri Oct 14 2022 Philip J Perry <phil@elrepo.org> - 9.009.02-1
-- Update to version 9.009.02
-  [https://elrepo.org/bugs/view.php?id=1279]
-
-* Tue Nov 23 2021 Philip J Perry <phil@elrepo.org> - 9.007.01-1
-- Update to version 9.007.01
-  [https://elrepo.org/bugs/view.php?id=1165]
-
-* Mon Nov 08 2021 Philip J Perry <phil@elrepo.org> - 9.006.04-1
-- Update to version 9.006.04
-  [https://elrepo.org/bugs/view.php?id=1157]
-
-* Thu Feb 25 2021 Philip J Perry <phil@elrepo.org> - 9.005.01-1
-- Update to version 9.005.01
-  [https://elrepo.org/bugs/view.php?id=1078]
-- Rebuilt against RHEL7.9 kernel
-  
-* Tue Aug 11 2020 Philip J Perry <phil@elrepo.org> - 9.003.05-1
+* Fri Apr 12 2024 Tuan Hoang <tqhoang@elrepo.org> - 10.013.00-1
 - Initial el7 build of the kmod package.
+- Built against RHEL7.9 GA kernel

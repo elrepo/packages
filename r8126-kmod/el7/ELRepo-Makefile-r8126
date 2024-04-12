@@ -31,8 +31,8 @@ else
 
 # Called from kernel build system -- just declare the module(s).
 
-EXTRA_CFLAGS += -DCONFIG_R8125_NAPI
-EXTRA_CFLAGS += -DCONFIG_R8125_VLAN
+EXTRA_CFLAGS += -DCONFIG_R8126_NAPI
+EXTRA_CFLAGS += -DCONFIG_R8126_VLAN
 EXTRA_CFLAGS += -DCONFIG_ASPM
 EXTRA_CFLAGS += -DENABLE_S5WOL
 EXTRA_CFLAGS += -DENABLE_EEE
@@ -42,7 +42,7 @@ EXTRA_CFLAGS += -DENABLE_DOUBLE_VLAN
 EXTRA_CFLAGS += -DENABLE_PTP_SUPPORT
 EXTRA_CFLAGS += -DENABLE_PTP_MASTER_MODE
 
-obj-m := r8125.o
-r8125-objs := r8125_n.o r8125_ptp.o rtl_eeprom.o rtltool.o
+obj-m := r8126.o
+r8126-objs := r8126_n.o r8126_ptp.o rtl_eeprom.o rtltool.o
 
 endif

@@ -1,6 +1,6 @@
-diff -Naurp r8125-9.013.02.elrepo/src/r8125.h r8125-9.013.02/src/r8125.h
---- r8125-9.013.02.elrepo/src/r8125.h	2024-03-14 08:14:51.000000000 -0400
-+++ r8125-9.013.02/src/r8125.h	2024-04-12 10:50:21.180372258 -0400
+diff -Naurp r8126-10.013.00.elrepo/src/r8126.h r8126-10.013.00/src/r8126.h
+--- r8126-10.013.00.elrepo/src/r8126.h	2024-01-22 08:11:04.000000000 -0500
++++ r8126-10.013.00/src/r8126.h	2024-04-12 11:52:09.201449959 -0400
 @@ -51,7 +51,7 @@
  #define fallthrough
  #endif
@@ -19,7 +19,7 @@ diff -Naurp r8125-9.013.02.elrepo/src/r8125.h r8125-9.013.02/src/r8125.h
  static inline unsigned char *skb_checksum_start(const struct sk_buff *skb)
  {
  #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,22))
-@@ -153,7 +153,7 @@ static inline bool dev_page_is_reusable(
+@@ -151,7 +151,7 @@ static inline bool dev_page_is_reusable(
  #define device_set_wakeup_enable(dev, val)	do {} while (0)
  #endif
  
@@ -28,24 +28,24 @@ diff -Naurp r8125-9.013.02.elrepo/src/r8125.h r8125-9.013.02/src/r8125.h
  static inline void ether_addr_copy(u8 *dst, const u8 *src)
  {
          u16 *a = (u16 *)dst;
-diff -Naurp r8125-9.013.02.elrepo/src/r8125_n.c r8125-9.013.02/src/r8125_n.c
---- r8125-9.013.02.elrepo/src/r8125_n.c	2024-03-14 08:14:51.000000000 -0400
-+++ r8125-9.013.02/src/r8125_n.c	2024-04-12 10:54:43.286330606 -0400
-@@ -15827,7 +15827,11 @@ static const struct net_device_ops rtl81
+diff -Naurp r8126-10.013.00.elrepo/src/r8126_n.c r8126-10.013.00/src/r8126_n.c
+--- r8126-10.013.00.elrepo/src/r8126_n.c	2024-01-22 08:07:24.000000000 -0500
++++ r8126-10.013.00/src/r8126_n.c	2024-04-12 11:54:28.902563537 -0400
+@@ -13516,7 +13516,11 @@ static const struct net_device_ops rtl81
  #endif //LINUX_VERSION_CODE >= KERNEL_VERSION(5,11,0)
-         .ndo_start_xmit     = rtl8125_start_xmit,
-         .ndo_tx_timeout     = rtl8125_tx_timeout,
+         .ndo_start_xmit     = rtl8126_start_xmit,
+         .ndo_tx_timeout     = rtl8126_tx_timeout,
 +#if RHEL_MAJOR == 7
-+        .ndo_change_mtu_rh74= rtl8125_change_mtu,
++        .ndo_change_mtu_rh74= rtl8126_change_mtu,
 +#else
-         .ndo_change_mtu     = rtl8125_change_mtu,
+         .ndo_change_mtu     = rtl8126_change_mtu,
 +#endif //RHEL_MAJOR == 7
-         .ndo_set_mac_address    = rtl8125_set_mac_address,
+         .ndo_set_mac_address    = rtl8126_set_mac_address,
  #if LINUX_VERSION_CODE < KERNEL_VERSION(5,15,0)
-         .ndo_do_ioctl       = rtl8125_do_ioctl,
-@@ -19382,9 +19386,9 @@ rtl8125_rx_interrupt(struct net_device *
-                 if (rtl8125_rx_vlan_skb(tp, desc, skb) < 0)
-                         rtl8125_rx_skb(tp, skb, ring_index);
+         .ndo_do_ioctl       = rtl8126_do_ioctl,
+@@ -16831,9 +16835,9 @@ rtl8126_rx_interrupt(struct net_device *
+                 if (rtl8126_rx_vlan_skb(tp, desc, skb) < 0)
+                         rtl8126_rx_skb(tp, skb, ring_index);
  
 -#if LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0)
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0) && RHEL_MAJOR != 7
