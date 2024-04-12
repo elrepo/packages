@@ -50,7 +50,8 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 %build
 KSRC=%{_usrsrc}/kernels/%{kversion}
 ## %%{__make} -C "${KSRC}" %%{?_smp_mflags} modules M=$PWD
-%{__make} -C $PWD %{?_smp_mflags} BUILD_DIR="${KSRC}"
+# Note: make is not stable with _smp_mflags
+%{__make} -C $PWD BUILD_DIR="${KSRC}"
 
 %install
 # Install udev rules for kmod device
