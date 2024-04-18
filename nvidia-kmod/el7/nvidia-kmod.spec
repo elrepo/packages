@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 550.67
+Version: 550.76
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -22,7 +22,9 @@ Source1:  blacklist-nouveau.conf
 Source10: kmodtool-%{kmod_name}-el7.sh
 Source15: nvidia-provides.sh
 
+%if %{?_with_src:0}%{!?_with_src:1}
 NoSource: 0
+%endif
 
 # Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
@@ -89,6 +91,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Thu Apr 18 2024 Philip J Perry <phil@elrepo.org> - 550.76-1
+- Updated to version 550.76
+
 * Sat Mar 23 2024 Philip J Perry <phil@elrepo.org> - 550.67-1
 - Updated to version 550.67
 

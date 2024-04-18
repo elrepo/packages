@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	550.67
+Version:	550.76
 Release:	1%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
@@ -19,7 +19,9 @@ Source0:  https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Lin
 Source1:  blacklist-nouveau.conf
 Source2:  dracut-nvidia.conf
 
+%if %{?_with_src:0}%{!?_with_src:1}
 NoSource: 0
+%endif
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
                             /usr/lib/rpm/redhat/brp-ldconfig \
@@ -237,6 +239,9 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Thu Apr 18 2024 Philip J Perry <phil@elrepo.org> - 550.76-1
+- Updated to version 550.76
+
 * Sat Mar 23 2024 Philip J Perry <phil@elrepo.org> - 550.67-1
 - Updated to version 550.67
 
