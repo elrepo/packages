@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -74,7 +74,10 @@ of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
 %setup -q -n %{kmod_name}-%{version}
-echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+cat /dev/null > kmod-%{kmod_name}.conf
+for modules in rtw88_usb rtw88_8723du rtw88_8821cu rtw88_8822bu rtw88_8822cu ; do
+	echo "override $modules * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+done
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD M=$PWD \
@@ -190,9 +193,12 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Wed Jan 24 2024 Tuan Hoang <tqhoang@elrepo.org> - 0.0-2
+* Sat Apr 20 2024 Tuan Hoang <tqhoang@elrepo.org> - 0.0-3
+- Fix drivers missing from depmod conf file
+
+* Sat Apr 20 2024 Tuan Hoang <tqhoang@elrepo.org> - 0.0-2
 - Rebuilt against RHEL 9.3 errata kernel 5.14.0-362.18.1.el9_3
 
-* Wed Jan 24 2024 Tuan Hoang <tqhoang@elrepo.org> - 0.0-1
+* Sat Apr 20 2024 Tuan Hoang <tqhoang@elrepo.org> - 0.0-1
 - Initial build for EL9.3
 - Built from the source for RHEL 9.3 GA kernel 
