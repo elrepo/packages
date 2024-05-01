@@ -2,13 +2,13 @@
 %define kmod_name	qla2xxx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-362.18.1.el9_3}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-427.13.1.el9_4}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	10.02.08.200
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,7 +19,7 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0:		elrepo-%{kmod_name}-rhel_differences.el9_0.patch
+Patch0:		elrepo-%{kmod_name}-rhel_differences.el9_4.patch
 
 %define __spec_install_post \
 		/usr/lib/rpm/check-buildroot \
@@ -76,7 +76,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
-%patch0 -p0
+%%patch0 -p0
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
@@ -190,6 +190,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed May 01 2024 Akemi Yagi <toracat@elrepo.org> - 10.02.08.200-4
+- Rebuilt for RHEL 9.4
+- Source updated from RHEL 9.4 kernel
+
 * Fri Jan 26 2024 Tuan Hoang <tqhoang@elrepo.org> - 10.02.08.200-3
 - Rebuilt against RHEL 9.3 errata kernel 5.14.0-362.18.1.el9_3
 
