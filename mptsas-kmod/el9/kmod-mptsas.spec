@@ -2,13 +2,13 @@
 %define kmod_name	mptsas
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-362.18.1.el9_3}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-427.13.1.el9_4}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	3.04.20
-Release:	7%{?dist}
+Release:	8%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,8 +19,8 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0:		elrepo-mptsas-rhel_differences.el9_0.patch
-Patch1:		elrepo-mptspi-rhel_differences.el9_0.patch
+Patch0:		elrepo-mptsas-rhel_differences.el9_4.patch
+Patch1:		elrepo-mptspi-rhel_differences.el9_4.patch
 
 %define __spec_install_post \
 		/usr/lib/rpm/check-buildroot \
@@ -203,6 +203,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Apr 30 2024 Akemi Yagi <toracat@elrepo.org> - 3.04.20-8
+- Source updated from RHEL 9.4 kernel
+- - Rebuilt for RHEL 9.4
+
 * Sat Jan 27 2024 Philip J Perry <phil@elrepo.org> - 3.04.20-7
 - Rebuilt against kernel 5.14.0-362.18.1.el9_3
 

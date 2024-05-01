@@ -1,0 +1,11 @@
+--- mptspi.c.dist	2024-04-30 15:34:21.991474084 -0700
++++ mptspi.c	2024-04-30 15:34:43.669484754 -0700
+@@ -1238,7 +1238,7 @@ static struct spi_function_template mpts
+  */
+ 
+ static struct pci_device_id mptspi_pci_table[] = {
+-#ifdef CONFIG_RHEL_DIFFERENCES
++#ifdef CONFIG_ELREPO_DIFFERENCES
+ 	{ PCI_VENDOR_ID_LSI_LOGIC, MPI_MANUFACTPAGE_DEVID_53C1030,
+ 	PCI_VENDOR_ID_VMWARE, PCI_ANY_ID },
+ #else

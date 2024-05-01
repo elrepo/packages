@@ -1,0 +1,11 @@
+--- mptsas.c.dist	2024-04-30 15:33:12.816440044 -0700
++++ mptsas.c	2024-04-30 15:33:37.223452062 -0700
+@@ -5381,7 +5381,7 @@ static void mptsas_remove(struct pci_dev
+ }
+ 
+ static struct pci_device_id mptsas_pci_table[] = {
+-#ifdef CONFIG_RHEL_DIFFERENCES
++#ifdef CONFIG_ELREPO_DIFFERENCES
+ 	{ PCI_VENDOR_ID_LSI_LOGIC, MPI_MANUFACTPAGE_DEVID_SAS1068,
+ 		PCI_VENDOR_ID_VMWARE, PCI_ANY_ID },
+ #else

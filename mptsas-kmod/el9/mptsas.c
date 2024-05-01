@@ -5163,10 +5163,6 @@ mptsas_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	int			error=0;
 	int			r;
 
-#ifdef CONFIG_RHEL_DIFFERENCES
-	mark_driver_unmaintained(MYNAM);
-#endif
-
 	r = mpt_attach(pdev,id);
 	if (r)
 		return r;
