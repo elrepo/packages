@@ -2,13 +2,13 @@
 %define kmod_name	nvidia-470xx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-362.18.1.el9_3}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-427.13.1.el9_4}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	470.239.06
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,7 +19,9 @@ Source0:  https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Lin
 Source1:  blacklist-nouveau.conf
 Source2:  dracut-nvidia.conf
 
+%if %{?_with_src:0}%{!?_with_src:1}
 NoSource: 0
+%endif
 
 %define __spec_install_post \
 		/usr/lib/rpm/check-buildroot \
@@ -230,6 +232,9 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Wed May 01 2024 Tuan Hoang <tqhoang@elrepo.org> - 470.239.06-2
+- Rebuilt for RHEL 9.4
+
 * Fri Mar 01 2024 Tuan Hoang <tqhoang@elrepo.org> - 470.239.06-1
-- Initial build for EL 9.3
+- Initial build for RHEL 9.3
 
