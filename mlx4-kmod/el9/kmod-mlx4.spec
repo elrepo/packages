@@ -2,13 +2,13 @@
 %define kmod_name	mlx4
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-362.18.1.el9_3}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-427.13.1.el9_4}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	4.0
-Release:	7%{?dist}
+Release:	8%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -79,7 +79,21 @@ echo "override %{kmod_name}_ib * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}
 # Apply patch(es)
 
 %build
-%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
+%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD \
+	CONFIG_MLX4_CORE=m \
+	CONFIG_MLX4_EN=m \
+	CONFIG_MLX4_EN_DCB=y \
+	CONFIG_MLX4_CORE_GEN2=y \
+	EXTRA_CFLAGS+='-DCONFIG_MLX4_CORE ' \
+	EXTRA_CFLAGS+='-DCONFIG_MLX4_EN ' \
+	EXTRA_CFLAGS+='-DCONFIG_MLX4_EN_DCB ' \
+	EXTRA_CFLAGS+='-DCONFIG_MLX4_CORE_GEN2 '
+
+cd infiniband
+%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD \
+	CONFIG_MLX4_INFINIBAND=m \
+	EXTRA_CFLAGS+='-DCONFIG_MLX4_INFINIBAND '
+cd ..
 
 whitelist="/lib/modules/kabi-current/kabi_stablelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -192,6 +206,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed May 01 2024 Tuan Hoang <tqhoang@elrepo.org> - 4.0-8
+- Rebuilt for RHEL 9.4
+- Source updated from RHEL 9.4 GA kernel
+
 * Sat Jan 27 2024 Philip J Perry <phil@elrepo.org> - 4.0-7
 - Rebuilt against kernel 5.14.0-362.18.1.el9_3
 

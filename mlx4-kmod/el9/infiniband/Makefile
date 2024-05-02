@@ -1,36 +1,4 @@
-# If KERNELRELEASE is defined, the make command using this Makefile has
-# been invoked by the kernel build system and so can use its language.
-# Otherwise, if KERNELRELEASE is null, a make command was issued from
-# the command line. So invoke the kernel build system.
+# SPDX-License-Identifier: GPL-2.0-only
+obj-$(CONFIG_MLX4_INFINIBAND)	+= mlx4_ib.o
 
-ifeq ($(KERNELRELEASE),)
-
-    # KVERSION should be set in the environment if this
-    # build is not for the currently running kernel.
-    KVERSION ?= $(shell uname -r)
-
-    # BUILD_DIR should be set in the environment if a
-    # subdirectory of /lib/modules/ is not appropriate.
-    BUILD_DIR ?= /lib/modules/${KVERSION}/build
-
-    PWD := $(shell pwd)
-
-modules:
-	$(MAKE) -C $(BUILD_DIR) M=$(PWD) modules
-
-modules_install:
-	$(MAKE) -C $(BUILD_DIR) M=$(PWD) modules_install
-
-clean:
-	rm -rf *~ *.o .*.cmd *.mod.c *.ko *.ko.unsigned .depend \
-	.tmp_versions modules.order Module.symvers Module.markers
-
-.PHONY: modules modules_install clean
-
-else
-
-obj-m += mlx4_ib.o
-
-mlx4_ib-objs := ah.o cq.o doorbell.o mad.o main.o mr.o qp.o srq.o mcg.o cm.o alias_GUID.o sysfs.o
-
-endif
+mlx4_ib-y :=	ah.o cq.o doorbell.o mad.o main.o mr.o qp.o srq.o mcg.o cm.o alias_GUID.o sysfs.o
