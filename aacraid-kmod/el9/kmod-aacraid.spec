@@ -2,13 +2,13 @@
 %define kmod_name	aacraid
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-362.18.1.el9_3}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-427.13.1.el9_4}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	1.2.1
-Release:	7%{?dist}
+Release:	8%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,7 +19,7 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0:		elrepo-%{kmod_name}-rhel_differences.el9_0.patch
+#Patch0:		
 
 %define __spec_install_post \
 		/usr/lib/rpm/check-buildroot \
@@ -76,10 +76,12 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
-%patch0 -p0
+#patch0 -p0
 
 %build
-%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
+%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD \
+	CONFIG_SCSI_AACRAID=m \
+	EXTRA_CFLAGS='-DCONFIG_SCSI_AACRAID'
 
 whitelist="/lib/modules/kabi-current/kabi_stablelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -190,6 +192,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed May 01 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.2.1-8
+- Rebuilt for RHEL 9.4
+- Source updated from RHEL 9.4 GA kernel
+- Note: RHEL differences patch no longer applicable
+
 * Sat Jan 27 2024 Philip J Perry <phil@elrepo.org> - 1.2.1-7
 - Rebuilt against kernel 5.14.0-362.18.1.el9_3
 
