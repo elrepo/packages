@@ -2,13 +2,13 @@
 %define kmod_name	a3818
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-362.18.1.el9_3}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-427.13.1.el9_4}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	1.6.9
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -33,6 +33,7 @@ Source0:	A3818Drv-%{version}.tar.gz
 # Source code patches
 Patch0: a3818-h.patch
 Patch1: elrepo-A3818-el9.patch
+Patch2: elrepo-A3818-el9_4.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -80,9 +81,9 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
-
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
@@ -195,6 +196,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri May 03 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.6.9-3
+- Rebuilt against RHEL 9.4 GA kernel
+- Add patch for RHEL 9.4
+
 * Thu Jan 25 2024 Akemi Yagi <toracat@elrepo.org> - 1.6.9-2
 - Rebuilt against kernel-5.14.0-362.18.1.el9_3
 

@@ -1,0 +1,12 @@
+diff -Naurp A3818Drv-1.6.9.orig/src/a3818.c A3818Drv-1.6.9/src/a3818.c
+--- A3818Drv-1.6.9.orig/src/a3818.c	2024-05-03 08:32:19.083498726 -0400
++++ A3818Drv-1.6.9/src/a3818.c	2024-05-03 08:38:49.012537276 -0400
+@@ -1564,7 +1564,7 @@ static int __init a3818_init(void) {
+           printk("  Error getting Major Number.\n");
+           return -ENODEV;
+       }
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 4, 0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 4, 0) && !(RHEL_MAJOR == 9 && RHEL_MINOR >= 4)
+ 	  a3818_class = class_create(THIS_MODULE, "a3818");
+ #else
+ 	  a3818_class = class_create("a3818");

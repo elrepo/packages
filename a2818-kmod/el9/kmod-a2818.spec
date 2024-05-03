@@ -2,21 +2,21 @@
 %define kmod_name	a2818
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-362.8.1.el9_3}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-427.13.1.el9_4}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	1.23
-Release:	2%{?dist}
+Version:	1.25
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	CAEN_License
-URL:		http://www.kernel.org/
+URL:		https://www.caen.it/
 
 # Sources.
-Source0:	A2818Drv-1.23-build20210917.tgz
-Source5:	CAEN_License_Agreement.txt
+Source0:	A2818Drv-1.25.tar.gz
+Source1:	CAEN_License_Agreement.txt
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -76,7 +76,7 @@ It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
-%setup -q -n A2818Drv-1.23
+%setup -q -n A2818Drv-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
@@ -103,7 +103,7 @@ sort -u greylist | uniq > greylist.txt
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
-%{__install} %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
+%{__install} -m 0644 CAEN_License_Agreement.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 # strip the modules(s)
 find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --strip-debug
@@ -196,6 +196,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri May 03 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.25-1
+- Updated to version 1.25 (see URL)
+- Install CAEN_License_Agreement.txt from tarball
+- Built against RHEL 9.4 GA kernel
+
 * Wed Nov 08 2023 Akemi Yagi <toracat@elrepo.org> - 1.23-2
 - Rebuilt against 9.3 GA kernel 5.14.0-362.8.1.el9_3
 

@@ -1,6 +1,6 @@
 Software License 
 
-Copyright © 1998-2015 C.A.E.N. S.p.A
+Copyright © 1998-2021 C.A.E.N. S.p.A
 
 Licence Agreement for “CAEN Software or Firmware” (collectively, the " CAEN SwFw")
 
