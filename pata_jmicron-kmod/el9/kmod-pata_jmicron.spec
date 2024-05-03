@@ -2,13 +2,13 @@
 %define kmod_name	pata_jmicron
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-362.13.1.el9_3}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-427.13.1.el9_4}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	0.1.5
-Release:	5%{?dist}
+Release:	6%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -197,6 +197,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu May 02 2024 Tuan Hoang <tqhoang@elrepo.org> - 0.1.5-6
+- Rebuilt against 9.4 GA kernel 5.14.0-427.13.1.el9_4
+- Source code from kernel-5.14.0-427.13.1.el9_4
+
 * Sat Dec 16 2023 Tuan Hoang <tqhoang@elrepo.org> - 0.1.5-5
 - Rebuilt against RHEL 9.3 errata kernel 5.14.0-362.13.1.el9_3
 
