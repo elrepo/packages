@@ -2,13 +2,13 @@
 %define kmod_name	hid-mcp2221	
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-362.24.1.el9_3}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-427.13.1.el9_4}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -191,6 +191,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri May 03 2024 Tuan Hoang <tqhoang@elrepo.org> - 0.0-2
+- Rebuilt against 9.4 GA kernel 5.14.0-427.13.1.el9_4
+- Source code from kernel-5.14.0-427.13.1.el9_4
+
 * Fri Mar 22 2024 Akemi Yagi <toracat@elrepo.org> - 0.0-1
 - Initial build for RHEL 9
 - Source code from RHEL 9.3 kernel-5.14.0-362.24.1.el9
