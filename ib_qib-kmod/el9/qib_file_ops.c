@@ -851,7 +851,7 @@ static int mmap_rcvegrbufs(struct vm_area_struct *vma,
 		ret = -EPERM;
 		goto bail;
 	}
-	/* don't allow them to later change to writeable with mprotect */
+	/* don't allow them to later change to writable with mprotect */
 	vma->vm_flags &= ~VM_MAYWRITE;
 
 	start = vma->vm_start;
@@ -941,7 +941,7 @@ static int mmap_kvaddr(struct vm_area_struct *vma, u64 pgaddr,
 			goto bail;
 		}
 		/*
-		 * Don't allow permission to later change to writeable
+		 * Don't allow permission to later change to writable
 		 * with mprotect.
 		 */
 		vma->vm_flags &= ~VM_MAYWRITE;
@@ -2246,10 +2246,10 @@ static ssize_t qib_write_iter(struct kiocb *iocb, struct iov_iter *from)
 	struct qib_ctxtdata *rcd = ctxt_fp(iocb->ki_filp);
 	struct qib_user_sdma_queue *pq = fp->pq;
 
-	if (!iter_is_iovec(from) || !from->nr_segs || !pq)
+	if (!from->user_backed || !from->nr_segs || !pq)
 		return -EINVAL;
 
-	return qib_user_sdma_writev(rcd, pq, from->iov, from->nr_segs);
+	return qib_user_sdma_writev(rcd, pq, iter_iov(from), from->nr_segs);
 }
 
 static struct class *qib_class;
@@ -2327,7 +2327,7 @@ int __init qib_dev_init(void)
 		goto done;
 	}
 
-	qib_class = class_create(THIS_MODULE, "ipath");
+	qib_class = class_create("ipath");
 	if (IS_ERR(qib_class)) {
 		ret = PTR_ERR(qib_class);
 		pr_err("Could not create device class (err %d)\n", -ret);
