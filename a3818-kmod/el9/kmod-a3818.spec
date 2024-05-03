@@ -12,7 +12,7 @@ Release:	3%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
-URL:		http://www.kernel.org/
+URL:		https://www.caen.it/
 
 # Sources.
 Source0:	A3818Drv-%{version}.tar.gz
@@ -199,6 +199,7 @@ exit 0
 * Fri May 03 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.6.9-3
 - Rebuilt against RHEL 9.4 GA kernel
 - Add patch for RHEL 9.4
+- Update URL for source code
 
 * Thu Jan 25 2024 Akemi Yagi <toracat@elrepo.org> - 1.6.9-2
 - Rebuilt against kernel-5.14.0-362.18.1.el9_3
