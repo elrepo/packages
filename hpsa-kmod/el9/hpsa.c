@@ -8673,10 +8673,6 @@ static int hpsa_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	unsigned long flags;
 	u32 board_id;
 
-#ifdef CONFIG_RHEL_DIFFERENCES
-	pci_hw_unmaintained(hpsa_pci_device_id, pdev);
-#endif
-
 	if (number_of_controllers == 0)
 		printk(KERN_INFO DRIVER_NAME "\n");
 
@@ -9118,7 +9114,6 @@ static void hpsa_remove_one(struct pci_dev *pdev)
 
 	free_percpu(h->lockup_detected);		/* init_one 2 */
 	h->lockup_detected = NULL;			/* init_one 2 */
-	/* (void) pci_disable_pcie_error_reporting(pdev); */	/* init_one 1 */
 
 	hpda_free_ctlr_info(h);				/* init_one 1 */
 }

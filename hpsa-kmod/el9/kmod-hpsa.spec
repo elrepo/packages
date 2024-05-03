@@ -2,13 +2,13 @@
 %define kmod_name	hpsa
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-362.18.1.el9_3}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-427.13.1.el9_4}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	3.4.20
-Release:	12%{?dist}
+Release:	13%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -194,6 +194,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri May 03 2024 Tuan Hoang <tqhoang@elrepo.org> - 3.4.20-13
+- Rebuilt against 9.4 GA kernel 5.14.0-427.13.1.el9_4
+- Source code from kernel-5.14.0-427.13.1.el9_4
+- Updated patch for 9.4
+
 * Sat Jan 27 2024 Tuan Hoang <tqhoang@elrepo.org> - 3.4.20-12
 - Rebuilt against RHEL 9.3 errata kernel 5.14.0-362.18.1.el9_3
 
