@@ -1,15 +1,15 @@
 # Define the kmod package name here.
 %define kmod_name	rr64xl
-%define extid 22_03_04
+%define extid 22_06_10
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-362.13.1.el9_3}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-427.13.1.el9_4}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	1.5.6
-Release:	5%{?dist}
+Version:	1.5.8
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	HighPoint
@@ -22,6 +22,7 @@ Source0:	RR64xl_Linux_Src_v%{version}_%{extid}.tar.gz
 Patch0:		elrepo-%{kmod_name}-SCSI_DISK_MAJOR.el9_0.patch
 Patch1:		elrepo-%{kmod_name}-atomic-bd_openers.el9_1.patch
 Patch2:		elrepo-%{kmod_name}-virt_to_bus.el9_3.patch
+Patch3:		elrepo-%{kmod_name}-blkdev_get_by_dev.el9_4.patch
 
 %define __spec_install_post \
 		/usr/lib/rpm/check-buildroot \
@@ -83,6 +84,7 @@ echo "override rr640l * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 %build
 pushd product/%{kmod_name}/linux >/dev/null
@@ -198,6 +200,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri May 03 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.5.8-1
+- Update version to 1.5.8
+- Add blkdev_get_by_dev patch for RHEL 9.4
+- Rebuilt against RHEL 9.4 GA kernel
+
 * Sat Dec 16 2023 Tuan Hoang <tqhoang@elrepo.org> - 1.5.6-5
 - Rebuilt against RHEL 9.3 errata kernel 5.14.0-362.13.1.el9_3
 

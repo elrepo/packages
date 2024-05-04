@@ -1,0 +1,12 @@
+diff -Naurp kmod-rr64xl-1.5.8.orig/osm/linux/os_linux.c kmod-rr64xl-1.5.8/osm/linux/os_linux.c
+--- kmod-rr64xl-1.5.8.orig/osm/linux/os_linux.c	2024-05-04 01:49:14.621006872 -0400
++++ kmod-rr64xl-1.5.8/osm/linux/os_linux.c	2024-05-04 02:00:52.070544219 -0400
+@@ -344,7 +344,7 @@ void refresh_sd_flags(PVBUS_EXT vbus_ext
+ 			for (i=0; major[i]; i++) {
+ 				for (minor=0; minor<=240; minor+=16) {
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(5,10,0)
+-					struct block_device *bdev = blkdev_get_by_dev(MKDEV(major[i], minor), FMODE_READ,NULL);
++					struct block_device *bdev = blkdev_get_by_dev(MKDEV(major[i], minor), FMODE_READ,NULL,NULL);
+ #else
+ 					struct block_device *bdev = bdget(MKDEV(major[i], minor));
+ #endif
