@@ -16,7 +16,6 @@
 #include "be.h"
 #include "be_cmds.h"
 #include <asm/div64.h>
-#include <linux/aer.h>
 #include <linux/if_bridge.h>
 #include <net/busy_poll.h>
 #include <net/vxlan.h>
@@ -61,13 +60,6 @@ static const struct pci_device_id be_dev_ids[] = {
 	{ 0 }
 };
 MODULE_DEVICE_TABLE(pci, be_dev_ids);
-
-static const struct pci_device_id be_unmaintained_dev_ids[] = {
-#ifdef CONFIG_BE2NET_LANCER
-	{ PCI_DEVICE(EMULEX_VENDOR_ID, OC_DEVICE_ID3)},
-#endif /* CONFIG_BE2NET_LANCER */
-	{ 0 }
-};
 
 /* Workqueue used by all functions for defering cmd calls to the adapter */
 static struct workqueue_struct *be_wq;
@@ -1132,7 +1124,7 @@ static struct sk_buff *be_lancer_xmit_workarounds(struct be_adapter *adapter,
 						  struct be_wrb_params
 						  *wrb_params)
 {
-	struct vlan_ethhdr *veh = (struct vlan_ethhdr *)skb->data;
+	struct vlan_ethhdr *veh = skb_vlan_eth_hdr(skb);
 	unsigned int eth_hdr_len;
 	struct iphdr *ip;
 
@@ -2351,11 +2343,10 @@ static void skb_fill_rx_data(struct be_rx_obj *rxo, struct sk_buff *skb,
 		hdr_len = ETH_HLEN;
 		memcpy(skb->data, start, hdr_len);
 		skb_shinfo(skb)->nr_frags = 1;
-		skb_frag_set_page(skb, 0, page_info->page);
-		skb_frag_off_set(&skb_shinfo(skb)->frags[0],
-				 page_info->page_offset + hdr_len);
-		skb_frag_size_set(&skb_shinfo(skb)->frags[0],
-				  curr_frag_len - hdr_len);
+		skb_frag_fill_page_desc(&skb_shinfo(skb)->frags[0],
+					page_info->page,
+					page_info->page_offset + hdr_len,
+					curr_frag_len - hdr_len);
 		skb->data_len = curr_frag_len - hdr_len;
 		skb->truesize += rx_frag_size;
 		skb->tail += hdr_len;
@@ -2377,16 +2368,17 @@ static void skb_fill_rx_data(struct be_rx_obj *rxo, struct sk_buff *skb,
 		if (page_info->page_offset == 0) {
 			/* Fresh page */
 			j++;
-			skb_frag_set_page(skb, j, page_info->page);
-			skb_frag_off_set(&skb_shinfo(skb)->frags[j],
-					 page_info->page_offset);
-			skb_frag_size_set(&skb_shinfo(skb)->frags[j], 0);
+			skb_frag_fill_page_desc(&skb_shinfo(skb)->frags[j],
+						page_info->page,
+						page_info->page_offset,
+						curr_frag_len);
 			skb_shinfo(skb)->nr_frags++;
 		} else {
 			put_page(page_info->page);
+			skb_frag_size_add(&skb_shinfo(skb)->frags[j],
+					  curr_frag_len);
 		}
 
-		skb_frag_size_add(&skb_shinfo(skb)->frags[j], curr_frag_len);
 		skb->len += curr_frag_len;
 		skb->data_len += curr_frag_len;
 		skb->truesize += rx_frag_size;
@@ -2459,14 +2451,16 @@ static void be_rx_compl_process_gro(struct be_rx_obj *rxo,
 		if (i == 0 || page_info->page_offset == 0) {
 			/* First frag or Fresh page */
 			j++;
-			skb_frag_set_page(skb, j, page_info->page);
-			skb_frag_off_set(&skb_shinfo(skb)->frags[j],
-					 page_info->page_offset);
-			skb_frag_size_set(&skb_shinfo(skb)->frags[j], 0);
+			skb_frag_fill_page_desc(&skb_shinfo(skb)->frags[j],
+						page_info->page,
+						page_info->page_offset,
+						curr_frag_len);
 		} else {
 			put_page(page_info->page);
+			skb_frag_size_add(&skb_shinfo(skb)->frags[j],
+					  curr_frag_len);
 		}
-		skb_frag_size_add(&skb_shinfo(skb)->frags[j], curr_frag_len);
+
 		skb->truesize += rx_frag_size;
 		remaining -= curr_frag_len;
 		memset(page_info, 0, sizeof(*page_info));
@@ -4991,9 +4985,6 @@ static int be_ndo_bridge_setlink(struct net_device *dev, struct nlmsghdr *nlh,
 		if (nla_type(attr) != IFLA_BRIDGE_MODE)
 			continue;
 
-		if (nla_len(attr) < sizeof(mode))
-			return -EINVAL;
-
 		mode = nla_get_u16(attr);
 		if (BE3_chip(adapter) && mode == BRIDGE_MODE_VEPA)
 			return -EOPNOTSUPP;
@@ -5733,8 +5724,6 @@ static void be_remove(struct pci_dev *pdev)
 	be_unmap_pci_bars(adapter);
 	be_drv_cleanup(adapter);
 
-	pci_disable_pcie_error_reporting(pdev);
-
 	pci_release_regions(pdev);
 	pci_disable_device(pdev);
 
@@ -5826,8 +5815,6 @@ static int be_probe(struct pci_dev *pdev, const struct pci_device_id *pdev_id)
 	struct net_device *netdev;
 	int status = 0;
 
-	pci_hw_unmaintained(be_unmaintained_dev_ids, pdev);
-
 	status = pci_enable_device(pdev);
 	if (status)
 		goto do_none;
@@ -5853,10 +5840,6 @@ static int be_probe(struct pci_dev *pdev, const struct pci_device_id *pdev_id)
 		dev_err(&pdev->dev, "Could not set PCI DMA Mask\n");
 		goto free_netdev;
 	}
-
-	status = pci_enable_pcie_error_reporting(pdev);
-	if (!status)
-		dev_info(&pdev->dev, "PCIe error reporting enabled\n");
 
 	status = be_map_pci_bars(adapter);
 	if (status)
@@ -5902,7 +5885,6 @@ drv_cleanup:
 unmap_bars:
 	be_unmap_pci_bars(adapter);
 free_netdev:
-	pci_disable_pcie_error_reporting(pdev);
 	free_netdev(netdev);
 rel_reg:
 	pci_release_regions(pdev);
