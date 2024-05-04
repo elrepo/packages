@@ -8,7 +8,6 @@
 #include <linux/jiffies.h>
 #include <linux/list.h>
 
-#include "linux/drbd_config.h"
 #include "drbd_int.h"
 #include "drbd_req.h"
 #include "drbd_debugfs.h"

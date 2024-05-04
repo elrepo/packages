@@ -19,7 +19,6 @@
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
 #include <linux/drbd.h>
-#include <linux/drbd_config.h>
 #include "drbd_int.h"
 
 struct proc_dir_entry *drbd_proc;
