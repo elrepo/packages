@@ -2,13 +2,13 @@
 %define kmod_name	a2818
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-427.13.1.el9_4}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-427.16.1.el9_4}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	1.25
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	CAEN_License
@@ -196,6 +196,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu May 09 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.25-2
+- Rebuilt against RHEL 9.4 errata kernel 5.14.0-427.16.1.el9_4
+
 * Fri May 03 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.25-1
 - Updated to version 1.25 (see URL)
 - Install CAEN_License_Agreement.txt from tarball
