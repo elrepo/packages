@@ -1,7 +1,7 @@
 %define real_name drbd-utils
 
 Name:    drbd9x-utils
-Version: 9.27.0
+Version: 9.28.0
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
@@ -143,8 +143,8 @@ fi
 %config %{_unitdir}/drbd.service
 %dir %{_localstatedir}/lib/drbd/
 %dir /lib/drbd/
-/lib/drbd/drbdadm-83
-/lib/drbd/drbdsetup-83
+# /lib/drbd/drbdadm-83
+# /lib/drbd/drbdsetup-83
 /lib/drbd/drbdadm-84
 /lib/drbd/drbdsetup-84
 /lib/drbd/scripts/drbd
@@ -207,6 +207,9 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Sat May 11 2024 Akemi Yagi <toracat@elrepo.org> - 9.28.0-1.el9
+- Updated to 9.28.0
+
 * Fri Dec 22 2023 Akemi Yagi <toracat@elrepo.org> - 9.27.0-1.el9
 - Updated to 9.27.0
 
