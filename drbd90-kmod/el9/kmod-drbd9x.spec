@@ -8,8 +8,8 @@
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	9.1.19
-Release:	2%{?dist}
+Version:	9.1.20
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -98,7 +98,7 @@ sort -u greylist | uniq > greylist.txt
 
 %install
 %{__install} -d %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-%{__install} drbd/*.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+%{__install} drbd/build-current/*.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
@@ -196,6 +196,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sun May 12 2024 Akemi Yagi <toracat@elrepo.org> - 9.1.20-1.el9_4
+- Version updated to 9.1.20
+
 * Wed May 01 2024 Akemi Yagi <toracat@elrepo.org> - 9.1.19-2.el9_4
 - Rebuilt for RHEL 9.4
 
