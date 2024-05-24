@@ -8,7 +8,7 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 8.052.01
+Version: 8.053.00
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -81,6 +81,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Fri May 24 2024 Tuan Hoang <tqhoang@elrepo.org> - 8.053.00-1
+- Updated to version 8.053.00
+
 * Sun Oct 22 2023 Akemi Yagi <toracat@elrepo.org> - 8.052.01-1
 - Updated to version 8.052.01
 
