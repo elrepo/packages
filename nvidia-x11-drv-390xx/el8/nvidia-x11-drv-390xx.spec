@@ -7,7 +7,7 @@
 
 Name:		nvidia-x11-drv-390xx
 Version:	390.157
-Release:	5%{?dist}
+Release:	6%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -18,7 +18,10 @@ ExclusiveArch:	i686 x86_64
 
 # Sources.
 Source0:	https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+
+%if %{?_with_src:0}%{!?_with_src:1}
 NoSource: 0
+%endif
 
 Source1:	alternate-install-present
 Source2:	nvidia-xorg.conf
@@ -363,6 +366,9 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Fri May 24 2024 Tuan Hoang <tqhoang@elrepo.org> - 390.157-6
+- Rebuilt against RHEL 8.10
+
 * Wed Jan 10 2024 Tuan Hoang <tqhoang@elrepo.org> - 390.157-5
 - Add libs package conflicts
 - Change requirement perl to perl-interpreter

@@ -2,7 +2,7 @@
 %define kmod_name		nvidia
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
 
 %{!?dist: %define dist .el8}
 
@@ -239,7 +239,8 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
-* Tue May 14 2024 Tuan Hoang <tqhoang@elrepo.org> - 550.78-1
+* Fri May 24 2024 Tuan Hoang <tqhoang@elrepo.org> - 550.78-1
+- Rebuilt against RHEL 8.10 GA kernel 4.18.0-553.el8_10
 - Updated to version 550.78
 
 * Thu Apr 18 2024 Philip J Perry <phil@elrepo.org> - 550.76-1

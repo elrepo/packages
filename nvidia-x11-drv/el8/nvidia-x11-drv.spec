@@ -455,7 +455,8 @@ fi ||:
 %endif
 
 %changelog
-* Tue May 14 2024 Tuan Hoang <tqhoang@elrepo.org> - 550.78-1
+* Fri May 24 2024 Tuan Hoang <tqhoang@elrepo.org> - 550.78-1
+- Rebuilt against RHEL 8.10
 - Updated to version 550.78
 
 * Thu Apr 18 2024 Philip J Perry <phil@elrepo.org> - 550.76-1

@@ -2,13 +2,13 @@
 %define kmod_name		nvidia-390xx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	390.157
-Release:	5%{?dist}
+Release:	6%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
 License:	Proprietary
@@ -22,7 +22,9 @@ Source2:  dracut-nvidia.conf
 # Source code patches
 Patch0:		nvidia-390xx-buildfix-el8_9.patch
 
+%if %{?_with_src:0}%{!?_with_src:1}
 NoSource: 0
+%endif
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
                             /usr/lib/rpm/redhat/brp-ldconfig \
@@ -231,6 +233,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri May 24 2024 Tuan Hoang <tqhoang@elrepo.org> - 390.157-6
+- Rebuilt against RHEL 8.10 GA kernel 4.18.0-553.el8_10
+
 * Wed Jan 10 2024 Tuan Hoang <tqhoang@elrepo.org> - 390.157-5
 - Fix missing uvm line from depmod conf file
 - Revise patch to use RHEL_MAJOR define

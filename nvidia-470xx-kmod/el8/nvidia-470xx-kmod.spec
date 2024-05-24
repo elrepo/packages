@@ -2,13 +2,13 @@
 %define kmod_name		nvidia-470xx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	470.239.06
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
 License:	Proprietary
@@ -19,7 +19,9 @@ Source0:  https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Lin
 Source1:  blacklist-nouveau.conf
 Source2:  dracut-nvidia.conf
 
+%if %{?_with_src:0}%{!?_with_src:1}
 NoSource: 0
+%endif
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
                             /usr/lib/rpm/redhat/brp-ldconfig \
@@ -236,6 +238,9 @@ exit 0
 /lib/firmware/nvidia/%{version}/gsp.bin
 
 %changelog
+* Fri May 24 2024 Tuan Hoang <tqhoang@elrepo.org> - 470.239.06-2
+- Rebuilt against RHEL 8.10 GA kernel 4.18.0-553.el8_10
+
 * Fri Mar 01 2024 Tuan Hoang <tqhoang@elrepo.org> - 470.239.06-1
 - Updated to version 470.239.06
 

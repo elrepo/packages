@@ -7,7 +7,7 @@
 
 Name:		nvidia-x11-drv-470xx
 Version:	470.239.06
-Release:	1%{?dist}
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -18,7 +18,10 @@ ExclusiveArch:	i686 x86_64
 
 # Sources.
 Source0:	https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+
+%if %{?_with_src:0}%{!?_with_src:1}
 NoSource: 0
+%endif
 
 Source1:	alternate-install-present
 Source2:	nvidia-xorg.conf
@@ -417,6 +420,9 @@ fi ||:
 %endif
 
 %changelog
+* Fri May 24 2024 Tuan Hoang <tqhoang@elrepo.org> - 470.239.06-2
+- Rebuilt against RHEL 8.10
+
 * Fri Mar 01 2024 Tuan Hoang <tqhoang@elrepo.org> - 470.239.06-1
 - Updated to version 470.239.06
 
