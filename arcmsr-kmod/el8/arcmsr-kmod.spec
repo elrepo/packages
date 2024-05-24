@@ -2,13 +2,13 @@
 %define kmod_name		arcmsr
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	1.50.00.02
-Release:	20200819.3%{?dist}
+Release:	20200819.4%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -184,6 +184,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri May 24 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.50.00.02-20200819.4
+- Rebuilt against RHEL 8.10 GA kernel 4.18.0-553.el8_10
+
 * Tue Nov 14 2023 Philip J Perry <phil@elrepo.org> 1.50.00.02-20200819.3
 - Rebuilt for RHEL 8.9
 - Rebase to kernel-5.10.200

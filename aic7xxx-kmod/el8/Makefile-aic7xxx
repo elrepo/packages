@@ -31,14 +31,14 @@ else
 
 # Called from kernel build system -- just declare the module(s).
 
-aic79xx-y := aic79xx_core.o aic79xx_pci.o \
-			aic79xx_osm.o aic79xx_proc.o aic79xx_osm_pci.o
+aic7xxx-y := aic7xxx_core.o aic7xxx_93cx6.o aic7xxx_pci.o \
+			aic7xxx_osm.o aic7xxx_proc.o aic7xxx_osm_pci.o
 
-obj-m := aic79xx.o
+obj-m := aic7xxx.o
 
 ccflags-y += -Idrivers/scsi \
 			-DCONFIG_AIC7XXX_CMDS_PER_DEVICE=32 \
 			-DCONFIG_AIC7XXX_RESET_DELAY_MS=5000 \
-			-DCONFIG_AIC7XXX_DEBUG_MASK=0
+			-DCONFIG_AIC7XXX_DEBUG_MASK=0 \
 
 endif

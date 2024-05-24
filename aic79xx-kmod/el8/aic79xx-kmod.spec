@@ -2,13 +2,14 @@
 %define kmod_name aic79xx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
 
 %{!?dist: %define dist .el8}
 
+Epoch:		1
 Name:           kmod-%{kmod_name}
-Version:        7.0
-Release:        4%{?dist}
+Version:        3.0
+Release:        5%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -16,6 +17,7 @@ URL:            http://www.kernel.org/
 
 # Sources.
 Source0:  %{kmod_name}-%{version}.tar.gz
+Source1:  Makefile-%{kmod_name}
 Source5:  GPL-v2.0.txt
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
@@ -69,6 +71,14 @@ of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
 %setup -q -n %{kmod_name}-%{version}
+# copy custom Makefile
+%{__mv} -f Makefile Makefile.orig
+%{__cp} -f %{SOURCE1} Makefile
+# copy _shipped files to compilable filenames
+for shipfile in *_shipped ; do
+        compfile=`echo $shipfile | sed -e s/_shipped$//`
+        %{__cp} -pv $shipfile $compfile
+done
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
@@ -184,6 +194,12 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri May 24 2024 Tuan Hoang <tqhoang@elrepo.org> - 1:3.0-5
+- Rebuilt against RHEL 8.10 GA kernel 4.18.0-553.el8_10
+- Rebase tarball to match contents with aic7xxx
+- Change version number to the correct one for aic79xx
+- Fix incorrect defines in Makefile-aic79xx
+
 * Sun Nov 19 2023 Philip J Perry <phil@elrepo.org> - 7.0-4
 - Rebuilt against RHEL 8.9 GA kernel 4.18.0-513.5.1.el8_9
 

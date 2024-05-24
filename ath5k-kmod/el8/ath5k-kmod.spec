@@ -2,13 +2,13 @@
 %define kmod_name		ath5k
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	12%{?dist}
+Release:	13%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -182,7 +182,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Sat Mar 23 2024 Tuan Hoang <tqhoang@elrepo.org> 0.0-12
+* Fri May 24 2024 Tuan Hoang <tqhoang@elrepo.org> - 0.0-13
+- Rebuilt against RHEL 8.10 GA kernel 4.18.0-553.el8_10
+
+* Sat Mar 23 2024 Tuan Hoang <tqhoang@elrepo.org> - 0.0-12
 - Rebase to kernel-6.4 to fix RHEL 8.9 compatibility
   [https://elrepo.org/bugs/view.php?id=1413]
 
