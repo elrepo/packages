@@ -2,13 +2,13 @@
 %define kmod_name		mptsas
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	3.04.20
-Release:	9%{?dist}
+Release:	10%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -50,9 +50,14 @@ BuildRequires:	redhat-rpm-config
 
 Provides:	kernel-modules >= %{kmod_kernel_version}.%{_arch}
 Provides:	kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
+
 # Combines and replaces kmod-mptspi
 Provides:			kmod-mptspi = %{?epoch:%{epoch}:}%{version}-%{release}
 Obsoletes:			kmod-mptspi < %{?epoch:%{epoch}:}%{version}-%{release}
+
+# Combines and replaces kmod-mptfc
+Provides:			kmod-mptfc = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:			kmod-mptfc < %{?epoch:%{epoch}:}%{version}-%{release}
 
 Requires(post):	%{_sbindir}/weak-modules
 Requires(postun):	%{_sbindir}/weak-modules
@@ -185,12 +190,16 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat May 25 2024 Tuan Hoang <tqhoang@elrepo.org> - 3.04.20-10
+- Rebuilt against RHEL 8.10 GA kernel 4.18.0-553.el8_10
+- Obsoletes kmod-mptfc
+
 * Tue Nov 14 2023 Philip J Perry <phil@elrepo.org> 3.04.20-9
 - Rebuilt for RHEL 8.9
 
 * Sat Jan 14 2023 Philip J Perry <phil@elrepo.org> 3.04.20-8
 - Rebuilt against RHEL 8.7 kernel
-- Obsoletes  kmod-mptspi
+- Obsoletes kmod-mptspi
 - Added mptctl and mptfc modules [https://elrepo.org/bugs/view.php?id=1314]
 
 * Tue May 10 2022 Philip J Perry <phil@elrepo.org> 3.04.20-7

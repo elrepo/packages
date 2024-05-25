@@ -2,14 +2,14 @@
 %define kmod_name		moxa-mxupcie
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
 
 %{!?dist: %define dist .el8}
 
 Summary:	Moxa %{kmod_name} kernel module(s)
 Name:		kmod-%{kmod_name}
 Version:	4.1
-Release:	4%{?dist}
+Release:	5%{?dist}
 License:	GPLv2+
 URL:		https://www.moxa.com/
 
@@ -211,10 +211,12 @@ exit 0
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
 
 %changelog
+* Sat May 25 2024 Tuan Hoang <tqhoang@elrepo.org> - 4.1-5
+- Rebuilt against RHEL 8.10 GA kernel 4.18.0-553.el8_10
+
 * Sun Nov 19 2023 Tuan Hoang <tqhoang@elrepo.org> - 4.1-4
 - Fix naming of tools sub-package
 - Rebuilt against RHEL 8.9 GA kernel
-- Source code from kernel-4.18.0-513.5.1.el8_9
 
 * Tue May 31 2022 Akemi Yagi <toracat@elrepo.org> - 4.1-3
 - Rebuilt against RHEL 8.6 GA kernel 4.18.0-372.9.1.el8
