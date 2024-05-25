@@ -1,5 +1,5 @@
 # Define the kmod package name here.
-%define kmod_name		cxgb3
+%define kmod_name	pcnet32	
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
 %{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
@@ -7,8 +7,8 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	1.1.5
-Release:	12%{?dist}
+Version:	0.0
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,8 +19,6 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0:		elrepo-cxgb3-extend-structs.el8_7.patch
-Patch1:		elrepo-cxgb3-netif_napi_add.el8_8.patch
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
                             /usr/lib/rpm/redhat/brp-ldconfig \
@@ -58,7 +56,6 @@ Provides:	kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires(post):	%{_sbindir}/weak-modules
 Requires(postun):	%{_sbindir}/weak-modules
 Requires:	kernel >= %{kmod_kernel_version}
-Requires:	%{kmod_name}-firmware
 
 %description
 This package provides the %{kmod_name} kernel module(s).
@@ -66,15 +63,11 @@ It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
-%setup -n %{kmod_name}-%{version}
+%setup -q -n %{kmod_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
-# Apply patch(es)
-%patch0 -p0
-%patch1 -p1
-
 %build
-%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
+%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD CONFIG_PCNET32=m
 
 whitelist="/lib/modules/kabi-current/kabi_whitelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -185,49 +178,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Wed May 22 2024 Akemi Yagi <toracat@elrepo.org> - 1.1.5-12
-- Rebuilt against RHEL 8.10 GA kernel-4.18.0-553.el8_10
+* Wed May 22 2024 Akemi Yagi <toracat@elrepo.org> - 0.0-2
+- Rebuilt against el8.10 GA kernel-4.18.0-553.el8_10
 
-* Tue Nov 14 2023 Philip J Perry <phil@elrepo.org> 1.1.5-11
-- Rebuilt for RHEL 8.9
+* Sat May 18 2024 Akemi Yagi <toracat@elrepo.org> - 0.0-1
+- Initial build for 8.9
+- Source code from RHEL 8.9 GA kernel
 
-* Tue May 16 2023 Philip J Perry <phil@elrepo.org> 1.1.5-10
-- Rebuilt for RHEL 8.8
-- Fix netif_napi_add()
 
-* Sun Jan 15 2023 Philip J Perry <phil@elrepo.org> 1.1.5-9
-- Rebuilt against kernel-4.18.0-425.10.1.el8_7 due to a bug in the RHEL kernel
-  [https://access.redhat.com/solutions/6985596]
-
-* Tue Nov 08 2022 Philip J Perry <phil@elrepo.org> 1.1.5-8
-- Rebuilt for RHEL 8.7
-- Fix extend ringparam setting/getting API with rx_buf_len
-
-* Tue May 10 2022 Philip J Perry <phil@elrepo.org> 1.1.5-7
-- Rebuilt for RHEL 8.6
-- Fix extend coalesce setting uAPI with CQE mode
-
-* Sat Nov 13 2021 Philip J Perry <phil@elrepo.org> 1.1.5-6
-- Rebuilt for RHEL 8.5
-- Fix SB-signing issue caused by /usr/lib/rpm/brp-strip
-  [https://bugzilla.redhat.com/show_bug.cgi?id=1967291]
-- Update stripping of modules
-
-* Tue May 18 2021 Philip J Perry <phil@elrepo.org> 1.1.5-5
-- Rebuilt for RHEL 8.4
-- Fix updating of initramfs image
-  [https://elrepo.org/bugs/view.php?id=1060]
-
-* Thu Nov 05 2020 Philip J Perry <phil@elrepo.org> 1.1.5-4
-- Rebuilt against RHEL 8.3 kernel
-- Source code backported from kernel-4.18.20
-
-* Mon Aug 17 2020 Philip J Perry <phil@elrepo.org> 1.1.5-3
-- Add Requires for cxgb3-firmware
-
-* Tue Aug 11 2020 Akemi Yagi <toracat@elrepo.org> 1.1.5-2
-- Rebuilt against RHEL 8.2 kernel (source code unchanged from 8.1)
-
-* Fri Apr 17 2020 Akemi Yagi <toracat@elrepo.org> 1.1.5-1
-- Initial build for RHEL 8.1
-- Source code backported from kernel 4.18.0-147.el8
