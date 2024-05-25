@@ -2,12 +2,12 @@
 %define kmod_name		megaraid_sas
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	07.725.01.00
+Version:	07.727.03.00
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -19,7 +19,7 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0:	elrepo-megaraid_sas-revert-removed-devices.8.4.patch
+Patch0:	elrepo-megaraid_sas-revert-removed-devices.8.10.patch
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
                             /usr/lib/rpm/redhat/brp-ldconfig \
@@ -182,6 +182,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed May 22 2024 Akemi Yagi <toracat@elrepo.org> - 07.727.03.00-1
+- Rebuilt for RHEL 8.10
+- Source code updated from RHEL kernel-4.18.0-553.el8_10
+
 * Tue Nov 14 2023 Philip J Perry <phil@elrepo.org> 07.725.01.00-1
 - Rebuilt for RHEL 8.9
 - Source code updated from RHEL kernel-4.18.0-513.5.1.el8_9.x86_64

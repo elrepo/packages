@@ -8652,10 +8652,6 @@ static int hpsa_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	unsigned long flags;
 	u32 board_id;
 
-#ifdef CONFIG_RHEL_DIFFERENCES
-	pci_hw_deprecated(hpsa_pci_device_id, pdev);
-#endif
-
 	if (number_of_controllers == 0)
 		printk(KERN_INFO DRIVER_NAME "\n");
 

@@ -1,7 +1,6 @@
-diff -Naurp rhel8.4/megaraid_sas_base.c elrepo8.4/megaraid_sas_base.c
---- rhel8.4/megaraid_sas_base.c	2021-04-29 12:35:54.000000000 +0100
-+++ elrepo8.4/megaraid_sas_base.c	2021-05-18 16:58:41.024685322 +0100
-@@ -138,12 +138,24 @@ static void megasas_get_pd_info(struct m
+--- a/megaraid_sas_base.c.dist	2024-05-22 11:48:24.809044704 -0700
++++ b/megaraid_sas_base.c	2024-05-22 11:50:43.253063856 -0700
+@@ -140,12 +140,24 @@ megasas_set_ld_removed_by_fw(struct mega
   */
  static struct pci_device_id megasas_pci_table[] = {
  

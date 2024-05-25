@@ -2,12 +2,12 @@
 %define kmod_name		qla2xxx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-513.5.1.el8_9}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	10.02.08.200
+Version:	10.02.09.100
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -19,8 +19,7 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0:		elrepo-qla2xxx-revert_rhel_differences.el8.8.patch
-Patch1:		elrepo-qla2xxx-revert-removed-devices.el8.3.patch
+Patch0:		elrepo-qla2xxx-revert-removed-devices.el8.10.patch
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
                             /usr/lib/rpm/redhat/brp-ldconfig \
@@ -69,8 +68,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
-%patch0 -p0
-%patch1 -p1
+%patch0 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD
@@ -184,6 +182,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed May 22 2024 Akemi Yagi <toracat@elrepo.org> - 10.02.09.100-1
+- Rebuilt for RHEL 8.10
+- Source code updated from RHEL kernel-4.18.0-553.el8_10
+
 * Tue Nov 14 2023 Philip J Perry <phil@elrepo.org> 10.02.08.200-1
 - Rebuilt for RHEL 8.9
 - Source code updated from RHEL kernel-4.18.0-513.5.1.el8_9.x86_64
