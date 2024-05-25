@@ -174,6 +174,7 @@ pushd nvidiapkg
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/
 %{__install} -p -m 0644 10_nvidia.json $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/
+%{__mkdir_p} $RPM_BUILD_ROOT%{_libdir}/gbm/
 %{__install} -p -m 0644 15_nvidia_gbm.json $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/15_nvidia_gbm.json
 
 # Install GL, tls and vdpau libs
@@ -261,6 +262,7 @@ popd
 %{__ln_s} libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvcuvid.so.1
 %{__ln_s} libnvidia-allocator.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-allocator.so
 %{__ln_s} libnvidia-allocator.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-allocator.so.1
+%{__ln_s} libnvidia-allocator.so.%{version} $RPM_BUILD_ROOT%{_libdir}/gbm/nvidia-drm_gbm.so
 %ifarch x86_64
 %{__ln_s} libnvidia-cfg.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-cfg.so.1
 %{__ln_s} libnvidia-egl-gbm.so.1.1.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-gbm.so
@@ -448,6 +450,8 @@ fi ||:
 %files libs
 %defattr(-,root,root,-)
 %{_libdir}/lib*
+%dir %{_libdir}/gbm/
+%{_libdir}/gbm/nvidia*
 %{_libdir}/vdpau/libvdpau_nvidia.*
 %ifarch x86_64
 %dir %{_libdir}/nvidia/
