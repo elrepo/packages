@@ -1,13 +1,13 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# https://download.nvidia.com/XFree86/Linux-x86_64/550.78/README/minimumrequirements.html
+# https://download.nvidia.com/XFree86/Linux-x86_64/550.90.07/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	550.78
-Release:	1%{?dist}
+Version:	550.90.07
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -262,7 +262,9 @@ popd
 %{__ln_s} libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvcuvid.so.1
 %{__ln_s} libnvidia-allocator.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-allocator.so
 %{__ln_s} libnvidia-allocator.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-allocator.so.1
-%{__ln_s} libnvidia-allocator.so.%{version} $RPM_BUILD_ROOT%{_libdir}/gbm/nvidia-drm_gbm.so
+pushd $RPM_BUILD_ROOT%{_libdir}/gbm
+%{__ln_s} ../libnvidia-allocator.so.%{version} nvidia-drm_gbm.so
+popd
 %ifarch x86_64
 %{__ln_s} libnvidia-cfg.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-cfg.so.1
 %{__ln_s} libnvidia-egl-gbm.so.1.1.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-gbm.so
@@ -459,6 +461,12 @@ fi ||:
 %endif
 
 %changelog
+* Thu Jun 06 2024 Tuan Hoang <tqhoang@elrepo.org> - 550.90.07-2
+- Fix broken symlink nvidia-drm_gbm.so
+
+* Wed Jun 05 2024 Tuan Hoang <tqhoang@elrepo.org> - 550.90.07-1
+- Updated to version 550.90.07
+
 * Fri May 24 2024 Tuan Hoang <tqhoang@elrepo.org> - 550.78-1
 - Rebuilt against RHEL 8.10
 - Updated to version 550.78
