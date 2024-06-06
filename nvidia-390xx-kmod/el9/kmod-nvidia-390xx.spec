@@ -22,7 +22,9 @@ Source2:  dracut-nvidia.conf
 # Source code patches
 Patch0:		nvidia-390xx-buildfix-el9.patch
 
+%if %{?_with_src:0}%{!?_with_src:1}
 NoSource: 0
+%endif
 
 %define __spec_install_post \
 		/usr/lib/rpm/check-buildroot \

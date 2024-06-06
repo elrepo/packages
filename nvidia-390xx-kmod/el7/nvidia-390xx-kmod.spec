@@ -21,7 +21,9 @@ Source0:  ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux
 Source1:  blacklist-nouveau.conf
 Source10: kmodtool-%{kmod_name}-el7.sh
 
+%if %{?_with_src:0}%{!?_with_src:1}
 NoSource: 0
+%endif
 
 # Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}

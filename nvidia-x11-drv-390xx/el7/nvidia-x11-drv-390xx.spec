@@ -1,3 +1,4 @@
+
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
 # http://us.download.nvidia.com/XFree86/Linux-x86_64/390.157/README/minimumrequirements.html
@@ -20,7 +21,10 @@ ExclusiveArch:	i686 x86_64
 
 # Sources.
 Source0:	http://us.download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+
+%if %{?_with_src:0}%{!?_with_src:1}
 NoSource: 0
+%endif
 
 Source1:	nvidia-xorg.conf
 Source2:	99-nvidia.conf
