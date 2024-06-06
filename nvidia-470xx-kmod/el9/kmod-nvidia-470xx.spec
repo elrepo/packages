@@ -7,8 +7,8 @@
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	470.239.06
-Release:	2%{?dist}
+Version:	470.256.02
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -232,6 +232,10 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Wed Jun 05 2024 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-1
+- Updated to version 470.256.02
+- Built against RHEL 9.4 GA kernel
+
 * Wed May 01 2024 Tuan Hoang <tqhoang@elrepo.org> - 470.239.06-2
 - Rebuilt for RHEL 9.4
 

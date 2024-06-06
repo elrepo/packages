@@ -1,13 +1,13 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# https://download.nvidia.com/XFree86/Linux-x86_64/470.239.06/README/minimumrequirements.html
+# https://download.nvidia.com/XFree86/Linux-x86_64/470.256.02/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv-470xx
-Version:	470.239.06
-Release:	2%{?dist}
+Version:	470.256.02
+Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -420,6 +420,9 @@ fi ||:
 %endif
 
 %changelog
+* Wed Jun 05 2024 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-1
+- Updated to version 470.256.02
+
 * Wed May 01 2024 Tuan Hoang <tqhoang@elrepo.org> - 470.239.06-2
 - Rebuilt for RHEL 9.4
 

@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 470.239.06
+Version: 470.256.02
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -21,7 +21,9 @@ Source0:  ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux
 Source1:  blacklist-nouveau.conf
 Source10: kmodtool-%{kmod_name}-el7.sh
 
+%if %{?_with_src:0}%{!?_with_src:1}
 NoSource: 0
+%endif
 
 # Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
@@ -84,6 +86,10 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Wed Jun 05 2024 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-1
+- Updated to version 470.256.02
+- Built against RHEL 7.9 GA kernel
+
 * Fri Mar 01 2024 Tuan Hoang <tqhoang@elrepo.org> - 470.239.06-1
 - Updated to version 470.239.06
 

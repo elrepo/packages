@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/470.239.06/README/minimumrequirements.html
+# http://us.download.nvidia.com/XFree86/Linux-x86_64/470.256.02/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 
@@ -8,7 +8,7 @@
 %define		_use_internal_dependency_generator	0
 
 Name:		nvidia-x11-drv-470xx
-Version:	470.239.06
+Version:	470.256.02
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
@@ -20,7 +20,10 @@ ExclusiveArch:	i686 x86_64
 
 # Sources.
 Source0:	http://us.download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+
+%if %{?_with_src:0}%{!?_with_src:1}
 NoSource: 0
+%endif
 
 Source1:	nvidia-xorg.conf
 Source2:	alternate-install-present
@@ -427,6 +430,9 @@ fi ||:
 %endif
 
 %changelog
+* Wed Jun 05 2024 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-1
+- Updated to version 470.256.02
+
 * Fri Mar 01 2024 Tuan Hoang <tqhoang@elrepo.org> - 470.239.06-1
 - Updated to version 470.239.06
 
