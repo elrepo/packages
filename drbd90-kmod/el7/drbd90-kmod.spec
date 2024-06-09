@@ -6,7 +6,7 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 9.1.19
+Version: 9.1.21
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2
@@ -44,7 +44,7 @@ KSRC=%{_usrsrc}/kernels/%{kversion}
 
 %install
 %{__install} -d %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
-%{__install} drbd/*.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
+%{__install} drbd/build-current/*.ko %{buildroot}/lib/modules/%{kversion}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 for file in ChangeLog COPYING README.md; do
@@ -69,6 +69,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Jun 08 2024 Akemi Yagi <toracat@elrepo.org> - 9.1.21-1.el7_9
+- Version updated to 9.1.21
+
 * Tue Mar 05 2024 Akemi Yagi <toracat@elrepo.org> - 9.1.19-1.el7_9
 - Version updated to 9.1.19
 
