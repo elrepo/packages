@@ -2,13 +2,14 @@
 %define kmod_name		ib_qib
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-348.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
+
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
 Version:        1.11
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -31,7 +32,7 @@ Source5:  GPL-v2.0.txt
 				PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
 
 # Source code patches
-Patch0:		elrepo-ib_qib-unpin_user_page.8.4.patch
+Patch0:		elrepo-ib_qib-backport-linux-6.2-to-el8_10.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -186,6 +187,12 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Jun 12 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.11-3
+- Rebuilt against RHEL 8.10 GA kernel
+- Source code backported from kernel 6.2
+  https://elrepo.org/bugs/view.php?id=1232
+  https://elrepo.org/bugs/view.php?id=1459
+
 * Fri Nov 12 2021 Akemi Yagi <toracat@elrepo.org> -1.11-2
 - Rebuilt against RHEL 8.5 kernel
 
