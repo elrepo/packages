@@ -1,0 +1,4071 @@
+                              Release Notes
+                        Broadcom tg3 Linux Driver
+                              Version 3.139k
+                                08/09/2023
+
+                          Broadcom Limited
+                         5300 California Avenue,
+                            Irvine, CA 92617
+
+			Copyright (C) 2010-2023 Broadcom
+			   All Rights Reserved
+v3.139k(Aug 09, 2023)
+   fixes and Enhancements
+   ----------------------
+        1) Problem: (DCSG01488628) Implement new power management
+           Cause  : Enable SIMPLE_DEV_PM_OPS for tg3.
+
+v3.139j(Jan 16, 2023)
+   fixes and Enhancements
+   ----------------------
+	1) Problem: (DCSG01353998) extend ringparam setting/getting API
+		     with rx_buf_len
+	   Cause  :  Support new kernel 5.17
+
+v3.139i(Oct 19, 2022)
+   fixes and Enhancements
+   ----------------------
+	1) Problem: (DCSG01298936) tg3: Add support for kernel > 5.14
+	   Cause  :  Private IOCTLs are handled by ndo_siocdevprivate
+	   in > 5.14 kernels
+
+v3.139h(Aug 03, 2022)
+   fixes and Enhancements
+   ----------------------
+	1) Problem: (DCSG01284313) FW upgrade fails ;Firmware programming
+		    utility returned an error.
+	   Cause  : New ndo ioctl interface introduced
+
+v3.139g(Jul 12, 2022)
+   fixes and Enhancements
+   ----------------------
+	1) Problem: (DCSG01229440) Compilation warning on SLES15SP2
+	   Cause  : Add compat code to handle unavailibility of fallthrough
+
+v3.139f(Jun 23, 2022)
+   fixes and Enhancements
+   ----------------------
+	1) Problem: (DCSG01238546) Compilation failure on SLES15SP4
+	   Cause  : Add compat code to handle removal of VPD TAG functions.
+	2) Problem: (DCSG01204657) Build fail on RHEL8.6 4.18.0-372.9.1.el8.x86_64
+	   Cause  : tg3_get_coalesce and tg3_set_coalesce callbacks need update.
+
+v3.139e(Apr 22, 2022)
+   fixes and Enhancements
+   ----------------------
+	1) Problem: (DCSG01200384) Support tg3 on pre GA RHEL 9
+	   Cause  : Add compat code to handle removal of VPD TAG functions
+		    in pci.h
+
+v3.139d(Apr 08, 2022)
+   fixes and Enhancements
+   ----------------------
+	1) Problem: (DCSG01154843) Fix compilation warning in RHEL 8.5
+	   Cause  : Newly introduced fallthru directive already defined
+
+v3.139c(Feb 15, 2022)
+   fixes and Enhancements
+   ----------------------
+	1) Problem: (DCSG01135812) Add support for RHEL 9
+	   Cause  : VPD find tag changes in kernel
+	2) Problem: (DCSG01071772) Support RPS by adding queue information
+		    into skb
+	   Change : For Receive Packet Steering to work, we need to record
+		    the ring/queue number into the skb.
+	3) Problem: Various upstream patches backported
+
+
+v3.139b(September 04, 2020)
+   fixes
+   -----
+	1) Problem: (49971) Add support for RHEL 8.3
+	   Cause  : For kernel version >= 5.6, ndo_tx_timeout
+	   Change : Backport upstream version to pass the stuck queue to
+		    the timeout handler
+	   Impact : Linux only
+
+	2) Problem: (46534) Change sequence to fix a race condition
+		    issue
+	   Cause  : Race condition may occur between tg3_phy_stop() and
+		    tg3_timer_stop()
+	   Change : Avoid the race condition by changing the invoking
+		    sequence of these two functions
+	   Impact : Linux only
+
+	3) Problem: (49514) Release tp->lock before invoking
+		    synchronize_irq()
+	   Cause  : synchronize_irq() can sleep waiting for pending IRQ
+		    handlers
+	   Change : tp->lock spinlock should be released before invoking
+		    synchronize_irq()
+	   Impact : Linux only
+
+v3.139a(May 15, 2020)
+   Enhancements
+   ------------
+	1) Problem: (47598) use new API ethtool_{get|set}_link_ksettings
+	   Cause  : The ethtool API {get|set}_settings is deprecated
+	   Change : Backport upstream version to move this driver to new
+		    API {get|set}_link_ksettings
+		    The header file include/uapi/linux/ethtool.h first
+		    appeared in Linux-3.7 in addition to the original
+		    include/linux/ethtool.h. In makeflags.sh, search the
+		    correct path of the ethtool.h to properly set the
+		    define flags
+	   Impact : Linux only
+
+	2) Problem: (47598) phy: Make phy_ethtool_ksettings_get return
+		    void
+	   Cause  : The function phy_ethtool_ksettings_get never returns
+		    meaningful value
+	   Change : Backport upstream version to make return value void
+		    since function never return meaningful value
+	   Impact : Linux only
+
+v3.138b(Mar 25, 2020)
+    fixes
+    -----
+	1) Problem: (47009) Can't set MTU to above 1500 in RHEL8.1
+	   Cause  : RHEL7.5 introduced centralized MTU range checking
+		    by using min_mtu/max_mtu in net_device_extended
+		    struct, which was adopted by upstream kernel 4.10
+		    and above, but in net_device struct. makeflags.sh
+		    does not check max_mtu properly to generate right
+		    defines such that max_mtu/min_mtu are not set for
+		    RHEL8.1
+	   Change : searching kernel netdevice.h properly to identify
+		    whether or not max_mtu/min_mtu of the net_device
+		    struct are used for MTU range checking
+	   Impact : Linux only
+
+v3.138a(Feb 15, 2019)
+======================
+    fixes
+    -----
+	1) Problem: (34807) panic in tg3_get_rxfh() with tg3 driver
+	   Cause  : SLES12SP3 kernel passing NULL pointer to indir pointer
+	   Change : Added validity check for indir pointer
+	   Impact : Linux only
+
+v3.137z(Feb 05, 2019)
+======================
+    Enhancements
+    ------------
+	1) Change: (30638) tg3: Add support for RHEL 8.0
+           Impact:  Linux Only
+
+v3.137y(Oct 11, 2018)
+======================
+    Enhancements
+    ------------
+	1) Change: (31622) tg3: Add private ioctl support for register read/write
+           Impact:  Linux Only
+
+v3.137x (Jul 03, 2018)
+======================
+    fixes
+    -----
+	1) Problem: (30150) NX1: tg3 compilation failed on Ubuntu 18.04
+	   Cause  : Syntax error in passing regular expression to awk in makeflags.sh
+	   Change : Corrected the syntax
+	   Impact : Linux only
+
+	2) Problem: (29976) tg3: Fix vunmap() BUG_ON() triggered from tg3_free_consistent()
+	   Cause  : Race condition between tg3_get_stats64() and tg3_free_consistent()
+	   Change : Avoided the race condition
+	   Impact : Linux only
+
+	3) Problem: (29984) tg3: prevent scheduling while atomic splat
+	   Cause  : Used usleep_range with holding spin lock
+	   Change : Replaced usleep_range with udelay
+	   Impact : Linux only
+
+v3.137w (Jan 29, 2018)
+======================
+    Enhancements
+    ------------
+	1) Change: (27891) tg3: Add RHEL 7.5 support
+           Impact:  Linux Only
+	2) Change: (27598) tg3: Add SLES 15 support
+	   Impact: Linux Only
+
+    fixes
+    -----
+	1) Problem: (28123) tg3: Fix compilation on RHEL 6.4
+	   Cause  : napi_complete_done not availble on RHEL 6.4 kernel
+	   Change : Add compile time flag to use napi_complete_done if kernel source
+		    has napi_complete_done. Otherwise, use napi_complete.
+	   Impact : Linux only
+
+v3.137v (Jan 01, 2018)
+======================
+    Enhancements
+    ------------
+	1) Change: (27178) tg3: Backport upstream patches
+           Impact:  Linux Only
+
+    fixes
+    -----
+	1) Problem: (27662) tg3 traffic stop observed when running ping flood and iperf3
+		    and changing mtu between 1500 and 9000 on-the-fly
+	   Cause  : PHY and receive engine loses synchronization when MTU is changed on the fly
+	            while running heavy traffic with NCSI enabled. A PHY reset or physical
+		    Ethernet link toggle is needed to bring it back to the normal mode.
+	   Change : Add PHY reset workaround for 5717/19/20 in MTU change path of tg3 driver.
+	   Impact : Linux only
+
+v3.137u (Sep 07, 2017)
+======================
+    fixes
+    -----
+	1) Problem: (26526) 5762 transmit time out observed in syslog when running at 100M
+		    speed with Ubuntu 16.04
+           Cause:   With link aware mode, the clock speed could be slow and bootcode does not
+		    complete within the expected time. Override the clock to allow the
+		    bootcode to finish sooner. This is observed with 100M link.
+           Change:  Added support in tg3 to override the clock for 5762 card
+           Impact:  Linux Only
+
+v3.137t (Aug 16, 2017)
+======================
+    fixes
+    -----
+	1) Problem: (26338) Unable to set MTU value more than 1500 in SUSE12SP3 in Broadcom NX1
+           Cause:   SLES 12 SP3 has new kernel which is expecting driver to notify
+		    maximum device supported MTU through max_mtu
+           Change:  Modified tg3 source to notify supported min_mtu & max_mtu
+           Impact:  Linux Only
+
+v3.137s (Jun 23, 2017)
+======================
+    fixes
+    -----
+	1) Problem: (25886) tg3 support for new Redhat 7.4 and SLES 12 SP3 kernels
+           Cause:   RHEL 7.4 and SLES 12 SP3 has new kernel APIs
+           Change:  Modified tg3 source to work with RHEL 7.4 and SLES 12 SP3 kernels
+           Impact:  Linux Only
+
+v3.137r (Jun 13, 2017)
+======================
+    fixes
+    -----
+	1) Problem: (25689) tg3 - modify default 5762 MRRS value to
+		    2048 as a workaround for AMD platform constraint
+           Cause:   AMD platform's southbridge has limitation on MRRS
+           Change:  Modified tg3 source to set MRRS as 2048
+           Impact:  All
+
+	2) Problem: (23921) tg3 - Wrong return value for tg3_invalid_pci_state
+		    function
+           Cause:   tg3_invalid_pci_state was not returning correct value
+           Change:  modified tg3_invalid_pci_state to return correct value
+           Impact:  All
+
+v3.137q (Sep 21, 2016)
+======================
+    fixes
+    -----
+	2) Problem: (22536) tg3 - Add support for SLES12 SP2 kernel
+           Cause:   SLES12 SP2 distro has new kernel
+           Change:  Modified tg3 source to support SLES12 SP2 distro
+           Impact:  Linux only
+
+v3.137p (Jun 17, 2016)
+======================
+    Enhancements
+    ------------
+	1) Change:  Update the ChangeLog for tg3 rpm files
+           Impact:  Linux only
+
+	2) Problem: (22045) tg3 - Change new copyright information for tg3
+           Cause:   This is a new requirement from Broadcom legal team
+           Change:  Updated the new copyright information for tg3 source files
+           Impact:  None
+
+v3.137o (Dec 15, 2015)
+======================
+    Fixes
+    ------------
+	1) Problem: (21366) tg3 - Driver syslog entries show module name as
+		    'pcieport', instead of 'tg3'.
+           Cause:   It's a minor bug in tg3_compat.h wrt newer kernels.
+           Change:  Added the code to make tg3_compat.h check for correct key word.
+           Impact:  Minimal (Linux only)
+
+	2) Problem: tg3 - Work around HW/FW limitations with vlan encapsulated frames.
+           Cause:   It's a medium change in tg3.c transmit path with TSO enabled.
+           Change:  Added the code to tg3.c for vlan encapsulated frames HW work around.
+           Impact:  Linux Tx path with TSO enabled.
+
+	3) Problem: (21354) tg3 - Fix for tg3 transmit queue 0 timed out when
+		    too many gso_segs.
+           Cause:   It's a medium change in tg3.c GSO transmit path with TSO enabled.
+           Change:  Added the code to tg3.c for avoiding GSO in SW for certain condition.
+           Impact:  Linux Tx path with TSO enabled.
+
+v3.137n (Nov 04, 2015)
+======================
+    Fixes
+    ------------
+        1) Problem: (21109) tg3 - Please add support for 5720 inverting serdes signal
+		    detect feature.
+           Cause:   It's a new enhancement specific to a given customer.
+           Change:  Added the code to make driver invert the serdes.
+           Impact:  Minimal (Linux only)
+
+v3.137m (Sep 09, 2015)
+======================
+    Fixes
+    ------------
+        1) Problem: (20985) tg3 driver doesn't compile under RHEL 7.2
+           Cause:   Macros vlan_tx_tag_present and vlan_tx_tag_get are renamed in RHEL 7.2
+           Change:  Added the fix to make driver code compatible for RHEL 7.2 also.
+           Impact:  Linux only
+
+v3.137l (June 14, 2015)
+======================
+    Fixes
+    ------------
+        1) Problem: (20645) Packet loss while running Heavy IO
+		    stress on all ESX Operating systems
+           Cause:   pci_channel_offline() function was wrongly reporting PCI
+		    channel as offline because of VMKernel reporting pdev->error_state
+		    incorrectly.
+           Change:  Added back the old fix from 3.137h releases and force return 0
+		    (online) from pci_channel_offline().
+           Impact:  VMware only
+
+v3.137k (April 02, 2015)
+======================
+    Fixes
+    ------------
+        1) Problem: (20502/20507) tg3 driver does not compile for 3.16.0 kernels
+           Cause:   This issue because of change of memeber variables
+		    .get_rxfh_indir/.set_rxfh_indir to .get_rxfh/.get_rxfh.
+           Change:  Added compile switch to fix this issue.
+           Impact:  Linux only
+
+        2) Problem: (20496) tg3 driver does not compile for Redhat EL 4.8
+           Cause:   This issue because of tg3 driver missing defines in old kernel and
+		    shutdown is not defined in struct pci_driver.
+           Change:  Added missing defines and added compile switch to avoid compile error
+           Impact:  Linux only
+
+        3) Problem: (20413/19887) KVM PCI passthrough failed for tg3 on SUSE 11.3
+           Cause:   This issue because of KVM PCI Pass-thru mode Qemu is dropping
+		    the pci config space writes to 0x68.
+           Change:  Added redundant writes to 0x68 to fix this issue.
+           Impact:  Linux only
+
+        4) Problem: tg3 driver does not compile for RHEL 5.11 kernel
+           Cause:   This issue because of redefinition of pci_channel_offline.
+           Change:  Added compile switch to avoid redefinition.
+           Impact:  Linux only
+
+	5) Problem: (20509)[SLES11SP4] After installation of latest driver 3.137j,
+		            interfaces dont come up
+           Cause:   This issue because of policy enforcement from SUSE for external modules.
+           Change:  No change except this rpm version is signed by SUSE.
+           Impact:  Linux SLSE 11 SP4 and SLES 12 only
+
+v3.137j (March 25, 2015)
+======================
+    Fixes
+    ------------
+        1) Problem: (20478) tg3 driver does not compile for SLES11 sp4
+           Cause:   This issue because of change of kernel header file paths.
+           Change:  Updated makeflags.sh to point correct header files path.
+           Impact:  Linux only
+
+        2) Problem: (20397) tg3 driver does not compile for Debian 7.7
+           Cause:   This issue because of change in arguments for ptp_clock_register in
+		    debian kernel and missing mmd_eee_adv_to_ethtool_adv_t for this kernel.
+           Change:  Updated code to reflect required number of arguments and enabled
+		    mmd_eee_adv_to_ethtool_adv_t function.
+           Impact:  Linux only
+
+        3) Problem: (20238) The OperationalStatus of the network controller driver takes
+		    about ~ 5 minutes to become 2 ("OK") from 13 ("Lost Communication")
+		    when the system comes up after reboot
+           Cause:   This issue because of conversion of unsigned long jiffies values to signed in
+		    32 bit kernels.
+           Change:  Added code to initialize heartbeat initial jiffies to current jiffies.
+           Impact:  Linux only
+
+v3.137i (March 05, 2015)
+======================
+    Fixes
+    ------------
+        1) Problem: (20116)MD5 sum mismatch while unpack rpm source
+                    (20449)tg3 driver failed to install on RHEL 5.11 OS
+                    (20360)T3 source rpm file failed to install on Citrix 6.2 ddk.
+           Cause:   This is a  build server issue where this src rpm has been
+                    generated. We have packaged  a prelinked library /lib/libgcc_s.so.1.
+                    Which may fail in some distors. The fix  is to run prelink --undo
+                    on the build machine before creating src rpm.
+           Change:  New src.rpm has been built again after correcting the build server for above issue.
+           Impact:  No code change. Affects only TG3 driver Installation from src rpm.
+
+
+v3.137h (Dec 20, 2014)
+======================
+    Fixes
+    ------------
+        1) Problem: tg3_disable_ints using uninitialized mailbox value to
+		    disable interrupts
+           Cause:   Interrupt mailbox registers are used before initializing.
+           Change:  Initialize interrupt mailbox register before tg3_halt.
+           Impact : All
+
+        2) Problem: (19774) Enhancement for recoverable/unrecoverable errors
+           Change:  Maintain error stats for recoverable/unrecoverable errors.
+           Impact : Linux only
+
+        3) Problem: (20273) RH6.6 logs warning message when loading driver
+           Cause:   Legacy ethtool_op_set/get_sg should not be used when
+		    ndo_set/fix_features are defined.
+           Change:  When ndo_set/fix_features are defined do not use legacy
+		    ethtool_op_set/get_sg callbacks.
+           Impact : Linux only
+
+	4) Problem: (20126) Readme file does not indicate tg3.spec location
+           Change:  Add relevant tg3.spec file locations in Readme.
+           Impact : Linux only
+
+
+v3.137g (Nov 07, 2014)
+======================
+    Fixes
+    ------------
+        1) Problem: (CQ73720) Unable to query/change ring in RHEL6.5 using OOB
+           Cause:   get_channel and set_channel were not defined when using
+		    ethtool extended options.
+           Change:  define get_channel/set_channel for ethtool extended options
+           Impact : Linux only
+
+        2) Problem: (CQ73897) Excessive logging of tg3 driver ioctls in Vmware
+           Cause:   The default logging level was used for ioctl path messages
+           Change:  Log ioctl messages only when level is set to verbose
+           Impact : ESX only
+
+v3.137f (Sep 09, 2014)
+======================
+    Fixes
+    ------------
+        1) Problem: (CQ73662,CQ73660) Macronix restore nvram takes long time
+           Cause:   The Macronix nvram size advertised by driver was incorrect
+           Change:  Advertise the correct Macronix nvram size.
+           Impact : 5725,5762,57767
+
+v3.137e (Aug 01, 2014)
+======================
+    Enhancements
+    ------------
+        1) Problem: (CQ73585) Meat Grinder stress test shows errors
+           Cause:   When driver returned NETDEV_TX_BUSY, skb is dropped
+		    by kernel packet scheduler (sch_generic).
+           Change:  The value of NETDEV_TX_BUSY was changed from kernel 2.6.33
+		    onwards from 0x1 to 0x10, updated tg3_compat.h to handle
+		    backward compatability.
+           Impact : Linux only
+
+        2) Change : Support for Redhat 6.6 (compilation fixes)
+           Impact : Linux only
+
+v3.137d (Jun 30, 2014)
+======================
+    Enhancements
+    ------------
+        1) Change : Add support for Macronix NVRAM (CQ73430, CQ73442)
+           Impact : Logan family
+
+        2) Change : Add support for APE heartbeat (CQ73292)
+           Impact : All APE enabled devices.
+
+v3.137c (Jun 19, 2014)
+======================
+    Fixes
+    -----
+	1) Problem: (CQ73583) Kernel oops while sending netperf IPv6 traffic.
+           Cause:   skb_gso_segment() returns NULL when skb with gso_type TCPV6
+		    feature is passed to it.
+           Change:  Clear the NETIF_F_TSO6 while passing the skb to
+		    skb_gso_segment.
+           Impact:  All devices.
+
+	2) Problem: (CQ73323) tg3 selftest phy loopback failure.
+           Cause:   Changes done to support build_skb (BCM_HAS_BUILD_SKB)
+           Change:  Add the TG3_RX_OFFSET(tp) for the received packet during
+		    selftest if BCM_HAS_BUILD_SKB is defined.
+           Impact:  All devices.
+
+	3) Problem: (CQ73583) 1ms NVRAM command time out value not sufficient for
+		    NVRAM write operations.
+           Cause:   Changes done as part of CQ73492 reduced the NVRAM timeout
+		    value to 1ms from 100ms.
+           Change:  Set the MAX timeout to 50ms
+           Impact:  All devices.
+
+v3.137b (Jun 05, 2014)
+======================
+    Fixes
+    -----
+	1) Problem: (CQ73492) NVRAM dump causes CPU softlockup with no cable.
+           Cause:   When there is no cable devices go into slow clock mode thus
+		    causing the NVRAM reads to take longer time.
+           Change:  Override clock, link aware and link idle modes during NVRAM
+		    reads and restore them back after the read is complete.
+           Impact:  All devices.
+
+v3.136h (Apr 22, 2014)
+======================
+    Fixes
+    -----
+	1) Problem: (CQ73358) transmit timed out during L2stress with NFS.
+           Cause:   5725 device has problem with large DMA limit on TX BD in
+                    TSO mode. 
+           Change:  limit the DMA limit per TX BD to 4k.
+           Impact:  5725, 5762.
+
+	2) Problem: (SuSE BZ855657) ethtool soft lockup when running ethtool -e
+           Cause:   Some devices go into slow clock mode when link is down.
+           Change:  Override clock when dumping eeprom
+           Impact:  5717, 5719, 5720.
+
+v3.136g (Apr 08, 2014)
+======================
+    Fixes
+    -----
+	1) Problem: (CQ73337) Device 5725/5762 does not come up on ESX5.1
+	   Cause  : Partial fix dropped for CQ72341 introduced DMA_BIT_MASK(31)
+		    which seems to fail on ESX5.1 thus 5725 fails to come up.
+	   Change : Reverting the fix for CQ72341 until a complete solution is
+		    implemented.
+	   Impact : 5725,5762.
+
+	2) Problem: (CQ73314) QinQ (802.1ad) stacked VLAN tagging not working.
+	   Cause  : Including hardware acceleration features in vlan_features
+		    breaks stacked vlans (QinQ).
+	   Change : Do not include vlan acceleration features in vlan_features.
+	   Impact : All devices.
+
+	3) Problem: (CQ73243) Ethtool -G rx_jumbo/rx accepts value 0.
+	   Cause  : Code does not check for zero size rx / rx_jumbo rings.
+	   Change : Do not allow zero size rx / rx_jumbo rings.
+	   Impact : All devices.
+
+v3.136f (Mar 27, 2014)
+======================
+    Enhancements
+    ------------
+	1) Change:  Reduce number of netq from 8 to 4 as default configuration.
+	   Impact:  ESX only.
+
+        2) Change:  Use GSO to workaround 4G DMA boundary problem for TSO
+                    packets.  TSO packets can be as larage as 64K.  The
+                    existing workaround of copying to a linear SKB requires
+                    order of 5 or more allocation and a lot of copying.
+                    GSO is much more efficient.  This issue was reported
+                    in a RHEL bugzilla:
+
+                    https://bugzilla.redhat.com/show_bug.cgi?id=1029192
+           Impact:  Linux only.
+
+v3.136e (Feb 25, 2014)
+======================
+    Fixes
+    -----
+        1) Problem: (CQ73091) Driver randomly drops good packets periodically
+                    on 5719.
+           Cause  : Driver drops an rx packet if undefined error bits are set
+                    in the rx descriptor.
+           Change : Redefine the RXD_ERR_MASK to include relevant bits only.
+           Impact : All devices.
+
+    Enhancements
+    ------------
+	1) Change:  Added disable_tso module parameter to allow user
+                    to enable or disable tso at the driver level.
+           Impact:  ESX only.
+
+v3.136d (Feb 12, 2014)
+======================
+    Fixes
+    -----
+        1) Problem: (CQ72969) Link status shows up when interface is down.
+           Cause  : As part of the fix for CQ72101, we return link status from
+                    the CPMU and not the carrier status. If mgmt is enabled,
+                    the link is always up even when the interface is brought
+                    down.
+           Change : Return link down if interface if !netif_running().
+           Impact : All CPMU enabled devices.
+
+v3.136c (Feb 11, 2014)
+======================
+    Fixes
+    -----
+        1) Problem: (CQ72341) TCP traffic stops after a while on 5762.
+           Cause  : 5762 devices trigger a false overflow when the current DMA
+                    has address FFFFxxxx and the previous DMA ended with
+                    xxxxFFFF.
+           Change : Tell the kernel to limit coherent dma address to 7FFFxxxx.
+           Impact : 5762 devices.
+
+        2) Problem: Deadlock when changing mtu on 5780 devices.
+           Cause  : Setting mtu to jumbo requires disabling TSO. This triggers
+                    a call to tg3_get_stats64() which requires the tg3 lock.
+           Change : Move tg3_set_mtu() outside the tg3 lock.
+           Impact : All devices.
+
+    Enhancements
+    ------------
+        1) Change : (CQ72477)  Allow userworld write access to the APE
+                    reigsters
+           Impact : ESX only.
+
+        2) Change : Adding support for device 14e4:1682 for ESX
+                    development/testing purposes only.
+           Impact : ESX only.
+
+        3) Change : Indicate if driver is beta or release build upon
+                    fw dump.
+           Impact : ESX only.
+
+v3.136b (Jan 07, 2014)
+======================
+    Enhancements
+    ------------
+        1) Change : Add BD cache dump in FW dump per ASIC team suggestion.
+           Impact : ESX only.
+
+        2) Change : Merge build_skb api changes from upstream.
+           Impact : All devices only on linux kernels 3.3 and later.
+
+v3.135c (Jan 01, 2014)
+======================
+    Fixes
+    -----
+        1) Problem: (CQ72101) When all 4 partner ports of a 5719 device are
+                    brought down, sometimes driver link notification is lost.
+           Cause  : NCSI firmware clears the EMAC status link notification bit
+                    before the driver processes the link change.
+           Change : Poll CPMU link state as a backup.
+           Impact : All devices with ASF firmware running on APE.
+
+v3.135b (Dec 18, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: Data corruption observed on ESX 5.0
+           Cause  : Existing workaround for 4g boundary crossing inadequate for
+                    large buffers.
+           Change : Expand workaround to include buffers of any size.
+           Impact : All devices.
+
+v3.134f (Nov 15, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: Compilation fails with latest RHEL 6.5 kernel.
+           Cause  : Kernel adds uapi folder without uapi/linux subfolder.
+           Change : Check for uapi/linux in makeflags.sh.
+           Impact : Only compilation.
+
+v3.134e (Nov 12, 2013)
+======================
+    Enhancements
+    ------------
+        1) Change : Re-add clock policy workaround to prevent failures in case
+                    of driver and bootcode upgrades not being done in sync.
+           Impact : 5717, 5718, 5719 and 5720.
+
+        2) Change : Add unicast mac filtering support.
+           Impact : All devices.
+
+v3.134d (Nov 11, 2013)
+======================
+    Enhancements
+    ------------
+        1) Change : Remove clock policy workaround now that the bootcode
+                    implements a proper fix.
+           Impact : 5717, 5718, 5719 and 5720.
+
+v3.134c (Oct 29, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: (CQ71554) WOL cannot be disabled.
+           Cause  : Merged change from upstream that uses device_may_wakeup()
+                    which is not implemented in older kernels.
+           Change : Reverted the merged change.
+           Impact : All devices.
+
+v3.134b (Oct 22, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: Nvram auto power down setting was being ignored.
+           Cause  : A previous fix to the bit definition was reverted
+                    accidentally by a subsequent change.
+           Change : Fixed bit definition to the correct bit 14
+           Impact : All devices
+
+        2) Problem: ifconfig shows frame errors.
+           Cause  : An rxbds_empty condition is miscounted as frame errors.
+           Change : Don't add rxbds_empty counter to rx_over_errors.
+           Impact : All devices
+
+        3) Problem: Rx discards stat increments when dropping undesirable
+                    multicast frames.
+           Cause  : The counter increments because multicast frames are being
+                    rejected by the APE, which increases the counter.
+           Change : Make the counting logic similar to other devices with the
+                    issue.
+           Impact : 5762 asic devices.
+
+   Enhancements
+   ------------
+        1) Change: (CQ71002) Added ESX APE Host ID for ESX driver only.
+           Impact: ESX only.
+
+        2) Change: Allow the tg3 private IOCTL's used to read the APE registers
+                   to read up to 0x8ffc.
+           Impact: ESX only.
+
+        3) Change: (CQ71392) Allow 1G Half Duplex advertisement to be
+                   controlled via nvram option.
+           Impact: 5717, 5718, 5719 and 5720 devices.
+
+v3.133e (Sep 11, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: (CQ70916) When port 0 of 5720 serdes goes down, all ports go
+                    down.
+           Cause  : Setting LED_OFF bit on function 0 brings down all ports.
+           Change : Skip setting LED_OFF bit.
+           Impact : 5720.
+
+        2) Problem: tg3_phy_power_bug() function using the wrong SERDES flag.
+           Cause  : 5719 and 5720 should use the MII_SERDES flag.
+           Change : Change PHY_SERDES to MII_SERDES.
+           Impact : 5719 and 5720.
+
+v3.133d (Aug 08, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: (CQ70496) "No firmware running message" printed by the
+                    driver and running performance test reboots the system on
+                    the 5718.
+           Cause  : Previous change to set clock override was trampling on the
+                    GRC reset register.
+           Change : Fix the code to use a separate variable.
+           Impact : 5718 only.
+
+        2) Problem: (CQ70352) "No firmware running message" printed on 5719.
+           Cause  : Timeout waiting for bootcode signature due to slow clock.
+           Change : Set the mac clock to 62.5 MHz before GRC reset.
+           Impact : 5717, 5718, 5719, 5720.
+
+        3) Problem: (CQ70455) Tx timeout observed during heavy stress test.
+           Cause  : pci_channel_offline() is unreliable on vmware.
+           Change : Disable pci_channel_offline() on vmware.
+           Impact : ESX only.
+
+v3.133c (Aug 04, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: (CQ70347) Unable to enable EEE functionality.
+           Cause  : EEE setting was pulled from the hardware for Link Flap
+                    Avoidance and module parameter was being ignored.
+           Change : Pull hardware setting only if module param not passed.
+           Impact : EEE supported devices.
+
+        2) Problem: WOL doesn't work if interface is down in S3/S4.
+           Cause  : Driver not setting D3hot if interface is down in
+                    tg3_suspend().
+           Change : Set D3hot even if interface is down.
+           Impact : All devices.
+
+v3.133b (Jul 31, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: Setting LED_OFF bit on function 0 of 5719 brings down all
+                    ports.
+           Cause  : Hardware bug.
+           Change : Don't set LED_OFF bit on 5719 MII_SERDES devices.
+           Impact : 5719 devices.
+
+v3.132g (Jul 29, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: Low performance with tso on some systems with 57766.
+           Cause  : The dma limit was being set to a low value.
+           Change : Remove the dma limit on 57766 devices for tso.
+           Impact : 57766 devices.
+
+        2) Problem: (CQ70352) Timeout waiting for bootcode signature on 5718.
+           Cause  : The mac clock is set to a very low default value.
+           Change : Set the mac clock to 62.5 MHz before GRC reset.
+           Impact : 5718 only.
+
+   Enhancements
+   ------------
+        1) Change: Added debug print level control for VMware code. 
+           Impact: ESX only.
+ 
+        2) Change: Added netq lock to protect share resources between 
+                   different threads.                    
+           Impact: ESX with netq capable devices.
+
+v3.132f (Jun 27, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: (CQ69799) WOL fails on shutdown on ESX.
+           Cause  : tg3_shutdown handler was removed for compilation.
+           Change : Remove the #ifdef added and define system_state to
+                    SYSTEM_POWER_OFF for compilation.
+           Impact : ESX only.
+
+        2) Problem: (CQ69047) UDP fragmented packets routed to APE instead of
+                    host.
+           Cause  : UDP fragments erroneously treated as RMCP packets.
+           Change : Set ipv4 fragment fix bit in rx_mode.
+           Impact : ASIC 5762 devices.
+
+v3.132e (Jun 21, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: 3.132d does not compile on ESX.
+           Cause  : system_state symbol is not available on ESX.
+           Change : Add a #ifndef around the shutdown handler.
+           Impact : ESX only.
+
+v3.132d (Jun 18, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: (CQ61314) Fw upgrade not possible if interface is down.
+           Cause  : Driver was putting the device in D3hot on close making
+                    nvram inaccessible.
+           Change : Add shutdown pci handler for D3hot setting on shutdown.
+                    Don't set D3hot on close.
+           Impact : All devices.
+
+v3.132c (Jun 10, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: 5720 tx stalls at startup.
+           Cause  : DMA read engine blocks on unitialized register values.
+           Change : Enable work around bit in hardware for this bug.
+           Impact : 5720.
+
+        2) Problem: (CQ69300) suspend/resume loops fail after a while during
+                    hardware access.
+           Cause  : Race between boot code and driver.
+           Change : Wait for boot code to finish before initializing hardware.
+           Impact : All devices.
+
+    Enhancements
+    ------------
+        1) Change : Enable timesync gpio output toggle feature.
+           Impact : Hardware timesync capable devices.
+
+
+v3.132b (May 28, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: WOL does not work if driver is brought up but interfaces
+                    are down.
+           Cause  : The probe function unconditionally turns off WOL and the
+                    NEED_VAUX flag. If tg3_open is never called, this will
+                    cause Vaux to go away.
+           Change : Remove the switch to low power mode in probe.
+           Impact : 5717 and later devices.
+
+    Enhancements
+    ------------
+        1) Change : Replace ESX version from 6.0 to 5.5.
+                    the ESX prviate IOCTL
+           Impact : ESX only.
+
+v3.131f (May 20, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: (CQ69240) 57785x systems encounter kernel panic running
+                    suspend/resume test.
+           Cause  : The driver was writing to GRC_MODE register before boot
+                    code has updated the handshake signature.
+           Change : Move the signature check to before the first access.
+           Impact : All devices.
+
+v3.131e (May 15, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: (CQ68626) The driver version in APE shared memory is
+                    incomplete.
+           Cause  : The driver was not writing the revision into shared memory.
+           Change : Add the revision into shared memory.
+           Impact : All devices.
+
+        2) Problem: ethtool get_ts_info shows HW timestamping support on all
+                    devices.
+           Cause  : The PTP_CAPABLE flag was not checked.
+           Change : Check the PTP_CAPABLE flag to populate the ts_ifno
+                    structure.
+           Impact : All devices.
+
+        3) Problem: (CQ68928) Powering down function 0 on 5718, 5719 and 5720
+                    serdes brings down all ports.
+           Cause  : Hardware bug.
+           Change : Skip powering down function 0 on these serdes devices.
+                    structure.
+           Impact : 5718, 5719 and 5720 serdes devices.
+
+
+    Enhancements
+    ------------
+        1) Change : Add ability for BRCM utilities to read APE registers via
+                    the ESX prviate IOCTL
+           Impact : ESX only.
+
+        2) Change : Add handlers for ethtool set_eee and get_eee operations.
+           Impact : EEE supported devices.
+
+
+v3.131d (Apr 26, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: Interrupt rate is too high for large packet in
+                    ESX environment.
+           Cause  : Throughput needs to balanced with latency.
+           Change : Customize interrupt coalescing settings for ESX.
+           Impact : ESX only.
+
+        2) Problem: (CQ68353) L2 stress test failed after running few hrs.
+           Cause  : The hardware cannot handle dma that crosses a 4G boundary.
+           Change : Add logic to detect a boundary crossing dma buffer and
+                    realloc a new non-crossing one.
+           Impact : 5725 family.
+
+v3.131c (Apr 22, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: (CQ68697) Flow Control set OFF/ON causing unknown
+                    speed with link-down on heavy UDP traffic
+           Cause  : The chip has undefined behavior when multiple
+                    queues are setup when used in non-IOV/non-RSS mode.
+                    fw_ver if length reported is greater.
+           Change : For BCM5725 chips force the number of RX queues to 1
+           Impact : ESX only.
+
+        2) Problem: (CQ66635) Data corruption on 5725 with TSO.
+           Cause  : Hardware erratum.
+           Change : Added special detection to linearize SKB if any TSO
+                    fragment is with MSS of 4G boundary.
+           Impact : 5725 family.
+
+v3.131b (Apr 10, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: Fix length overflow in VPD firmware parsing.
+           Cause  : The parsing code can overflow the buffer allocated for the
+                    fw_ver if length reported is greater.
+           Change : Limit the length to the buffer allocated.
+           Impact : All devices.
+
+    Enhancements
+    ------------
+        1) Change : Optimize zeroed memory allocation by using __GFP_ZERO flag.
+           Impact : All devices.
+
+        2) Change : Refactor int to bool where possible.
+           Impact : All devices
+
+
+v3.130e (Apr 03, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: (CQ68386) ISCSI Boot connection got failure at
+                    Vmware installation
+           Cause  : The chip was placed into an invalid mode because
+                    IOV mode is not supported on BCM5725
+           Change : Disable NetQueue support for the BCM5725
+           Impact : ESX only
+
+    Enhancements
+    ------------
+        1) Change : (CQ68504) Add warning message on management enabled cards
+                    if an ethtool command will cause a link flap.
+           Impact : All devices
+
+
+v3.130d (Mar 25, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: Assertion may occur when freeing an IRQ vector.
+           Cause  : When an IRQ vector is freed, an enabled NAPI
+		    might have been scheduled and associated with an
+		    interrupt vector.
+           Change : Ensure NAPI is disabled prior to each IRQ free.
+           Impact : ESX only
+
+        2) Problem: (CQ68108) EEE is not enabled at driver load if NVRAM has it
+                    disabled and LFA is on.
+           Cause  : Any EEE setting change needs a phy reset to take effect.
+                    With LFA we don't reset the phy.
+           Change : Force a phy reset if EEE settings change is detected when
+                    LFA is on.
+           Impact : EEE supported devices.
+
+
+v3.130c (Mar 14, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: ifconfig stats remain 0 on 57780.
+           Cause  : link_up flag was never updated to true on phylib devices.
+           Change : Update link_up in a common function for both phylib and
+                    non-phylib devices.
+           Impact : All devices.
+
+        2) Problem: The following messages in the vmkernel logs
+                    are seen:
+
+                    Unhandled NETQUEUE OP 16
+                    Unhandled NETQUEUE OP 17
+
+           Cause  : Newer NetQueue OP code were introduced with newer
+                    version of ESX which the driver doesn't support.
+           Change : Since the tg3 doesn't support these NetQueue
+                    operations, the tg3 will handle them silently.
+           Impact : ESX only
+
+        3) Problem: 5715 does not link up at 100Mb full duplex with autoneg
+                    disabled.
+           Cause  : The advertisement register defaults to only 10Mb enabled
+                    but it needs the configured speed enabled as well.
+           Change : Advertise all speeds when autoneg is disabled.
+           Impact : 5715 only.
+
+        4) Problem: (CQ67601) NVRAM mis-sized on 5725 with pinstrap for
+                    STM45PE20. The fix in previous release had a bug.
+           Cause  : There was a typo in the pinstrap constant.
+           Change : Fix the typo.
+           Impact : NVRAM sizes on 5725 family.
+
+v3.130b (Feb 28, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: (CQ67601) NVRAM mis-sized on 5725 with pinstrap for
+                    STM45PE20.
+           Cause  : This pinstrap supports multiple sizes.
+           Change : Treat it just like ST45_USPT and the driver will read
+                    the size from location 0xf0.
+           Impact : NVRAM sizes on 5725 family.
+
+    Enhancements
+    ------------
+        1) Change : Refactor the CPU pause/resume code into common functions.
+           Impact : All devices.
+
+v3.130.1a (Feb 22, 2013)
+========================
+    Fixes
+    -----
+        1) Problem: Assertion may occur when switching from MSI to INTx mode.
+           Cause  : NAPI was not disabled before freeing corresponding vector.
+           Change : Disable NAPI when interrupt test failed.
+           Impact : ESX only
+
+        2) Problem: OTP patch download on the 57766 was broken.
+           Cause  : The access method and scratchpad addresses were wrong.
+           Change : Fixed the access method and addresses.
+           Impact : 57766 without NVRAM.
+
+    Enhancements
+    ------------
+        1) Change : Merge upstream support for ethernet core in BCM4785.
+           Impact : BCM4785/BCM4705 SoC.
+
+        2) Change : Merge upstream cleanup of revision macros.
+           Impact : All devices.
+
+        3) Change : Cleanup firmware download code and support fragmented fw.
+           Impact : Devices that need fw - 57766, 5704, 5705 and 5701A0.
+
+v3.129.3d (Feb 06, 2013)
+========================
+    Fixes
+    -----
+	1) Problem: Link flaps on hibernate even with LFA enabled.
+           Cause  : The resume function was forcing a phy reset.
+	   Change : Check the LINK_ON_PWRDOWN flag before resetting phy.
+	   Impact : LFA supported devices
+
+v3.129.2d (Jan 31, 2013)
+========================
+    Fixes
+    -----
+        1) Problem: Flow control changes via ethtool not propagating to
+                    hardware.
+           Cause  : Current link up was being determined incorrectly and flow
+                    control settings update depends on this.
+           Change : Set current link up flag appropriately using only link
+                    speed and duplex settings.
+           Impact : All devices.
+
+    Enhancements
+    ------------
+        1) Change : Fix compilation on 3.8.0-rc5 kernel.
+           Impact : All devices.
+
+        2) Change : Cleanup and simplify link flap avoidance code.
+           Impact : Link flap avoidance supported devices.
+
+
+v3.129d (Jan 24, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: (CQ67200) ethtool shows link when cable is NOT plugged in
+           Cause  : Carrier state not initialized until interface up.
+           Change : Use the properly initialized link_up flag instead.
+           Impact : All devices.
+
+        2) Problem: (CQ64743) NIC hang with Netq mode enabled
+           Cause  : Timing during netq flushing cause device and driver to be out of 
+                    sync in stress traffic condition.
+           Change : Modify netq deallocation procedure to allow driver to have a better
+                    control on h/w resource.
+           Impact : ESX only.
+
+    Enhancements
+    ------------
+        1) Change : Add FW dump capability for ESX environment.
+           Impact : ESX only.
+
+v3.129c (Jan 14, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: (CQ66991) Jumbo frame traffic causes CRC error frame
+                    increment.
+           Cause  : "Extended packet length" bit 14 was overwritten by the DSP
+                    CLK enable code.
+           Change : Fix the DSP CLK enable code to not trample other bits.
+           Impact : All devices with jumbo support.
+
+        2) Problem: (RHEL bz887908) ifconfig down/up with netconsole enabled
+                    causes NULL pointer dereference.
+           Cause  : netconsole causes an early printk and poll before the tg3
+                    structures are set up.
+           Change : Use the irq_sync flag to control and ignore early polls.
+           Impact : All devices.
+
+v3.129.1b (Jan 13, 2013)
+========================
+    Fixes
+    -----
+        1) Problem: (CQ67233) NVRAM size on 5762 is reported to be 128K
+                    instead of 2M.
+           Cause  : The NVRAM code is mostly shared with 5720 and uses 128K
+                    as default.
+           Change : Default to 128K only for 5720, and use NVRAM size
+                    programmed in NVRAM.
+           Impact : 5762 only.
+
+v3.129b (Jan 13, 2013)
+======================
+    Fixes
+    -----
+        1) Problem: (CQ67010) Compile error on RHEL6.4
+           Cause  : get_ts_info is defined in ethtool_ops_ext struct in
+                    RHEL6.4.
+           Change : Added compatibility code for ethtool_ops_ext.
+           Impact : RHEL6.4 only.
+
+v3.128.2b (Dec 14, 2012)
+========================
+    Enhancements
+    ------------
+        1) Change : Enabled EEE support on all 5717 B0.
+           Impact : EEE on 5717 B0 only.
+
+v3.128b (Dec 12, 2012)
+========================
+    Fixes
+    -----
+        1) Problem: Nvram auto power down setting was being ignored.
+           Cause  : The bit definition was wrong. It was set to bit 10.
+           Change : Fixed bit definition to the correct bit 14
+           Impact : All devices
+
+        2) Problem: Hwclock readings were out of bounds.
+           Cause  : The MSB of the reading should be ignored.
+           Change : Mask the MSB out.
+           Impact : Hardware timestamping
+
+        3) Problem: (CQ66759) System fails to wake up from S1 by magic packet.
+           Cause  : Chip not powered down correctly using the new Power
+                    Management methods.
+           Change : Reverted to Legacy suspend/resume PM methods for now.
+           Impact : WoL on newer kernels using the new PM methods
+
+    Enhancements
+    ------------
+        1) Change : Merged in latest upstream PTP support.
+           Impact : PTP only in RHEL6.4 and other newer kernels.
+
+v3.127c (Nov 29, 2012)
+========================
+    Enhancements
+    ------------
+        1) Change : (CQ65959) Fixed compile error on RHEL6.4 Alpha with PTP
+                    support.
+           Impact : PTP only.
+
+v3.127b (Nov 21, 2012)
+========================
+    Fixes
+    -----
+        1) Problem: (CQ66240) ethtool -i does not show OTP firmware version
+                    on 57787.
+                    (CQ66242) ethtool -t fails NVRAM test if programmed with
+                    OTP on 57787.
+           Cause  : OTP versioning and detection not supported
+           Change : Added OTP versioning and detection support. Skip NVRAM
+                    test if OTP is detected.
+           Impact : 5762 chip family.
+
+        2) Problem: (CQ66362, 66430) 3.126.1b driver displays inconsistent
+                    3.126b version during modprobe.
+           Cause  : Version number not updated for the 5762 release.
+           Change : Fixed in new branch 3.127b for 5762.
+           Impact : None.
+
+    Enhancements
+    ------------
+        1) Change : (CQ66544) Change LED MODE register to make LED visible
+                    under traffic for 5717, 5719, 5720, 5762 if it is in
+                    SHASTA_SHARED_TRAFFIC_LINK mode.
+           Impact : The chips mentioned above in that LED mode.
+
+        2) Change : Added support for RHEL6.4.
+           Impact : All existing supported kernels.
+
+        3) Change : Added support for the latest 3.x kernel.
+           Impact : All existing supported kernels.
+
+        4) Change : Added 4-part ID detection for devices that support
+                    100 Mbps only.
+           Impact : 100 Mbps only devices.
+
+        5) Change : Better fix for CQ65114, using netif_carrier_off()
+                    to prevent netdev watchdog timeout during reset.
+           Impact : All devices.
+
+v3.126c (Nov 20, 2012)
+========================
+    Fixes
+    -----
+        1) Problem: (CQ66587) NCSI H2B not working, causing ping to IDRAC to
+                    fail on 5720 and other devices with similar NCSI support.
+           Cause  : tg3_open() regression when merging with upstream changes.
+           Change : Added back the tg3_ape_driver_state_change() call
+                    in tg3_open().
+           Impact : All chips supporting APE.
+
+v3.126b (Nov 05, 2012)
+========================
+    Fixes
+    -----
+        1) Problem: (CQ66321, CQ66249) Link Flap Avoidance (LFA) not working.
+           Cause  : tg3_open() regression when merging with upstream changes.
+           Change : Added back the proper check to skip phy reset during
+                    tg3_open().
+           Impact : Only devices configured with LFA.
+
+        2) Problem: (CQ66045) EEE not working after resume.
+           Cause  : Regression caused by CQ65114 fix.  The driver may be
+                    skipping some PHY setup functions during resume.
+           Change : Reverted the fix and added a safer fix of updating the
+                    trans_start of every queue during tg3_netif_stop().
+           Impact : Devices supporting multi-queue in MSI-X mode.
+
+v3.125h.1 (Oct 30, 2012)
+========================
+    Fixes
+    -----
+        1) Problem: (CQ65622) LEDs don't work after loading driver on 5762
+                    family.
+           Cause  : GRC_LOCAL_CTRL bit 4 set to 0 by driver.
+           Change : Preserve GRC_LOCAL_CTRL bit 4 on this family of devices.
+           Impact : None.
+
+        2) Problem: (CQ66213) Driver does not load properly on 5762.
+           Cause  : Missing logic to support 5762 device.
+           Change : Added missing logic and included support for 5727.
+           Impact : None.
+
+v3.125h (Oct 30, 2012)
+========================
+    Enhancements
+    ------------
+        1) Change : Added 5717 C0 support with new PCI ID.
+           Impact : 5717 C0 only.
+
+v3.125g (Oct 15, 2012)
+========================
+    Fixes
+    -----
+        1) Problem: (CQ65980) VLAN fails to pass through packets on RH/ESX
+           Cause  : makeflags change to support building with upstream kernel
+                    defined a previously undefined macro
+           Change : Revert the macro change
+           Impact : All
+
+v3.125f (Oct 10, 2012)
+========================
+    Fixes
+    -----
+        1) Problem: Could not compile ESX driver
+           Cause  : 'tg3_ape_scratchpad_read' is not used in the tg3
+                    driver
+           Change : Properly #ifdef this routine out for ESX
+           Impact : All.
+
+v3.125.1e (Oct 09, 2012)
+========================
+    Fixes
+    -----
+        1) Problem: (CQ65899) Management firmware should be called "SMASH"
+                    on 5725.
+           Cause  : Existing code cannot distinguish between DASH and SMASH.
+           Change : DASH firmware on 5725 is now named SMASH.
+           Impact : None.
+
+v3.125e (Oct 09, 2012)
+========================
+    Fixes
+    -----
+        1) Problem: (CQ65742) 5717C0 function 1 does not work in PCI
+                    passthrough mode in ESX.
+           Cause  : PCI function number not determined correctly.
+           Change : Read from TG3_CPMU_STATUS register to determine PCI
+                    function number if NIC_SRAM_CPMU_STATUS does not contain
+                    valid data.
+           Impact : 5717, 5718, 5719, 5720
+
+        2) Problem: (CQ57980, CQ65114) Ethtool selftest causes tx timeout.
+           Cause  : Dev watchdog triggers spurious timeout due to carrier state
+                    not being off when tx queue disabled.
+           Change : Set carrier state to off before disabling tx queues.
+           Impact : This bug affects all devices.
+
+v3.125.1d (Sep 16, 2012)
+========================
+    Enhancements
+    ------------
+        1) Change : Added 5762 A0 EEE workaround
+           Impact : 5762 A0.
+
+v3.125d (Sep 16, 2012)
+========================
+    Fixes
+    -----
+        1) Problem: Poor birectional TCP throughput in MSI-X mode with
+                    TSO enabled.
+           Cause  : Starvation of ACK packets in TSS ring when another TSS
+                    ring has large TSO packets.
+           Change : Disable TSS by default on all devices in MSI-X mode.
+           Impact : All MSI-X capable devices (5718/5719/5720)
+
+v3.125.1c (Aug 24, 2012)
+========================
+    Enhancements
+    ------------
+        1) Change : Added 5762 support
+           Impact : None.
+
+v3.125c (Aug 24, 2012)
+========================
+    Enhancements
+    ------------
+        1) Change : Added 5717C0 support.
+           Impact : None.
+
+v3.125b (Aug 19, 2012)
+========================
+    Enhancements
+    ------------
+        1) Change : Added SGMII support for 5719/5720.
+           Impact : Serdes devices.
+
+v3.124c (Aug 17, 2012)
+========================
+    Enhancements
+    ------------
+        1) Change : Remove the gathering of platform statistics feature
+	            as it is not needed now.
+           Impact : ESX only
+
+v3.124b (Aug 14, 2012)
+========================
+    Fixes
+    -----
+        1) Problem: Very intermittent crash during reboot test.  Very hard to
+                    reproduce.
+           Cause  : A very small race condition in tg3_get_stats().
+           Change : Get spinlock before checking for valid hardware stats
+                    block.  There is a small possibility of the stats block
+                    becoming NULL (because of shutdown) if we get the
+                    spinlock after the check.
+           Impact : Statistics reporting.
+
+        2) Problem: (CQ65077) Vmware VM's network traffic stuck during stress
+                    for 5717. 
+           Cause  : RSS was enabled by mistake.
+           Change : Limit irq number for ESX if NetQ is not enabled or device
+                    is not IOV capable.
+           Impact : MSI-X devices on VMWare only.
+
+v3.123m (July 24, 2012)
+========================
+    Fixes
+    -----
+        1) Problem: (CQ63587) Intermittent loopback failure on 5719.
+           Cause  : The first 4 TX packets may be stuck if some internal
+                    registers have uninitialized values after POR.
+           Change : Added workaround to check for invalid values in those
+                    registers and set register 0x4910 bit 25 to workaround
+                    the problem.
+           Impact: 5719.
+        2) Problem: (CQ64145) Failure to bring up 57766.
+           Cause  : EEE firmware patch loading failure on devices using
+                    self boot.
+           Change : Fixed firmware loading logic in 57766.
+           Impact : 57766 with selfboot.  Please verify EEE on 57766.
+
+v3.123l (July 19, 2012)
+========================
+    Fixes
+    -----
+        1) Problem: (CQ64707, CQ64711) Compile error or modprobe error with
+                    undefined symbols on some kernels.
+           Cause  : IS_ENABLED macro to check kernel config options not
+                    properly defined.  This was introduced when adding
+                    1588 support to the driver.
+           Change : Added complete IS_ENABLED macros from upstream for
+                    older kernels that don't have the macro.
+           Impact : None
+
+    Enhancements
+    ------------
+        1) Change : Added hwmon sensor information to README and man page.
+           Impact : None
+
+v3.123k (July 17, 2012)
+========================
+    Fixes
+    -----
+        1) Problem: Problem running 5906.
+           Cause  : Short DMA workaround not properly applied.
+           Change : Applied Short DMA workaround for 5906.
+           Impact : 5906 only.
+    
+        2) Problem: VLAN bridge traffic not getting through when NCSI is
+                    enabled.
+           Cause  : VLAN tag is stripped when NCSI is enabled.  The tag needs
+                    to be re-inserted and there is a bug in the re-insertion
+                    logic.
+           Change : Fixed tag re-insertion by doing it before calling
+                    eth_type_trans().
+           Impact : VLAN bridge traffic on older kernels.
+    
+        3) Problem: (CQ64251) PSOD during tg3 driver bring up
+           Cause  : Driver was copying data to an unmapped memory location
+           Change : Rather then rely on the vmkernel to map the memory
+	            the driver will map the memory during initialization
+		    and then properly copy the data.
+           Impact : All ESX version.
+
+    Enhancements
+    ------------
+        1) Change : Re-implemented sensor support to match upstream.
+           Impact : Older versions of the sensor daemon will no longer work.
+                    Please upgrade to the new tg3sd daemon.
+
+v3.123j (June 12, 2012)
+========================
+    Fixes
+    -----
+        1) Problem: Driver needs to upload firmware to the chip for
+                    the 57766 ASIC rev.
+           Cause  : OTP firmware has grown beyond available space.
+           Change : Change the firmware image slightly to load firmware
+                    data to more than one area of memory.  Add new routines
+                    to work with the new firmware image.
+           Impact : The new code applies to all variants of the 57766 ASIC
+                    revision.
+
+        2) Problem: Sensor data not updating correctly.
+           Cause  : Driver is updating the wrong location in sysfs to signal
+                    update.
+           Change : Fix the sysfs location and always copy all the data once
+                    during initialization.
+           Impact : Platforms that support sensors and statistics.
+
+v3.123i (June 05, 2012)
+========================
+    Fixes
+    -----
+        1) Problem: Driver flags not written correctly in APE scratchpad.
+           Cause  : Miscalculated scratchpad offset.
+           Change : Fixed offset calculation.
+           Impact : Platforms that support sensors and statistics.
+
+        2) Problem: APE driver events not propagated to firmware.
+           Cause  : Driver skips sending APE events if NCSI is enabled.
+           Change : Removed the check for NCSI.
+           Impact : Chips supporting NCSI and APE.
+
+v3.123h (June 03, 2012)
+========================
+    Fixes
+    -----
+        1) Problem: (CQ63454) tg3 driver fails to compile on SLES10 kernels.
+
+           Cause  : sysfs_notify() not available on SLES10 kernels.
+           Change : Removed sysfs_notify() and modified userspace to poll
+                    sysfs periodically.
+           Impact : Platforms that support sensors and statistics.
+
+    Enhancements
+    ------------
+        1) Change : Scan all devices supporting APE for OCIR signature.
+           Impact : Platforms that support sensors and statistics.
+
+        2) Change : Disabled NetQ for VMWare inbox driver.
+           Impact : VMWare Inbox only.
+
+v3.123g (May 23, 2012)
+========================
+    Fixes
+    -----
+        1) Problem: VMWare driver fails to build.
+           Cause  : Unused variable and missing function prototypes in new
+                    functions added to tg3_vmare.c.
+           Change : Fixed the above errors.
+           Impact : VMWare only.
+
+v3.123f (May 22, 2012)
+========================
+    Fixes
+    -----
+        1) Problem: VMWare driver fails to build because of warnings.
+           Cause  : VMWare specific code had a 'unused variable'
+                    warning.
+           Change : Remove the unused variable.
+           Impact : Code compiles on VMWare.
+
+        2) Problem: Compiling the driver on a 32bit version of Linux
+                    will show "assignment of pointer to integer of
+                    different size".
+           Cause  : The driver's compatibility code attempts to get
+                    a buffer alignment adjustments by masking off the
+                    upper bits of a pointer.  The cast of the pointer
+                    to an integer causes the warnings.
+           Change : Use ptrdiff_t as the intermediate cast.
+           Impact : Code compiles without warnings on 32bit and 64bit
+                    architectures.
+
+        3) Problem: Port 0 of 5717 copper devices will not power down
+                    when the device is closed.
+           Cause  : A previous bug for serdes devices requred the driver
+                    to keep port 0 powered when the device is closed.
+                    This workaround was mistakenly applied to copper
+                    devices as well.
+           Change : Limit workaround to 5717 serdes devices only.
+           Impact : This bug only affects 5717 and 5718 devices.
+
+    Enhancements
+    ------------
+        1) Change : Added sensor and statistics support for OEM platform.
+           Impact : 5719 only.
+
+v3.123e (April 30, 2012)
+========================
+    Fixes
+    -----
+       1) Problem: (CQ62686) Driver crashes during reboot on a particular
+                   OEM system.
+          Cause  : In this environment, the driver is not closed during
+                   the reboot.  The hardware reports that a packet is
+                   available on an interrupt vector that does not handle
+                   rx traffic.
+          Change : Added code to avoid any rx processing on the vector
+                   that should not be handling rx traffic.
+          Impact : This bug was found on 5717, but may also impact the
+                   57765, 57766, 5719 and 5720 ASIC revs.
+
+       2) Problem: Checksum offload does not work with 5719 devices if
+                   the host kernel does not support Transmit Send Offload.
+          Cause  : There are sections of code surrounded by preprocessor
+                   guards to selectively disable the offload hardware
+                   features.  These checks were too aggressive.
+          Change : Remove the preprocessor guards and add a comment stating
+                   that the hardware bits control both features.
+          Impact : This bug was found on a 5719, but also affects 5755 and
+                   later devices.
+
+       3) Problem: Driver fails to build on SLES 10.X and RH5.X installs.
+          Cause  : Code added to support the new kernel reference clock API 
+                   is not present on older kernels.  The preprocessor
+                   definitions for the older code was incorrect.
+          Change : Correct the older preprocessor definitions.
+          Impact : This bug should affect all kernels that neither support
+                   the reference clock API nor the older clock calibration
+                   API.
+
+       4) Problem: (CQ62385) Driver fails to build on RH6.3 kernels.
+          Cause  : The driver uses some kernel functions to convert common
+                   MII register values to kernel variable values.  The driver's
+                   compatibility code for incorrectly determined that these
+                   functions were not available.  Multiple definition warnings
+                   are the result.
+          Change : Change the compat code to properly detect these functions.
+          Impact : This bug will only affect newer kernels that have the API.
+                   RedHat 6.3 is the first vendor kernel to support the new API.
+
+    Enhancements
+    ------------
+        1) Change : Apply watermark adjustments to 5719 A0 only.
+        2) Change : Reenable new DMA engine for 57766 devices if standard
+                    MTU sizes are used. 
+        3) Change : Apply a workaround to fix transmit hangs for 57766 devices
+                    using selfboot bootcode.
+        4) Change : It is possible for the driver to get a tx packet requesting
+                    timestamp services without having hardware tx timestamping
+                    enabled.  Only apply hardware timestamps on packets when
+                    hardware timestamping is requested.
+        5) Change : Cleanup.  No need to calibrate the hw clock on suspend.
+        6) Change : NetQueue initialization cleanup.
+
+
+v3.123d (April 24, 2012)
+========================
+    Enhancements
+    ------------
+        1) Change : Added new code to support 1588 reference clock API.
+
+
+v3.123c (April 13, 2012)
+========================
+    Enhancements
+    ------------
+        1) Change : Partial sync with upstream driver.
+
+
+v3.123b (April 03, 2012)
+========================
+    Fixes
+    -----
+        1) Problem: (CQ62172) 5720 hangs when running software iSCSI with
+                    TSO enabled.
+           Cause  : TSO packets with total size equal to or bigger than 64K
+                    are transmitted in this setup.  Hardware has a limitation
+                    that individual BDs cannot approach 64K in TSO.
+           Change : Set dma_limit to 32K for all TSO capable chips when
+                    compiled for VMWare.  Driver will break up any BDs bigger
+                    than 32K.  Linux limits TSO size to less than 64K, so no
+                    workaround is needed.
+           Impact : All TSO capable chips under VMWare.
+
+    Enhancements
+    ------------
+        1) Change : Added psod_on_tx_timeout parameter for VMWare debugging.
+           Impact : None.
+
+
+v3.122o (March 19, 2012)
+========================
+    Fixes
+    -----
+        1) Problem: (CQ61255) RX traffic stops in MSI-X mode on 5717 in
+                    SLES11 Xen environment.
+           Cause  : In RSS mode, there is a race condition between the RSS
+                    handlers and the RSS vector 1 handler that refills the
+                    single rx producer ring.
+           Change : Added a flag and additional code to close the race
+                    condition.
+           Impact : All chips running in MSI-X/RSS mode in linux only.
+                    No impact on NetQ and VMWare.
+
+
+v3.122n (March 09, 2012)
+========================
+    Fixes
+    -----
+        1) Problem: VMWare PSOD in tg3_tso_bug().
+           Cause  : skb_gso_segment() always returns NULL in VMWare.
+           Change : Check for NULL return from skb_gso_segment() and disable
+                    TSO on all chips requiring TSO_BUG workaround.
+           Impact : 5750, 5752, 5706, 5714, 5780.
+
+        2) Problem: (CQ62078) Immediate PSOD in VMWare on 5719
+           Cause  : Mismatch between the number of NetQ and IRQ vectors.
+           Change : Prevent NULL pointer dereference if the number of rxq
+                    is less than tx queues.
+           Impact : All chips supporting MSI-X.
+
+        3) Problem: (CQ62079) On 5718S, shutting down port 0 causes port 1's
+                    serdes link to go down.
+           Cause  : Powering down serdes on port 0 affects port 1.
+           Change : Don't power down port 0 in 5718S.
+           Impact : 5718S
+
+
+v3.122m (March 07, 2012)
+========================
+    Fixes
+    -----
+        1) Problem: (CQ61973) ethtool shows link up after ifdown.
+           Cause  : netif_acrrier_off() called too early in tg3_close().  PHY
+                    shutdown code later calls netif_carrier_on() again.
+           Change : Removed netif_carrier_off() in tg3_stop().  Added
+                    it to the very end of tg3_close().
+           Impact : ifdown and ethtool -L.
+
+
+v3.122l (February 29, 2012)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ61880) Compile error on SLES9.
+           Cause  : LPA_1000FULL and LPA_1000HALF undefined.
+           Change : Added definitions in tg3_compat.h.
+           Impact : None.
+
+
+v3.122k (February 28, 2012)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ60549) Poor jumbo tx performance on 57762
+           Cause  : Hardware DMA engine goes into a mode that requests 256
+                    bytes after GRC reset.  A link up is required to bring
+                    it back to the normal mode.
+           Change : tg3 driver skips PHY reset to avoid link interruption
+                    during MTU change.  Add PHY reset back for 57762/57766.
+           Impact : 57762/57766 only.
+
+        2) Problem: 5700/5701 hangs during ifdown.
+                    (http://bugzilla.kernel.org/show_bug.cgi?id=42707)
+           Cause  : tp->lock taken twice during shutdown on 5700/5701.
+           Change : Re-arranged tg3_get_stats64() and related functions to
+                    avoid the problem.
+           Impact : All chips.
+
+    Enhancements
+    ------------
+        1) Change : Updated README.TXT with updated ethtool information.
+
+
+v3.122j (February 20, 2012)
+============================
+    Fixes
+    -----
+        1) Problem: More compile problems on SLES10.
+           Cause  : skb_is_gso_v6() not defined on these older kernels.
+           Change : Adjusted skb_is_gso_v6() compatibility code.
+           Impact : None.
+
+        2) Problem: (CQ61696) Phy loopback test using jumbo frames failed on
+                    5719.
+           Cause  : TXD_FLAG_JMB_PKT not set and loopback packet size exceeds
+                    DMA limit of 4K.
+           Change : Added TXD_FLAG_JMB_PKT if applicable and reduce the jumbo
+                    loopback packet size to the DMA limit.  Better fix can
+                    be implemented in the next release if desired.
+           Impact : Jumbo loopback test on 57765, 5719.
+
+
+v3.122i (February 20, 2012)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ61692, 61693, 61683) Compile errors on RHEL6.x, RHEL5.x,
+                    SLES10, SLES11 kernels, etc.
+           Cause  : ETHTOOL_{G|S}CHANNELS not defined in these older kernels.
+                    RXNFC compatibilty checking has problems.
+           Change : Fixed compatibility code in driver and makeflags.sh.
+           Impact : None.
+           
+v3.122h (February 17, 2012)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ59599, CQ60505, CQ60549, CQ60763) 57766 devices
+                    yeild poor performance with jumbo frames enabled.
+           Cause  : The new DMA engine on this device inefficiently
+                    orders DMA transactions.
+           Change : Disable the new DMA engine.  Use the legacy DMA
+                    engine instead.
+           Impact : This bug only affects 57766 ASIC rev devices.
+
+        2) Problem: (CQ60550) Stats appear corrupted when running
+                    'ethtool -S' while the device is down.
+           Cause  : The driver returns the statistics uninitialized.
+           Change : Zero out the buffer the system provides for stats
+                    when the interface is not running.
+           Impact : This bug affects all ASIC revs.
+
+        3) Problem: (CQ60635) VMWare can PSOD under rare edge conditions.
+           Cause  : The VMWare kernel does not reliably halt packet
+                    transmission attempts while the device is closing.
+           Change : Change the tg3_close code to use a function that
+                    takes the tx lock while disabling the transmit
+                    queues.
+           Impact : This workaround will only be applied to VMWare
+                    drivers.
+
+        4) Problem: Mailbox writes and tg3 data structure updates may
+                    be seen out-of-order.
+           Cause  : The VMWare kernel defines away write memory barriers
+                    which was used to guard against such problems.
+           Change : Add combatibility code to reintroduce the memory
+                    barriers if they have been removed.
+           Impact : This workaround will only be applied to VMWare
+                    drivers.
+
+        5) Problem: NVRAM writes corrupt NVRAM when using Atmel parts.
+           Cause  : Traditionally the driver would update the NVRAM
+                    offset register each time it submitted new data.
+                    This procedure causes problems on newer devices.
+           Change : Change the code to submit the NVRAM offset only for
+                    the first dword of data.  All subsequent writes
+                    should abstain.
+           Impact : This bug affects all 57765 and newer devices.
+
+        6) Problem: (CQ60923) "Initialization from incompatible pointer
+                    type" warnings when compiling the tg3 driver.
+           Cause  : The system functions the driver uses to change the
+                    RSS indirection table have different argument lists
+                    for different kernels.
+           Change : Add compatibility code to test and react to the
+                    differences.
+           Impact : This bug only affects certain kernel versions.
+
+        7) Problem: (CQ60509) Energy Efficient Ethernet does not work
+                    for 57766 ASIC rev devices.
+           Cause  : The driver does not enable Energy Efficient Ethernet
+                    for these devices.
+           Change : Enable Energy Efficient Ethernet.
+           Impact : This bug only affects 57766 ASIC rev devices.
+
+        8) Problem: (CQ60632) NetQueue cannot be enabled on capable
+                    devices.
+           Cause  : A recent IRQ allocation change causes the driver to
+                    fail to allocate enough interrupts for the NetQueue
+                    case.
+           Change : Change the code so that more interrupts can be
+                    allocated for NetQueue devices.
+           Impact : This bug affects all NetQueue capable devices.
+
+    Enhancements
+    ------------
+        1) Change : Partial sync-up with upstream tg3 driver.
+        2) Change : Updated copyrights.
+        3) Change : Handle netif_set_real_num_rx_queues() failures
+                    gracefully.
+        4) Change : Merge some phylib / non-phylib code to reduce the
+                    number of differences between this driver and the
+                    upstream kernel driver.
+        5) Change : Added code to check phy 1Gbps master settings when
+                    checking link advertisements for 5701.
+        6) Change : To reduce system resource strain, reduce interrupt
+                    vector count when NetQueue is enabled.
+        7) Change : Add code to manually set the rx / tx queue count
+                    through ethtool.
+
+
+v3.122g (December 22, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: Low performance on 57766 in TSO mode.
+           Cause  : 2K BD breakup is not necessary for TSO packets.
+           Change : Added logic to exclude TSO packets from executing the
+                    code to break up tx packets when tp->dma_limit is set.
+           Impact : 57766 devices only.
+
+
+v3.122f (December 15, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: When the kernel crashes with MSI-X interrupts
+                    enabled, the driver will not pass traffic when
+                    reinitialized in a kdump environment.
+           Cause  : Kdump uses a single CPU, so the driver would bypass
+                    MSI-X and use another interrupt mode.  MSI-X is
+                    left enabled by the previous kernel image though
+                    so the alternate interrupt mode will not work.
+           Change : Change the code so that single vector MSI-X
+                    interrupt mode works and allow the MSI-X code
+                    to allocate a single MSI-X interrupt.
+           Impact : This bug affects all MSI-X capable devices.
+
+    Enhancements
+    ------------
+        1) Change : Cleanup some phy code.
+
+
+v3.122e (December 14, 2011)
+============================
+    Enhancements
+    ------------
+        1) Change : Sync-up with upstream tg3 driver.
+
+
+v3.122d (December 12, 2011)
+============================
+    Enhancements
+    ------------
+        1) Change : Enabled 57766 ASIC rev support.
+        2) Change : Change code to use a kernel routine to translate
+                    ethtool flow control parameters to MII
+                    advertisements.
+
+
+v3.122c (December 9, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ60225) Driver crashes when MSI-X interrupts
+                    are disabled.
+           Cause  : The code that sets up the RSS indirection table
+                    does a divide-by-zero when only using a single
+                    interrupt.
+           Change : Change the code that sets up the RSS table to
+                    zero out the RSS indirection table when a
+                    single interrupt is used.
+           Impact : This bug affects all RSS capable devices.
+
+        2) Problem: EEE does not work on 57791 and 57795 devices.
+           Cause  : These are 57765 devices that are only capable of
+                    10Mbps and 100Mbps speeds.  The EEE setup code
+                    gets bypassed for these devices.
+           Change : Change the code so that EEE setup code runs on
+                    these devices.
+           Impact : This only affects the devices mentioned.
+
+
+v3.122b (December 8, 2011)
+============================
+    Enhancements
+    ------------
+        1) Change : Sync-up with upstream tg3 driver.
+
+
+v3.121l (December 6, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: Statistics are being reset during driver operations
+                    that induce a chip reset.
+           Cause  : The driver zeroes out the statistics block during a
+                    chip reset.  While there is a place in the device to
+                    save chip stats, it was not being used properly.
+           Change : Add code to save chip stats during chip resets.
+                    Zero all stats counters on device close.
+           Impact : This bug affects all ASIC revs and platforms.
+
+        2) Problem: (CQ59112) When fulfilling an ethtool flow control
+                    query, the driver returns the current flow control
+                    state rather than the flow control configuration.
+                    This makes it impossible to disable rx and / or tx
+                    flow control settings if the autoneg could not
+                    negotiate flow control.
+           Cause  : Ethtool will use the flow control query interface
+                    to get the current flow control configuration.  If
+                    the desired setting does not differ from the current
+                    setting, the operation is aborted.
+           Change : Change the ethtool flow control query interface to
+                    report the flow control configuration.
+           Impact : This change removes the ability to query the flow
+                    control state directly.  Newer versions of ethtool
+                    report the LP advertisement register, and tg3
+                    already reports the local flow control
+                    advertisements, so it is possible to work out the
+                    flow control state.  Newer, yet unreleased, versions
+                    of ethtool will output a better flow control status
+                    along with the flow control configuration query
+                    output.
+
+    Enhancements
+    ------------
+        1) Change : Added 2 new 57766 ASIC rev SKUs: 57782 and 57786.
+        2) Change : Only report speed settings if link is up.  Otherwise
+                    report invalid link settings.
+
+
+v3.121k (November 30, 2011)
+============================
+    Enhancements
+    ------------
+        1) Change : Added LP advertisement reporting through ethtool.
+
+
+v3.121j (November 29, 2011)
+============================
+    Enhancements
+    ------------
+        1) Change : Added 57766 ASIC rev support.  (Device IDs not
+                    enabled though.)
+
+
+v3.121i (November 28, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ59895) Driver does not compile on SLES 10.4.
+           Cause  : A recent MRRS fix introduced a new function not
+                    present on some distros.
+           Change : Add the new function to the compatibility code.
+           Impact : This bug should affect most older kernels.
+
+
+v3.121h (November 23, 2011)
+============================
+    Enhancements
+    ------------
+        1) Change : Partial sync with upstream driver.
+        2) Change : Reduced code that sets the MRRS to a single section
+                    that only caps the value to 2k for 5719 A0.
+
+
+v3.121g (November 23, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ59887) Link does not come up with 5715.
+           Cause  : The new ethtool advertisement translation code
+                    exposes a link configuration initialization
+                    problem.
+           Change : Remove all flow control settings from
+                    tp->link_config.flowctrl.
+           Impact : This bug should affect all devices.
+
+        2) Problem: (CQ59881) Driver does not compile on RedHat 6.1.
+           Cause  : New RSS indirection code adds three new callbacks.
+                    All three callbacks are enabled if one of those
+                    callbacks is present in the kernel headers.  On
+                    RedHat 6.1, that callback was present, but the
+                    other two were not.
+           Change : Split the callbacks into two groups and test for
+                    them separately.
+           Impact : This bug only affects those distros where the
+                    problem constraints are present.
+
+
+v3.121f (November 22, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: Device fails to pass traffic on 5704 if ASF is
+                    enabled.
+           Cause  : TSO capability flags are set before the ASF status
+                    is known during the init procedure.
+           Change : Revaluate firmware TSO status after ASF status is
+                    determined.
+           Impact : This problem only affects 5703, 5704, and 5705
+                    devices.
+
+        2) Problem: Driver fails to compile on VMWare.
+           Cause  : The new rss indirection table facilities are not
+                    present on VMWare.
+           Change : Add preprocessor guards to disable the new rss
+                    indirection table facilites on those platforms
+                    that do not support it.
+           Impact : This problem was found on VMWare, but likely
+                    affects older Linux distros as well.
+
+
+v3.121e (November 22, 2011)
+============================
+    Enhancements
+    ------------
+        1) Change : Restricted MRRS workaround from 5720 / 5719 asic
+                    revs to only the 5719 A0 asic rev.
+        2) Change : Added MDI-X status to ethtool output.
+        3) Change : Added code to abstract away ethtool to mii
+                    advertisement translations.
+        4) Change : Added code to allow the admin to change the
+                    indirection table.
+
+
+v3.121d (November 14, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: Driver does not compile on RedHat 6.1 systems.
+           Cause  : Code was recently added to align rx buffers to
+                    cacheline boundaries.  The code uses the buffer
+                    pointers in bitwise masking operations that the
+                    compiler dislikes.
+           Change : Change the code so that the pointer is converted
+                    to an integer before operating on the value.
+           Impact : This bug affects all ASIC revs.
+
+
+v3.121c (November 9, 2011)
+============================
+    Enhancements
+    ------------
+        1) Change : Added code to align rx buffers on cacheline boundaries.
+
+
+v3.121b (November 8, 2011)
+============================
+    Enhancements
+    ------------
+        1) Change : Sync-up with upstream tg3 driver.
+
+
+v3.120h (October 24, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ59374) VMWare certification test fails because
+                    the driver does not pass 10,000 packets in the
+                    time allowed.
+           Cause  : The driver incorrectly attempts to clean up a
+                    packet fragment that had not been previously setup
+                    for DMA.
+           Change : Change the code so that cleanup of the packet
+                    fragment is avoided.
+           Impact : This bug is only known to affect 5719 devices.
+
+        2) Problem: If the driver fails to allocate all the required
+                    MSI-X vectors, it fails to cleanup those vectors
+                    allocated as part of the resource release
+                    process.
+           Cause  : The driver fails to iterate through all NAPI
+                    data structures when cleaning up in the error path.
+           Change : Change the code to iterate through all allocated
+                    NAPI instances.
+           Impact : This bug affects all devices.
+
+    Enhancements
+    ------------
+        1) Change : Removed compiler warning on those platforms that
+                    do not support skb_tx_timestamp().
+
+
+v3.120g (October 17, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: Driver fails to compile on RH-6.0.
+           Cause  : The driver has a set of compatibility functions
+                    that are conditionally compiled into the driver
+                    based on a preprocessor definition.  In this case
+                    The target kernel contains support for one of the
+                    two functions, but not the other.
+           Change : Change the code so that the makeflags.sh script
+                    checks for each function individually rather than
+                    as a set.
+           Impact : This bug is only known to affect RH-6.0.
+
+
+v3.120f (October 12, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ59158) PSOD in tg3_tx_recover().
+           Cause  : The PSOD was caused by a BUG_ON() statement.  The
+                    bug is caused by the error paths of the tx setup
+                    code.  The error path attempts to free too many
+                    BDs.
+           Change : Change the code so that the driver won't progress
+                    to the tx setup path if the setup of the first
+                    fragment fails.
+           Impact : This bug only affects the 5719.
+
+
+v3.120e (October 4, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: Driver could hit BUG_ON condition in tg3_tx_timeout
+           Cause  : If the 5719 special transmit path fails, the code
+                    that backs out the transmit request reclaims too
+                    many tx bds.  Ultimately, when the ring is full,
+                    this will cause tg3_tx() to hit the condition where
+                    the first BD of a transmit packet does not have an
+                    skb associated with it.  Hit that condition twice
+                    and the BUG_ON gets triggered.
+           Change : Change the transmit code to abort further tx setup
+                    if the out-of-bds condition is encountered.  Clean
+                    up surrounding code to support this new feature.
+           Impact : The 5719 is the only device that might encounter
+                    this bug at the time of this writing.
+
+        2) Problem: (CQ58831) EEE status incorrect on port 1 of 5720.
+                    Phy MDIO bus addresses incorrect.
+           Cause  : v3.120c of the tg3 driver contained a change where
+                    it would obtain the function number through shared
+                    memory, rather than relying on what the OS
+                    specifies.  The 5718 bit enumerations are different
+                    than the 5719 and 5720.  The driver mistakenly
+                    directs the 5720 down the 5718 path.
+           Change : Change the code so that the 5720 follows the correct
+                    code path.
+           Impact : This bug only affects the 5720.
+
+
+v3.120d (September 15, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: Watchdog timeout while releasing rx NetQueues.
+           Cause  : Driver sleeps for 100 msec while releasing an rx
+                    netqueue.  Originally the sleep was used to allow
+                    the hardware to flush out rx events and to give
+                    the driver time to service them.  This is no
+                    longer necessary now that the driver drops all new
+                    rx events.  Furthermore, sleeping is forbidden as
+                    the VMKernel holds a spinlock.
+           Change : Remove the sleep.
+           Impact : This problem affects all NetQueue capable devices.
+
+        2) Problem: Compiling the driver on RH-5.x systems shows that
+                    pci_pme_capable() is defined but not used.
+           Cause  : Driver's compatibility code detects that the
+                    function is missing, and enables compatiblity code
+                    to add it.  The function only needs to be used if
+                    another compatibility function is enabled though,
+                    which isn't needed on this platform.
+           Change : Nest the compatibility code for pci_pme_capable()
+                    in the preprocessor guards for the other compatibility
+                    function that uses it.
+           Impact : This problem affects all RH 5.x distros.
+
+        3) Problem: Individual functions of multifunction devices might
+                    clear APE mutex request bits of other functions during
+                    initialization.
+           Cause  : Initialization code claims ownership of too many of the
+                    APE mutex request bits.
+           Change : Add code to make each function responsible for its own
+                    bits.
+           Impact : This bug only affects APE-enabled devices: 5761, 5718,
+                    5717, 5719, and 5720 at the time of this writing.
+
+
+    Enhancements
+    ------------
+        1) Change : Made a few minor code flow cleanups.
+
+
+v3.120c (August 25, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: Driver doesn't compile for VMWare platforms.
+           Cause  : Newly introduced pcie compatibility functions have
+                    errors.
+           Change : Fix compatibility code.
+           Impact : This problem affects all Linux and VMWare platforms
+                    that need the compatibility code.
+
+    Enhancements
+    ------------
+        1) Change : Added new PCI function detection support.
+
+
+v3.120b (August 22, 2011)
+============================
+    Enhancements
+    ------------
+        1) Change : Sync-up with upstream tg3 driver.
+        2) Change : Added (proper) external loopback test support to the
+                    ethtool selftest.
+
+
+v3.119w (August 15, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ57777) VMotion migrations fail.  Tx timeouts
+                    happen occasionally after rx netqueue deallocations.
+           Cause  : Deallocating an rx netqueue requires the driver to
+                    disable interrupts on the underlying MSI-X vector.
+                    If an interrupt were to happen on that vector during
+                    this time, the interrupt will be missed / ignored by
+                    the driver.
+           Change : Force a final interrupt after the rx netqueue
+                    deallocation.
+           Impact : This problem affects all tx netq enabled devices.
+                    (5719 and 5720 at the time of this writing.)
+
+        2) Problem: (CQ57804) NetqueueTX Basic test failing.
+           Cause  : The test scripts require the tx stats from
+                    'ethtool -S' to be in a particular format.  tg3
+                    didn't conform to that format.
+           Change : Reformat tg3 tss stats.
+           Impact : This problem affects all tx netq enabled devices.
+                    (5719 and 5720 at the time of this writing.)
+
+
+v3.119v (August 5, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ57572) TSS traffic stalls after a while.
+           Cause  : The interrupt mailbox assignments for MSI-X vectors
+                    5 and above were incorrectly enumerated.
+           Change : Recode the interrupt mailbox assignments correctly.
+           Impact : This problem affects all netq enabled devices.
+
+
+v3.119u (August 3, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ57507) Driver fails to build on RH5.X and
+                    SLES 10.X systems.
+           Cause  : The fix for CQ56615 requires that the driver call
+                    tg3_msi() manually.  This function can take two or
+                    three arguments, depending on the kernel version.
+           Change : Add a variant of the call for each kernel version.
+                    Use preprocessor definitions to select the one to
+                    use.
+           Impact : This problem affects most older kernel versions.
+
+
+v3.119t (August 1, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ57120) vCenter does not show true link status
+                    on 5715 devices.
+           Cause  : Upstream kernels define a new hw_features bit for
+                    MAC loopback mode.  This bit collides with a
+                    feature privately defined for VMWare kernels.  This
+                    bug is a result of the collision.
+           Change : Undefine the MAC loopback code for VMWare drivers.
+           Impact : This should only affect VMWare drivers.
+
+        2) Problem: (CQ56615) Transmits stop when using TSS.
+           Cause  : The device is not reliably generating interrupts for
+                    TSS queues.
+           Change : Detect the lack of interrupt and schedule NAPI from
+                    the timer thread.
+           Impact : This bug affects 5719 and 5720 devices.
+
+
+v3.119s (July 27, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ56615) Transmits stop when using TSS.
+           Cause  : The device is in one-shot MSI interrupt mode.
+                    Somehow the tx interrupt is getting missed.  The
+                    hardware never generates any more interrupts and
+                    the driver is unaware of the new status block
+                    updates.
+           Change : Disable one-shot MSI mode for netqueue devices.
+           Impact : This bug affects any netqueue capable device.
+
+
+v3.119r (July 19, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ54406) Link drops on 2nd time the device is
+                    up'd.
+           Cause  : On device down, the driver sets the link config to
+                    10-HD, but does not restart autoneg.  When the
+                    device is up'd the 2nd time, the driver pulls the
+                    10-HD config from HW, notices the mismatch between
+                    1000-FD and 10-HD and restarts autoneg.
+           Change : Remove the code that sets the link config to 10-HD.
+                    It was dead code.
+           Impact : This bug affects any device that has the link-flap
+                    avoidance feature set.
+
+    Enhancements
+    ------------
+        1) Change : New kernels remove some of the "HAVE_<FEATURE>" flags
+                    present in the kernel headers.  The driver needed to
+                    implement alternative strategies for those flags.
+
+
+v3.119q (July 13, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ56770) Interrupt does not pass reliably.
+           Cause  : The status tag update fix provided in the original
+                    fix does not fix the problem completely.
+           Change : The test waits for the interrupt to be delivered in
+                    a loop.  Added code to check the status block tag
+                    against the last status tag seen by the driver's
+                    interrupt handler.  If they differ, rewrite the old
+                    tag to the interrupt mailbox register, which will
+                    generate a new interrupt.
+           Impact : This bug affects 57765, 5717, 5718, 5719, and 5720
+                    devices.
+
+
+v3.119p (July 12, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ56917) Firmware version incorrect.
+           Cause  : The fix for CQ56880 revealed that Dell's custom
+                    firmware version string was incorrectly being
+                    bypassed due to VPD length checks.  The NCSI
+                    firmware version was also incorrectly being
+                    appended to the version when it shouldn't.
+           Change : Ethtool only provides 32 characters of buffer to
+                    store the firmware version(s).  If the firmware
+                    version was obtained through the VPD area, the
+                    NCSI firmware version is dropped from the version
+                    string.
+           Impact : This bug affects 5717, 5718, 5719, and 5720
+                    devices.
+
+        2) Problem: RX PTP (IEEE1588) does not work correctly.
+           Cause  : RX PTP (IEEE1588) control bit enumerations
+                    incorrect.
+           Change : Correct bit enumerations.
+           Impact : This bug affects 5719 and 5720 devices.
+
+        3) Problem: (CQ56136) WOL behavior incorrect for OOB_WOL=on
+                    OS_WOL=off case.  Link light will illuminate after
+                    VMain => VAux switch.
+           Cause  : The driver doesn't take APE into account when making
+                    power source decisions.  It incorrectly determines
+                    power should be removed from the device when VMain
+                    goes away.  It seems the APE will cause a power
+                    glitch in this case, which resets the adapter to
+                    an OOB state.
+           Change : Configure the power source to draw from VAux when
+                    APE is present.
+           Impact : This bug affects 5761*, 5717, 5718, 5719, and 5720
+                    devices.
+
+        4) Problem: (CQ56615, CQ56611) Transmits halted after tx netqueue
+                    allocated / deallocated.
+           Cause  : On tx netqueue deallocation, the driver tunes the
+                    coalescing parameters so that tx packet completions
+                    are done immediately.  The parameters are adjusted
+                    for the wrong tx queue.
+           Change : Tune tx coalescing parameters for the right queue.
+           Impact : This bug affects 5718, 5719, and 5720 devices.
+
+    Enhancements
+    ------------
+        1) Change : Added code to extract hardware tx statistics and
+                    present them alongside software tx statistics.
+
+
+v3.119o (July 11, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ56880) NVRAM selftest fails on 5720.
+           Cause  : Newer VPD images are larger than before.  The
+                    driver hardcoded the VPD size in places where
+                    it shouldn't.  This caused size checks to fail
+                    and abort the NVRAM test with errors.
+           Change : Add code to obtain the VPD size from NVRAM when
+                    possible.  Use this limit in place of hardcoded
+                    constants.
+           Impact : This bug affects 5717, 5718, 5719, and 5720
+                    devices.
+
+        2) Problem: Driver doesn't compile correctly on 3.0 kernels.
+           Cause  : The driver's makefile assumes 2.6 kernels will
+                    be the only kconfig-enabled kernels.
+           Change : Change the makefile to include 3.0 kernels for
+                    the kconfig path.
+           Impact : This bug will be encountered on all 3.0+ kernels.
+
+
+v3.119n (July 8, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ56770) Selftest fails interrupt test on
+                    newer tg3 devices.
+           Cause  : It seems that the mailbox update when enabling
+                    interrupts isn't taking effect.
+           Change : (Re)write the last status tag to the interrupt
+                    mailbox register before forcing the interrupt.
+           Impact : This bug affects 5717, 5718, 5719, and 5720
+                    devices.
+
+        2) Problem: (CQ56762) Fiber loopback selftests fail.
+           Cause  : There were two contributing problems.  The first
+                    problem was that the driver was not waiting long
+                    enough for link to come up.  The second problem
+                    was that the driver was applying a reset to the
+                    MAC_RX_MODE register as it would do for the
+                    5714S and 5715S devices.
+           Change : Wait longer for link and avoid the MAC_RX_MODE
+                    reset.
+           Impact : This bug affects 5717S, 5718S, 5719S, and 5720S
+                    devices.
+
+
+v3.119m (July 7, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ56770, CQ56441) Selftest fails interrupt test
+                    on newer tg3 devices.
+           Cause  : One-shot MSI mode left enabled.
+           Change : Disable one-shot MSI/MSI-X mode.
+           Impact : This bug affects 5717, 5718, 5719, and 5720
+                    devices.
+
+        2) Problem: (CQ56126) Link does not go down when cable removed.
+                    Link LED flashes indefinitely.
+           Cause  : The EEE interoperability workaround does not work
+                    well if the EEE advertisement register is zeroed.
+           Change : Disable the EEE interoperability workaround if no
+                    EEE advertisements are made.  Also, the same
+                    register is zeroed if we have link against a
+                    non-EEE link partner.
+           Impact : This bug affects 57765 asic rev, 5717, 5718 and
+                    5719 devices.
+
+
+v3.119l (June 29, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: Machine spontaneously reboots when enabling WOL
+                    on a tg3 device while older tg3 devices (5703)
+                    are also present.
+           Cause  : As part of a recent power management addition,
+                    tg3_init_one() was changed so that the power
+                    source would revert back to VAux when not in use.
+                    If a 5703 device is left in this state, without
+                    being up'd and down'd, the problem appears.
+           Change : Since switching to VAux is a new behavior, the
+                    fix was to abstain from switching to VAux for
+                    all devices older than 5717.  The switch (and
+                    state accounting) is only really needed for
+                    newer, multiport devices.
+           Impact : This bug affects any system that has legacy
+                    devices in it and wish to use WOL.
+
+    Enhancements
+    ------------
+        1) Change : Temporarily disable TSS in VMWare due to testing
+                    problems.
+
+
+v3.119k (June 24, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ56282) Ethtool selftest fails with selfboot
+                    format 1 version 6 firmware.
+           Cause  : The nvram test was failing because the checksum
+                    for the NVRAM block didn't add up to the correct
+                    value.  This happens because the code wasn't
+                    checksumming enough of the data.
+           Change : Change the NVRAM block size to the correct size
+                    for this selfboot format.
+           Impact : This bug affects any device that uses selfboot
+                    format 1 version 6.
+
+        2) Problem: (CQ56258) WOL fails on VMWare.
+           Cause  : The tg3 driver uses a kernel PCI API, in addition
+                    to the standard ethtool interface, to determine
+                    whether or not to allow WOL.  VMWare kernels do
+                    not set CONFIG_PM in their kernel configuration
+                    files, so this API gets stubbed-out, and returns
+                    'false' to any WOL request.
+           Change : Bypass the kernel API for VMWare.
+           Impact : This bug affects all WOL capable devices.
+
+        3) Problem: (Novell bugzilla 683886)5714/5715 devices fail to
+                    pass traffic after network restart.
+           Cause  : After a chip reset, the driver programs the port
+                    mode to the mac mode register.  In a recent H2BMC
+                    change, the driver tried to preserve more bits in
+                    this register.  This feature isn't available for
+                    the 5714 / 5715, but a side-effect of the change
+                    was to preserve all mac_mode bits.  One of these
+                    preserved bits was causing the problem.
+           Change : Restore the code to its original state.  After a
+                    chip reset, program the port mode and zero out all
+                    other bits.  The H2BMC settings will take effect
+                    later in chip setup.
+           Impact : This bug affects all WOL capable devices.
+
+
+v3.119j (June 23, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ55292, CQ55242) Link flap on 5719 when connected to
+                    a particular EEE switch.
+           Cause  : Interoperability problems.
+           Change : Tune an internal EEE parameter.
+           Impact : 57765, 5717, 5718, 5719 and 5720 devices are affected.
+
+    Enhancements
+    ------------
+        1) Change : Add code to report flow control settings through the
+                    standard ethtool interface.
+
+
+v3.119i (June 13, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: Some or all of the ports of a 5717, 5718, 5719, and
+                    5720 device may not operate correctly.
+           Cause  : The driver determines what phy address it should
+                    use on the MDIO bus through its PCI function number.
+                    It obtains its function number through a proprietary
+                    register.  Due to a hardware bug, the PCI function
+                    number may not be correct 100% of the time.
+           Change : Workaround the problem by using the function number
+                    provided by the kernel.  The longer term solution
+                    will be to obtain the function number from APE
+                    space.
+           Impact : This bug affects all recent multiport devices.
+
+        2) Problem: The first of the four RSS queues gets a more than
+                    its due share of rx traffic.
+           Cause  : The RSS indirection table was misconfigured so that
+                    more traffic would be pivoted to the 1st queue.
+           Change : Fix the indirection table setup so that the load is
+                    more evenly distributed.
+           Impact : This bug affects all recent multiport devices.
+
+
+v3.119h (June 8, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: 5719 devices can stall the machine.
+           Cause  : An internal 4k fifo can overflow.
+           Change : Modify the transmit routine so that it never
+                    submits more than 4k per BD at a time.
+           Impact : This bug affects all 5719 devices.
+
+
+v3.119g (June 8, 2011)
+============================
+    Enhancements
+    ------------
+        1) Change : Added enhanced power source switching for 5717, 5718,
+                    5719 and 5720 devices.  These devices should now be
+                    able to correctly power switch from within a KVM
+                    environment.
+
+
+v3.119f (June 7, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: IEEE1588 support not enabled in the driver for
+                    kernels that support it.
+           Cause  : makeflags.sh script had a typo in one of the header
+                    filenames it used.
+           Change : Fix the type.
+           Impact : This bug affects all IEEE1588 capable devices.
+
+        2) Problem: Tx netq not exposed.
+           Cause  : The driver had a conservative preprocessor definition
+                    that turned the feature off.
+           Change : Remove the preprocessor guard.
+           Impact : This bug affects 5719 and 5720 only.
+
+        3) Problem: tx error cleanup code can cause a kernel panic.
+           Cause  : The driver attempted to free one fragment beyond
+                    what it should have.
+           Change : Correct the loop limit that stops the loop.
+           Impact : This bug affects all devices.
+
+    Enhancements
+    ------------
+        1) Change : Removed unneeded flags from tx path.
+
+
+v3.119e (May 26, 2011)
+============================
+    Enhancements
+    ------------
+        1) Change : Added IEEE1588 support.
+        2) Change : Fixed compatibility problems on SLES 10.4.
+
+
+v3.119d (May 23, 2011)
+============================
+    Enhancements
+    ------------
+        1) Change : Added EEE support for 5719 / 5720 devices.
+        2) Change : Added TX NetQueue support for 5719 / 5720 devices.
+
+
+v3.119c (May 20, 2011)
+============================
+    Enhancements
+    ------------
+        1) Change : Added NVRAM selftesting for selfboot revisions 4, 5,
+                    and 6.
+        2) Change : Added link flap avoidance code.
+
+
+v3.119b (May 20, 2011)
+============================
+    Enhancements
+    ------------
+        1) Change : Sync-up with upstream tg3 driver.
+
+
+v3.118k (May 16, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: Certain counters do not work on 5704 and later
+                    devices.
+           Cause  : The hardware statistics structure was modified in
+                    an incompatible way to support new stats that were
+                    originally unavailable.
+           Change : Move new statistics to reserved sections.
+           Impact : This bug affects 5700, 5701, 5702, 5703, and 5704.
+
+        2) Problem: Driver doesn't compile on certain kernels that do
+                    not have 802.1Q support.
+           Cause  : The driver attempts to use a compatibility function
+                    only defined if 802.1Q support is enabled.
+           Change : Add 802.1Q guards around the function use site.
+           Impact : Driver compiles on problematic kernels.
+
+    Enhancements
+    ------------
+        1) Change : Bring the EEE workaround value inline with the value
+                    in the Windows driver.
+
+
+v3.118j (May 12, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ54861) Device no longer receives traffic after
+                    several netq allocations and deallocations.
+           Cause  : The previous fix intended to disable the RCV BDI
+                    attention bit if the device was NetQueue capable.
+                    The test was inverted so that it would only be
+                    enabled if the device was NetQueue capable.
+           Change : Invert the inversion.
+           Impact : This bug affects all devices that support NetQueue.
+
+
+v3.118i (May 11, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ55469) System locks up while deallocating
+                    netqueues under certain conditions.  PSODs seen
+                    while deallocating netqueues.
+           Cause  : The driver had a route called wait_event_timeout()
+                    that it used to use to wait for the NAPI thread to
+                    indicate that it finished processing all packets.
+                    The PSOD points to a failed spinlock acquisition
+                    within that routine.  The system lockups induce
+                    "CPU locked up" messages with a backtrace that
+                    points to this function.
+           Change : There is no reliable way to detect that all packets
+                    have been flushed to host memory.  The fix then is
+                    to blindly sleep for 100 msecs.
+           Impact : This bug affects all netqueue capable devices.
+
+
+v3.118h (May 10, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ55462) Driver does not compile on SLES 9.
+           Cause  : SLES 9 does not have EEH support.  The driver has
+                    EEH preprocessor guards, but they missed a spot.
+           Change : Add EEH preprocessor guard around missing spot.
+           Impact : This bug affects SLES 9 and RHEL 4.X distros.
+
+
+v3.118g (May 9, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ55116) WOL does not work on SLES 10.4.
+           Cause  : Recent compatibility code changes cause broke WOL
+                    for this platform.
+           Change : Reinstate device_init_wakeup() for this platform.
+           Impact : This bug is restricted to SLES 10.4.
+
+        2) Problem: (CQ54861) Device no longer receives traffic after
+                    several netq allocations and deallocations.
+           Cause  : The RCV BDI state machine generates an attention
+                    when the producer rings are disabled during a netq
+                    deallocation.  The attention prevents anymore RX
+                    BDs from being fetched by the device.
+           Change : Disable the RCV BDI state machine attention for
+                    netq capable devices.
+           Impact : This bug affects all devices that support NetQueue.
+
+        3) Problem: (CQ33752) BCM5755 and newer devices have problems
+                    with fragments smaller than or equal to 8 bytes in
+                    length.
+           Cause  : HW bug.
+           Change : The workaround for this problem already exists in
+                    the driver.  The change is to apply it to the
+                    larger set of affected devices.
+           Impact : All 5755 and newer asic revisions.
+
+        4) Problem: (CQ54056) Kernel panic or traffic stop on 57765 B0.
+           Cause  : Max FTS limit too aggressive.
+           Change : Loosen the PCIe max FTS limit.
+           Impact : This bug only applies to the 57765 B0 asic revision.
+
+
+v3.118f (May 5, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ53189, CQ54274) Cannot pass IPv6 traffic on
+                    5719 devices.
+           Cause  : TSO needed to be turned off to fix another bug,
+                    but the TSO flags in the driver were used to enable
+                    generic IPv6 HW processing.
+           Change : Use asic revision flags to turn on IPv6 processing.
+           Impact : This bug is restricted to the 5719.
+
+        2) Problem: (CQ55236) Ethtool -t produces loopback test failures.
+           Cause  : The code that checks the TCP checksum in the BD had
+                    its checksum check inverted.
+           Change : Invert the inversion.
+           Impact : This bug affects all devices that can do TSO.
+
+
+v3.118e (May 3, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: Driver crashes on heavy tx traffic.
+           Cause  : Incorrect tx ring index sent to
+                    tg3_skb_error_unmap().
+           Change : Send correct index.
+           Impact : Panic disappears.
+
+        2) Problem: Driver fails to compile on kernels that do not
+                    support EEH.
+           Cause  : EEH data structures not defined.
+           Change : Add preprocessor guards around EEH code.
+           Impact : Driver compiles as expected.
+
+        3) Problem: VMWare driver PSODs when deallocating a NetQueue.
+           Cause  : Deallocating a NetQueue is an inherently racey
+                    process.  It is possible for an interrupt to arrive
+                    such that the software and hardware states differ
+                    drastically.  This will trigger a runaway rx buffer
+                    reclaim, corrupting memory in the process.
+           Change : Disable interrupts and NAPI calls while that vector
+                    is being brought down.  Add guards to make sure timer
+                    does not accidentally reenable interrupts.
+           Impact : The PSOD will be eliminated, but the device will
+                    eventually stop receiving traffic.  This item is
+                    still under investigation.
+
+
+v3.118d (April 29, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: Driver doesn't compile on SLES 10.4
+           Cause  : SLES 10.4 does not have cancel_work_sync() function.
+           Change : Add compatibility code around this call.
+           Impact : Driver compiles as expected.
+
+        2) Problem: Driver BUG_ON's in tg3_tx_recover().
+           Cause  : A recent skb error path cleanup failed to
+                    set important tx ring structure members.
+                    The tx completion path notes this and
+                    calls tg3_tx_recover().  If tg3_tx_recover()
+                    is called more than once, the kernel panics.
+           Change : Assign skb and mapping pointers in
+                    tigon3_dma_hwbug_workaround().
+           Impact : tx recoverys eliminated.
+
+    Enhancements
+    ------------
+        1) Change : Applied 5717 / 5718 interrupt workaround code to
+                    57765 asic rev as well.
+        2) Change : Consolidated autonegotiation advertisement setup
+                    code in one place.
+
+
+v3.118b (April 27, 2011)
+============================
+    Enhancements
+    ------------
+        1) Change : Sync-up with upstream tg3 driver.
+
+
+v3.117p (April 21, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ54703) There is no way for the admin to
+                    query EEE status.
+           Cause  : EEE is still a new feature.  At the moment, there
+                    does not exist a userspace tool to query its
+                    status.
+           Change : Add an EEE capability item to the sign-on banner
+                    messages.  Add an EEE status message to the link
+                    messages for those devices that support it.
+           Impact : These changes are the best we can do short-term.
+                    For the long term, we need to add a new ethtool
+                    interface to support EEE queries.
+
+        2) Problem: Loopback tests occasionally fail.
+           Cause  : RSS is still left enabled.  Packets were being
+                    routed to other rx return rings rather than ring 1.
+           Change : Change the indirection table to point all packets
+                    to ring 1.
+           Impact : Loopback tests work as expected.
+
+        3) Problem: 5719 and 5720 devices can go into permanent "during
+                    interrupt" state, which will stall that MSI-X vector.
+           Cause  : Hardware bug.
+           Change : Set bit 7 of register 0x6c to enable hardware
+                    workaround.
+           Impact : Interrupts work as expected.  5717 still has a problem
+                    and this hardware workaround is not available for that
+                    asic rev.
+
+    Enhancements
+    ------------
+        1) Change : Partial sync up with upstream kernel driver.
+
+
+v3.117o (April 11, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: Devices that use PCI configuration space to access
+                    the VPD could fail to obtain VPD data correctly.
+           Cause  : If the PCI layer call to fetch the VPD gets
+                    interrupted, the driver will attempt to resubmit
+                    a new request to get the rest of the data.  The
+                    driver supplies an incorrect pointer on the
+                    subsequent call.
+           Change : Supply the correct pointer to the additional PCI
+                    layer call to fetch the rest of the VPD data.
+           Impact : This bug only affects those devices that have a
+                    VPD, but do not use the legacy NVRAM format.
+
+        2) Problem: EEE still enabled by default.
+           Cause  : The code that disables EEE essentially removes the
+                    ability to set a flag informing the driver in other
+                    places that the device can do EEE.  The (invalid)
+                    assumption was that a chip reset will wipe out any
+                    lingering EEE setting that might leave it enabled.
+           Change : Disable EEE in CPMU registers and phy autoneg
+                    advertisements.
+           Impact : This bug only affects EEE capable chips.
+
+
+v3.117n (April 8, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: NetQueue traffic stops after ~1 hour of heavy
+                    traffic.
+           Cause  : The amount of rx BD cache memory on the chip has
+                    decreased as newer chip revisions are released.
+                    The driver configures a rx buffer low watermark
+                    that was fine for older chips, but is too high
+                    for more recent chips.  If the watermark is too
+                    high, the chip could eventually stop fetching
+                    BDs.
+           Change : Tailor the rx buffer low water mark to suit the
+                    particular asic rev being used.
+           Impact : Rx buffer deadlock disappears.
+
+        2) Problem: Rx discards stat increments when dropping
+                    undesirable multicast frames.
+           Cause  : The counter increments because multicast frames
+                    are being rejected by the APE, which increases
+                    the counter.
+           Change : Implement an alternative strategy where the driver
+                    counts the number of times rx mbuf resources are
+                    unavailable.
+           Impact : The workaround grossly approximates the original
+                    function of the counter, but not exactly.  This
+                    bug only affects 5717 (and 5718), 5719, and 5720
+                    asic revs.
+
+    Enhancements
+    ------------
+        1) Change : Added support for extended VPD area.
+        2) Change : Added jumbo frames loopback support.
+        3) Change : Disable EEE support by default.
+
+
+v3.117m (April 1, 2011)
+============================
+    Enhancements
+    ------------
+        1) Change : Changed phy read write ioctls to only permit phy
+                    accesses when the device is up.
+        2) Change : Added accessor routines for phy register 0x18.
+        3) Change : Added external loopback support to the selftest.
+        4) Change : Changed the firmware update timeout from 10 to
+                    30 seconds in a VMWare environment.
+
+
+v3.117l (March 24, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: Device cannot pass traffic after a NetQueue is
+                    freed.
+           Cause  : The driver incorrectly flushed all rx queues on
+                    deallocation rather than just the target queue.
+           Change : Flush only the target queue.
+           Impact : This bug only affects NetQueue enabled devices.
+
+    Enhancements
+    ------------
+        1) Change : Added code to respond to the error bit in the
+                    status block.
+        2) Change : Added error checking for filter type.
+        3) Change : Added code to accept VLAN and MACVLAN filter types.
+        4) Change : Fixed std and jmb producer ring replenish
+                    thresholds.
+
+
+v3.117k (March 18, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: NetQueues are not being freed.
+           Cause  : The driver incorrectly assumes the filter ID is
+                    zero when removing a rx filter.  The filter ID
+                    check was preventing the code from disabling the
+                    queue.
+           Change : Change the code to check against the filter ID
+                    assigned by the driver when the filter is added.
+           Impact : This bug only affects NetQueue enabled devices.
+
+        2) Problem: Driver PSODs in VMWare after system deallocates
+                    a queue.
+           Cause  : The driver was not resetting the rx return ring
+                    consumer index pointer to zero when the queue was
+                    freed.  The driver will update the hardware
+                    consumer index with the wrong value the next time
+                    an interrupt occurs on that vector.
+           Change : Zero the software rx return ring consumer index.
+           Impact : This bug only affects NetQueue enabled devices.
+
+        3) Problem: All traffic stops after disabling a NetQueue.
+           Cause  : The driver needs to flush the queue after
+                    disabling it.  The flush command accepts a mask
+                    of queues _not_ to flush rather than a bitmask
+                    of queues that need flushing.
+           Change : Invert the sense of the queue flushing.
+           Impact : This bug only affects NetQueue enabled devices.
+
+
+v3.117j (March 17, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: Driver does not size 4Mb NVRAM parts correctly.
+           Cause  : The 4Mb NVRAM parts share the same pinstrapping
+                    as the 2Mb parts.
+           Change : The driver needs to look at another NVRAM location
+                    to determine the size.
+           Impact : This bug only affects the 5717 and 5719 ASIC revs.
+
+        2) Problem: Driver fails to compile for RedHat 4.X distros.
+           Cause  : Missing preprocessor definition.
+           Change : Added PCI_D3cold to the compatibility code.
+           Impact : This bug affects all RedHat 4.X distros.
+
+        3) Problem: When attempting to disable NetQueue support through
+                    the driver module parameter, the driver will fail
+                    to reduce the number of MSI-X vectors it allocates.
+           Cause  : Off-by-one error when checking the force_netq
+                    parameter.
+           Change : Fixed the error.
+           Impact : This bug only affects NetQ enabled devices.
+
+    Enhancements
+    ------------
+        1) Change : Added full register dump support for tx timeout
+                    events.  PCI and PCI-X devices will only dump
+                    a select set of registers.
+        2) Change : Added more stats for VMWare NetQs.
+        3) Change : Added more informational messages about NetQ
+                    operation.
+        4) Change : Partial sync with upstream kernel.
+
+
+v3.117i (March 4, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: PSOD while kernel is fetching stats from device.
+           Cause  : The destination buffer was not big enough because
+                    the driver reports fewer stats available if NetQueue
+                    support is disabled.  The code that copies the stat
+                    strings does not perform the same check.  The result
+                    is a buffer overflow.
+           Change : Check NetQueue status before attempting to copy
+                    additional stat strings to destination buffer.
+           Impact : This bug will affect all devices, not just NetQueue
+                    enabled devices.  This fix may resolve CQ53476,
+                    CQ53382, and CQ52427.
+
+
+v3.117h (March 1, 2011)
+============================
+    Enhancements
+    ------------
+        1) Change : Temporarily removed TSS support when NetQueue is
+                    enabled to allow testing to continue while bug is
+                    being investigated.
+
+
+v3.117g (February 24, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ52983, CQ53080) Unable to assign / use VLAN
+                    tagged traffic.
+           Cause  : The VLAN API has changed in the upstream kernel.
+                    Pieces of that API have been backported into
+                    vendor kernels, but the backport isn't complete.
+                    VLAN tagged frames sent up consequently get
+                    dropped.
+           Change : Change the compatibility code to use the older
+                    VLAN tag implementation for SLES and RedHat
+                    installations.
+           Impact : This bug affects all ASIC revs.
+
+        2) Problem: Bootcode leaves CPMU clock override enabled, thus
+                    consuming more power.
+           Cause  : Bootcode needs to finish its tasks in a bounded
+                    amount of time.  The default clock speed is too
+                    slow for bootcode to meet its time constraints.
+                    Bootcode forces the clock speed higher, but then
+                    leaves the override enabled.
+           Change : Undo the clock override from within the driver.
+           Impact : This bug only affects the 5720 ASIC rev.
+
+
+v3.117f (February 15, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: Driver incorrectly reports success on NVRAM
+                    checksum errors.
+           Cause  : The tg3_test_nvram() function uses the error return
+                    variable to capture the tg3_nvram_read() return
+                    code.  After NVRAM has been read, the return code
+                    will still show success, but the remaining code
+                    assumes the value will reflect an error.
+           Change : Reset the error return code to an error value.  A
+                    success value will be restored later in the routine.
+           Impact : This bug affects all tg3 devices.
+
+    Enhancements
+    ------------
+        1) Change : Added NVRAM pinstrap decoding for 5720.
+        2) Change : Added code to verify the VPD RODATA section
+                    checksum.
+
+
+v3.117e (February 8, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: VMWare driver can PSOD while waiting for the rx
+                    path to complete.
+           Cause  : The driver waits for the rx path too late in the
+                    cleanup routine.
+           Change : Move the code that waits for rx completion earlier
+                    in the NetQueue teardown sequence.
+           Impact : This bug only affects NetQueue capable devices on
+                    VMWare.
+
+    Enhancements
+    ------------
+        1) Change : Added H2BMC support for the 5720 ASIC rev.
+
+
+v3.117d (February 7, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: Driver doesn't compile under 32-bit SLES 10.x
+                    distros if the target kernel is not installed.
+           Cause  : The Makefile uses 'uname -m' to determine the
+                    current architecture.  The path to the correct
+                    source needs the output of 'uname -i' instead.
+                    Consequently, the driver attempts to use the
+                    wrong source directory for the compile.
+           Change : Fix the driver to use 'uname -i'.
+           Impact : This fixes builds on all 32-bit SLES 10.x
+                    installations.
+
+    Enhancements
+    ------------
+        1) Change : Added basic 5720 ASIC rev support.
+
+
+v3.117c (February 2, 2011)
+============================
+    Enhancements
+    ------------
+        1) Change : Apply tx underrun workaround to more devices.
+        2) Change : Fix compile issues for VMWare driver.
+
+
+v3.117b (January 26, 2011)
+============================
+    Enhancements
+    ------------
+        1) Change : Sync-up with upstream tg3 driver.
+
+
+v3.116k (February 3, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: Driver doesn't compile under 32-bit SLES 10.x
+                    distros.
+           Cause  : The Makefile uses 'uname -m' to determine the
+                    current architecture.  The path to the correct
+                    source needs the output of 'uname -i' instead.
+                    Consequently, the driver attempts to use the
+                    wrong source directory for the compile.
+           Change : Fix the driver to use 'uname -i'.
+           Impact : This fixes builds on all 32-bit SLES 10.x
+                    installations.
+
+
+v3.116j (January 21, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: Driver doesn't compile if the NetQueue code is
+                    disabled.
+           Cause  : A NetQueue only variable is referenced outside
+                    of the NetQueue preprocessor guards.
+           Change : Surround the offending code with NetQueue
+                    preprocessor guards.
+           Impact : None.
+
+
+v3.116i (January 19, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ52356) Phy loopback test fails for 5718.
+           Cause  : An EEE workaround causes the problem.
+           Change : Disable EEE during the test.
+           Impact : This bug could affect 5717, 5719, and 5720
+                    ASIC revs.
+
+        2) Problem: SNMP daemons can interfere with management
+                    firmware when the device is down.
+           Cause  : PHY access collisions between the SNMP daemon and
+                    firmware cause unpredictable problems.
+           Change : Forbid phy access if the device is down and
+                    management firmware is running.
+           Impact : This bug affects any device with management
+                    firmware.
+
+
+v3.116h (January 11, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ52203) Unable to set MTU.
+           Cause  : The vmware kernel needs the driver to explicitly
+                    take the rtnl_lock while changing the MTU size.
+                    This code was accidentally enabled for the
+                    standard tg3 driver, which will cause a deadlock.
+           Change : Fix the preprocessor condition that enables the
+                    rtnl_locking code.
+           Impact : This bug will affect all asic revs.
+
+    Enhancements
+    ------------
+        1) Change : Added EEE interoperability fix.
+
+
+v3.116g (January 10, 2011)
+============================
+    Enhancements
+    ------------
+        1) Change : Added NetQueue support for VMWare driver.
+
+
+v3.116f (January 6, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ51944) 5718 serdes loopback tests fail.
+           Cause  : The MAC loopback test has been deprecated.  The
+                    internal phy loopback test fails because link has
+                    not yet come up when the test is executed.
+           Change : Abort MAC loopback tests.  Wait for link for
+                    phy loopback tests.
+           Impact : The MAC loopback test has been disabled for all
+                    CPMU enabled devices.  The phy loopback test fix
+                    has been applied to all asic revs.
+
+
+v3.116e (January 4, 2011)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ51944) Unable to pass traffic on 5719.
+           Cause  : The fix for CQ51280 accidentally prevented the
+                    proper configuration of the rx producer ring
+                    RCBs.
+           Change : Allow the 5719 to execute the proper code paths to
+                    setup the RCBs.
+           Impact : This bug only affects the 5719 A0 revision.
+
+    Enhancements
+    ------------
+        1) Change : Updated copyright strings.
+
+
+v3.116d (December 23, 2010)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ51280) Kernel panics with 5719 on bi-directional
+                    Chariot test.
+           Cause  : HW bug.
+           Change : The best known way to workaround the bug is to
+                    disable TSO and jumbo frames.
+           Impact : This bug only affects the 5719 asic rev and will be
+                    fixed in the A1 revision.
+
+
+v3.116c (December 16, 2010)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ46520) 5718 serdes loopback tests fail.
+           Cause  : The hardware needs some time to adjust to the
+                    new configuration before running the test.
+           Change : For MAC loopback, the hardware needs about 30
+                    milliseconds before the test passes.  For internal
+                    phy loopback, the driver needs to poll register
+                    0x460 for link before proceeding with the test.
+           Impact : While the problems are only seen on the 5718S,
+                    these changes should benefit all asic revs.
+
+        2) Problem: TSO defaults to off for HW TSO devices on RH5.X
+                    distros.
+           Cause  : The driver was recently changed to show that TSO
+                    implies checksum offload is enabled.  RH5.X kernels
+                    use a different netdev feature bit for HW TSO
+                    devices though.
+           Change : Modify the code so that it checks for the old and
+                    current IP checksum flags.
+           Impact : This bug affects all HW TSO devices.
+
+        3) Problem: TSS enabled devices can panic on Linux distros that
+                    support it.
+           Cause  : The driver's compatibility code incorrectly enables
+                    itself, causing all tx packets to go to the first
+                    tx ring.  When two packets (intended for different
+                    rings get transmitted at the same time, the tx BD
+                    ring and indexes get corrupted.  Ultimately this
+                    causes a tx_recovery, from which the device never
+                    recovers.
+           Change : Change the compatibility code so that it enables
+                    only at the proper times.
+           Impact : This bug affects all TSS enabled devices.
+
+    Enhancements
+    ------------
+        1) Change : Reduce the performance impact of the 5719 FIFO
+                    overflow fix.
+
+
+v3.116b (December 9, 2010)
+============================
+    Enhancements
+    ------------
+        1) Change : Sync-up with upstream tg3 driver.
+
+
+v3.115j (December 9, 2010)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ46520) Loopback test fails when link is set to
+                    10/100Mbps half duplex.
+           Cause  : The loopback test is a full duplex test.  The half
+                    duplex bit was set in register 0x404.
+           Change : Clear the half duplex bit for the loopback test.
+           Impact : This bug only seems to affect the 5785.
+
+    Enhancements
+    ------------
+        1) Change : EEE debounce counters were accidentally set to very
+                    relaxed values.  This has been fixed.
+        2) Change : Fix 5701 packet loss by 8-byte aligning the rx_offset
+                    needed for possible VLAN tag reinsertion.
+
+
+v3.115i (December 1, 2010)
+============================
+    Fixes
+    -----
+        1) Problem: Tx data corruption on 5719.
+           Cause  : Hardware bug requiring workaround.
+           Change : Coalesce all buffers that contain 8-bytes or less.
+           Impact : 5719 only.
+
+        2) Problem: 57765, 5717, and 5719 devices can perform
+                    suboptimally.  With packets sized around the MTU
+                    size.
+           Cause  : Driver sets the jumbo frame flag for packets that
+                    were greater than 1500 bytes.
+           Change : Only set the jumbo frame flag for frames that are
+                    larger than 1518 in length.
+           Impact : This problem only affects the 57765, 5717, and 5719
+                    ASIC revs.
+
+    Enhancements
+    ------------
+        1) Change : Added a compile time flag (TG3_NO_EEE) and a module
+                    parameter (tg3_disable_eee) to selectively disable
+                    EEE support.  See README.TXT for details.
+
+
+v3.115h (November 16, 2010)
+============================
+    Fixes
+    -----
+        1) Problem: RDMA FIFO overrun can still happen with a Gen2
+                    x4 PCIe link.
+           Cause  : Hardware bug requiring workaround.
+           Change : Adjust MRRS PCIE register to 512 bytes.
+           Impact : 5719 only.
+
+    Enhancements
+    ------------
+        1) Change : Sync EEE code with Windows driver.
+
+
+v3.115g (November 15, 2010)
+============================
+    Fixes
+    -----
+        1) Problem: RDMA FIFO overrun can still happen with workaround
+                    in place.
+           Cause  : Hardware bug requiring workaround.
+           Change : Adjust MRRS PCIE register based on PCIE link
+                    speed and width.
+           Impact : 5719 only.
+
+        2) Problem: Driver crashes on load on RedHat 5.6.
+           Cause  : alloc_etherdev_mq() should only be used if
+                    the device supports multiple queues.
+           Change : Change the code to use alloc_etherdev() instead.
+           Impact : All multiqueue devices (5717, 5719, 57765 asic revs).
+
+
+v3.115f (November 12, 2010)
+============================
+    Fixes
+    -----
+        1) Problem: RDMA FIFO overrun on 5719.
+           Cause  : Hardware bug requiring workaround.
+           Change : Adjust MRRS PCIE register based on PCIE link
+                    speed and width.
+           Impact : 5719 only.
+
+
+v3.115e (November 8, 2010)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ50579) 57765 EEE does not work until the
+                    driver is unloaded and reloaded.
+           Cause  : The phy did not enable EEE capabilities after
+                    a phy reset.
+           Change : Program the CPMU EEE registers before issuing
+                    a phy reset.
+           Impact : This bug only affects the 57765 B0+ asic rev.
+
+        2) Problem: (CQ50823) Cannot build driver against latest
+                    RedHat 5.6 release.
+           Cause  : Compatibility code problems.
+           Change : Fixed compatibility code.
+           Impact : This only affects RedHat 5.6.
+
+    Enhancements
+    ------------
+        1) Change : Reenabled EEE support.
+
+
+v3.115d (November 1, 2010)
+============================
+    Enhancements
+    ------------
+        1) Change : Reordered tx members in the tg3_napi structure
+                    and cacheline-aligned the tx and rx member variable
+                    sections.  Improves small packet performance
+                    by ~3-4%.
+        2) Change : Removed EEE support.
+
+
+v3.115c (October 27, 2010)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ50635) Pass-through does not work with 5718S.
+           Cause  : The driver was not preserving the APE rx and tx
+                    settings in the mac mode register for serdes
+                    devices.
+           Change : Preserve the APE rx and tx settings.
+           Impact : This bug should only affect 5718S and 5719S.
+
+    Enhancements
+    ------------
+        1) Change : Enable gphy APD for 5717 and newer devices.
+        2) Change : Remove 8-byte DMA fragment length workaround for
+                    5719 devices.
+        3) Change : Apply 10Mbps CPMU clock workaround for all 57765
+                    devices, not just the A0 revision.
+        4) Change : Reenable TSS for 5719 devices.
+        5) Change : Enable Multiple DMA Read Request featuer for 5719.
+        6) Change : Apply tx margin fix for 5719 devices.
+
+
+v3.115b (October 18, 2010)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ50405) Unable to show 5718 bootcode version.
+           Cause  : A new sb format had been introduced.
+           Change : Add support for sb format 1 revision 6.
+           Impact : This bug should only affect 5717 and 5719 asic
+                    revs.
+
+    Enhancements
+    ------------
+        1) Change : Sync-up with upstream tg3 driver.
+
+
+v3.114e (October 12, 2010)
+============================
+    Enhancements
+    ------------
+        1) Change : Enable EEE support for 57765 B0 and later devices.
+
+
+v3.114d (October 5, 2010)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ50234) Driver crashes when opening non-jumbo
+                    capable devices.
+           Cause  : Recently the driver was changed to abstain from
+                    allocating resources for the jumbo producer ring(s)
+                    if the device was not jumbo capable.  One of the
+                    tests mistakenly allowed non-jumbo capable devices
+                    to attempt to access unallocated resources.  The
+                    result was a kernel panic.
+           Change : Fix the test so that non-jumbo capable devices are
+                    properly blocked.
+           Impact : This affects all non-jumbo capable devices.
+
+
+v3.114c (October 4, 2010)
+============================
+    Fixes
+    -----
+        1) Problem: Driver fails to compile for VMWare.
+           Cause  : Code errors missed due to build system
+                    misconfiguration.
+           Change : Fixed the build system configuration and
+                    then fixed the syntax errors.
+           Impact : This problem only affects the VMWare driver.
+
+
+v3.114b (October 1, 2010)
+============================
+    Enhancements
+    ------------
+        1) Change : Sync-up with upstream tg3 driver.
+
+
+v3.113i (September 30, 2010)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ50133) When device is closed, ethtool can
+                    report link when it is not available.
+           Cause  : The driver only fills in speed / duplex information
+                    when the device has been opened.  When the device
+                    is closed, the fields are left alone.  When ethtool
+                    interprets the information returned from a closed
+                    device, it will use whatever value is in that
+                    field and interpret it incorrectly.
+           Change : Set the speed and duplex fields to the same invalid
+                    values that would be used if the link were down.
+           Impact : Link always shows down when device is down.  Speed
+                    and duplex values are obviously invalid.
+
+
+v3.113h (September 29, 2010)
+============================
+    Enhancements
+    ------------
+        1) Change : Enlarged the standard producer ring size from 512 to 2k.
+                    Enlarged the jumbo producer ring size from 256 to 1k.
+                    Enlarged the rx return ring size from 1K to 4K.
+        2) Change : Removed 5724 device ID.
+
+
+v3.113g (September 28, 2010)
+============================
+    Fixes
+    -----
+        1) Problem: (CQ49992) 5718 partno shows as "none".
+           Cause  : The code correctly obtained the partno, but
+                    incorrectly branched to the "none" section
+                    afterwards.
+           Change : Fix the code that caused the branch.
+           Impact : All devices.
+
+        2) Problem: (CQ50001) Cannot compile on SuSE 9.X or SuSE 10.X
+           Cause  : Compatibility code problems.
+           Change : Fixed compatibility code.
+           Impact : This bug only affects these two platforms.
+
+        3) Problem: NAPI code will crash if netpoll is enabled.
+           Cause  : Netpoll visits each NAPI instance of a device during
+                    a poll, whether it is enabled or not.  If an
+                    inactive NAPI instance has any uninitialized
+                    pointers, the driver will crash.
+           Change : Change the code to only add as many NAPI instances
+                    as there are allocated interrupt vectors.  Free the
+                    NAPI instances when the device is closed.
+           Impact : This bug affects all devices.
+
+    Enhancements
+    ------------
+        1) Change : Replaced hardcoded constants with preprocessor
+                    macros.
+        2) Change : Added 5717 asic rev partno strings, in case the
+                    NVRAM does not contain a VPD section.
+        3) Change : Modified the TXMBUF margin to avoid data corruption
+                    on 5719 devices.
+        4) Change : Set the request size to 4K to improve performance on
+                    5719 devices.
+
+
+v3.113f (September 24, 2010)
+============================
+    Enhancements
+    ------------
+        1) Change : Added EEE support for B0 revisions of the
+                    5717 asic rev.
+        2) Change : Added TSS netq support.  All current hardware
+                    implementations are broken, so this code is
+                    effectively disabled.
+
+
+v3.113e (September 24, 2010)
+============================
+    Enhancements
+    ------------
+        1) Change : Sync-up with upstream tg3 driver.
+
+
+v3.113d (September 1, 2010)
+===========================
+    Enhancements
+    ------------
+        1) Change : Added baseline netqueue support.  Multiple queues
+                    are enabled in the hardware but not exposed to
+                    the system.
+        2) Change : Added fix for CQ25155 (FIFO overflow fix).
+        3) Change : Fixed jumbo frames capability report for VMWare
+                    driver.
+
+
+v3.113c (August 18, 2010)
+=========================
+    Enhancements
+    ------------
+        1) Change : Removed APE events for NCSI firmware.  They are
+                    not used.
+        2) Change : Modified code to respect the semantics of
+                    TG3_IRQ_MAX_VECS and tp->irq_max.
+        3) Change : Moved the producer ring data structures into
+                    the per-napi instance structure.
+        4) Change : Modified makeflags.sh to report when the
+                    mandatory kernel source directory argument is
+                    missing.
+        5) Change : Moved global rx_mode tracking variable for
+                    vmware to a per-device member.
+
+
+v3.113b (August 03, 2010)
+=========================
+    Enhancements
+    ------------
+        1) Change : Sync-up with upstream tg3 driver.
+
+
+v3.112e (July 29, 2010)
+========================
+    Fixes
+    -----
+        1) Problem: (CQ49020) Driver does not compile on SLES 10.3 or
+                    SLES 9.x.
+           Cause  : The preprocessor guard in the previous release was
+                    misapplied.
+           Change : Correct the preprocessor guard.
+           Impact : The driver compiles on SLES 10.3 and SLES 9.x.
+
+
+v3.112d (July 28, 2010)
+========================
+    Fixes
+    -----
+        1) Problem: (CQ48897) Driver fails to show NCSI firmware
+                    version, or driver shows wrong firmware
+                    description for NCSI firmware.
+           Cause  : The firmware wasn't setting the "status ready"
+                    bit, which caused the driver to abort the fw
+                    version retrieval routine.  Once that was fixed
+                    the driver mistakenly assumed DASH was the only
+                    type of firmware to be running on the APE.
+           Change : Inspect the "firmware features" APE shared
+                    memory location to determine the type of firmware.
+           Impact : This bug only affects the 5717 and perhaps the
+                    upcoming 5719 asic revs.
+
+        2) Problem: (CQ49020) Driver does not compile on SLES 10.3 or
+                    SLES 9.x.
+           Cause  : The compile fails because the driver uses
+                    unrecognised IPv6 TSO preprocessor constants.
+                    These platforms do not support IPv6 TSO.
+           Change : Protect the unrecognised constants with a
+                    preprocessor guard.
+           Impact : The driver compiles on SLES 10.3 and SLES 9.x.
+
+        3) Problem: (CQ49066) 5723 device issues an NMI on driver load.
+           Cause  : The 5723 received a PCIe packet whose payload was
+                    256 bytes in length and interpreted it as a
+                    malformed PCIe packet.
+           Change : The driver had code which attempted to "correct" the
+                    negotiated PCIe payload size to 128 bytes.  This code
+                    was introduced for the 5750 ASIC rev and was
+                    conservatively applied to all devices older than and
+                    including the 5784 ASIC rev.  The change was to
+                    remove the 5784 ASIC rev from the list of devices
+                    this code should be applied towards.
+           Impact : This bug only affects the 5784 ASIC rev.
+                    
+
+    Enhancements
+    ------------
+        1) Change : Increased small packet performance by 3% by recoding
+                    transmit related memory barriers.
+
+
+v3.112c (July 22, 2010)
+========================
+    Fixes
+    -----
+        1) Problem: (CQ48173, CQ48172, CQ48171) Link failure (at 1Gbps)
+                    when changing link from forced mode.  No link when
+                    link is forced to 10Mbps.  Link flaps at 100Mbps
+                    when forced.
+           Cause  : Driver failed to clear bit 5 of register 0x18,
+                    shadow reg 0x7.  This bit enables RGMII inband
+                    status updates.
+           Change : Set the above bit.
+           Impact : Link comes up and passes traffic at all forced
+                    and autonegotiated speeds.
+
+    Enhancements
+    ------------
+        1) Change : Added PCI configuration space register read and
+                    write ioctls for VMWare driver.
+
+
+v3.112b (July 12, 2010)
+========================
+    Enhancements
+    ------------
+        1) Change : Sync-up with upstream tg3 driver.
+
+
+v3.111b (July 01, 2010)
+========================
+    Enhancements
+    ------------
+        1) Change : Sync-up with upstream tg3 driver.
+
+
+v3.110j (June 28, 2010)
+========================
+    Fixes
+    -----
+        1) Problem: Fix for CQ48242, CQ48186 did not work as expected.
+           Cause  : Test compares RSS enable flag against the wrong
+                    flags variable.
+           Change : Use the correct flags variable.
+           Impact : This problem affects 5717 and 57765 asic revs.
+
+
+v3.110i (June 23, 2010)
+========================
+    Fixes
+    -----
+        1) Problem: (CQ48242, CQ48186) Traffic fails or poor performance.
+           Cause  : A recent change allowed the driver to allocate a
+                    single MSI-X vector, rather than falling back to MSIs.
+                    The coalescing register setup function incorrectly
+                    used a flag, that indicates the use of MSI-X vectors,
+                    to determine whether or not to configure non-zero
+                    rx coalescing parameters for vector 0.  Zeroed rx
+                    coalescing parameters essentially disables rx
+                    interrupts.
+           Change : Use the RSS enable flag instead.
+           Impact : Rx interrupts are restored.  This problem affects 5717
+                    and 5719 ASIC revs.
+
+
+v3.110h (June 15, 2010)
+========================
+    Enhancements
+    ------------
+        1) Change : Replace another VMWARE_ESX_40_DDK preprocessor check
+                    with its __VMKLNX__ constant equivalent.
+        2) Change : Enable TSO on VMWare async builds.
+        3) Change : Add three missing devices to tg3.xml file.
+
+
+v3.110g (June 8, 2010)
+========================
+    Fixes
+    -----
+        1) Problem: (CQ47824) 57765 devices will occasionally not be
+                    able to ping.
+           Cause  : The fix and reasoning behind the fix for CQ44458
+                    below are incorrect.  The indirection table
+                    addresses rx queues, not MSI-X vectors.
+           Change : Revert the fix for CQ44458.
+           Impact : Pings work as expected.  The root cause for CQ44458
+                    is that the incoming rx packets just don't hash to
+                    the last RSS queue.
+
+    Enhancements
+    ------------
+        1) Change : Integrate changes based on code review.
+        2) Change : Make MSI-X interrupt allocation failure checks
+                    more robust.
+        3) Change : Add support for 50612E phy for 5785.
+
+
+v3.110f (May 28, 2010)
+========================
+    Fixes
+    -----
+        1) Problem: BD and / or packet corruption happens under high
+                    traffic conditions for 5717 B0 and 5719 revs.
+           Cause  : The multiple DMA read engine still has problems.
+           Change : Turn off the multiple DMA read engine and coalesce
+                    all packets that have fragments that are less than
+                    8 bytes in length.
+           Impact : This problem affects all 5717 and 5719 devices.
+
+        2) Problem: Link up via parallel detect does not work.
+           Cause  : The phy on 5717 and 5719 devices determines link up
+                    via parallel detection internally.  When the ISR
+                    processes the link change though, the remote
+                    partner's link advertisement register will read 0x0.
+                    This ultimately causes the driver to incorrectly
+                    conclude that the link is down.
+           Change : Trust the link status in phy register 0x1.  If
+                    the remote partner's advertisement register reads
+                    0x0, assume link is up via parallel detect.
+           Impact : This problem affects all 5717 and 5719 serdes
+                    devices.
+
+    Enhancements
+    ------------
+        1) Change : For the 5717 (and 5719), the driver uses the PCI
+                    function number to determine which MDIO bus address
+                    the driver should use to address the current
+                    device's phy.  This release changes the code to
+                    use the function number provided by the kernel
+                    rather than decoding a device register.  The
+                    5719 changes the layout of this register, so the
+                    benefit of this change is more maintainable code.
+
+
+v3.110e (May 13, 2010)
+========================
+    Fixes
+    -----
+        1) Problem: Driver issues ALIGN not defined warnings on 2.4
+                    kernels.
+           Cause  : Missing compatibility code.
+           Change : The driver's compatibility code will define this
+                    macro if it does not already exist.
+           Impact : This problem was only seen on 2.4 kernels.
+
+        2) Problem: Driver compile fails on newer kernels.
+           Cause  : Recent makefile changes assumed `uname -p` would
+                    return x86_64, i686, etc.  On some systems, the
+                    command actually returns a processor specific
+                    descriptive string.
+           Change : Use `uname -m` instead, which seems to get it right
+                    in all cases so far.
+           Impact : This bug affects any system that does not meet the
+                    old assumptions.
+
+    Enhancements
+    ------------
+        1) Change : Allow the allocation of a single MSI-X interrupt if
+                    the system supports more than one CPU.  The benefit
+                    is that the system can migrate that interrupt to
+                    any CPU if needed.
+
+
+v3.110d (May 11, 2010)
+========================
+    Fixes
+    -----
+        1) Problem: (CQ45614) Driver fails to build if kernel variant
+                    binaries are not installed.
+           Cause  : The driver's makefile looks at the installed kernel
+                    binary directory in /lib/modules for a symlink that
+                    points to the kernel sources.  If that symlink is
+                    not found, the build ultimately fails.
+           Change : Change the makefile to look for kernel sources in
+                    known locations if the kernel binary symlinks are
+                    missing.
+           Impact : This problem can happen anytime somebody runs make
+                    with KVER set and with only the kernel devel packages
+                    installed.
+
+        2) Problem: (CQ44458) CPU3 does not get utilized when RSS mode is
+                    enabled.
+           Cause  : The RSS indirection table indexes into the MSI-X
+                    vector table, not table of RX queues.
+           Change : Add one to the indirection table index so that the table
+                    always routes packets to valid vectors.
+           Impact : This problem happens on 5717 and 57765.  At the time of
+                    this writing, these are the only two devices that
+                    implement RSS and MSI-X interrupts.
+
+        3) Problem: (CQ44456) 72hour cc32 stress test fails.
+           Cause  : The driver was leaking memory.  An out of memory
+                    condition could cause the reboot.
+           Change : Free all rx rings when deconstructing the device.
+           Impact : This problem happens on 5717 and 57765.  At the time of
+                    this writing, these are the only two devices that
+                    implement RSS and MSI-X interrupts.
+
+
+v3.110c (April 27, 2010)
+========================
+    Fixes
+    -----
+        1) Problem: (CQ47032) Driver version incorrect in Dash
+                    Management console.
+           Cause  : The driver posted a static 3.81 version to
+                    APE shared memory.
+           Change : Implement a driver version reporting scheme
+                    that will always stay accurate.
+           Impact : This problem only afflicts APE-enabled devices.
+                    At the time of this writing, only the 5761 and
+                    5717 devices are affected.
+
+        2) Problem: Driver implements APE mutex locking incorrectly
+                    for the 5717.
+           Cause  : APE mutex registers changed location.
+           Change : Recode the driver to use the new mutex register
+                    location.
+           Impact : This bug only affects the 5717 asic rev.
+
+        3) Problem: On SLES 11.X systems, modules that are marked
+                    externally supported prevent kernel updates.  This
+                    is regarded as a security concern.
+           Cause  : The system's update mechanisms simply won't update
+                    kernels with such modules in place.
+           Change : Remove the Module.supported target from the driver's
+                    makefile.  This will render the module unloadable
+                    in a default install.  Update the README.TXT file to
+                    describe the problem and how to work around it.
+           Impact : This problem will affect all SLES 11 and newer
+                    installs.
+        4) Problem: Jumbo frames are corrupted at 100Mbps.
+           Cause  : Driver was accidentally disabling the tx mbuf lockup
+                    fix in register 0x45c.
+           Change : Set bit 8 of 0x45c to enable lockup fix.
+           Impact : This problem affects all 5755 and newer devices.
+
+    Enhancements
+    ------------
+        1) Change : Enable the multiple DMA read facilities for 5717
+                    B0 devices.
+        2) Change : Removed the Module.supported file as a build target.
+                    This means the admin will have to toggle the
+                    allow_unsupported_modules flag in
+                    /etc/modprobe.d/unsupported-modules.  The README.TXT
+                    has been updated to address this.
+
+
+v3.110b (April 13, 2010)
+========================
+    Initial release notes.
