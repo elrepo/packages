@@ -21,6 +21,7 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
+Patch0:		elrepo-tg3-makefile-mock-fix.patch
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
                             /usr/lib/rpm/redhat/brp-ldconfig \
@@ -69,6 +70,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
+%patch0 -p1
 
 %build
 %{__make} %{?_smp_mflags} V=1 \
@@ -185,4 +187,4 @@ exit 0
 %changelog
 * Mon Jun 17 2024 Tuan Hoang <tqhoang@elrepo.org> - 3.139k-1
 - Initial build for RHEL 8.10
-- Source code is from Broadcom website
+  [https://elrepo.org/bugs/view.php?id=1464]

@@ -1,0 +1,19 @@
+diff -ur tg3-3.139k/Makefile tg3-3.139k.makefile-mock-fix/Makefile
+--- tg3-3.139k/Makefile	2023-12-05 20:37:26.000000000 -0500
++++ tg3-3.139k.makefile-mock-fix/Makefile	2024-06-18 14:39:21.470800043 -0400
+@@ -20,6 +20,7 @@
+ 
+ ifeq ($(BCMCFGDIR),)
+ 	BCMCFGS := /lib/modules/$(KVER)/build \
++	           /usr/src/kernels/$(KVER) \
+ 	           /usr/src/kernels/$(KVER)-$(BCMPROC) \
+ 	           /usr/src/linux-$(shell echo $(KVER) | sed "s|\(.*\)-\([a-z]*\)|\1-obj/$(shell uname -i)/\2|") \
+ 	           /usr/src/linux
+@@ -38,6 +39,7 @@
+ ifeq ($(BCMSRCDIR),)
+ 	BCMSRCS := /lib/modules/$(KVER)/source \
+ 	           /lib/modules/$(KVER)/build  \
++	           /usr/src/kernels/$(KVER) \
+ 	           /usr/src/kernels/$(KVER)-$(BCMPROC) \
+ 	           /usr/src/linux-$(shell echo $(KVER) | sed "s|\(.*\)-[a-z]*|\1|") \
+ 	           /usr/src/linux
