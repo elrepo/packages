@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	1.2.1
-Release:	11%{?dist}
+Release:	11.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,6 +19,7 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
+Patch0:		aacraid-commitc5becf57d-elrepo.patch
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
                             /usr/lib/rpm/redhat/brp-ldconfig \
@@ -67,6 +68,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
+%patch0 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD
@@ -180,6 +182,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Jun 24 2024 Akemi Yagi <toracat@elrepo.org> - 1.2.1-11.1
+- Applied patch from commit c5becf57dd5659c687d41d623a69f42d63f59eb2
+  [https://elrepo.org/bugs/view.php?id=1444]
+
 * Fri May 24 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.2.1-11
 - Rebuilt against RHEL 8.10 GA kernel 4.18.0-553.el8_10
 - Source code updated from RHEL kernel-4.18.0-553.el8_10.x86_64
