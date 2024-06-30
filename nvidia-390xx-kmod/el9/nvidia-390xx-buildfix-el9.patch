@@ -1,6 +1,6 @@
 diff -Naurp kmod-nvidia-390xx-390.157/nvidiapkg/kernel/nvidia-drm/nvidia-drm-connector.c kmod-nvidia-390xx-390.157.buildfix/nvidiapkg/kernel/nvidia-drm/nvidia-drm-connector.c
 --- kmod-nvidia-390xx-390.157/nvidiapkg/kernel/nvidia-drm/nvidia-drm-connector.c	2022-10-12 05:30:31.000000000 -0400
-+++ kmod-nvidia-390xx-390.157.buildfix/nvidiapkg/kernel/nvidia-drm/nvidia-drm-connector.c	2023-11-22 21:51:01.001472520 -0500
++++ kmod-nvidia-390xx-390.157.buildfix/nvidiapkg/kernel/nvidia-drm/nvidia-drm-connector.c	2024-06-06 21:37:41.913812055 -0400
 @@ -20,6 +20,8 @@
   * DEALINGS IN THE SOFTWARE.
   */
@@ -46,7 +46,7 @@ diff -Naurp kmod-nvidia-390xx-390.157/nvidiapkg/kernel/nvidia-drm/nvidia-drm-con
          NV_DRM_DEV_LOG_ERR(
 diff -Naurp kmod-nvidia-390xx-390.157/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c kmod-nvidia-390xx-390.157.buildfix/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c
 --- kmod-nvidia-390xx-390.157/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c	2022-10-12 05:30:31.000000000 -0400
-+++ kmod-nvidia-390xx-390.157.buildfix/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c	2023-11-22 21:51:01.001472520 -0500
++++ kmod-nvidia-390xx-390.157.buildfix/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c	2024-06-06 21:44:10.553024598 -0400
 @@ -20,6 +20,7 @@
   * DEALINGS IN THE SOFTWARE.
   */
@@ -68,9 +68,21 @@ diff -Naurp kmod-nvidia-390xx-390.157/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv
  
      dev->mode_config.async_page_flip = false;
  
+@@ -762,7 +766,11 @@ static void nv_drm_update_drm_driver_fea
+ 
+     nv_drm_driver.dumb_create      = nv_drm_dumb_create;
+     nv_drm_driver.dumb_map_offset  = nv_drm_dumb_map_offset;
++// Rel. commit "drm: remove dumb_destroy callback" (Christian König, 26 Jan 2023)
++// NB: No resources are leaked, the kernel releases the same resources by default
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 4, 0) && RHEL_MAJOR != 9
+     nv_drm_driver.dumb_destroy     = nv_drm_dumb_destroy;
++#endif
+ 
+ #if defined(NV_DRM_DRIVER_HAS_GEM_PRIME_CALLBACKS)
+     nv_drm_driver.gem_vm_ops       = &nv_drm_gem_vma_ops;
 diff -Naurp kmod-nvidia-390xx-390.157/nvidiapkg/kernel/nvidia-drm/nvidia-drm-fb.c kmod-nvidia-390xx-390.157.buildfix/nvidiapkg/kernel/nvidia-drm/nvidia-drm-fb.c
 --- kmod-nvidia-390xx-390.157/nvidiapkg/kernel/nvidia-drm/nvidia-drm-fb.c	2022-10-12 05:30:31.000000000 -0400
-+++ kmod-nvidia-390xx-390.157.buildfix/nvidiapkg/kernel/nvidia-drm/nvidia-drm-fb.c	2023-11-22 21:56:50.433477927 -0500
++++ kmod-nvidia-390xx-390.157.buildfix/nvidiapkg/kernel/nvidia-drm/nvidia-drm-fb.c	2024-06-06 21:37:41.913812055 -0400
 @@ -31,6 +31,7 @@
  #include "nvidia-drm-gem.h"
  

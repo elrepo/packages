@@ -2,7 +2,7 @@
 %define kmod_name	nvidia-390xx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-362.18.1.el9_3}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-427.13.1.el9_4}
 
 %{!?dist: %define dist .el9}
 
@@ -227,6 +227,6 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Fri Mar 01 2024 Tuan Hoang <tqhoang@elrepo.org> - 390.157-1
-- Initial build for EL 9.3
+* Thu Jun 06 2024 Tuan Hoang <tqhoang@elrepo.org> - 390.157-1
+- Initial build for EL 9.4
 
