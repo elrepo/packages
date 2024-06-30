@@ -25,7 +25,9 @@ Source10: kmodtool-%{kmod_name}-el7.sh
 # Patch1: nvidia-340.106-el7.5-get-user-pages.patch
 # Patch2: nvidia-340.107-rhel7_7.patch
 
+%if %{?_with_src:0}%{!?_with_src:1}
 NoSource: 0
+%endif
 
 # Magic hidden here.
 %{expand:%(sh %{SOURCE10} rpmtemplate %{kmod_name} %{kversion} "")}
