@@ -153,7 +153,7 @@ static int qib_get_base_info(struct file *fp, void __user *ubase,
 		kinfo->spi_tidcnt += dd->rcvtidcnt % subctxt_cnt;
 	/*
 	 * for this use, may be cfgctxts summed over all chips that
-	 * are configured and present
+	 * are are configured and present
 	 */
 	kinfo->spi_nctxts = dd->cfgctxts;
 	/* unit (chip/board) our context is on */
@@ -1321,7 +1321,7 @@ static int setup_ctxt(struct qib_pportdata *ppd, int ctxt,
 	rcd->tid_pg_list = ptmp;
 	rcd->pid = current->pid;
 	init_waitqueue_head(&dd->rcd[ctxt]->wait);
-	get_task_comm(rcd->comm, current);
+	strlcpy(rcd->comm, current->comm, sizeof(rcd->comm));
 	ctxt_fp(fp) = rcd;
 	qib_stats.sps_ctxts++;
 	dd->freectxts--;
@@ -2246,10 +2246,10 @@ static ssize_t qib_write_iter(struct kiocb *iocb, struct iov_iter *from)
 	struct qib_ctxtdata *rcd = ctxt_fp(iocb->ki_filp);
 	struct qib_user_sdma_queue *pq = fp->pq;
 
-	if (!iter_is_iovec(from) || !from->nr_segs || !pq)
+	if (!from->user_backed || !from->nr_segs || !pq)
 		return -EINVAL;
 
-	return qib_user_sdma_writev(rcd, pq, from->iov, from->nr_segs);
+	return qib_user_sdma_writev(rcd, pq, iter_iov(from), from->nr_segs);
 }
 
 static struct class *qib_class;
@@ -2327,7 +2327,7 @@ int __init qib_dev_init(void)
 		goto done;
 	}
 
-	qib_class = class_create(THIS_MODULE, "ipath");
+	qib_class = class_create("ipath");
 	if (IS_ERR(qib_class)) {
 		ret = PTR_ERR(qib_class);
 		pr_err("Could not create device class (err %d)\n", -ret);

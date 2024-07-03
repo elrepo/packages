@@ -1,0 +1,39 @@
+elrepo-ib_qib_9_1.patch
+
+For kmod-ib_qib.el9_1
+
+commit e92a559e6c9db93662a6071f1ecbfa2c1c3be5d3
+Author: Christoph Hellwig <hch@lst.de>
+Date:   Fri Nov 26 12:58:04 2021 +0100
+
+    RDMA/qib: rename copy_io to qib_copy_io
+    
+    Add the proper module prefix to avoid conflicts with a function
+    in the scheduler.
+    
+    Signed-off-by: Christoph Hellwig <hch@lst.de>
+    Link: https://lore.kernel.org/r/20211126115817.2087431-2-hch@lst.de
+    Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+diff --git a/drivers/infiniband/hw/qib/qib_verbs.c b/drivers/infiniband/hw/qib/qib_verbs.c
+index ef91bff..0080f0b 100644
+--- a/qib_verbs.c
++++ b/qib_verbs.c
+@@ -425,7 +425,7 @@ static inline u32 clear_upper_bytes(u32 data, u32 n, u32 off)
+ }
+ #endif
+ 
+-static void copy_io(u32 __iomem *piobuf, struct rvt_sge_state *ss,
++static void qib_copy_io(u32 __iomem *piobuf, struct rvt_sge_state *ss,
+ 		    u32 length, unsigned flush_wc)
+ {
+ 	u32 extra = 0;
+@@ -975,7 +975,7 @@ static int qib_verbs_send_pio(struct rvt_qp *qp, struct ib_header *ibhdr,
+ 			qib_pio_copy(piobuf, addr, dwords);
+ 		goto done;
+ 	}
+-	copy_io(piobuf, ss, len, flush_wc);
++	qib_copy_io(piobuf, ss, len, flush_wc);
+ done:
+ 	if (dd->flags & QIB_USE_SPCL_TRIG) {
+ 		u32 spcl_off = (pbufn >= dd->piobcnt2k) ? 2047 : 1023;

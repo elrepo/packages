@@ -196,7 +196,7 @@ struct qib_ctxtdata {
 	pid_t pid;
 	pid_t subpid[QLOGIC_IB_MAX_SUBCTXT];
 	/* same size as task_struct .comm[], command that opened context */
-	char comm[TASK_COMM_LEN];
+	char comm[16];
 	/* pkeys set by this use of this ctxt */
 	u16 pkeys[4];
 	/* so file ops can get at unit */
@@ -678,7 +678,7 @@ struct qib_pportdata {
 /* Observers. Not to be taken lightly, possibly not to ship. */
 /*
  * If a diag read or write is to (bottom <= offset <= top),
- * the "hook" is called, allowing, e.g. shadows to be
+ * the "hoook" is called, allowing, e.g. shadows to be
  * updated in sync with the driver. struct diag_observer
  * is the "visible" part.
  */

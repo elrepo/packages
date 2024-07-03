@@ -403,11 +403,9 @@ static ssize_t diagc_attr_store(struct ib_device *ibdev, u32 port_num,
 }
 
 #define QIB_DIAGC_ATTR(N)                                                      \
-	static_assert(__same_type(((struct qib_ibport *)0)->rvp.n_##N, u64));  \
 	static struct qib_diagc_attr qib_diagc_attr_##N = {                    \
 		.attr = __ATTR(N, 0664, diagc_attr_show, diagc_attr_store),    \
-		.counter =                                                     \
-			offsetof(struct qib_ibport, rvp.n_##N) / sizeof(u64)   \
+		.counter = &((struct qib_ibport *)0)->rvp.n_##N - (u64 *)0,    \
 	}
 
 QIB_DIAGC_ATTR(rc_resends);
@@ -541,7 +539,7 @@ static struct attribute *port_diagc_attributes[] = {
 };
 
 static const struct attribute_group port_diagc_group = {
-	.name = "diag_counters",
+	.name = "linkcontrol",
 	.attrs = port_diagc_attributes,
 };
 

@@ -1106,7 +1106,8 @@ struct qib_devdata *qib_alloc_devdata(struct pci_dev *pdev, size_t extra)
 	if (!qib_cpulist_count) {
 		u32 count = num_online_cpus();
 
-		qib_cpulist = bitmap_zalloc(count, GFP_KERNEL);
+		qib_cpulist = kcalloc(BITS_TO_LONGS(count), sizeof(long),
+				      GFP_KERNEL);
 		if (qib_cpulist)
 			qib_cpulist_count = count;
 	}
@@ -1278,7 +1279,7 @@ static void __exit qib_ib_cleanup(void)
 #endif
 
 	qib_cpulist_count = 0;
-	bitmap_free(qib_cpulist);
+	kfree(qib_cpulist);
 
 	WARN_ON(!xa_empty(&qib_dev_table));
 	qib_dev_cleanup();
@@ -1546,14 +1547,18 @@ int qib_create_rcvhdrq(struct qib_devdata *dd, struct qib_ctxtdata *rcd)
 
 	if (!rcd->rcvhdrq) {
 		dma_addr_t phys_hdrqtail;
+		gfp_t gfp_flags;
 
 		amt = ALIGN(dd->rcvhdrcnt * dd->rcvhdrentsize *
 			    sizeof(u32), PAGE_SIZE);
+		gfp_flags = (rcd->ctxt >= dd->first_user_ctxt) ?
+			GFP_USER : GFP_KERNEL;
 
 		old_node_id = dev_to_node(&dd->pcidev->dev);
 		set_dev_node(&dd->pcidev->dev, rcd->node_id);
-		rcd->rcvhdrq = dma_alloc_coherent(&dd->pcidev->dev, amt,
-				&rcd->rcvhdrq_phys, GFP_KERNEL);
+		rcd->rcvhdrq = dma_alloc_coherent(
+			&dd->pcidev->dev, amt, &rcd->rcvhdrq_phys,
+			gfp_flags | __GFP_COMP);
 		set_dev_node(&dd->pcidev->dev, old_node_id);
 
 		if (!rcd->rcvhdrq) {
@@ -1573,7 +1578,7 @@ int qib_create_rcvhdrq(struct qib_devdata *dd, struct qib_ctxtdata *rcd)
 			set_dev_node(&dd->pcidev->dev, rcd->node_id);
 			rcd->rcvhdrtail_kvaddr = dma_alloc_coherent(
 				&dd->pcidev->dev, PAGE_SIZE, &phys_hdrqtail,
-				GFP_KERNEL);
+				gfp_flags);
 			set_dev_node(&dd->pcidev->dev, old_node_id);
 			if (!rcd->rcvhdrtail_kvaddr)
 				goto bail_free;
@@ -1617,7 +1622,16 @@ int qib_setup_eagerbufs(struct qib_ctxtdata *rcd)
 	struct qib_devdata *dd = rcd->dd;
 	unsigned e, egrcnt, egrperchunk, chunk, egrsize, egroff;
 	size_t size;
+	gfp_t gfp_flags;
 	int old_node_id;
+
+	/*
+	 * GFP_USER, but without GFP_FS, so buffer cache can be
+	 * coalesced (we hope); otherwise, even at order 4,
+	 * heavy filesystem activity makes these fail, and we can
+	 * use compound pages.
+	 */
+	gfp_flags = __GFP_RECLAIM | __GFP_IO | __GFP_COMP;
 
 	egrcnt = rcd->rcvegrcnt;
 	egroff = rcd->rcvegr_tid_base;
@@ -1650,7 +1664,7 @@ int qib_setup_eagerbufs(struct qib_ctxtdata *rcd)
 		rcd->rcvegrbuf[e] =
 			dma_alloc_coherent(&dd->pcidev->dev, size,
 					   &rcd->rcvegrbuf_phys[e],
-					   GFP_KERNEL);
+					   gfp_flags);
 		set_dev_node(&dd->pcidev->dev, old_node_id);
 		if (!rcd->rcvegrbuf[e])
 			goto bail_rcvegrbuf_phys;

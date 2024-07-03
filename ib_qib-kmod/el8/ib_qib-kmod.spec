@@ -9,7 +9,7 @@
 
 Name:           kmod-%{kmod_name}
 Version:        1.11
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -32,7 +32,10 @@ Source5:  GPL-v2.0.txt
 				PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
 
 # Source code patches
-Patch0:		elrepo-ib_qib-backport-linux-6.2-to-el8_10.patch
+Patch0:  elrepo-ib_qib_9_1.patch
+Patch1:  ib_qib-elrepo-bug1390.patch
+Patch2:  elrepo-ib_qib-backport-el9-to-el8.patch
+
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -62,6 +65,7 @@ Provides:       kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires(post): %{_sbindir}/weak-modules
 Requires(postun):       %{_sbindir}/weak-modules
 Requires:       kernel >= %{kmod_kernel_version}
+Requires:       ib_qib-ibverbs
 
 %description
 This package provides the %{kmod_name} kernel module(s).
@@ -75,6 +79,8 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 
 # Apply patch(es)
 %patch0 -p1
+%patch1 -p1
+%patch2 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD CONFIG_INFINIBAND_QIB=m
@@ -187,6 +193,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Jul 02 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.11-4
+- Rebuilt against RHEL 8.10 GA kernel
+- Source code backported from elrepo RHEL 9.4 kmod
+- Added Requires ib_qib-ibverbs
+
 * Wed Jun 12 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.11-3
 - Rebuilt against RHEL 8.10 GA kernel
 - Source code backported from kernel 6.2

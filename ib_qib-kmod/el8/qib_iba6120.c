@@ -799,9 +799,12 @@ static void qib_handle_6120_hwerrors(struct qib_devdata *dd, char *msg,
 			hwerrs &= ~TXE_PIO_PARITY;
 		}
 
-		if (!hwerrs)
+		if (!hwerrs) {
+			static u32 freeze_cnt;
+
+			freeze_cnt++;
 			qib_6120_clear_freeze(dd);
-		else
+		} else
 			isfatal = 1;
 	}
 
@@ -2072,7 +2075,7 @@ static void alloc_dummy_hdrq(struct qib_devdata *dd)
 	dd->cspec->dummy_hdrq = dma_alloc_coherent(&dd->pcidev->dev,
 					dd->rcd[0]->rcvhdrq_size,
 					&dd->cspec->dummy_hdrq_phys,
-					GFP_ATOMIC);
+					GFP_ATOMIC | __GFP_COMP);
 	if (!dd->cspec->dummy_hdrq) {
 		qib_devinfo(dd->pcidev, "Couldn't allocate dummy hdrq\n");
 		/* fallback to just 0'ing */
@@ -3027,7 +3030,7 @@ static int qib_6120_ib_updown(struct qib_pportdata *ppd, int ibup, u64 ibcs)
 
 /* Does read/modify/write to appropriate registers to
  * set output and direction bits selected by mask.
- * these are in their canonical positions (e.g. lsb of
+ * these are in their canonical postions (e.g. lsb of
  * dir will end up in D48 of extctrl on existing chips).
  * returns contents of GP Inputs.
  */
