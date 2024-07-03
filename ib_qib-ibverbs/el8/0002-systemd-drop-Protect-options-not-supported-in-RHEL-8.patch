@@ -1,0 +1,52 @@
+From 30f781482122db14f7bf89cb31db1c6aba30bba8 Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Wed, 8 Feb 2023 15:19:17 +0100
+Subject: [PATCH 2/2] systemd: drop Protect* options not supported in RHEL 8
+ systemd
+
+Signed-off-by: Michal Schmidt <mschmidt@redhat.com>
+---
+ ibacm/ibacm.service.in       | 2 --
+ iwpmd/iwpmd.service.in       | 2 --
+ rdma-ndd/rdma-ndd.service.in | 1 -
+ 3 files changed, 5 deletions(-)
+
+diff --git a/ibacm/ibacm.service.in b/ibacm/ibacm.service.in
+index 56538beb2b15..535e1aeae326 100644
+--- a/ibacm/ibacm.service.in
++++ b/ibacm/ibacm.service.in
+@@ -19,8 +19,6 @@ Type=notify
+ ExecStart=@CMAKE_INSTALL_FULL_SBINDIR@/ibacm --systemd
+ ProtectSystem=full
+ ProtectHome=true
+-ProtectHostname=true
+-ProtectKernelLogs=true
+ 
+ [Install]
+ Also=ibacm.socket
+diff --git a/iwpmd/iwpmd.service.in b/iwpmd/iwpmd.service.in
+index 47afebd8ad02..dd4dc750c26c 100644
+--- a/iwpmd/iwpmd.service.in
++++ b/iwpmd/iwpmd.service.in
+@@ -26,7 +26,5 @@ ExecStart=@CMAKE_INSTALL_FULL_SBINDIR@/iwpmd --systemd
+ LimitNOFILE=102400
+ ProtectSystem=full
+ ProtectHome=true
+-ProtectHostname=true
+-ProtectKernelLogs=true
+ 
+ # iwpmd is automatically wanted by udev when an iWarp RDMA device is present
+diff --git a/rdma-ndd/rdma-ndd.service.in b/rdma-ndd/rdma-ndd.service.in
+index 368deec00b2c..9cbe93fb6900 100644
+--- a/rdma-ndd/rdma-ndd.service.in
++++ b/rdma-ndd/rdma-ndd.service.in
+@@ -22,6 +22,5 @@ Restart=always
+ ExecStart=@CMAKE_INSTALL_FULL_SBINDIR@/rdma-ndd --systemd
+ ProtectSystem=full
+ ProtectHome=true
+-ProtectKernelLogs=true
+ 
+ # rdma-ndd is automatically wanted by udev when an RDMA device with a node description is present
+-- 
+2.39.1
+
