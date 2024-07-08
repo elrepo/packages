@@ -1,0 +1,12 @@
+diff -Naurp rdma-core-48.0.orig/CMakeLists.txt rdma-core-48.0/CMakeLists.txt
+--- rdma-core-48.0.orig/CMakeLists.txt	2024-07-02 09:56:18.533501089 -0400
++++ rdma-core-48.0/CMakeLists.txt	2024-07-02 13:39:26.740083524 -0400
+@@ -736,7 +736,7 @@ add_subdirectory(providers/vmw_pvrdma)
+ endif()
+ 
+ add_subdirectory(providers/hfi1verbs)
+-#add_subdirectory(providers/ipathverbs)
++add_subdirectory(providers/ipathverbs)
+ add_subdirectory(providers/rxe)
+ add_subdirectory(providers/rxe/man)
+ add_subdirectory(providers/siw)

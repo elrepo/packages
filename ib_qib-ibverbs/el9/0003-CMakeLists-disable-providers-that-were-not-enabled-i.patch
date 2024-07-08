@@ -1,0 +1,50 @@
+From 214c673b2a66a0ceb86a21ddb8cd7beba86cc6f3 Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Wed, 1 Feb 2023 15:24:23 +0100
+Subject: [PATCH] CMakeLists: disable providers that were not enabled in RHEL
+ 9.1
+
+Doing a package rebase, but don't want to enable additional drivers
+unless explicitly requested.
+
+Upstream Status: RHEL only
+
+Signed-off-by: Michal Schmidt <mschmidt@redhat.com>
+---
+ CMakeLists.txt | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 9b7462861012..cfe79bcfacf3 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -711,7 +711,7 @@ add_subdirectory(providers/bnxt_re)
+ add_subdirectory(providers/cxgb4) # NO SPARSE
+ add_subdirectory(providers/efa)
+ add_subdirectory(providers/efa/man)
+-add_subdirectory(providers/erdma)
++#add_subdirectory(providers/erdma)
+ add_subdirectory(providers/hns)
+ add_subdirectory(providers/irdma)
+ add_subdirectory(providers/mana)
+@@ -720,14 +720,14 @@ add_subdirectory(providers/mlx4)
+ add_subdirectory(providers/mlx4/man)
+ add_subdirectory(providers/mlx5)
+ add_subdirectory(providers/mlx5/man)
+-add_subdirectory(providers/mthca)
+-add_subdirectory(providers/ocrdma)
++#add_subdirectory(providers/mthca)
++#add_subdirectory(providers/ocrdma)
+ add_subdirectory(providers/qedr)
+ add_subdirectory(providers/vmw_pvrdma)
+ endif()
+ 
+ add_subdirectory(providers/hfi1verbs)
+-add_subdirectory(providers/ipathverbs)
++#add_subdirectory(providers/ipathverbs)
+ add_subdirectory(providers/rxe)
+ add_subdirectory(providers/rxe/man)
+ add_subdirectory(providers/siw)
+-- 
+2.40.1
+
