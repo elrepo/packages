@@ -66,6 +66,8 @@ Provides:			kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:			kernel >= %{kmod_kernel_version}
 Requires:			kernel-core-uname-r >= %{kmod_kernel_version}
 
+Requires:			ib_qib-ibverbs
+
 Requires(post):		%{_sbindir}/depmod
 Requires(postun):	%{_sbindir}/depmod
 Requires(post):		%{_sbindir}/weak-modules
