@@ -66,7 +66,7 @@ Provides:			kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:			kernel >= %{kmod_kernel_version}
 Requires:			kernel-core-uname-r >= %{kmod_kernel_version}
 
-Requires:			ib_qib-ibverbs
+Recommends:			ib_qib-ibverbs
 
 Requires(post):		%{_sbindir}/depmod
 Requires(postun):	%{_sbindir}/depmod
@@ -198,6 +198,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Jul 11 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.11-11
+- Changed Requires to Recommends ib_qib-ibverbs
+
 * Fri May 03 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.11-10
 - Rebuilt against RHEL 9.4 GA kernel
 - Source code from kernel-5.14.0-427.13.1.el9_4

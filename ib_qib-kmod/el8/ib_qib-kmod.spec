@@ -9,7 +9,7 @@
 
 Name:           kmod-%{kmod_name}
 Version:        1.11
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -65,7 +65,7 @@ Provides:       kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires(post): %{_sbindir}/weak-modules
 Requires(postun):       %{_sbindir}/weak-modules
 Requires:       kernel >= %{kmod_kernel_version}
-Requires:       ib_qib-ibverbs
+Recommends:     ib_qib-ibverbs
 
 %description
 This package provides the %{kmod_name} kernel module(s).
@@ -193,6 +193,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Jul 11 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.11-5
+- Changed Requires to Recommends ib_qib-ibverbs
+
 * Tue Jul 02 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.11-4
 - Rebuilt against RHEL 8.10 GA kernel
 - Source code backported from elrepo RHEL 9.4 kmod
