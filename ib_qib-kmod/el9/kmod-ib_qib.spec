@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	1.11
-Release:	10%{?dist}
+Release:	11%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
