@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	550.100
+Version:	550.107.02
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -233,6 +233,9 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Thu Aug 01 2024 Tuan Hoang <tqhoang@elrepo.org> - 550.107.02-1
+- Updated to version 550.107.02
+
 * Tue Jul 09 2024 Tuan Hoang <tqhoang@elrepo.org> - 550.100-1
 - Updated to version 550.100
 
