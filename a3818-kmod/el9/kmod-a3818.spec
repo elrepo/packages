@@ -7,15 +7,15 @@
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	1.6.9
-Release:	3%{?dist}
+Version:	1.6.10
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
 URL:		https://www.caen.it/
 
 # Sources.
-Source0:	A3818Drv-%{version}.tar.gz
+Source0:	a3818_linux_driver-v%{version}.tar.gz
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -31,9 +31,6 @@ Source0:	A3818Drv-%{version}.tar.gz
 		/usr/lib/rpm/redhat/brp-mangle-shebangs
 
 # Source code patches
-Patch0: a3818-h.patch
-Patch1: elrepo-A3818-el9.patch
-Patch2: elrepo-A3818-el9_4.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -77,13 +74,10 @@ It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
-%setup -q -n A3818Drv-%{version}
+%setup -q -n a3818_linux_driver-v%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
@@ -196,6 +190,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri Aug 02 2024 Akemi Yagi <toracat@elrepo.org> - 1.6.10-1
+- Update version to 1.6.10
+- Remove all patches as they are no longer needed
+
 * Fri May 03 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.6.9-3
 - Rebuilt against RHEL 9.4 GA kernel
 - Add patch for RHEL 9.4

@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	1.25
+Version:	1.26
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -15,7 +15,7 @@ License:	CAEN_License
 URL:		https://www.caen.it/
 
 # Sources.
-Source0:	A2818Drv-1.25.tar.gz
+Source0:	A2818Drv-%{version}.tar.gz
 Source1:	CAEN_License_Agreement.txt
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
@@ -196,6 +196,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri Aug 02 2024 Akemi Yagi <toracat@elrepo.org> - 1.26-1
+- Updated to version 1.26
+
 * Fri May 03 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.25-1
 - Updated to version 1.25 (see URL)
 - Install CAEN_License_Agreement.txt from tarball
