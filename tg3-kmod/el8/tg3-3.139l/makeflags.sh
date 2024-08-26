@@ -303,8 +303,12 @@ if grep -q "lp_advertising" $srcdir/include/$UAPI/linux/ethtool.h ; then
 	echo "#define BCM_HAS_LP_ADVERTISING"
 fi
 
-if grep -q "supported_ring_params" $srcdir/include/linux/ethtool.h ; then
-	echo "#define BCM_HAS_RINGPARAMS"
+if grep "supported_ring_params" $srcdir/include/linux/ethtool.h | grep u32 | grep -q -v "UEK_KABI_USE" ; then
+        echo "#define BCM_HAS_RINGPARAMS"
+fi
+
+if grep -q "kernel_ethtool_ringparam" $srcdir/include/linux/ethtool.h ; then
+        echo "#define BCM_HAS_ETHTOOL_RINGPARAMS_STRUCTURE"
 fi
 
 if grep -q "get_link_ksettings" $srcdir/include/linux/ethtool.h ; then
@@ -541,6 +545,10 @@ fi
 
 if grep -q dma_zalloc_coherent $srcdir/include/linux/dma-mapping.h; then
 	echo "#define BCM_HAS_DMA_ZALLOC_COHERENT"
+fi
+
+if grep -q pci_unmap_single $srcdir/include/linux/dma-mapping.h; then
+	echo "#define BCM_HAS_PCI_DMA_API"
 fi
 
 if [ -f $srcdir/include/$UAPI/linux/net_tstamp.h ]; then

@@ -1,5 +1,5 @@
 %define brcmname tg3
-%define brcmvers 3.139k
+%define brcmvers 3.139l
 %define brcmfmly NetXtreme
 %define brcmwork %{brcmname}-%{brcmvers}
 
@@ -88,6 +88,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc LICENSE README.TXT ChangeLog
 
 %changelog
+*Wed Mar 11 2024 Shantiprasad Shettar <shantiprasad.shettar@broadcom.com> 3.139l
+- Fix compilation on Debian12.4 OS
+- Add support for Oracle 9 UEK R7U2 kernel
+
 *Wed Aug 09 2023 Pavan Chebbi <pavan.chebbi@broadcom.com> 3.139k
 - Add support for SIMPLE_DEV_PM_OPS
 

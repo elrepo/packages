@@ -1,14 +1,23 @@
                               Release Notes
                         Broadcom tg3 Linux Driver
-                              Version 3.139k
-                                08/09/2023
+                              Version 3.139l
+                                03/18/2024
 
                           Broadcom Limited
                          5300 California Avenue,
                             Irvine, CA 92617
 
-			Copyright (C) 2010-2023 Broadcom
+			Copyright (C) 2010-2024 Broadcom
 			   All Rights Reserved
+
+v3.139l(Mar 18, 2024)
+   fixes and Enhancements
+   ----------------------
+        1) Problem: (DCSG01671995) Compilation failure on Debian12.4 OS.
+           Cause  :  Add compat code to handle DMA API() for tg3.
+        2) Problem: (DCSG01674584) Compilation failure on Oracle 9 UEK R7U2.
+           Cause  : Modified the grep pattern in makeflags.sh.
+
 v3.139k(Aug 09, 2023)
    fixes and Enhancements
    ----------------------

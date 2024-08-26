@@ -534,6 +534,34 @@ typedef u32 pci_power_t;
 #define dma_unmap_addr_set	pci_unmap_addr_set
 #endif
 
+#if !defined (BCM_HAS_PCI_DMA_API)
+#define pci_unmap_single(hwdev, dma_addr, size, direction) \
+	dma_unmap_single(&hwdev->dev, dma_addr, size, direction)
+
+#define pci_unmap_page(hwdev, dma_addr, size, direction) \
+	dma_unmap_page(&hwdev->dev, dma_addr, size, direction)
+
+#define pci_map_single(hwdev, dma_addr, size, direction) \
+	dma_map_single(&hwdev->dev, dma_addr, size, direction)
+
+#define pci_dma_sync_single_for_cpu(hwdev, dma_addr, size, direction) \
+	dma_sync_single_for_cpu(&hwdev->dev, dma_addr, size, direction)
+
+#define pci_dma_sync_single_for_device(hwdev, dma_addr, size, direction) \
+	dma_sync_single_for_device(&hwdev->dev, dma_addr, size, direction)
+
+#define pci_set_dma_mask(hwdev, mask) \
+	dma_set_mask(&hwdev->dev, mask);
+
+#define pci_set_consistent_dma_mask(hwdev, mask) \
+	dma_set_coherent_mask(&hwdev->dev, mask);
+#endif
+
+#if !defined (PCI_DMA_TODEVICE)
+#define PCI_DMA_TODEVICE        DMA_TO_DEVICE
+#define PCI_DMA_FROMDEVICE      DMA_FROM_DEVICE
+#endif
+
 #if !defined(BCM_HAS_PCI_TARGET_STATE) && !defined(BCM_HAS_PCI_CHOOSE_STATE)
 static inline pci_power_t pci_choose_state(struct pci_dev *dev,
 					   pm_message_t state)
@@ -2261,11 +2289,13 @@ void netdev_rss_key_fill(void *buffer, size_t len)
 
 #endif
 
-#ifndef BCM_HAS_RINGPARAMS
+#ifndef BCM_HAS_ETHTOOL_RINGPARAMS_STRUCTURE
 struct kernel_ethtool_ringparam {
-	u32	rx_buf_len;
+        u32     rx_buf_len;
 };
+#endif
 
+#ifndef BCM_HAS_RINGPARAMS
 #define tg3_get_ringparam(dev, ering, kernel_ering, extack)	\
 	tg3_get_ringparam(dev, ering)
 #define tg3_set_ringparam(dev, ering, kernel_ering, extack)	\
