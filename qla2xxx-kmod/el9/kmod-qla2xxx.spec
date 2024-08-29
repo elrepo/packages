@@ -7,8 +7,8 @@
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	10.02.08.200
-Release:	4%{?dist}
+Version:	10.02.09.100
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -79,7 +79,9 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 %%patch0 -p0
 
 %build
-%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
+%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD \
+	CONFIG_SCSI_QLA_FC=m \
+	EXTRA_CFLAGS='-DCONFIG_SCSI_QLA_FC'
 
 whitelist="/lib/modules/kabi-current/kabi_stablelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -190,6 +192,12 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Aug 28 2024 Tuan Hoang <tqhoang@elrepo.org> - 10.02.09.100-1
+- Correct the version number
+- Source code updated from RHEL 9.4 kernel-5.14.0-427.33.1.el9_4
+- Fixes CVE-2024-36025
+  [https://access.redhat.com/errata/RHSA-2024:5928]
+
 * Wed May 01 2024 Akemi Yagi <toracat@elrepo.org> - 10.02.08.200-4
 - Rebuilt for RHEL 9.4
 - Source updated from RHEL 9.4 kernel
