@@ -1,0 +1,30 @@
+https://github.com/torvalds/linux/commit/e288285d47784fdcf7c81be56df7d65c6f10c58b
+
+scsi: qla2xxx: Fix double free of the ha->vp_map pointer
+
+
+Coverity scan reported potential risk of double free of the pointer
+ha->vp_map.  ha->vp_map was freed in qla2x00_mem_alloc(), and again freed
+in function qla2x00_mem_free(ha).
+
+Assign NULL to vp_map and kfree take care of NULL.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Link: https://lore.kernel.org/r/20240227164127.36465-8-njavali@marvell.com
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+
+
+diff -Naurp qla2xxx-10.02.09.100.stock/qla_os.c qla2xxx-10.02.09.100/qla_os.c
+--- qla2xxx-10.02.09.100.stock/qla_os.c	2024-08-28 23:40:24.456858407 -0400
++++ qla2xxx-10.02.09.100/qla_os.c	2024-08-28 23:49:02.869974353 -0400
+@@ -4601,6 +4601,7 @@ fail_free_init_cb:
+ 	ha->init_cb_dma = 0;
+ fail_free_vp_map:
+ 	kfree(ha->vp_map);
++	ha->vp_map = NULL;
+ fail:
+ 	ql_log(ql_log_fatal, NULL, 0x0030,
+ 	    "Memory allocation failure.\n");
