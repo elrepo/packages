@@ -1,6 +1,67 @@
-diff -Naurp kmod-nvidia-390xx-390.157/nvidiapkg/kernel/nvidia-drm/nvidia-drm-connector.c kmod-nvidia-390xx-390.157.buildfix/nvidiapkg/kernel/nvidia-drm/nvidia-drm-connector.c
---- kmod-nvidia-390xx-390.157/nvidiapkg/kernel/nvidia-drm/nvidia-drm-connector.c	2022-10-12 05:30:31.000000000 -0400
-+++ kmod-nvidia-390xx-390.157.buildfix/nvidiapkg/kernel/nvidia-drm/nvidia-drm-connector.c	2024-06-06 21:37:41.913812055 -0400
+diff -Naurp kmod-nvidia-390xx-390.157.stock/nvidiapkg/kernel/common/inc/nv-linux.h kmod-nvidia-390xx-390.157/nvidiapkg/kernel/common/inc/nv-linux.h
+--- kmod-nvidia-390xx-390.157.stock/nvidiapkg/kernel/common/inc/nv-linux.h	2022-10-12 05:30:27.000000000 -0400
++++ kmod-nvidia-390xx-390.157/nvidiapkg/kernel/common/inc/nv-linux.h	2024-09-02 09:38:08.364649483 -0400
+@@ -174,7 +174,11 @@ static inline uid_t __kuid_val(kuid_t ui
+ 
+ #if defined(NV_VM_INSERT_PAGE_PRESENT)
+ #include <linux/pagemap.h>
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 16, 0)
+ #include <linux/dma-mapping.h>
++#else
++#include <linux/dma-direct.h>
++#endif
+ 
+ #if defined(NV_LINUX_DMA_MAP_OPS_H_PRESENT)
+ #include <linux/dma-map-ops.h>
+diff -Naurp kmod-nvidia-390xx-390.157.stock/nvidiapkg/kernel/conftest.sh kmod-nvidia-390xx-390.157/nvidiapkg/kernel/conftest.sh
+--- kmod-nvidia-390xx-390.157.stock/nvidiapkg/kernel/conftest.sh	2022-10-11 12:00:50.000000000 -0400
++++ kmod-nvidia-390xx-390.157/nvidiapkg/kernel/conftest.sh	2024-09-02 09:38:08.369649705 -0400
+@@ -2074,7 +2074,12 @@ compile_test() {
+             # Determine if the phys_to_dma function is present.
+             #
+             CODE="
++            #include <linux/version.h>
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 16, 0)
+             #include <linux/dma-mapping.h>
++#else
++            #include <linux/dma-direct.h>
++#endif
+             void conftest_phys_to_dma(void) {
+                 phys_to_dma();
+             }"
+@@ -4646,6 +4651,29 @@ compile_test() {
+ 
+             compile_check_conftest "$CODE" "NV_ACPI_VIDEO_BACKLIGHT_USE_NATIVE" "" "functions"
+         ;;
++
++        drm_connector_has_override_edid)
++            #
++            # Determine if 'struct drm_connector' has an 'override_edid' member.
++            #
++            # Removed by commit 90b575f52c6ab ("drm/edid: detach debugfs EDID
++            # override from EDID property update") in linux-next, expected in
++            # v6.2-rc1.
++            #
++            CODE="
++            #if defined(NV_DRM_DRM_CRTC_H_PRESENT)
++            #include <drm/drm_crtc.h>
++            #endif
++            #if defined(NV_DRM_DRM_CONNECTOR_H_PRESENT)
++            #include <drm/drm_connector.h>
++            #endif
++            int conftest_drm_connector_has_override_edid(void) {
++                return offsetof(struct drm_connector, override_edid);
++            }"
++
++            compile_check_conftest "$CODE" "NV_DRM_CONNECTOR_HAS_OVERRIDE_EDID" "" "types"
++        ;;
++
+     esac
+ }
+ 
+diff -Naurp kmod-nvidia-390xx-390.157.stock/nvidiapkg/kernel/nvidia-drm/nvidia-drm-connector.c kmod-nvidia-390xx-390.157/nvidiapkg/kernel/nvidia-drm/nvidia-drm-connector.c
+--- kmod-nvidia-390xx-390.157.stock/nvidiapkg/kernel/nvidia-drm/nvidia-drm-connector.c	2022-10-12 05:30:31.000000000 -0400
++++ kmod-nvidia-390xx-390.157/nvidiapkg/kernel/nvidia-drm/nvidia-drm-connector.c	2024-09-02 09:38:08.370649750 -0400
 @@ -20,6 +20,8 @@
   * DEALINGS IN THE SOFTWARE.
   */
@@ -10,43 +71,21 @@ diff -Naurp kmod-nvidia-390xx-390.157/nvidiapkg/kernel/nvidia-drm/nvidia-drm-con
  #include "nvidia-drm-conftest.h" /* NV_DRM_ATOMIC_MODESET_AVAILABLE */
  
  #if defined(NV_DRM_ATOMIC_MODESET_AVAILABLE)
-@@ -98,6 +100,7 @@ __nv_drm_detect_encoder(struct NvKmsKapi
+@@ -98,7 +100,11 @@ __nv_drm_detect_encoder(struct NvKmsKapi
              break;
      }
  
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 2, 0) && RHEL_MAJOR != 9
++#if defined(NV_DRM_CONNECTOR_HAS_OVERRIDE_EDID)
      if (connector->override_edid) {
++#else
++    if (drm_edid_override_connector_update(connector) > 0) {
++#endif
          const struct drm_property_blob *edid = connector->edid_blob_ptr;
  
-@@ -110,6 +113,25 @@ __nv_drm_detect_encoder(struct NvKmsKapi
-                     sizeof(pDetectParams->edid.buffer));
-         }
-     }
-+#else
-+    // Rel. commit "drm/edid: detach debugfs EDID override from EDID property update" (Jani Nikula, 24 Oct 2022)
-+    // NOTE: HUGE HACK!
-+    mutex_lock(&connector->edid_override_mutex);
-+    if (connector->edid_override) {
-+        const struct edid *edid = drm_edid_raw(connector->edid_override);
-+        size_t edid_length = EDID_LENGTH * (edid->extensions + 1);
-+        if (edid_length <= sizeof(pDetectParams->edid.buffer)) {
-+            memcpy(pDetectParams->edid.buffer, edid, edid_length);
-+            pDetectParams->edid.bufferSize = edid_length;
-+            pDetectParams->overrideEdid = NV_TRUE;
-+        } else {
-+            WARN_ON(edid_length >
-+                    sizeof(pDetectParams->edid.buffer));
-+        }
-+    }
-+    mutex_unlock(&connector->edid_override_mutex);
-+
-+#endif
- 
-     if (!nvKms->getDynamicDisplayInfo(nv_dev->pDevice, pDetectParams)) {
-         NV_DRM_DEV_LOG_ERR(
-diff -Naurp kmod-nvidia-390xx-390.157/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c kmod-nvidia-390xx-390.157.buildfix/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c
---- kmod-nvidia-390xx-390.157/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c	2022-10-12 05:30:31.000000000 -0400
-+++ kmod-nvidia-390xx-390.157.buildfix/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c	2024-06-06 21:44:10.553024598 -0400
+         if (edid->length <= sizeof(pDetectParams->edid.buffer)) {
+diff -Naurp kmod-nvidia-390xx-390.157.stock/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c kmod-nvidia-390xx-390.157/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c
+--- kmod-nvidia-390xx-390.157.stock/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c	2022-10-12 05:30:31.000000000 -0400
++++ kmod-nvidia-390xx-390.157/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c	2024-09-02 09:38:08.370649750 -0400
 @@ -20,6 +20,7 @@
   * DEALINGS IN THE SOFTWARE.
   */
@@ -60,7 +99,7 @@ diff -Naurp kmod-nvidia-390xx-390.157/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv
      dev->mode_config.prefer_shadow = 1;
  
 +// Rel. commit "drm: Remove drm_mode_config::fb_base" (Zack Rusin, 18 Oct 2022)
-+#if defined(CONFIG_FB) && LINUX_VERSION_CODE < KERNEL_VERSION(4, 18, 0)
++#if defined(CONFIG_FB) && LINUX_VERSION_CODE < KERNEL_VERSION(6, 2, 0) && RHEL_MAJOR != 9
      /* Currently unused. Update when needed. */
  
      dev->mode_config.fb_base = 0;
@@ -68,7 +107,19 @@ diff -Naurp kmod-nvidia-390xx-390.157/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv
  
      dev->mode_config.async_page_flip = false;
  
-@@ -762,7 +766,11 @@ static void nv_drm_update_drm_driver_fea
+@@ -701,7 +705,11 @@ static struct drm_driver nv_drm_driver =
+     .ioctls                 = nv_drm_ioctls,
+     .num_ioctls             = ARRAY_SIZE(nv_drm_ioctls),
+ 
++// Rel. commit "drm/prime: Unexport helpers for fd/handle conversion" (Thomas Zimmermann, 20 Jun 2023)
++// This function is no longer exported, but leaving it to NULL is equivalent
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
+     .prime_handle_to_fd     = drm_gem_prime_handle_to_fd,
++#endif
+ 
+ #if defined(NV_DRM_DRIVER_HAS_GEM_PRIME_CALLBACKS)
+     .gem_prime_export       = nv_drm_gem_prime_export,
+@@ -762,7 +770,11 @@ static void nv_drm_update_drm_driver_fea
  
      nv_drm_driver.dumb_create      = nv_drm_dumb_create;
      nv_drm_driver.dumb_map_offset  = nv_drm_dumb_map_offset;
@@ -80,9 +131,9 @@ diff -Naurp kmod-nvidia-390xx-390.157/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv
  
  #if defined(NV_DRM_DRIVER_HAS_GEM_PRIME_CALLBACKS)
      nv_drm_driver.gem_vm_ops       = &nv_drm_gem_vma_ops;
-diff -Naurp kmod-nvidia-390xx-390.157/nvidiapkg/kernel/nvidia-drm/nvidia-drm-fb.c kmod-nvidia-390xx-390.157.buildfix/nvidiapkg/kernel/nvidia-drm/nvidia-drm-fb.c
---- kmod-nvidia-390xx-390.157/nvidiapkg/kernel/nvidia-drm/nvidia-drm-fb.c	2022-10-12 05:30:31.000000000 -0400
-+++ kmod-nvidia-390xx-390.157.buildfix/nvidiapkg/kernel/nvidia-drm/nvidia-drm-fb.c	2024-06-06 21:37:41.913812055 -0400
+diff -Naurp kmod-nvidia-390xx-390.157.stock/nvidiapkg/kernel/nvidia-drm/nvidia-drm-fb.c kmod-nvidia-390xx-390.157/nvidiapkg/kernel/nvidia-drm/nvidia-drm-fb.c
+--- kmod-nvidia-390xx-390.157.stock/nvidiapkg/kernel/nvidia-drm/nvidia-drm-fb.c	2022-10-12 05:30:31.000000000 -0400
++++ kmod-nvidia-390xx-390.157/nvidiapkg/kernel/nvidia-drm/nvidia-drm-fb.c	2024-09-02 09:38:08.370649750 -0400
 @@ -31,6 +31,7 @@
  #include "nvidia-drm-gem.h"
  

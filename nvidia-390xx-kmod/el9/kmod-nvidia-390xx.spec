@@ -21,6 +21,7 @@ Source2:  dracut-nvidia.conf
 
 # Source code patches
 Patch0:		nvidia-390xx-buildfix-el9.patch
+Patch1:		nvidia-390xx-force-drm-modeset.patch
 
 %if %{?_with_src:0}%{!?_with_src:1}
 NoSource: 0
@@ -85,6 +86,7 @@ echo "override nvidia-modeset * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.
 echo "override nvidia-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 sh %{SOURCE0} --extract-only --target nvidiapkg
 %patch0 -p1
+%patch1 -p1
 %{__cp} -a nvidiapkg _kmod_build_
 
 %build
@@ -227,6 +229,6 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Thu Jun 06 2024 Tuan Hoang <tqhoang@elrepo.org> - 390.157-1
+* Tue Sep 03 2024 Tuan Hoang <tqhoang@elrepo.org> - 390.157-1
 - Initial build for EL 9.4
 
