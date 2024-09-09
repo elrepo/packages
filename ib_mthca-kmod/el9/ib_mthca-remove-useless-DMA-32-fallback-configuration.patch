@@ -1,0 +1,34 @@
+https://github.com/torvalds/linux/commit/667da76b1c8c506d067d96dccc9574ba26a8b910
+
+IB/mthca: Remove useless DMA-32 fallback configuration
+As stated in [1], dma_set_mask() with a 64-bit mask never fails if
+dev->dma_mask is non-NULL.
+
+So, if it fails, the 32 bits case will also fail for the same reason.
+
+Simplify code and remove some dead code accordingly.
+
+[1]: https://lore.kernel.org/r/YL3vSPK5DXTNvgdx@infradead.org
+
+Link: https://lore.kernel.org/r/03c66fe5c2a81dbb29349ebf9af631e5ea216ec4.1642232675.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+
+diff -Naurp ib_mthca-1.0.20080404.orig/mthca_main.c ib_mthca-1.0.20080404/mthca_main.c
+--- ib_mthca-1.0.20080404.orig/mthca_main.c	2024-09-09 17:00:21.295397699 -0400
++++ ib_mthca-1.0.20080404/mthca_main.c	2024-09-09 16:59:26.557863502 -0400
+@@ -939,12 +939,8 @@ static int __mthca_init_one(struct pci_d
+ 
+ 	err = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+ 	if (err) {
+-		dev_warn(&pdev->dev, "Warning: couldn't set 64-bit PCI DMA mask.\n");
+-		err = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
+-		if (err) {
+-			dev_err(&pdev->dev, "Can't set PCI DMA mask, aborting.\n");
+-			goto err_free_res;
+-		}
++		dev_err(&pdev->dev, "Can't set PCI DMA mask, aborting.\n");
++		goto err_free_res;
+ 	}
+ 
+ 	/* We can handle large RDMA requests, so allow larger segments. */

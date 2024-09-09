@@ -33,6 +33,9 @@ Source5:	GPL-v2.0.txt
 
 # Source code patches
 Patch0:		ib_mthca-use-memset_startat-for-clearing-mpt_entry.patch
+Patch1:		ib_mthca-delete-useless-module.h-include.patch
+Patch2:		ib_mthca-remove-useless-DMA-32-fallback-configuration.patch
+Patch3:		ib_mthca-silence-uninitialized-symbol-smatch-warnings.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -65,7 +68,7 @@ Provides:			kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:			kernel >= %{kmod_kernel_version}
 Requires:			kernel-core-uname-r >= %{kmod_kernel_version}
 
-Recommends:			ib_qib-ibverbs
+Recommends:			ib_mthca-ibverbs
 
 Requires(post):		%{_sbindir}/depmod
 Requires(postun):	%{_sbindir}/depmod
@@ -83,6 +86,9 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 
 # Apply patch(es)
 %patch0 -p1
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD CONFIG_INFINIBAND_MTHCA=m
@@ -201,4 +207,5 @@ exit 0
 - Source code from RHEL 9.4 GA kernel
 - Built against RHEL 9.4 GA kernel
 - Added Recommends ib_mthca-ibverbs
+- Added upstream patches
 
