@@ -1,0 +1,39 @@
+From 91b414f645b0fdca914151280bb14a12258a56e7 Mon Sep 17 00:00:00 2001
+From: Honggang Li <honli@redhat.com>
+Date: Wed, 13 Jan 2021 11:51:04 +0800
+Subject: [PATCH] ibacm: acm.c load plugin while it is soft link
+
+NOTE: THIS ONE IS RHEL SPECIFIC WORKAROUND COMMIT.
+https://github.com/linux-rdma/rdma-core/pull/923
+
+Because of commit ad5d934d688911149d795aee1d3b9fa06bf171a9,
+the provider libdsap.so.1.0.0 was not opened/used for address resolution
+for OPA device.
+
+As discussed in this closed PR:
+https://github.com/linux-rdma/rdma-core/pull/848
+
+I create a soft link for libdsap.so => libdsap.so.1.0.0 . The soft link
+was ignored because it is a not regular file.
+
+Signed-off-by: Honggang Li <honli@redhat.com>
+---
+ ibacm/src/acm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ibacm/src/acm.c b/ibacm/src/acm.c
+index f1c8a2fabfb4..77ffda316b0c 100644
+--- a/ibacm/src/acm.c
++++ b/ibacm/src/acm.c
+@@ -2878,7 +2878,7 @@ static int acm_open_providers(void)
+ 			acm_log(0, "Error - could not stat: %s\n", file_name);
+ 			continue;
+ 		}
+-		if (!S_ISREG(buf.st_mode))
++		if (!(S_ISREG(buf.st_mode) || S_ISLNK(buf.st_mode)))
+ 			continue;
+ 
+ 		acm_log(2, "Loading provider %s...\n", file_name);
+-- 
+2.25.4
+
