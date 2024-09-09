@@ -1,0 +1,28 @@
+https://github.com/torvalds/linux/commit/59aa7fcfe2e44afbe9736e5cfa941699021d6957
+
+IB/mthca: Use memset_startat() for clearing mpt_entry
+In preparation for FORTIFY_SOURCE performing compile-time and run-time
+field bounds checking for memset(), avoid intentionally writing across
+neighboring fields.
+
+Use memset_startat() so memset() doesn't get confused about writing beyond
+the destination member that is intended to be the starting point of
+zeroing through the end of the struct.
+
+Link: https://lore.kernel.org/r/20211213223331.135412-15-keescook@chromium.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+
+diff -Naurp ib_mthca-1.0.20080404.orig/mthca_mr.c ib_mthca-1.0.20080404/mthca_mr.c
+--- ib_mthca-1.0.20080404.orig/mthca_mr.c	2024-04-10 09:08:06.000000000 -0400
++++ ib_mthca-1.0.20080404/mthca_mr.c	2024-09-09 15:26:40.177120995 -0400
+@@ -469,8 +469,7 @@ int mthca_mr_alloc(struct mthca_dev *dev
+ 	mpt_entry->start     = cpu_to_be64(iova);
+ 	mpt_entry->length    = cpu_to_be64(total_size);
+ 
+-	memset(&mpt_entry->lkey, 0,
+-	       sizeof *mpt_entry - offsetof(struct mthca_mpt_entry, lkey));
++	memset_startat(mpt_entry, 0, lkey);
+ 
+ 	if (mr->mtt)
+ 		mpt_entry->mtt_seg =

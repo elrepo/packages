@@ -32,6 +32,7 @@ Source5:	GPL-v2.0.txt
 		/usr/lib/rpm/redhat/brp-mangle-shebangs
 
 # Source code patches
+Patch0:		ib_mthca-use-memset_startat-for-clearing-mpt_entry.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -81,6 +82,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
+%patch0 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD CONFIG_INFINIBAND_MTHCA=m
