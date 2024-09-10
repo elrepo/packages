@@ -2,14 +2,14 @@
 %define kmod_name		ib_mthca
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.16.1.el8_10}
 
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
 Version:        1.0.20080404
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -197,6 +197,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Sep 09 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.0.20080404-2
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.16.1.el8_10
+
 * Mon Sep 09 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.0.20080404-1
 - Initial build for RHEL 8
 - Built against RHEL 8.10 GA kernel
