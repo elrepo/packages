@@ -1,0 +1,182 @@
+diff -Naurp ib_qib-1.11.el9/qib_file_ops.c ib_qib-1.11/qib_file_ops.c
+--- ib_qib-1.11.el9/qib_file_ops.c	2024-04-10 09:08:06.000000000 -0400
++++ ib_qib-1.11/qib_file_ops.c	2024-07-01 19:19:19.553886901 -0400
+@@ -43,7 +43,7 @@
+ #include <linux/delay.h>
+ #include <linux/export.h>
+ #include <linux/uio.h>
+-#include <linux/pgtable.h>
++#include <asm/pgtable.h>
+ 
+ #include <rdma/ib.h>
+ 
+@@ -2246,10 +2246,10 @@ static ssize_t qib_write_iter(struct kio
+ 	struct qib_ctxtdata *rcd = ctxt_fp(iocb->ki_filp);
+ 	struct qib_user_sdma_queue *pq = fp->pq;
+ 
+-	if (!from->user_backed || !from->nr_segs || !pq)
++	if (!iter_is_iovec(from) || !from->nr_segs || !pq)
+ 		return -EINVAL;
+ 
+-	return qib_user_sdma_writev(rcd, pq, iter_iov(from), from->nr_segs);
++	return qib_user_sdma_writev(rcd, pq, from->iov, from->nr_segs);
+ }
+ 
+ static struct class *qib_class;
+@@ -2327,7 +2327,7 @@ int __init qib_dev_init(void)
+ 		goto done;
+ 	}
+ 
+-	qib_class = class_create("ipath");
++	qib_class = class_create(THIS_MODULE, "ipath");
+ 	if (IS_ERR(qib_class)) {
+ 		ret = PTR_ERR(qib_class);
+ 		pr_err("Could not create device class (err %d)\n", -ret);
+diff -Naurp ib_qib-1.11.el9/qib_fs.c ib_qib-1.11/qib_fs.c
+--- ib_qib-1.11.el9/qib_fs.c	2024-04-10 09:08:06.000000000 -0400
++++ ib_qib-1.11/qib_fs.c	2024-07-01 19:19:19.554886879 -0400
+@@ -427,21 +427,79 @@ bail:
+ 	return ret;
+ }
+ 
++static int remove_file(struct dentry *parent, char *name)
++{
++	struct dentry *tmp;
++	int ret;
++
++	tmp = lookup_one_len(name, parent, strlen(name));
++
++	if (IS_ERR(tmp)) {
++		ret = PTR_ERR(tmp);
++		goto bail;
++	}
++
++	spin_lock(&tmp->d_lock);
++	if (simple_positive(tmp)) {
++		__d_drop(tmp);
++		spin_unlock(&tmp->d_lock);
++		simple_unlink(d_inode(parent), tmp);
++	} else {
++		spin_unlock(&tmp->d_lock);
++	}
++	dput(tmp);
++
++	ret = 0;
++bail:
++	/*
++	 * We don't expect clients to care about the return value, but
++	 * it's there if they need it.
++	 */
++	return ret;
++}
++
+ static int remove_device_files(struct super_block *sb,
+ 			       struct qib_devdata *dd)
+ {
+-	struct dentry *dir;
++	struct dentry *dir, *root;
+ 	char unit[10];
++	int ret, i;
+ 
++	root = dget(sb->s_root);
++	inode_lock(d_inode(root));
+ 	snprintf(unit, sizeof(unit), "%u", dd->unit);
+-	dir = lookup_one_len_unlocked(unit, sb->s_root, strlen(unit));
++	dir = lookup_one_len(unit, root, strlen(unit));
+ 
+ 	if (IS_ERR(dir)) {
++		ret = PTR_ERR(dir);
+ 		pr_err("Lookup of %s failed\n", unit);
+-		return PTR_ERR(dir);
++		goto bail;
+ 	}
+-	simple_recursive_removal(dir, NULL);
+-	return 0;
++
++	inode_lock(d_inode(dir));
++	remove_file(dir, "counters");
++	remove_file(dir, "counter_names");
++	remove_file(dir, "portcounter_names");
++	for (i = 0; i < dd->num_pports; i++) {
++		char fname[24];
++
++		sprintf(fname, "port%dcounters", i + 1);
++		remove_file(dir, fname);
++		if (dd->flags & QIB_HAS_QSFP) {
++			sprintf(fname, "qsfp%d", i + 1);
++			remove_file(dir, fname);
++		}
++	}
++	remove_file(dir, "flash");
++	inode_unlock(d_inode(dir));
++	ret = simple_rmdir(d_inode(root), dir);
++	d_delete(dir);
++	dput(dir);
++
++bail:
++	inode_unlock(d_inode(root));
++	dput(root);
++	return ret;
+ }
+ 
+ /*
+diff -Naurp ib_qib-1.11.el9/qib_iba7322.c ib_qib-1.11/qib_iba7322.c
+--- ib_qib-1.11.el9/qib_iba7322.c	2024-04-10 09:08:06.000000000 -0400
++++ ib_qib-1.11/qib_iba7322.c	2024-07-01 19:20:29.658305127 -0400
+@@ -1711,9 +1711,9 @@ done:
+ 	return;
+ }
+ 
+-static void qib_error_tasklet(struct tasklet_struct *t)
++static void qib_error_tasklet(unsigned long data)
+ {
+-	struct qib_devdata *dd = from_tasklet(dd, t, error_tasklet);
++	struct qib_devdata *dd = (struct qib_devdata *)data;
+ 
+ 	handle_7322_errors(dd);
+ 	qib_write_kreg(dd, kr_errmask, dd->cspec->errormask);
+@@ -3515,7 +3515,8 @@ try_intx:
+ 	for (i = 0; i < ARRAY_SIZE(redirect); i++)
+ 		qib_write_kreg(dd, kr_intredirect + i, redirect[i]);
+ 	dd->cspec->main_int_mask = mask;
+-	tasklet_setup(&dd->error_tasklet, qib_error_tasklet);
++	tasklet_init(&dd->error_tasklet, qib_error_tasklet,
++		(unsigned long)dd);
+ }
+ 
+ /**
+diff -Naurp ib_qib-1.11.el9/qib_sdma.c ib_qib-1.11/qib_sdma.c
+--- ib_qib-1.11.el9/qib_sdma.c	2024-04-10 09:08:06.000000000 -0400
++++ ib_qib-1.11/qib_sdma.c	2024-07-01 19:19:19.554886879 -0400
+@@ -62,7 +62,7 @@ static void sdma_get(struct qib_sdma_sta
+ static void sdma_put(struct qib_sdma_state *);
+ static void sdma_set_state(struct qib_pportdata *, enum qib_sdma_states);
+ static void sdma_start_sw_clean_up(struct qib_pportdata *);
+-static void sdma_sw_clean_up_task(struct tasklet_struct *);
++static void sdma_sw_clean_up_task(unsigned long);
+ static void unmap_desc(struct qib_pportdata *, unsigned);
+ 
+ static void sdma_get(struct qib_sdma_state *ss)
+@@ -119,10 +119,9 @@ static void clear_sdma_activelist(struct
+ 	}
+ }
+ 
+-static void sdma_sw_clean_up_task(struct tasklet_struct *t)
++static void sdma_sw_clean_up_task(unsigned long opaque)
+ {
+-	struct qib_pportdata *ppd = from_tasklet(ppd, t,
+-						 sdma_sw_clean_up_task);
++	struct qib_pportdata *ppd = (struct qib_pportdata *) opaque;
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&ppd->sdma_lock, flags);
+@@ -437,7 +436,8 @@ int qib_setup_sdma(struct qib_pportdata
+ 
+ 	INIT_LIST_HEAD(&ppd->sdma_activelist);
+ 
+-	tasklet_setup(&ppd->sdma_sw_clean_up_task, sdma_sw_clean_up_task);
++	tasklet_init(&ppd->sdma_sw_clean_up_task, sdma_sw_clean_up_task,
++		(unsigned long)ppd);
+ 
+ 	ret = dd->f_init_sdma_regs(ppd);
+ 	if (ret)
