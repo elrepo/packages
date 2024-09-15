@@ -1,6 +1,7 @@
 https://github.com/torvalds/linux/commit/59aa7fcfe2e44afbe9736e5cfa941699021d6957
 
 IB/mthca: Use memset_startat() for clearing mpt_entry
+
 In preparation for FORTIFY_SOURCE performing compile-time and run-time
 field bounds checking for memset(), avoid intentionally writing across
 neighboring fields.

@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	1.0.20080404
-Release:	1%{?dist}
+Release:	1.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -17,6 +17,13 @@ URL:		http://www.kernel.org/
 # Sources.
 Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
+
+# Source code patches
+Patch0:		ib_mthca-use-memset_startat-for-clearing-mpt_entry.patch
+Patch1:		ib_mthca-delete-useless-module.h-include.patch
+Patch2:		ib_mthca-remove-useless-DMA-32-fallback-configuration.patch
+Patch3:		ib_mthca-silence-uninitialized-symbol-smatch-warnings.patch
+Patch4:		ib_mthca-fix-crash-when-polling-cq-for-shared-qps.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -30,12 +37,6 @@ Source5:	GPL-v2.0.txt
 		/usr/lib/rpm/redhat/brp-python-bytecompile "" "1" "0" \
 		/usr/lib/rpm/brp-python-hardlink \
 		/usr/lib/rpm/redhat/brp-mangle-shebangs
-
-# Source code patches
-Patch0:		ib_mthca-use-memset_startat-for-clearing-mpt_entry.patch
-Patch1:		ib_mthca-delete-useless-module.h-include.patch
-Patch2:		ib_mthca-remove-useless-DMA-32-fallback-configuration.patch
-Patch3:		ib_mthca-silence-uninitialized-symbol-smatch-warnings.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -89,6 +90,7 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD CONFIG_INFINIBAND_MTHCA=m
@@ -202,6 +204,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sun Sep 15 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.0.20080404-1.1
+- Add patch to fix crash when polling CQ for shared QPs
+
 * Mon Sep 09 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.0.20080404-1
 - Initial build for RHEL 9
 - Source code from RHEL 9.4 GA kernel
