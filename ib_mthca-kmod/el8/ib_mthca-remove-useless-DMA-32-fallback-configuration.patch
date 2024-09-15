@@ -1,6 +1,7 @@
 https://github.com/torvalds/linux/commit/667da76b1c8c506d067d96dccc9574ba26a8b910
 
 IB/mthca: Remove useless DMA-32 fallback configuration
+
 As stated in [1], dma_set_mask() with a 64-bit mask never fails if
 dev->dma_mask is non-NULL.
 

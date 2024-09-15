@@ -7,17 +7,25 @@
 
 %{!?dist: %define dist .el8}
 
-Name:           kmod-%{kmod_name}
-Version:        1.0.20080404
-Release:        2%{?dist}
-Summary:        %{kmod_name} kernel module(s)
-Group:          System Environment/Kernel
-License:        GPLv2
-URL:            http://www.kernel.org/
+Name:		kmod-%{kmod_name}
+Version:	1.0.20080404
+Release:	2.1%{?dist}
+Summary:	%{kmod_name} kernel module(s)
+Group:		System Environment/Kernel
+License:	GPLv2
+URL:		http://www.kernel.org/
 
 # Sources.
-Source0:        %{kmod_name}-%{version}.tar.gz
-Source5:        GPL-v2.0.txt
+Source0:	%{kmod_name}-%{version}.tar.gz
+Source5:	GPL-v2.0.txt
+
+# Source code patches
+Patch0:		ib_mthca-use-memset_startat-for-clearing-mpt_entry.patch
+Patch1:		ib_mthca-delete-useless-module.h-include.patch
+Patch2:		ib_mthca-remove-useless-DMA-32-fallback-configuration.patch
+Patch3:		ib_mthca-silence-uninitialized-symbol-smatch-warnings.patch
+Patch4:		ib_mthca-fix-crash-when-polling-cq-for-shared-qps.patch
+Patch5:		elrepo-ib_mthca-backport-el9-to-el8.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -26,18 +34,10 @@ Source5:        GPL-v2.0.txt
 				/usr/lib/rpm/redhat/brp-ldconfig \
 				/usr/lib/rpm/brp-compress \
 				/usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump \
- 				/usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
+				/usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
 				/usr/lib/rpm/brp-python-bytecompile "" 1 \
 				/usr/lib/rpm/brp-python-hardlink \
 				PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
-
-# Source code patches
-Patch0:         ib_mthca-use-memset_startat-for-clearing-mpt_entry.patch
-Patch1:         ib_mthca-delete-useless-module.h-include.patch
-Patch2:         ib_mthca-remove-useless-DMA-32-fallback-configuration.patch
-Patch3:         ib_mthca-silence-uninitialized-symbol-smatch-warnings.patch
-Patch4:         elrepo-ib_mthca-backport-el9-to-el8.patch
-
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -74,7 +74,6 @@ This package provides the %{kmod_name} kernel module(s).
 It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
-
 %prep
 %setup -q -n %{kmod_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
@@ -85,6 +84,7 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD CONFIG_INFINIBAND_MTHCA=m
@@ -197,6 +197,13 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sun Sep 15 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.0.20080404-2.1
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.16.1.el8_10
+
+* Sun Sep 15 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.0.20080404-1.1
+- Rebuilt against RHEL 8.10 GA kernel
+- Add patch to fix crash when polling CQ for shared QPs
+
 * Mon Sep 09 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.0.20080404-2
 - Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.16.1.el8_10
 

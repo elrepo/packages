@@ -1,0 +1,27 @@
+https://github.com/torvalds/linux/commit/dc52aadbc1849cbe3fcf6bc54d35f6baa396e0a1
+
+RDMA/mthca: Fix crash when polling CQ for shared QPs
+
+Commit 21c2fe9 ("RDMA/mthca: Combine special QP struct with mthca QP")
+introduced a new struct mthca_sqp which doesn't contain struct mthca_qp
+any longer. Placing a pointer of this new struct into qptable leads
+to crashes, because mthca_poll_one() expects a qp pointer. Fix this
+by putting the correct pointer into qptable.
+
+Fixes: 21c2fe9 ("RDMA/mthca: Combine special QP struct with mthca QP")
+Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+Link: https://lore.kernel.org/r/20230713141658.9426-1-tbogendoerfer@suse.de
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
+
+diff -ur ib_mthca-1.0.20080404.orig/mthca_qp.c ib_mthca-1.0.20080404/mthca_qp.c
+--- ib_mthca-1.0.20080404.orig/mthca_qp.c	2024-04-10 09:08:06.000000000 -0400
++++ ib_mthca-1.0.20080404/mthca_qp.c	2024-09-15 12:26:19.380140041 -0400
+@@ -1393,7 +1393,7 @@
+ 	if (mthca_array_get(&dev->qp_table.qp, mqpn))
+ 		err = -EBUSY;
+ 	else
+-		mthca_array_set(&dev->qp_table.qp, mqpn, qp->sqp);
++		mthca_array_set(&dev->qp_table.qp, mqpn, qp);
+ 	spin_unlock_irq(&dev->qp_table.lock);
+ 
+ 	if (err)
