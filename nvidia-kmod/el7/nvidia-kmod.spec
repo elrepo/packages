@@ -5,7 +5,7 @@
 %{!?kversion: %define kversion 3.10.0-1160.el7.%{_target_cpu}}
 
 Name:    %{kmod_name}-kmod
-Version: 550.107.02
+Version: 550.120
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: Proprietary
@@ -91,6 +91,9 @@ done
 %{__rm} -rf %{buildroot}
 
 %changelog
+* Sat Oct 05 2024 Tuan Hoang <tqhoang@elrepo.org> - 550.120-1
+- Updated to version 550.120
+
 * Thu Aug 01 2024 Tuan Hoang <tqhoang@elrepo.org> - 550.107.02-1
 - Updated to version 550.107.02
 
