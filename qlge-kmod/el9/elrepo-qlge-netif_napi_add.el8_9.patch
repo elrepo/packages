@@ -1,0 +1,13 @@
+diff -Naurp qlge-1.00.00.35.orig/qlge_main.c qlge-1.00.00.35.elrepo/qlge_main.c
+--- qlge-1.00.00.35.orig/qlge_main.c	2023-09-29 04:48:44.000000000 -0400
++++ qlge-1.00.00.35.elrepo/qlge_main.c	2024-01-24 11:21:54.943668870 -0500
+@@ -3243,8 +3243,7 @@ static int ql_start_rx_ring(struct ql_ad
+ 		/* Inbound completion handling rx_rings run in
+ 		 * separate NAPI contexts.
+ 		 */
+-		netif_napi_add(qdev->ndev, &rx_ring->napi, ql_napi_poll_msix,
+-			       64);
++		netif_napi_add(qdev->ndev, &rx_ring->napi, ql_napi_poll_msix);
+ 		cqicb->irq_delay = cpu_to_le16(qdev->rx_coalesce_usecs);
+ 		cqicb->pkt_delay = cpu_to_le16(qdev->rx_max_coalesced_frames);
+ 		break;

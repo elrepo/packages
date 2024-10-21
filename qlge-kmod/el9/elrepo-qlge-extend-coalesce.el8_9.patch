@@ -1,0 +1,25 @@
+diff -Naurp qlge-1.00.00.35.orig/qlge_ethtool.c qlge-1.00.00.35.elrepo/qlge_ethtool.c
+--- qlge-1.00.00.35.orig/qlge_ethtool.c	2023-09-29 04:48:44.000000000 -0400
++++ qlge-1.00.00.35.elrepo/qlge_ethtool.c	2024-01-24 11:27:42.839490565 -0500
+@@ -618,7 +618,9 @@ static void ql_get_regs(struct net_devic
+ 		regs->len = sizeof(struct ql_reg_dump);
+ }
+ 
+-static int ql_get_coalesce(struct net_device *dev, struct ethtool_coalesce *c)
++static int ql_get_coalesce(struct net_device *dev, struct ethtool_coalesce *c,
++			   struct kernel_ethtool_coalesce *kernel_coal,
++			   struct netlink_ext_ack *extack)
+ {
+ 	struct ql_adapter *qdev = netdev_priv(dev);
+ 
+@@ -641,7 +643,9 @@ static int ql_get_coalesce(struct net_de
+ 	return 0;
+ }
+ 
+-static int ql_set_coalesce(struct net_device *ndev, struct ethtool_coalesce *c)
++static int ql_set_coalesce(struct net_device *ndev, struct ethtool_coalesce *c,
++			   struct kernel_ethtool_coalesce *kernel_coal,
++			   struct netlink_ext_ack *extack)
+ {
+ 	struct ql_adapter *qdev = netdev_priv(ndev);
+ 

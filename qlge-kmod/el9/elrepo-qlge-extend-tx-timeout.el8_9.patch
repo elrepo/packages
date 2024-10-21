@@ -1,0 +1,12 @@
+diff -Naurp qlge-1.00.00.35.orig/qlge_main.c qlge-1.00.00.35.elrepo/qlge_main.c
+--- qlge-1.00.00.35.orig/qlge_main.c	2023-09-29 04:48:44.000000000 -0400
++++ qlge-1.00.00.35.elrepo/qlge_main.c	2024-01-24 11:21:54.943668870 -0500
+@@ -4442,7 +4441,7 @@ static int qlge_set_mac_address(struct n
+ 	return status;
+ }
+ 
+-static void qlge_tx_timeout(struct net_device *ndev)
++static void qlge_tx_timeout(struct net_device *ndev, unsigned int txqueue)
+ {
+ 	struct ql_adapter *qdev = netdev_priv(ndev);
+ 	ql_queue_asic_error(qdev);
