@@ -34,7 +34,7 @@
 #endif
 
 #define PROGRAM_NAME		"nvidia-detect"
-#define NVIDIA_VERSION		"550.120"
+#define NVIDIA_VERSION		"550.127.05"
 
 #ifndef PCI_VENDOR_ID_INTEL
 #define PCI_VENDOR_ID_INTEL	0x8086
