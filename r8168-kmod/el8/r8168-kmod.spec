@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	8.053.00
+Version:	8.054.00
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -188,6 +188,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Oct 28 2024 Tuan Hoang <tqhoang@elrepo.org> - 8.054.00-1
+- Update to version 8.054.00
+- Revised patch to not overwrite the RTL_NAPI_CONFIG() macro
+
 * Fri May 24 2024 Tuan Hoang <tqhoang@elrepo.org> - 8.053.00-1
 - Rebuilt against RHEL 8.10 GA kernel 4.18.0-553.el8_10
 - Update to version 8.053.00

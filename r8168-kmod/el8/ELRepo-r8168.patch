@@ -1,21 +1,18 @@
-diff -Naurp r8168-8.052.01.orig/src/r8168.h r8168-8.052.01/src/r8168.h
---- r8168-8.052.01.orig/src/r8168.h	2023-09-26 15:29:21.000000000 +0100
-+++ r8168-8.052.01/src/r8168.h	2023-10-25 11:15:55.609272660 +0100
-@@ -596,9 +596,9 @@ typedef struct napi_struct *napi_ptr;
+diff -urp r8168-8.054.00.orig/src/r8168.h r8168-8.054.00/src/r8168.h
+--- r8168-8.054.00.orig/src/r8168.h	2024-10-28 14:49:32.147850210 -0400
++++ r8168-8.054.00/src/r8168.h	2024-10-28 18:44:38.779988720 -0400
+@@ -739,7 +739,7 @@ typedef int *napi_budget;
+ typedef struct napi_struct *napi_ptr;
  typedef int napi_budget;
  
- #if LINUX_VERSION_CODE >= KERNEL_VERSION(6,1,0)
--#define RTL_NAPI_CONFIG(ndev, priv, function, weight)   netif_napi_add_weight(ndev, &priv->napi, function, weight)
-+#define RTL_NAPI_CONFIG(ndev, priv, function)   netif_napi_add_weight(ndev, &priv->napi, function)
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,1,0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,1,0) || RHEL_MAJOR >=8
+ #define RTL_NAPI_CONFIG(ndev, priv, function, weight)   netif_napi_add_weight(ndev, &priv->napi, function, weight)
  #else
--#define RTL_NAPI_CONFIG(ndev, priv, function, weight)   netif_napi_add(ndev, &priv->napi, function, weight)
-+#define RTL_NAPI_CONFIG(ndev, priv, function)   netif_napi_add(ndev, &priv->napi, function)
- #endif //LINUX_VERSION_CODE >= KERNEL_VERSION(6,1,0)
- #define RTL_NAPI_QUOTA(budget, ndev)            min(budget, budget)
- #define RTL_GET_PRIV(stuct_ptr, priv_struct)        container_of(stuct_ptr, priv_struct, stuct_ptr)
-diff -Naurp r8168-8.052.01.orig/src/r8168_n.c r8168-8.052.01/src/r8168_n.c
---- r8168-8.052.01.orig/src/r8168_n.c	2023-09-26 15:26:06.000000000 +0100
-+++ r8168-8.052.01/src/r8168_n.c	2023-10-25 11:22:35.561827882 +0100
+ #define RTL_NAPI_CONFIG(ndev, priv, function, weight)   netif_napi_add(ndev, &priv->napi, function, weight)
+diff -urp r8168-8.054.00.orig/src/r8168_n.c r8168-8.054.00/src/r8168_n.c
+--- r8168-8.054.00.orig/src/r8168_n.c	2024-10-28 14:49:32.155850039 -0400
++++ r8168-8.054.00/src/r8168_n.c	2024-10-28 18:45:14.046222995 -0400
 @@ -63,9 +63,11 @@
  
  #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
@@ -28,7 +25,7 @@ diff -Naurp r8168-8.052.01.orig/src/r8168_n.c r8168-8.052.01/src/r8168_n.c
  #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,37)
  #include <linux/prefetch.h>
  #endif
-@@ -587,7 +589,7 @@ static irqreturn_t rtl8168_interrupt(int
+@@ -583,7 +585,7 @@ static irqreturn_t rtl8168_interrupt(int
  #endif
  static void rtl8168_rx_desc_offset0_init(struct rtl8168_private *, int);
  static void rtl8168_set_rx_mode(struct net_device *dev);
@@ -37,7 +34,7 @@ diff -Naurp r8168-8.052.01.orig/src/r8168_n.c r8168-8.052.01/src/r8168_n.c
  static void rtl8168_tx_timeout(struct net_device *dev, unsigned int txqueue);
  #else
  static void rtl8168_tx_timeout(struct net_device *dev);
-@@ -6967,7 +6969,7 @@ rtl8168_set_ring_size(struct rtl8168_pri
+@@ -7210,7 +7212,7 @@ rtl8168_set_ring_size(struct rtl8168_pri
  }
  
  #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
@@ -46,7 +43,7 @@ diff -Naurp r8168-8.052.01.orig/src/r8168_n.c r8168-8.052.01/src/r8168_n.c
  static void rtl8168_get_ringparam(struct net_device *dev,
                                    struct ethtool_ringparam *ring,
                                    struct kernel_ethtool_ringparam *kernel_ring,
-@@ -6985,7 +6987,7 @@ static void rtl8168_get_ringparam(struct
+@@ -7228,7 +7230,7 @@ static void rtl8168_get_ringparam(struct
          ring->tx_pending = tp->tx_ring[0].num_tx_desc;
  }
  
@@ -55,16 +52,7 @@ diff -Naurp r8168-8.052.01.orig/src/r8168_n.c r8168-8.052.01/src/r8168_n.c
  static int rtl8168_set_ringparam(struct net_device *dev,
                                   struct ethtool_ringparam *ring,
                                   struct kernel_ethtool_ringparam *kernel_ring,
-@@ -28291,7 +28293,7 @@ static void rtl8168_init_napi(struct rtl
-                         poll = rtl8168_poll;
-                 }
- 
--                RTL_NAPI_CONFIG(tp->dev, r8168napi, poll, R8168_NAPI_WEIGHT);
-+                RTL_NAPI_CONFIG(tp->dev, r8168napi, poll);
- #endif
- 
-                 r8168napi->priv = tp;
-@@ -28417,7 +28419,7 @@ rtl8168_init_one(struct pci_dev *pdev,
+@@ -28658,7 +28660,7 @@ rtl8168_init_one(struct pci_dev *pdev,
  #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,22)
                  if ((tp->mcfg == CFG_METHOD_1) || (tp->mcfg == CFG_METHOD_2) || (tp->mcfg == CFG_METHOD_3)) {
                          dev->hw_features &= ~NETIF_F_IPV6_CSUM;
@@ -73,7 +61,7 @@ diff -Naurp r8168-8.052.01.orig/src/r8168_n.c r8168-8.052.01/src/r8168_n.c
                          netif_set_tso_max_size(dev, LSO_64K);
                          netif_set_tso_max_segs(dev, NIC_MAX_PHYS_BUF_COUNT_LSO2);
  #else //LINUX_VERSION_CODE >= KERNEL_VERSION(5,19,0)
-@@ -28443,7 +28445,7 @@ rtl8168_init_one(struct pci_dev *pdev,
+@@ -28684,7 +28686,7 @@ rtl8168_init_one(struct pci_dev *pdev,
                                          break;
                                  };
                          }
@@ -82,7 +70,7 @@ diff -Naurp r8168-8.052.01.orig/src/r8168_n.c r8168-8.052.01/src/r8168_n.c
                          netif_set_tso_max_size(dev, LSO_64K);
                          netif_set_tso_max_segs(dev, NIC_MAX_PHYS_BUF_COUNT_LSO2);
  #else //LINUX_VERSION_CODE >= KERNEL_VERSION(5,19,0)
-@@ -30760,7 +30762,7 @@ out_unlock:
+@@ -31042,7 +31044,7 @@ out_unlock:
          rtnl_unlock();
  }
  
