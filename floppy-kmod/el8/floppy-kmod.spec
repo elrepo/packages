@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -17,6 +17,10 @@ URL:		http://www.kernel.org/
 # Sources
 Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
+
+# Source code patches
+Patch0:		floppy-fix-el8.patch
+Patch1:		0001-block-floppy-fix-contended-case-in-floppy_queue_rq.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -29,10 +33,6 @@ Source5:	GPL-v2.0.txt
 				/usr/lib/rpm/brp-python-bytecompile "" 1 \
 				/usr/lib/rpm/brp-python-hardlink \
 				PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
-
-# Source code patches
-
-Patch0: floppy-fix-el8.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -187,6 +187,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Oct 30 2024 Tuan Hoang <tqhoang@elrepo.org> - 0.0-4
+- Add patch for floppy_queue_rq hang
+
 * Thu May 23 2024 Akemi Yagi <toracat@elrepo.org> - 0.0-3
 - Rebuilt for RHEL 8.10
 - Source code updated from RHEL kernel-4.18.0-553.el8_10
