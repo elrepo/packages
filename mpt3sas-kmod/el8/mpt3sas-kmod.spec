@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	43.100.00.00
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -180,6 +180,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Oct 30 2024 Tuan Hoang <tqhoang@elrepo.org> 43.100.00.00-3
+- Source code updated from RHEL kernel-4.18.0-553.22.1.el8_10.x86_64
+- Fixes CVE-2024-40901
+  [https://access.redhat.com/errata/RHSA-2024:7000]
+
 * Wed May 22 2024 Akemi Yagi <toracat@elrepo.org> 43.100.00.00-2
 - Rebuilt for RHEL 8.10
 - Source code updated from RHEL kernel-4.18.0-553.el8_10
