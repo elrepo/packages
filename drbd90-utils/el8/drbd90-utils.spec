@@ -1,7 +1,7 @@
 %define real_name drbd-utils
 
 Name:    drbd90-utils
-Version: 9.28.0
+Version: 9.29.0
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
@@ -142,15 +142,15 @@ fi
 %config(noreplace) %{_sysconfdir}/drbd.d/global_common.conf
 %config %{_unitdir}/drbd.service
 %dir %{_localstatedir}/lib/drbd/
-%dir /lib/drbd/
+%dir /usr/lib/drbd/
 # /lib/drbd/drbdadm-83
 # /lib/drbd/drbdsetup-83
-/lib/drbd/drbdadm-84
-/lib/drbd/drbdsetup-84
-/lib/drbd/scripts/drbd
-/lib/drbd/scripts/drbd-service-shim.sh
-/lib/drbd/scripts/drbd-wait-promotable.sh
-/lib/drbd/scripts/ocf.ra.wrapper.sh
+/usr/lib/drbd/drbdadm-84
+/usr/lib/drbd/drbdsetup-84
+/usr/lib/drbd/scripts/drbd
+/usr/lib/drbd/scripts/drbd-service-shim.sh
+/usr/lib/drbd/scripts/drbd-wait-promotable.sh
+/usr/lib/drbd/scripts/ocf.ra.wrapper.sh
 /usr/lib/systemd/system/drbd-demote-or-escalate@.service
 /usr/lib/systemd/system/drbd-lvchange@.service
 /usr/lib/systemd/system/drbd-promote@.service
@@ -207,6 +207,9 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Wed Oct 30 2024 Akemi Yagi <toracat@elrepo.org> - 9.29.0-1
+- Updated to 9.29.0
+
 * Sat May 11 2024 Akemi Yagi <toracat@elrepo.org> - 9.28.0-1
 - Updated to 9.28.0
 
