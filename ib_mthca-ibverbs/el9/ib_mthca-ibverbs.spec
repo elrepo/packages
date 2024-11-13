@@ -1,7 +1,7 @@
 Name: ib_mthca-ibverbs
 Version: 48.0
-Release: 1%{?dist}
-Summary: Mellanox Technologies HCA plug-in ibverbs userspace driver
+Release: 2%{?dist}
+Summary: Mellanox Technologies InfiniHost HCA plug-in ibverbs userspace driver
 
 # Almost everything is licensed under the OFA dual GPLv2, 2 Clause BSD license
 #  providers/ipathverbs/ Dual licensed using a BSD license with an extra patent clause
@@ -10,8 +10,6 @@ Summary: Mellanox Technologies HCA plug-in ibverbs userspace driver
 License: GPLv2 or BSD
 Url: https://github.com/linux-rdma/rdma-core
 Source: https://github.com/linux-rdma/rdma-core/releases/download/v%{version}/rdma-core-%{version}.tar.gz
-Patch9000: 0003-CMakeLists-disable-providers-that-were-not-enabled-i.patch
-Patch9001: 0004-CMakeLists-enable-provider-mthca.patch
 Patch9998: 9998-kernel-boot-Do-not-perform-device-rename-on-OPA-devi.patch
 Patch9999: 9999-udev-keep-NAME_KERNEL-as-default-interface-naming-co.patch
 # Do not build static libs by default.
@@ -31,19 +29,32 @@ BuildRequires: /usr/bin/rst2man
 BuildRequires: valgrind-devel
 BuildRequires: systemd
 BuildRequires: systemd-devel
+%if 0%{?fedora} >= 32 || 0%{?rhel} >= 8
+%define with_pyverbs %{?_with_pyverbs: 1} %{?!_with_pyverbs: %{?!_without_pyverbs: 1} %{?_without_pyverbs: 0}}
+%else
+%define with_pyverbs %{?_with_pyverbs: 1} %{?!_with_pyverbs: 0}
+%endif
+%if %{with_pyverbs}
+BuildRequires: python3-devel
+BuildRequires: python3-Cython
+%else
 %if 0%{?rhel} >= 8 || 0%{?fedora} >= 30
 BuildRequires: python3
-BuildRequires: python3-docutils
 %else
 BuildRequires: python
+%endif
+%endif
+
+%if 0%{?rhel} >= 8 || 0%{?fedora} >= 30 || %{with_pyverbs}
+BuildRequires: python3-docutils
+%else
 BuildRequires: python-docutils
 %endif
+
 %if 0%{?fedora} >= 21 || 0%{?rhel} >= 8
 BuildRequires: sed
 BuildRequires: perl-generators
 %endif
-
-Requires: pciutils
 
 # Since we recommend developers use Ninja, so should packagers, for consistency.
 %define CMAKE_FLAGS %{nil}
@@ -72,11 +83,12 @@ BuildRequires: pandoc
 
 Provides: libmthca = %{version}-%{release}
 Obsoletes: libmthca < %{version}-%{release}
-Requires: libibverbs%{?_isa} = %{version}
+Requires: libibverbs%{?_isa} >= %{version}
+Conflicts: libibverbs%{?_isa} >= 51.0
 
 %description
 Device-specific plug-in ibverbs userspace driver:
-- libmthca: Mellanox Technologies HCA
+- libmthca: Mellanox Technologies InfiniHost HCA
 
 %prep
 %setup -q -n rdma-core-%{version}
@@ -84,8 +96,6 @@ Device-specific plug-in ibverbs userspace driver:
 %patch9998 -p1
 %endif
 %if 0%{?rhel}
-%patch9000 -p1
-%patch9001 -p1
 %patch9999 -p1
 %endif
 
@@ -127,7 +137,11 @@ Device-specific plug-in ibverbs userspace driver:
          -DPYTHON_EXECUTABLE:PATH=%{__python3} \
          -DCMAKE_INSTALL_PYTHON_ARCH_LIB:PATH=%{python3_sitearch} \
 %endif
+%if %{with_pyverbs}
+         -DNO_PYVERBS=0
+%else
          -DNO_PYVERBS=1
+%endif
 %make_jobs
 
 %install
@@ -161,6 +175,11 @@ popd
 pushd %{buildroot}/%{_libdir}
 %{__rm} -f *.so*
 %{__rm} -rf {ibacm,pkgconfig,rsocket}
+%if 0%{?rhel} >= 8 || 0%{?fedora} >= 30
+%{__rm} -rf python%{python3_version}
+%else
+%{__rm} -rf python%{python_version}
+%endif
 pushd libibverbs
 %{__mv} -f *mthca* ..
 %{__rm} -f *.*
@@ -175,5 +194,9 @@ popd
 %{_libdir}/libibverbs/*.so
 
 %changelog
+* Tue Nov 12 2024 Tuan Hoang <tqhoang@elrepo.org> - 48.0-2
+- Add conflicts for version 51.0 included in RHEL 9.5
+- Red Hat has added this plugin driver back into libibverbs 51.0
+
 * Mon Sep 09 2024 Tuan Hoang <tqhoang@elrepo.org> - 48.0-1
 - Initial build to provide ib_mthca ibverbs driver

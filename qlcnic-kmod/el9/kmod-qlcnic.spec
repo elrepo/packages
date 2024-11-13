@@ -2,13 +2,13 @@
 %define kmod_name	qlcnic
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-427.13.1.el9_4}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-503.11.1.el9_5}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	5.3.66
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -190,6 +190,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 12 2024 Tuan Hoang <tqhoang@elrepo.org> - 5.3.66-4
+- Rebuilt against RHEL 9.5 GA kernel
+- Source code from kernel-5.14.0-503.11.1.el9_5
+
 * Fri May 03 2024 Tuan Hoang <tqhoang@elrepo.org> - 5.3.66-3
 - Rebuilt against 9.4 GA kernel 5.14.0-427.13.1.el9_4
 - Source code from kernel-5.14.0-427.13.1.el9_4

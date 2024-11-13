@@ -2,13 +2,13 @@
 %define kmod_name	ib_qib
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-427.13.1.el9_4}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-503.11.1.el9_5}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	1.11
-Release:	11%{?dist}
+Release:	12%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -47,7 +47,7 @@ Patch1: ib_qib-elrepo-bug1390.patch
 %global _use_internal_dependency_generator 0
 %global kernel_source() %{_usrsrc}/kernels/%{kmod_kernel_version}.%{_arch}
 
-BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
+BuildRoot:		%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 ExclusiveArch:		x86_64
 
@@ -60,13 +60,13 @@ BuildRequires:		rpm-build
 BuildRequires:		gcc
 BuildRequires:		make
 
-Provides:			kernel-modules >= %{kmod_kernel_version}.%{_arch}
-Provides:			kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:		kernel-modules >= %{kmod_kernel_version}.%{_arch}
+Provides:		kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
 
-Requires:			kernel >= %{kmod_kernel_version}
-Requires:			kernel-core-uname-r >= %{kmod_kernel_version}
+Requires:		kernel >= %{kmod_kernel_version}
+Requires:		kernel-core-uname-r >= %{kmod_kernel_version}
 
-Recommends:			ib_qib-ibverbs
+#Recommends:		ib_qib-ibverbs
 
 Requires(post):		%{_sbindir}/depmod
 Requires(postun):	%{_sbindir}/depmod
@@ -198,6 +198,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 12 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.11-12
+- Rebuilt against RHEL 9.5 GA kernel
+- Source code from kernel-5.14.0-503.11.1.el9_5
+- Disabled recommends for ib_mthca-ibverbs since it now conflicts with libibverbs
+
 * Thu Jul 11 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.11-11
 - Changed Requires to Recommends ib_qib-ibverbs
 

@@ -1,7 +1,9 @@
+%define debug_package %{nil}
+
 Name:           v4l2loopback
 Summary:        Utils for V4L2 loopback devices
-Version:        0.12.5
-Release:        5%{?dist}
+Version:        0.12.7
+Release:        1%{?dist}
 License:        GPLv2+
 
 URL:            https://github.com/umlaeute/v4l2loopback
@@ -55,9 +57,12 @@ install -D -m 0644 %{SOURCE2} %{buildroot}%{_modulesloaddir}/v4l2loopback.conf
 %attr(0644,root,root) %{_mandir}/man1/v4l2loopback-ctl.1*
 %{_modprobedir}/98-v4l2loopback.conf
 %{_modulesloaddir}/v4l2loopback.conf
-/usr/lib/debug/usr/bin/v4l2loopback-ctl-0.12.5-5.el9.elrepo.x86_64.debug
 
 %changelog
+* Tue Nov 12 2024 Tuan Hoang <tqhoang@elrepo.org> - 0.12.7-1
+- Update to version 0.12.7 to match kmod
+- Disable creation of debug info and remove debug file from package
+
 * Sat May 21 2022 Akemi Yagi <toracat@elrepo.org> - 0.12.5-5
 - Rebuilt for RHEL 9
 

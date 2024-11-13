@@ -7,7 +7,7 @@
 
 Name:		nvidia-x11-drv
 Version:	550.127.05
-Release:	1%{?dist}
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -461,6 +461,9 @@ fi ||:
 %endif
 
 %changelog
+* Tue Nov 12 2024 Tuan Hoang <tqhoang@elrepo.org> - 550.127.05-2
+- Rebuilt against RHEL 9.5 GA kernel
+
 * Tue Oct 22 2024 Tuan Hoang <tqhoang@elrepo.org> - 550.127.05-1
 - Updated to version 550.127.05
 
