@@ -1,0 +1,47 @@
+diff -Naurp kmod-rr64xl-1.5.8.el9_4/osm/linux/os_linux.c kmod-rr64xl-1.5.8.el9_5/osm/linux/os_linux.c
+--- kmod-rr64xl-1.5.8.el9_4/osm/linux/os_linux.c	2024-11-13 22:20:33.285274354 -0500
++++ kmod-rr64xl-1.5.8.el9_5/osm/linux/os_linux.c	2024-11-13 23:44:16.869899265 -0500
+@@ -344,7 +344,20 @@ void refresh_sd_flags(PVBUS_EXT vbus_ext
+ 			for (i=0; major[i]; i++) {
+ 				for (minor=0; minor<=240; minor+=16) {
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(5,10,0)
++#if (RHEL_MAJOR == 9 && RHEL_MINOR >= 5)
++					struct file *bdev_file;
++					struct block_device *bdev;
++
++					bdev_file = bdev_file_open_by_dev(MKDEV(major[i], minor), FMODE_READ,NULL,NULL);
++					if (IS_ERR(bdev_file)) {
++						bdev = ERR_PTR(-ENXIO);
++					}
++					else {
++						bdev = file_bdev(bdev_file);
++					}
++#else
+ 					struct block_device *bdev = blkdev_get_by_dev(MKDEV(major[i], minor), FMODE_READ,NULL,NULL);
++#endif
+ #else
+ 					struct block_device *bdev = bdget(MKDEV(major[i], minor));
+ #endif
+@@ -397,14 +410,22 @@ void refresh_sd_flags(PVBUS_EXT vbus_ext
+ 							if (atomic_read(&bdev->bd_openers)>1)
+ 								vbus_ext->sd_flags[id] |= SD_FLAG_IN_USE;
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,28)
++#if (RHEL_MAJOR == 9 && RHEL_MINOR >= 5)
++							bdev_fput(bdev_file);
++#else 
+ 							blkdev_put(bdev, FMODE_READ);
++#endif
+ #else 
+ 							blkdev_put(bdev __BDEV_RAW);
+ #endif
+ 							goto next;
+ 						}
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,28)
++#if (RHEL_MAJOR == 9 && RHEL_MINOR >= 5)
++						bdev_fput(bdev_file);
++#else 
+ 						blkdev_put(bdev, FMODE_READ);
++#endif
+ #else 
+ 						blkdev_put(bdev __BDEV_RAW);
+ #endif
