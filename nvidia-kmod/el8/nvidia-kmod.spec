@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	550.127.05
+Version:	550.135
 Release:	1%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
@@ -239,6 +239,9 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Tue Nov 19 2024 Tuan Hoang <tqhoang@elrepo.org> - 550.135-1
+- Updated to version 550.135
+
 * Tue Oct 22 2024 Tuan Hoang <tqhoang@elrepo.org> - 550.127.05-1
 - Updated to version 550.127.05
 

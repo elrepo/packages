@@ -1,13 +1,13 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# https://download.nvidia.com/XFree86/Linux-x86_64/550.127.05/README/minimumrequirements.html
+# https://download.nvidia.com/XFree86/Linux-x86_64/550.135/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	550.127.05
-Release:	2%{?dist}
+Version:	550.135
+Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -461,6 +461,10 @@ fi ||:
 %endif
 
 %changelog
+* Tue Nov 19 2024 Tuan Hoang <tqhoang@elrepo.org> - 550.135-1
+- Updated to version 550.135
+- Rebuilt against RHEL 9.5 GA kernel
+
 * Tue Nov 12 2024 Tuan Hoang <tqhoang@elrepo.org> - 550.127.05-2
 - Rebuilt against RHEL 9.5 GA kernel
 
