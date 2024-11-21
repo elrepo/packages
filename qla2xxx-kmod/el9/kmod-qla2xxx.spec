@@ -2,13 +2,13 @@
 %define kmod_name	qla2xxx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-427.13.1.el9_4}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-503.11.1.el9_5}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	10.02.09.100
-Release:	2%{?dist}
+Version:	10.02.09.200
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -20,10 +20,6 @@ Source5:	GPL-v2.0.txt
 
 # Source code patches
 Patch0:		elrepo-%{kmod_name}-rhel_differences.el9_4.patch
-Patch10:	elrepo-qla2xxx-fix-command-flush-on-cable-pull.patch
-Patch11:	elrepo-qla2xxx-fix-double-free-of-fcport.patch
-Patch12:	elrepo-qla2xxx-fix-double-free-of-the-ha-vp_map-pointer.patch
-
 
 %define __spec_install_post \
 		/usr/lib/rpm/check-buildroot \
@@ -81,9 +77,6 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 
 # Apply patch(es)
 %patch0 -p0
-%patch10 -p1
-%patch11 -p1
-%patch12 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD \
@@ -199,6 +192,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 12 2024 Philip J Perry <phil@elrepo.org> - 10.02.09.200-1
+- Rebuilt for RHEL 9.5
+- Source updated from RHEL 9.5 GA kernel
+- Remove patches added in last release as these are now included in the SRC
+
 * Wed Aug 28 2024 Tuan Hoang <tqhoang@elrepo.org> - 10.02.09.100-2
 - Add upstream patches missing from EL9 but are in EL8
 

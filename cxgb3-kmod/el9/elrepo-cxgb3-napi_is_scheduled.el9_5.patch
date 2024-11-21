@@ -1,0 +1,18 @@
+diff -Naurp cxgb3-1.1.5.orig/sge.c cxgb3-1.1.5/sge.c
+--- cxgb3-1.1.5.orig/sge.c	2021-11-21 12:49:09.000000000 +0000
++++ cxgb3-1.1.5/sge.c	2024-11-13 12:42:11.485350318 +0000
+@@ -2509,14 +2509,6 @@ static int napi_rx_handler(struct napi_s
+ 	return work_done;
+ }
+ 
+-/*
+- * Returns true if the device is already scheduled for polling.
+- */
+-static inline int napi_is_scheduled(struct napi_struct *napi)
+-{
+-	return test_bit(NAPI_STATE_SCHED, &napi->state);
+-}
+-
+ /**
+  *	process_pure_responses - process pure responses from a response queue
+  *	@adap: the adapter

@@ -2,13 +2,13 @@
 %define kmod_name	sky2
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-427.13.1.el9_4}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-503.11.1.el9_5}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	4%{?dist}
+Release:	5%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -32,7 +32,7 @@ Source5:	GPL-v2.0.txt
 		/usr/lib/rpm/redhat/brp-mangle-shebangs
 
 # Source code patches
-Patch0:		elrepo-sky2-netif_napi_add.el9_3.patch
+Patch0:		elrepo-sky2-netif_napi_add.el9_5.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -195,6 +195,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 12 2024 Philip J Perry <phil@elrepo.org> - 0.0-5
+- Rebuilt for RHEL 9.5
+- Source updated from RHEL 9.5 GA kernel
+
 * Fri May 03 2024 Tuan Hoang <tqhoang@elrepo.org> - 0.0-4
 - Rebuilt against RHEL 9.4 GA kernel
 - Source code unchanged from 9.3 GA kernel

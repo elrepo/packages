@@ -2,13 +2,13 @@
 %define kmod_name	mpt3sas
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-427.13.1.el9_4}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-503.11.1.el9_5}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	43.100.00.00
-Release:	5%{?dist}
+Release:	6%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -195,6 +195,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 12 2024 Philip J Perry <phil@elrepo.org> - 43.100.00.00-6
+- Rebuilt for RHEL 9.5
+- Source updated from RHEL 9.5 GA kernel
+
 * Wed May 01 2024 Tuan Hoang <tqhoang@elrepo.org> - 43.100.00.00-5
 - Rebuilt for RHEL 9.4
 - Source updated from RHEL 9.4 GA kernel

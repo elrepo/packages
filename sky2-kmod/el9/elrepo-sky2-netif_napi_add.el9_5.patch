@@ -1,0 +1,12 @@
+diff -Naurp sky2-0.0.orig/sky2.c sky2-0.0/sky2.c
+--- sky2-0.0.orig/sky2.c	2024-09-30 14:55:22.000000000 +0100
++++ sky2-0.0/sky2.c	2024-11-13 14:55:17.709105120 +0000
+@@ -5076,7 +5076,7 @@ static int sky2_probe(struct pci_dev *pd
+ 		}
+ 	}
+ 
+-	netif_napi_add(dev, &hw->napi, sky2_poll, NAPI_POLL_WEIGHT);
++	netif_napi_add(dev, &hw->napi, sky2_poll);
+ 
+ 	err = register_netdev(dev);
+ 	if (err) {
