@@ -1,0 +1,92 @@
+ib_qib-elrepo-bug1494.patch
+
+https://elrepo.org/bugs/view.php?id=1494
+
+commit 2fce26a15f1709090ca70f4c7da017424b3b78b3
+Author: Christoph Hellwig <hch@lst.de>
+Date:   Wed Nov 9 08:17:46 2022 +0100
+
+    RDMA/qib: don't pass bogus GFP_ flags to dma_alloc_coherent
+    
+    dma_alloc_coherent is an opaque allocator that only uses the GFP_ flags
+    for allocation context control.  Don't pass GFP_USER which doesn't make
+    sense for a kernel DMA allocation or __GFP_COMP which makes no sense
+    for an allocation that can't in any way be converted to a page pointer.
+    
+    Signed-off-by: Christoph Hellwig <hch@lst.de>
+    Acked-by: Jason Gunthorpe <jgg@nvidia.com>
+
+diff --git a/drivers/infiniband/hw/qib/qib_iba6120.c b/drivers/infiniband/hw/qib/qib_iba6120.c
+index aea5719..0738611 100644
+--- a/qib_iba6120.c
++++ b/qib_iba6120.c
+@@ -2075,7 +2075,7 @@ static void alloc_dummy_hdrq(struct qib_devdata *dd)
+ 	dd->cspec->dummy_hdrq = dma_alloc_coherent(&dd->pcidev->dev,
+ 					dd->rcd[0]->rcvhdrq_size,
+ 					&dd->cspec->dummy_hdrq_phys,
+-					GFP_ATOMIC | __GFP_COMP);
++					GFP_ATOMIC);
+ 	if (!dd->cspec->dummy_hdrq) {
+ 		qib_devinfo(dd->pcidev, "Couldn't allocate dummy hdrq\n");
+ 		/* fallback to just 0'ing */
+diff --git a/drivers/infiniband/hw/qib/qib_init.c b/drivers/infiniband/hw/qib/qib_init.c
+index 4521100..33667be 100644
+--- a/qib_init.c
++++ b/qib_init.c
+@@ -1547,18 +1547,14 @@ int qib_create_rcvhdrq(struct qib_devdata *dd, struct qib_ctxtdata *rcd)
+ 
+ 	if (!rcd->rcvhdrq) {
+ 		dma_addr_t phys_hdrqtail;
+-		gfp_t gfp_flags;
+ 
+ 		amt = ALIGN(dd->rcvhdrcnt * dd->rcvhdrentsize *
+ 			    sizeof(u32), PAGE_SIZE);
+-		gfp_flags = (rcd->ctxt >= dd->first_user_ctxt) ?
+-			GFP_USER : GFP_KERNEL;
+ 
+ 		old_node_id = dev_to_node(&dd->pcidev->dev);
+ 		set_dev_node(&dd->pcidev->dev, rcd->node_id);
+-		rcd->rcvhdrq = dma_alloc_coherent(
+-			&dd->pcidev->dev, amt, &rcd->rcvhdrq_phys,
+-			gfp_flags | __GFP_COMP);
++		rcd->rcvhdrq = dma_alloc_coherent(&dd->pcidev->dev, amt,
++				&rcd->rcvhdrq_phys, GFP_KERNEL);
+ 		set_dev_node(&dd->pcidev->dev, old_node_id);
+ 
+ 		if (!rcd->rcvhdrq) {
+@@ -1578,7 +1574,7 @@ int qib_create_rcvhdrq(struct qib_devdata *dd, struct qib_ctxtdata *rcd)
+ 			set_dev_node(&dd->pcidev->dev, rcd->node_id);
+ 			rcd->rcvhdrtail_kvaddr = dma_alloc_coherent(
+ 				&dd->pcidev->dev, PAGE_SIZE, &phys_hdrqtail,
+-				gfp_flags);
++				GFP_KERNEL);
+ 			set_dev_node(&dd->pcidev->dev, old_node_id);
+ 			if (!rcd->rcvhdrtail_kvaddr)
+ 				goto bail_free;
+@@ -1622,17 +1618,8 @@ int qib_setup_eagerbufs(struct qib_ctxtdata *rcd)
+ 	struct qib_devdata *dd = rcd->dd;
+ 	unsigned e, egrcnt, egrperchunk, chunk, egrsize, egroff;
+ 	size_t size;
+-	gfp_t gfp_flags;
+ 	int old_node_id;
+ 
+-	/*
+-	 * GFP_USER, but without GFP_FS, so buffer cache can be
+-	 * coalesced (we hope); otherwise, even at order 4,
+-	 * heavy filesystem activity makes these fail, and we can
+-	 * use compound pages.
+-	 */
+-	gfp_flags = __GFP_RECLAIM | __GFP_IO | __GFP_COMP;
+-
+ 	egrcnt = rcd->rcvegrcnt;
+ 	egroff = rcd->rcvegr_tid_base;
+ 	egrsize = dd->rcvegrbufsize;
+@@ -1664,7 +1651,7 @@ int qib_setup_eagerbufs(struct qib_ctxtdata *rcd)
+ 		rcd->rcvegrbuf[e] =
+ 			dma_alloc_coherent(&dd->pcidev->dev, size,
+ 					   &rcd->rcvegrbuf_phys[e],
+-					   gfp_flags);
++					   GFP_KERNEL);
+ 		set_dev_node(&dd->pcidev->dev, old_node_id);
+ 		if (!rcd->rcvegrbuf[e])
+ 			goto bail_rcvegrbuf_phys;

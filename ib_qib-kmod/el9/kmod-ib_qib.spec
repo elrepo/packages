@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	1.11
-Release:	12%{?dist}
+Release:	14%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -34,6 +34,7 @@ Source5:	GPL-v2.0.txt
 # Source code patches
 Patch0: elrepo-ib_qib_9_1.patch
 Patch1: ib_qib-elrepo-bug1390.patch
+Patch2: ib_qib-elrepo-bug1494.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -85,6 +86,7 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 # Apply patch(es)
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD CONFIG_INFINIBAND_QIB=m
@@ -198,6 +200,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Nov 27 2024 Akemi Yagi <toracat@elrepo.org> - 1.11-14
+- Add ib_qib-elrepo-bug1494.patch
+  [https://elrepo.org/bugs/view.php?id=1494]
+
 * Tue Nov 12 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.11-12
 - Rebuilt against RHEL 9.5 GA kernel
 - Source code from kernel-5.14.0-503.11.1.el9_5
