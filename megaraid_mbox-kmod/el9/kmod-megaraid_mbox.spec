@@ -186,7 +186,7 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Tue Nov 12 2024 Philip J Perry <phil@elrepo.org> - 1.2.1-9
+* Tue Nov 12 2024 Philip J Perry <phil@elrepo.org> - 2.20.5.1-7
 - Rebuilt for RHEL 9.5
 
 * Fri May 03 2024 Akemi Yagi <toracat@elrepo.org> - 2.20.5.1-6
