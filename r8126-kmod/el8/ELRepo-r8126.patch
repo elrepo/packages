@@ -1,16 +1,34 @@
-diff -Naurp r8126-10.013.00.orig/src/r8126.h r8126-10.013.00/src/r8126.h
---- r8126-10.013.00.orig/src/r8126.h	2024-01-22 08:11:04.000000000 -0500
-+++ r8126-10.013.00/src/r8126.h	2024-08-11 10:43:37.926221619 -0400
-@@ -114,7 +114,7 @@ static inline void netdev_tx_reset_queue
+diff -Naurp r8126-10.014.01.orig/src/r8126.h r8126-10.014.01/src/r8126.h
+--- r8126-10.014.01.orig/src/r8126.h	2024-10-15 10:13:35.000000000 -0400
++++ r8126-10.014.01/src/r8126.h	2024-12-26 17:00:59.524373761 -0500
+@@ -125,7 +125,7 @@ static inline bool skb_transport_header_
+ }
+ #endif /* LINUX_VERSION_CODE < KERNEL_VERSION(3,9,0) */
+ 
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(4,20,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4,20,0) && RHEL_MAJOR != 8
+ static inline void linkmode_set_bit(int nr, volatile unsigned long *addr)
+ {
+         __set_bit(nr, addr);
+@@ -142,7 +142,7 @@ static inline int linkmode_test_bit(int
+ }
+ #endif /* LINUX_VERSION_CODE < KERNEL_VERSION(4,20,0) */
+ 
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0) && RHEL_MAJOR != 8
+ static inline void linkmode_mod_bit(int nr, volatile unsigned long *addr,
+                                     int set)
+ {
+@@ -220,7 +220,7 @@ static inline void netdev_tx_reset_queue
  typedef int netdev_tx_t;
  #endif
  
 -#if LINUX_VERSION_CODE < KERNEL_VERSION(5,12,0)
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(5,12,0) && RHEL_MAJOR != 8
- static inline bool dev_page_is_reusable(struct page *page)
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(4,1,9)
+ static inline bool page_is_pfmemalloc(struct page *page)
  {
-         return likely(page_to_nid(page) == numa_mem_id() &&
-@@ -773,7 +773,7 @@ typedef int *napi_budget;
+@@ -927,7 +927,7 @@ typedef int *napi_budget;
  typedef struct napi_struct *napi_ptr;
  typedef int napi_budget;
  
@@ -19,9 +37,9 @@ diff -Naurp r8126-10.013.00.orig/src/r8126.h r8126-10.013.00/src/r8126.h
  #define RTL_NAPI_CONFIG(ndev, priv, function, weight)   netif_napi_add_weight(ndev, &priv->napi, function, weight)
  #else
  #define RTL_NAPI_CONFIG(ndev, priv, function, weight)   netif_napi_add(ndev, &priv->napi, function, weight)
-diff -Naurp r8126-10.013.00.orig/src/r8126_n.c r8126-10.013.00/src/r8126_n.c
---- r8126-10.013.00.orig/src/r8126_n.c	2024-01-22 08:07:24.000000000 -0500
-+++ r8126-10.013.00/src/r8126_n.c	2024-08-11 10:43:37.928221666 -0400
+diff -Naurp r8126-10.014.01.orig/src/r8126_n.c r8126-10.014.01/src/r8126_n.c
+--- r8126-10.014.01.orig/src/r8126_n.c	2024-10-15 10:13:22.000000000 -0400
++++ r8126-10.014.01/src/r8126_n.c	2024-12-26 16:58:03.111059062 -0500
 @@ -58,7 +58,7 @@
  #include <linux/completion.h>
  
@@ -40,7 +58,7 @@ diff -Naurp r8126-10.013.00.orig/src/r8126_n.c r8126-10.013.00/src/r8126_n.c
  static void rtl8126_tx_timeout(struct net_device *dev, unsigned int txqueue);
  #else
  static void rtl8126_tx_timeout(struct net_device *dev);
-@@ -6489,7 +6489,7 @@ rtl8126_set_ring_size(struct rtl8126_pri
+@@ -6554,7 +6554,7 @@ rtl8126_set_ring_size(struct rtl8126_pri
  }
  
  #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
@@ -49,7 +67,7 @@ diff -Naurp r8126-10.013.00.orig/src/r8126_n.c r8126-10.013.00/src/r8126_n.c
  static void rtl8126_get_ringparam(struct net_device *dev,
                                    struct ethtool_ringparam *ring,
                                    struct kernel_ethtool_ringparam *kernel_ring,
-@@ -6507,7 +6507,7 @@ static void rtl8126_get_ringparam(struct
+@@ -6572,7 +6572,7 @@ static void rtl8126_get_ringparam(struct
          ring->tx_pending = tp->tx_ring[0].num_tx_desc;
  }
  
@@ -58,7 +76,7 @@ diff -Naurp r8126-10.013.00.orig/src/r8126_n.c r8126-10.013.00/src/r8126_n.c
  static int rtl8126_set_ringparam(struct net_device *dev,
                                   struct ethtool_ringparam *ring,
                                   struct kernel_ethtool_ringparam *kernel_ring,
-@@ -13932,7 +13932,7 @@ rtl8126_init_one(struct pci_dev *pdev,
+@@ -14636,7 +14636,7 @@ rtl8126_init_one(struct pci_dev *pdev,
                          dev->features |= NETIF_F_TSO6;
                          break;
                  };
@@ -67,7 +85,7 @@ diff -Naurp r8126-10.013.00.orig/src/r8126_n.c r8126-10.013.00/src/r8126_n.c
                  netif_set_tso_max_size(dev, LSO_64K);
                  netif_set_tso_max_segs(dev, NIC_MAX_PHYS_BUF_COUNT_LSO2);
  #else //LINUX_VERSION_CODE >= KERNEL_VERSION(5,19,0)
-@@ -15593,7 +15593,7 @@ out_unlock:
+@@ -16355,7 +16355,7 @@ out_unlock:
          rtnl_unlock();
  }
  
@@ -76,3 +94,15 @@ diff -Naurp r8126-10.013.00.orig/src/r8126_n.c r8126-10.013.00/src/r8126_n.c
  static void
  rtl8126_tx_timeout(struct net_device *dev, unsigned int txqueue)
  #else
+diff -Naurp r8126-10.014.01.orig/src/r8126_ptp.h r8126-10.014.01/src/r8126_ptp.h
+--- r8126-10.014.01.orig/src/r8126_ptp.h	2024-10-15 10:13:22.000000000 -0400
++++ r8126-10.014.01/src/r8126_ptp.h	2024-12-26 16:58:03.113059020 -0500
+@@ -115,7 +115,7 @@ enum PTP_TRX_TS_STA_REG {
+ #define PTP_CTL_TYPE_2 (0x0FF)
+ #define PTP_CTL_TYPE_3 (0x03F)
+ 
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0) && RHEL_MAJOR != 8
+ struct clock_identity {
+         u8 id[8];
+ } __packed;
