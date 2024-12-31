@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	9.013.02
+Version:	9.014.01
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -184,6 +184,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Dec 26 2024 Tuan Hoang <tqhoang@elrepo.org> - 9.014.01-1
+- Update to 9.014.01
+
 * Sun Aug 11 2024 Tuan Hoang <tqhoang@elrepo.org> - 9.013.02-1
 - Initial build for RHEL 8.10
 - Built against RHEL 8.10 GA kernel 4.18.0-553.el8_10
