@@ -1,5 +1,5 @@
 %define brcmname tg3
-%define brcmvers 3.139l
+%define brcmvers 3.139m
 %define brcmfmly NetXtreme
 %define brcmwork %{brcmname}-%{brcmvers}
 
@@ -88,6 +88,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc LICENSE README.TXT ChangeLog
 
 %changelog
+*Thu May 09 2024 Pavan Chebbi <pavan.chebbi@broadcom.com> 3.139m
+- Select CLOCK PLL on 5720 when shutting down with 1G speed
+- Add support for Ubuntu 24.04 LTS
+
 *Wed Mar 11 2024 Shantiprasad Shettar <shantiprasad.shettar@broadcom.com> 3.139l
 - Fix compilation on Debian12.4 OS
 - Add support for Oracle 9 UEK R7U2 kernel

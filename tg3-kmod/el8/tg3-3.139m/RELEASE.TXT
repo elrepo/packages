@@ -1,7 +1,7 @@
                               Release Notes
                         Broadcom tg3 Linux Driver
-                              Version 3.139l
-                                03/18/2024
+                              Version 3.139m
+                                05/09/2024
 
                           Broadcom Limited
                          5300 California Avenue,
@@ -9,6 +9,15 @@
 
 			Copyright (C) 2010-2024 Broadcom
 			   All Rights Reserved
+
+v3.139m(May 09, 2024)
+   fixes and Enhancements
+   ----------------------
+        1) Problem: (DCSG01686135) 5720 - Select CLK PLL when shutting down
+           Cause  :  Sometimes on 5720 bootcode cannot select the clock PLL in
+		     stress tests.
+	2) Problem: (DCSG01713575) Backport important upstream commits
+	   Cause  : Add support for Ubuntu 24.04 LTS
 
 v3.139l(Mar 18, 2024)
    fixes and Enhancements

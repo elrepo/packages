@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	3.139l
+Version:	3.139m
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -185,6 +185,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Dec 30 2024 Tuan Hoang <tqhoang@elrepo.org> - 3.139m-1
+- Update to version 3.139m
+
 * Sun Aug 25 2024 Tuan Hoang <tqhoang@elrepo.org> - 3.139l-1
 - Update to version 3.139l
 

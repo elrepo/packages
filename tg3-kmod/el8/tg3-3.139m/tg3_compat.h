@@ -1996,10 +1996,12 @@ static inline u32 ethtool_rxfh_indir_default(u32 index, u32 n_rx_rings)
 }
 #endif /* BCM_HAS_ETHTOOL_RXFH_INDIR_DEFAULT */
 
+#ifndef BCM_HAS_ETHTOOL_RXFH_PARAM
 #ifndef BCM_HAS_NEW_RXFH_HASH
 #define tg3_get_rxfh(dev, indir, key, hfunc)	tg3_get_rxfh(dev, indir, key)
 #define tg3_set_rxfh(dev, indir, key, hfunc)	tg3_set_rxfh(dev, indir, key)
 #endif
+#endif /* BCM_HAS_ETHTOOL_RXFH_PARAM */
 
 #ifndef BCM_HAS_MII_RESOLVE_FLOWCTRL_FDX
 #ifndef FLOW_CTRL_TX

@@ -716,3 +716,15 @@ fi
 if grep -q "do_aux_work" $srcdir/include/linux/ptp_clock_kernel.h ; then
 	echo "#define BCM_HAS_PTP_AUX_WORK"
 fi
+
+if [ -f $srcdir/include/net/gso.h ]; then
+	echo "#define BCM_HAS_GSO_H"
+fi
+
+if grep -q "adjust_by_scaled_ppm" $srcdir/include/linux/ptp_clock_kernel.h ; then
+	echo "#define BCM_HAS_SCALED_PPM"
+fi
+
+if grep -q "struct ethtool_rxfh_param" $srcdir/include/linux/ethtool.h ; then
+	echo "#define BCM_HAS_ETHTOOL_RXFH_PARAM"
+fi

@@ -82,6 +82,9 @@
 #endif
 #include <linux/bitops.h>
 #include "nicext.h"
+#ifdef BCM_HAS_GSO_H
+#include <net/gso.h>
+#endif
 
 #ifndef IS_ENABLED
 #define __ARG_PLACEHOLDER_1 0,
@@ -153,11 +156,11 @@ static inline void _tg3_flag_clear(enum TG3_FLAGS flag, unsigned long *bits)
 #define DRV_MODULE_NAME		"tg3"
 #define TG3_MAJ_NUM			3
 #define TG3_MIN_NUM			139
-#define TG3_REVISION		"l"
+#define TG3_REVISION		"m"
 #define DRV_MODULE_VERSION	\
 	__stringify(TG3_MAJ_NUM) "." __stringify(TG3_MIN_NUM)\
 	TG3_REVISION
-#define DRV_MODULE_RELDATE	"Mar 18, 2024"
+#define DRV_MODULE_RELDATE	"May 09, 2024"
 #define RESET_KIND_SHUTDOWN	0
 #define RESET_KIND_INIT		1
 #define RESET_KIND_SUSPEND	2
@@ -4410,11 +4413,19 @@ static int tg3_power_down_prepare(struct tg3 *tp)
 			msleep(1);
 		}
 	}
-	if (tg3_flag(tp, WOL_CAP))
+	if (tg3_flag(tp, WOL_CAP)) {
 		tg3_write_mem(tp, NIC_SRAM_WOL_MBOX, WOL_SIGNATURE |
 						     WOL_DRV_STATE_SHUTDOWN |
 						     WOL_DRV_WOL |
 						     WOL_SET_MAGIC_PKT);
+		if (tg3_asic_rev(tp) == ASIC_REV_5720 &&
+		    tp->link_config.active_speed == SPEED_1000) {
+			u32 val = tr32(TG3_CPMU_PLL_CTRL_STAT);
+
+			tw32(TG3_CPMU_PLL_CTRL_STAT,
+			     val | CPMU_PLL_TLP_CLCK_SRC_NCSI_PLL);
+		}
+	}
 
 	if (device_should_wake) {
 		u32 mac_mode;
@@ -6501,6 +6512,35 @@ static int tg3_get_ts_info(struct net_device *dev, struct ethtool_ts_info *info)
 }
 #endif
 
+#ifdef BCM_HAS_SCALED_PPM
+static int tg3_ptp_adjfine(struct ptp_clock_info *ptp, long scaled_ppm)
+{
+	struct tg3 *tp = container_of(ptp, struct tg3, ptp_info);
+	u64 correction;
+	bool neg_adj;
+
+	/* Frequency adjustment is performed using hardware with a 24 bit
+	 * accumulator and a programmable correction value. On each clk, the
+	 * correction value gets added to the accumulator and when it
+	 * overflows, the time counter is incremented/decremented.
+	 */
+	neg_adj = diff_by_scaled_ppm(1 << 24, scaled_ppm, &correction);
+
+	tg3_full_lock(tp, 0);
+
+	if (correction)
+		tw32(TG3_EAV_REF_CLK_CORRECT_CTL,
+		     TG3_EAV_REF_CLK_CORRECT_EN |
+		     (neg_adj ? TG3_EAV_REF_CLK_CORRECT_NEG : 0) |
+		     ((u32)correction & TG3_EAV_REF_CLK_CORRECT_MASK));
+	else
+		tw32(TG3_EAV_REF_CLK_CORRECT_CTL, 0);
+
+	tg3_full_unlock(tp);
+
+	return 0;
+}
+#else
 static int tg3_ptp_adjfreq(struct ptp_clock_info *ptp, s32 ppb)
 {
 	struct tg3 *tp = container_of(ptp, struct tg3, ptp_info);
@@ -6536,6 +6576,7 @@ static int tg3_ptp_adjfreq(struct ptp_clock_info *ptp, s32 ppb)
 
 	return 0;
 }
+#endif /* BCM_HAS_SCALED_PPM */
 
 static int tg3_ptp_adjtime(struct ptp_clock_info *ptp, s64 delta)
 {
@@ -6701,7 +6742,11 @@ static const struct ptp_clock_info tg3_ptp_caps = {
 	.n_ext_ts	= 0,
 	.n_per_out	= 1,
 	.pps		= 0,
-	.adjfreq	= tg3_ptp_adjfreq,
+#ifdef BCM_HAS_SCALED_PPM
+	.adjfine	= tg3_ptp_adjfine,
+#else
+	.adjfreq        = tg3_ptp_adjfreq,
+#endif /* BCM_HAS_SCALED_PPM */
 	.adjtime	= tg3_ptp_adjtime,
 #ifdef BCM_HAS_PTP_AUX_WORK
 	.do_aux_work	= tg3_ptp_ts_aux_work,
@@ -13691,10 +13736,10 @@ static void tg3_get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *info
 {
 	struct tg3 *tp = netdev_priv(dev);
 
-	strlcpy(info->driver, DRV_MODULE_NAME, sizeof(info->driver));
-	strlcpy(info->version, DRV_MODULE_VERSION, sizeof(info->version));
-	strlcpy(info->fw_version, tp->fw_ver, sizeof(info->fw_version));
-	strlcpy(info->bus_info, pci_name(tp->pdev), sizeof(info->bus_info));
+	strscpy(info->driver, DRV_MODULE_NAME, sizeof(info->driver));
+	strscpy(info->version, DRV_MODULE_VERSION, sizeof(info->version));
+	strscpy(info->fw_version, tp->fw_ver, sizeof(info->fw_version));
+	strscpy(info->bus_info, pci_name(tp->pdev), sizeof(info->bus_info));
 }
 
 static void tg3_get_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
@@ -14079,6 +14124,22 @@ static u32 tg3_get_rxfh_indir_size(struct net_device *dev)
 	return size;
 }
 
+#ifdef BCM_HAS_ETHTOOL_RXFH_PARAM
+static int tg3_get_rxfh(struct net_device *dev, struct ethtool_rxfh_param *rxfh)
+{
+	struct tg3 *tp = netdev_priv(dev);
+	int i;
+
+	rxfh->hfunc = ETH_RSS_HASH_TOP;
+	if (!rxfh->indir)
+		return 0;
+
+	for (i = 0; i < TG3_RSS_INDIR_TBL_SIZE; i++)
+		rxfh->indir[i] = tp->rss_ind_tbl[i];
+
+	return 0;
+}
+#else
 #ifdef BCM_HAS_OLD_RXFH_INDIR
 static int tg3_get_rxfh_indir(struct net_device *dev, u32 *indir)
 #else
@@ -14101,6 +14162,38 @@ static int tg3_get_rxfh(struct net_device *dev, u32 *indir, u8 *key, u8 *hfunc)
 
 	return 0;
 }
+#endif /* BCM_HAS_ETHTOOL_RXFH_PARAM */
+
+#ifdef BCM_HAS_ETHTOOL_RXFH_PARAM
+static int tg3_set_rxfh(struct net_device *dev, struct ethtool_rxfh_param *rxfh,
+			struct netlink_ext_ack *extack)
+{
+	struct tg3 *tp = netdev_priv(dev);
+	size_t i;
+
+	/* supports only Toeplitz hash */
+	if (rxfh->hfunc && rxfh->hfunc != ETH_RSS_HASH_TOP)
+		return -EOPNOTSUPP;
+
+	if (!rxfh->indir)
+		return 0;
+
+	for (i = 0; i < TG3_RSS_INDIR_TBL_SIZE; i++)
+		tp->rss_ind_tbl[i] = rxfh->indir[i];
+
+	if (!netif_running(dev) || !tg3_flag(tp, ENABLE_RSS))
+		return 0;
+
+	/* It is legal to write the indirection
+	 * table while the device is running.
+	 */
+	tg3_full_lock(tp, 0);
+	tg3_rss_write_indir_tbl(tp);
+	tg3_full_unlock(tp);
+
+	return 0;
+}
+#else
 #ifdef BCM_HAS_OLD_RXFH_INDIR
 static int tg3_set_rxfh_indir(struct net_device *dev, const u32 *indir)
 #else
@@ -14136,6 +14229,7 @@ static int tg3_set_rxfh(struct net_device *dev, const u32 *indir, const u8 *key,
 	return 0;
 }
 #endif /* BCM_HAS_GET_RXFH_INDIR_SIZE */
+#endif /* BCM_HAS_ETHTOOL_RXFH_PARAM */
 
 #if defined(ETHTOOL_GCHANNELS)
 static void tg3_get_channels(struct net_device *dev,
