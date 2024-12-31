@@ -9,15 +9,15 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	4.2.26
-Release:	2%{?dist}
+Version:	4.2.28
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
-URL:		http://www.kernel.org/
+URL:		https://www.meinbergglobal.com/english/sw/#linux
 
 # Sources
-Source0:	%{upstream_name}-%{version}.tar.gz
+Source0:	https://www.meinbergglobal.com/download/drivers/%{upstream_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
@@ -85,8 +85,8 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 %build
 # %%{__make} -C %%{kernel_source} %%{?_smp_mflags} V=1 modules M=$PWD
 # KSRC=%%{_usrsrc}/kernels/%%{kversion}
-# Note: make is not stable with _smp_mflags 
-%{__make} -C $PWD BUILD_DIR="%{kernel_source}"
+# Note: This driver's Makefile is not stable with _smp_mflags 
+%{__make} SUPP_SYN1588=1 -C $PWD BUILD_DIR="%{kernel_source}"
 
 whitelist="/lib/modules/kabi-current/kabi_whitelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -212,6 +212,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Dec 31 2024 Tuan Hoang <tqhoang@elrepo.org> - 4.2.28-1
+- Updated to version 4.2.28
+- Enable support for SYN1588 PCIe NICs
+
 * Fri May 24 2024 Tuan Hoang <tqhoang@elrepo.org> - 4.2.26-2
 - Rebuilt against RHEL 8.10 GA kernel 4.18.0-553.el8_10
 
