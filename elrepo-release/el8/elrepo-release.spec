@@ -3,7 +3,7 @@
 
 Summary: ELRepo.org Community Enterprise Linux Repository release file
 Name: elrepo-release
-Version: 8.3
+Version: 8.4
 Release: 1%{?dist}
 License: GPLv2
 Group: System Environment/Base
@@ -11,7 +11,8 @@ URL: https://elrepo.org/
 
 Source0: elrepo.repo
 Source1: RPM-GPG-KEY-elrepo.org
-Source2: SECURE-BOOT-KEY-elrepo.org.der
+Source2: RPM-GPG-KEY-v2-elrepo.org
+Source3: SECURE-BOOT-KEY-elrepo.org.der
 
 BuildArch: noarch
 
@@ -25,6 +26,7 @@ This package contains yum configuration for the ELRepo.org Community Enterprise 
 %prep
 %setup -c -T
 %{__cp} -a %{SOURCE1} .
+%{__cp} -a %{SOURCE2} .
 
 # %build
 
@@ -32,7 +34,8 @@ This package contains yum configuration for the ELRepo.org Community Enterprise 
 %{__rm} -rf %{buildroot}
 %{__install} -Dpm 0644 %{SOURCE0} %{buildroot}%{_sysconfdir}/yum.repos.d/elrepo.repo
 %{__install} -Dpm 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
-%{__install} -Dpm 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/pki/elrepo/SECURE-BOOT-KEY-elrepo.org.der
+%{__install} -Dpm 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/pki/rpm-gpg/RPM-GPG-KEY-v2-elrepo.org
+%{__install} -Dpm 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/pki/elrepo/SECURE-BOOT-KEY-elrepo.org.der
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -40,14 +43,19 @@ This package contains yum configuration for the ELRepo.org Community Enterprise 
 %files
 %defattr(-, root, root, 0755)
 %pubkey RPM-GPG-KEY-elrepo.org
+%pubkey RPM-GPG-KEY-v2-elrepo.org
 %dir %{_sysconfdir}/yum.repos.d/
 %config(noreplace) %{_sysconfdir}/yum.repos.d/elrepo.repo
 %dir %{_sysconfdir}/pki/rpm-gpg/
 %{_sysconfdir}/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
+%{_sysconfdir}/pki/rpm-gpg/RPM-GPG-KEY-v2-elrepo.org
 %dir %{_sysconfdir}/pki/elrepo/
 %{_sysconfdir}/pki/elrepo/SECURE-BOOT-KEY-elrepo.org.der
 
 %changelog
+* Fri Jan 10 2025 Philip J Perry <phil@elrepo.org> - 8.4-1
+- Add new v2 (4096-bit) RPM signing key
+
 * Sat Jul 09 2022 Philip J Perry <phil@elrepo.org> - 8.3-1
 - Remove dependency on glibc
   [https://elrepo.org/bugs/view.php?id=1242]
