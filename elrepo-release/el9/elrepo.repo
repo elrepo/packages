@@ -11,7 +11,7 @@ mirrorlist=http://mirrors.elrepo.org/mirrors-elrepo.el9
 enabled=1
 countme=1
 gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org file:///etc/pki/rpm-gpg/RPM-GPG-KEY-v2-elrepo.org
 
 [elrepo-testing]
 name=ELRepo.org Community Enterprise Linux Testing Repository - el9
@@ -23,7 +23,7 @@ mirrorlist=http://mirrors.elrepo.org/mirrors-elrepo-testing.el9
 enabled=0
 countme=1
 gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org file:///etc/pki/rpm-gpg/RPM-GPG-KEY-v2-elrepo.org
 
 [elrepo-kernel]
 name=ELRepo.org Community Enterprise Linux Kernel Repository - el9
@@ -35,7 +35,7 @@ mirrorlist=http://mirrors.elrepo.org/mirrors-elrepo-kernel.el9
 enabled=0
 countme=1
 gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org file:///etc/pki/rpm-gpg/RPM-GPG-KEY-v2-elrepo.org
 
 [elrepo-extras]
 name=ELRepo.org Community Enterprise Linux Extras Repository - el9
@@ -47,4 +47,4 @@ mirrorlist=http://mirrors.elrepo.org/mirrors-elrepo-extras.el9
 enabled=0
 countme=1
 gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org file:///etc/pki/rpm-gpg/RPM-GPG-KEY-v2-elrepo.org

@@ -4,7 +4,7 @@
 Summary: ELRepo.org Community Enterprise Linux Repository release file
 Name: elrepo-release
 Version: 9.5
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPLv2
 Group: System Environment/Base
 URL: https://elrepo.org/
@@ -51,6 +51,9 @@ This package contains yum configuration for the ELRepo.org Community Enterprise 
 %{_sysconfdir}/pki/elrepo/SECURE-BOOT-KEY-elrepo.org.der
 
 %changelog
+* Sat Jan 11 2025 Philip J Perry <phil@elrepo.org> - 9.5-2
+- Fix elrepo.repo file for multiple gpg keys
+
 * Fri Jan 10 2025 Philip J Perry <phil@elrepo.org> - 9.5-1
 - Add new v2 (4096-bit) RPM signing key
   
