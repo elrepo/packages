@@ -1,8 +1,8 @@
 %define real_name drbd-utils
 
 Name:    drbd9x-utils
-Version: 9.29.0
-Release: 1%{?dist}
+Version: 9.30.0
+Release: 2%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
 Summary: Management utilities for DRBD
@@ -11,6 +11,7 @@ URL:     http://www.drbd.org/
 Source0:   http://oss.linbit.com/drbd/drbd-utils-%{version}.tar.gz
 
 Patch1: elrepo-selinux-bug695v2.patch
+Patch2: elrepo-drbd-graceful-shutdown.patch
 
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: flex
@@ -71,6 +72,7 @@ It is not required when the init system used is systemd.
 %prep
 %setup -n %{real_name}-%{version}
 %patch1 -p1
+%patch2 -p1
 
 %build
 %configure \
@@ -116,10 +118,8 @@ fi
 %files
 %defattr(-, root, root, 0755)
 %doc ChangeLog COPYING README.md scripts/drbd.conf.example
-%doc %{_mandir}/man5/drbd.conf.5*
 %doc %{_mandir}/man5/drbd.conf-*
 %doc %{_mandir}/man8/drbd*
-%doc %{_mandir}/ja/man5/drbd.conf.5*
 %doc %{_mandir}/ja/man5/drbd.conf-*
 %doc %{_mandir}/ja/man8/drbd*
 %doc %{_mandir}/man7/ocf_linbit_drbd.7.gz
@@ -165,7 +165,8 @@ fi
 %{_sbindir}/drbdmeta
 %{_sbindir}/drbdsetup
 %{_sbindir}/drbdmon
-%dir %{_prefix}/lib/drbd/
+%{_sbindir}/drbd-events-log-supplier
+# %dir %%{_prefix}/lib/drbd/
 %{_prefix}/lib/drbd/notify-out-of-sync.sh
 %{_prefix}/lib/drbd/notify-split-brain.sh
 %{_prefix}/lib/drbd/notify-emergency-reboot.sh
@@ -207,6 +208,13 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Mon Jan 27 2025 Akemi Yagi <toracat@elrepo.org> - 9.30.0-2.el9
+- Added elrepo-drbd-graceful-shutdown.patch
+  [https://elrepo.org/bugs/view.php?id=1488]
+
+* Thu Jan 23 2025 Akemi Yagi <toracat@elrepo.org> - 9.30.0-1.el9
+- Updated to 9.30.0
+
 * Wed Oct 30 2024 Akemi Yagi <toracat@elrepo.org> - 9.29.0-1.el9
 - Updated to 9.29.0
 
