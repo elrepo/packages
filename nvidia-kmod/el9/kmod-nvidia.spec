@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	550.142
+Version:	550.144.03
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -233,6 +233,10 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Tue Jan 28 2025 Tuan Hoang <tqhoang@elrepo.org> - 550.144.03-1
+- Updated to version 550.144.03
+- Rebuilt against RHEL 9.5 GA kernel
+
 * Thu Dec 26 2024 Tuan Hoang <tqhoang@elrepo.org> - 550.142-1
 - Updated to version 550.142
 - Rebuilt against RHEL 9.5 GA kernel
