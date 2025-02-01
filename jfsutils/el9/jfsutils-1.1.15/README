@@ -1,0 +1,84 @@
+IBM's Journaled File System (JFS) for Linux
+JFS Utilities
+Version 1.1.15, March 4, 2011
+
+The NEWS file contains a brief overview of user-visible changes to the
+utilities.
+
+The ChangeLog file contains a list of specific changes to the JFS utilities.
+
+INSTALLATION
+------------
+There are 3 methods to install the JFS utilities:
+
+Note: The utilities require the uuid.h file. Most Linux Distributions
+ship this file in the e2fsprogs-devel package, please install the
+e2fsprogs-devel package before you build the utilities.
+
+A. Installation - RPM
+---------------------
+1)  You can use the RPM distribution to build the JFS utilities:
+
+	rpmbuild -tb jfsutils-1.1.13.tar.gz
+
+
+B. Installation - Building From Source From Tar Ball
+----------------------------------------------------
+After the source has been unzipped and untarred:
+
+1)  Change directory into the top of the jfsutils source tree.
+
+2)  Run the configure script:
+
+	./configure
+
+3)  Compile the utilities:
+
+	make
+
+4)  Install the utilities:
+
+	make install
+
+
+C. Installation - Building From Source From CVS Tree
+----------------------------------------------------
+After the source has been retrieved from the CVS Tree:
+
+1)  Change directory into the top of the jfsutils source tree.
+
+2)  Run the autogen.sh script:
+
+	./autogen.sh
+
+3)  Compile the utilities:
+
+	make
+
+4)  Install the utilities:
+
+	make install
+
+
+CVS ACCESS
+----------
+anonymous cvs access is available for the JFS utilities from sourceforge.net.
+To checkout the sources:
+
+cvs -d:pserver:anonymous@jfs.cvs.sourceforge.net:/cvsroot/jfs login
+	No password, just press enter
+cvs -z3 -d:pserver:anonymous@jfs.cvs.sourceforge.net:/cvsroot/jfs co -P jfsutils
+
+SEE ALSO
+--------
+man pages for the JFS utilities
+
+README file included in the JFS file system
+
+http://jfs.sourceforge.net/
+
+Please send bugs, comments, cards and letters to shaggy@kernel.org
+
+The JFS mailing lists can be subscribed to by using any of the links
+containing "subscribe" along the left side of our web page at
+http://jfs.sourceforge.net

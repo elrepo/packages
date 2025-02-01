@@ -1,0 +1,170 @@
+.TH jfs_fsck 8 "October 29, 2002" " " "JFS utility - file system check"
+
+.SH NAME
+.B jfs_fsck
+\- initiate replay of the JFS transaction log, and check and repair a JFS formatted device
+
+.SH SYNOPSIS
+.B jfs_fsck
+[
+.B -afnpvV
+] [
+.B -j
+.I journal_device
+] [
+.B --omit_journal_replay
+] [
+.B --replay_journal_only
+]
+.I device
+
+.SH DESCRIPTION
+.PP
+.B jfs_fsck
+is used to replay the JFS transaction log, check a JFS formatted device for errors, and fix any
+errors found.
+.PP
+.I device
+is the special file name corresponding to the actual device to be checked
+.RB (e.g. " /dev/hdb1" ).
+.PP
+.B jfs_fsck
+must be run as root.
+
+.SH WARNING
+.PP
+.B jfs_fsck
+should only be used to check an
+.B unmounted
+file system or a file system that is mounted READ ONLY.  Using
+.B jfs_fsck
+to check a file system mounted other than READ ONLY could seriously damage the file system!
+
+.SH OPTIONS
+.P
+If no options are selected, the default is
+.BR "\-p".
+.TP
+.B \-a
+Autocheck mode - Replay the transaction log.  Do not continue fsck processing
+unless the aggregate state is dirty or the log replay failed.  Functionally equivalent to
+.BR "\-p".
+Autocheck mode is typically the default mode used when
+.B jfs_fsck
+is called at boot time.
+.\" .TP
+.\" .B \-b
+.\" *currently unused* Perform Bad Block List utility processing only.
+.\" .TP
+.\" .B \-c
+.\" After a replay of the transaction log completes successfully, only continue fsck processing if the aggregate state is dirty.
+.TP
+.B \-f
+Replay the transaction log and force checking even if the file system appears clean.  Repair all problems automatically.
+.TP
+.BI \-j " journal_device"
+Specify the journal device.
+.TP
+.B \-n
+Open the file system read only.  Do not replay the transaction log.  Report errors, but do not repair them.
+.TP
+.B \--omit_journal_replay
+Omit the replay of the transaction log.  This option should not be used unless as a last resort (i.e.
+the log has been severely corrupted and replaying it causes further problems).
+.TP
+.B \-p
+Automatically repair ("preen") the file system.  Replay the transaction log.  Do not continue fsck processing
+unless the aggregate state is dirty or the log replay failed.  Functionally equivalent to
+.BR "\-a".
+.TP
+.B \--replay_journal_only
+Only replay the transaction log.  Do not continue with a full file system check if the replay fails or
+if the file system is still dirty even after a journal replay.  In general, this option should only be
+used for debugging purposes as it could leave the file system in an unmountable state.  This option
+cannot be used with
+.BR -f ","
+.BR -n ", or"
+.BR --omit_journal_replay "."
+.TP
+.B \-v
+Verbose messaging - print details and debug statements to stdout.
+.TP
+.B \-V
+Print version information and exit (regardless of any other chosen options).
+.SH EXAMPLES
+.LP
+Check the 3rd partition on the 2nd hard disk, print extended information to stdout, replay the transaction log,
+force complete jfs_fsck checking, and give permission to repair all errors:
+.IP
+.B jfs_fsck \-v \-f /dev/hdb3
+.IP
+.LP
+Check the 5th partition on the 1st hard disk, and report, but do not repair, any errors:
+.IP
+.B jfs_fsck \-n /dev/hda5
+.IP
+
+.SH EXIT CODE
+.P
+The exit code returned by
+.B jfs_fsck
+represents one of the following conditions:
+.TP
+.B \ 0
+No errors
+.TP
+.B \ 1
+File system errors corrected and/or transaction log replayed successfully
+.TP
+.B \ 2
+File system errors corrected, system should be rebooted if file system was mounted
+.TP
+.B \ 4
+File system errors left uncorrected
+.TP
+.B \ 8
+Operational error
+.TP
+.B \ 16
+Usage or syntax error
+.TP
+.B \ 128
+Shared library error
+
+.SH "REPORTING BUGS"
+.PP
+If you find a bug in
+.B JFS
+or
+.BR jfs_fsck ,
+please report it via the bug tracking system ("Report Bugs" section) of the JFS project web site:
+.nf
+http://jfs.sourceforge.net/
+.fi
+.PP
+Please send as much pertinent information as possible, including the complete output of running
+.B jfs_fsck
+with the
+.B \-v
+option on the JFS device.
+
+.SH SEE ALSO
+.BR fsck (8),
+.BR jfs_mkfs (8),
+.BR jfs_fscklog (8),
+.BR jfs_tune (8),
+.BR jfs_logdump (8),
+.BR jfs_debugfs (8)
+
+.SH AUTHORS
+.nf
+Barry Arndt  (barndt@us.ibm.com)
+William Braswell, Jr.
+
+.fi
+.B jfs_fsck
+is maintained by IBM.
+.nf
+See the JFS project web site for more details:
+http://jfs.sourceforge.net/
+.fi

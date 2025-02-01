@@ -1,0 +1,1699 @@
+2011-03-04 Dave Kleikamp <shaggy@vnet.linux.ibm.com>
+	* configure.in: Bumped version to 1.1.15
+	* NEWS: likewise
+	* README: likewise
+	* AUTHORS: update email address
+	* jfsutils.spec.in: likewise
+
+2011-02-25 Dave Kleikamp <shaggy@vnet.linux.ibm.com>
+	* fsck/fsckdtre.c: directory size reflects size of directory index
+	* fsck/fsckmeta.c: another 64-bit fix
+
+2010-06-04 Dave Kleikamp <shaggy@vnet.linux.ibm.com>
+	* fsck/xchkdsk.c: Fix inconsistent timestamp format
+
+2010-06-03 Dave Kleikamp <shaggy@vnet.linux.ibm.com>
+	* fsck/fsckpfs.c: use 64-bit value to address extent length
+	* fsck/fsckwsp.c: use 64-bit values for block map size
+	* mkfs/mkfs.c: use 64-bit values for additional structures
+
+2010-01-07 Dave Kleikamp <shaggy@vnet.linux.ibm.com>
+	* libfs/log_dump.c: handle positive error value from find_log()
+
+2009-11-30 Dave Kleikamp <shaggy@vnet.linux.ibm.com>
+	* mkfs/initmap.c: use 64-bit integers to handle volumes over 32 TB
+	* mkfs/initmap.h: likewise
+
+2009-07-13 Dave Kleikamp <shaggy@vnet.linux.ibm.com>
+	* tune/jfs_tune.8: file systems CAN share an external journal
+
+2009-04-06 Dave Kleikamp <shaggy@vnet.linux.ibm.com>
+	* configure.in: Bumped version to 1.1.14
+	* NEWS: likewise
+	* README: likewise
+	* jfsutils.spec.in: update email address
+
+2009-04-03 Dave Kleikamp <shaggy@vnet.linux.ibm.com>
+	* fsck/fsck_message.c: Don't call printf with an untrusted format
+
+2009-03-23 Dave Kleikamp <shaggy@vnet.linux.ibm.com>
+	* libfs/devices.c: Don't call ioctl(BLKFLSBUF) on a ramdisk
+
+2009-01-09 Dave Kleikamp <shaggy@vnet.linux.ibm.com>
+	* mkfs/mkfs.c: increase log size limit from 32 MB to 128 MB
+
+2008-09-13 Dave Kleikamp <shaggy@vnet.linux.ibm.com>
+	* libfs/log_read.c: moveWords must handle records that span 3 pages
+
+2008-07-17 Dave Kleikamp <shaggy@vnet.linux.ibm.com>
+	* configure.in: Bumped version to 1.1.13
+	* NEWS: likewise
+	* README: likewise
+
+2008-03-24 Dave Kleikamp <shaggy@vnet.linux.ibm.com>
+	* libfs/fsckmsgdef.c: get rid of unhelpful allocation messages
+	* libfs/log_map.c: likewise
+	* libfs/log_work.c: likewise
+
+2008-01-14 Dave Kleikamp <shaggy@vnet.linux.ibm.com>
+	* libfs/devices.c: define _LARGEFILE_SOURCE explictly
+
+2007-09-28 Dave Kleikamp <shaggy@vnet.linux.ibm.com>
+	* libfs/log_work.c: Sanity check lock list ranges
+	* libfs/logredo.h: Add new error return code
+
+2007-09-17 Dave Kleikamp <shaggy@vnet.linux.ibm.com>
+	* libfs/message.c: Rewrite a confusing error message
+
+2007-08-24 Dave Kleikamp <shaggy@vnet.linux.ibm.com>
+	* configure.in: Bumped version to 1.1.12
+	* NEWS: likewise
+	* README: likewise
+
+2007-08-23 Dave Kleikamp <shaggy@vnet.linux.ibm.com>
+	* libfs/fssubs.c: open() needs a mode parameter with O_CREAT
+
+2007-08-22 Dave Kleikamp <shaggy@vnet.linux.ibm.com>
+	* fsck/fsckpfs.c: Allow -n flag to be used in conjuction with others
+	* fsck/xchkdsk.c: Likewise
+
+2007-07-23 Dave Kleikamp <shaggy@vnet.linux.ibm.com>
+	* libfs/open_by_label.c: look for external journal in /proc/mdstat
+
+2007-04-07 Dave Kleikamp <shaggy@vnet.linux.ibm.com>
+	* configure.in: Support for netbsd (Submitted by Gary Thorpe)
+	* libfs/devices.c: Likewise
+	* libfs/fssubs.c: Likewise
+	* mkfs/mkfs.c: Likewise
+
+2007-03-20 Dave Kleikamp <shaggy@vnet.linux.ibm.com>
+	* libfs/logform.c: Don't close journal file descriptor
+	* mkfs/mkfs.c: caller of jfs_logform() should close file descriptor
+
+2006-11-02 Dave Kleikamp <shaggy@austin.ibm.com>
+	* libfs/jfs_endian.c: Fix bug possible array overflow
+
+2006-08-21 Dave Kleikamp <shaggy@austin.ibm.com>
+	* libfs/jfs_endian.c: Fix bug on legacy partition on big-endian hw
+
+2006-06-05 Dave Kleikamp <shaggy@austin.ibm.com>
+	* configure.in: Add compiler flags to generate useful warnings
+	* mkfs/makefile.am: Likewise
+	* defrag/helpers.h: Eliminate compiler warnings
+	* fsck/fsck_message.c: Likewise
+	* fsck/fsckbmap.c: Likewise
+	* fsck/fsckdire.c: Likewise
+	* fsck/fsckdtre.c: Likewise
+	* fsck/fsckimap.c: Likewise
+	* fsck/fsckino.c: Likewise
+	* fsck/fsckmeta.c: Likewise
+	* fsck/fsckpfs.c: Likewise
+	* fsck/fsckruns.c: Likewise
+	* fsck/fsckwsp.c: Likewise
+	* fsck/fsckxtre.c: Likewise
+	* fsck/xchkdsk.c: Likewise
+	* fscklog/extract.c: Likewise
+	* fscklog/fscklog.c: Likewise
+	* fscklog/jfs_fscklog.h: Likewise
+	* libfs/diskmap.h: Likewise
+	* libfs/fsck_message.h: Likewise
+	* libfs/jfs_endian.c: Likewise
+	* libfs/log_dump.c: Likewise
+	* libfs/super.h: Likewise
+	* libfs/utilsubs.h: Likewise
+	* mkfs/mkfs.c: Likewise
+	* tune/tune.c: Likewise
+	* xpeek/alter.c: Likewise
+	* xpeek/directory.c: Likewise
+	* xpeek/display.c: Likewise
+	* xpeek/dmap.c: Likewise
+	* xpeek/fsckcbbl.c: Likewise
+	* xpeek/help.c: Likewise
+	* xpeek/iag.c: Likewise
+	* xpeek/inode.c: Likewise
+	* xpeek/io.c: Likewise
+	* xpeek/super.c: Likewise
+	* xpeek/super2.c: Likewise
+	* xpeek/ui.c: Likewise
+	* xpeek/xpeek.c: Likewise
+	* README: Bumped version to 1.1.11
+	* NEWS: Likewise
+
+2006-06-04 Dave Kleikamp <shaggy@austin.ibm.com>
+	* libfs/log_work.c: Fix segfault in markImap
+
+2006-05-26 Dave Kleikamp <shaggy@austin.ibm.com>
+	* fsck/fsckxtre.c: Using incorrect pointer resulted in trap
+
+2006-05-24 Dave Kleikamp <shaggy@austin.ibm.com>
+	* fsck/fsck_message.c: define _GNU_SOURCE to get proto for basename()
+
+2006-05-24 Manuel Menal <mmenal@hurdfr.org>
+	* configure.in: porting jfsutils to GNU/Hurd
+	* libfs/devices.c: Likewise
+	* mkfs/initmap.c: Likewise
+	* xpeek/directory.c: Likewise
+
+2006-04-15 Dave Kleikamp <shaggy@austin.ibm.com>
+	* fsck/fsckdtre.c: Fix buffer overflow
+
+2006-01-11 Dave Kleikamp <shaggy@austin.ibm.com>
+	* fsck/dirindex.c: dirty_index_page should be void
+	* fsck/fsckxtre.c: avoid infinite loop in xTree_binsrch_page
+	* mkfs/mkfs.c: Remove (Expermental) from usage statement
+
+2005-11-22 Dave Kleikamp <shaggy@austin.ibm.com>
+	* Too many to list: Clean up includes & remove trailing whitespace
+
+2005-11-08 Dave Kleikamp <shaggy@austin.ibm.com>
+	* configure.in: Add AC_CHECK_FUNCS(posix_memalign memalign)
+	* mkfs/initmap.c: Fix infinite loop in verify_last_blocks (mkfs.jfs -c)
+
+2005-11-08 Jon Nelson <jnelson-jfs@jamponi.net>
+	* libfs/devices.c: Fix invalid assumption that fseeko returns position
+
+2005-10-24 Mads Martin Joergensen <mmj@suse.de
+	* tune/super.c: include prototypes of printf & strcpy
+
+2005-10-19 Dave Kleikamp <shaggy@austin.ibm.com>
+	* configure.in: Bumped version to 1.1.10
+	* NEWS: likewise
+	* README: likewise
+
+2005-10-18 Dave Kleikamp <shaggy@austin.ibm.com>
+	* libfs/fssubs.c: fsck not recoginizing root filesystem as jfs
+
+2005-10-04 Dave Kleikamp <shaggy@austin.ibm.com>
+	* libfs/devices.c: Only call rewind on error
+
+2005-10-04 Jon Nelson <jnelson-jfs@jamponi.net>
+	* libfs/devices.c: More stdio cleanup
+
+2005-10-04 Dave Kleikamp <shaggy@austin.ibm.com>
+	* configure.in: Bumped version to 1.1.9
+	* NEWS: likewise
+	* README: likewise
+
+2005-10-03 Dave Kleikamp <shaggy@austin.ibm.com>
+	* fsck/fsckdtre.c: Eliminate OS/2 DASD Limits code to save memory
+	* fsck/fsckimap.c: Likewise
+	* fsck/fsckino.c: Likewise
+	* fsck/fsckmeta.c: Likewise
+	* fsck/fsckwsp.c: Likewise
+	* fsck/xchkdsk.c: Likewise
+	* fsck/xfsckint.h: Likewise
+	* libfs/fsckwsp.h: Likewise
+
+2005-10-03 Hiten Pandya <hmp@dragonflybsd.org>
+	   Dave Kleikamp <shaggy@austin.ibm.com>
+	* AUTHORS: Add Hiten Pandya
+	* configure.in: Changes for compatibility with Dragonfly BSD
+	* fsck/fsckdire.c: Likewise
+	* fsck/fsckpfs.c: Likewise
+	* fsck/xchkdsk.c: Likewise
+	* fsck/xfsckint.h: Likewise
+	* fscklog/Makefile.am: Likewise
+	* fscklog/extract.c: Likewise
+	* libfs/Makefile.am: Likewise
+	* libfs/devices.c: Likewise
+	* libfs/devices.h: Likewise
+	* libfs/inode.c: Likewise
+	* libfs/inode.h: Likewise
+	* libfs/log_dump.c: Likewise
+	* libfs/log_map.c: Likewise
+	* libfs/log_read.c: Likewise
+	* libfs/log_work.c: Likewise
+	* libfs/logform.c: Likewise
+	* libfs/logform.h: Likewise
+	* libfs/logredo.c: Likewise
+	* libfs/logredo.h: Likewise
+	* libfs/open_by_label.c: Likewise
+	* libfs/super.c: Likewise
+	* libfs/super.h: Likewise
+	* libfs/utilsubs.h: Likewise
+	* logdump/Makefile.am: Likewise
+	* logdump/logdump.c: Likewise
+	* mkfs/Makefile.am: Likewise
+	* mkfs/initmap.c: Likewise
+	* mkfs/initmap.h: Likewise
+	* mkfs/inodemap.c: Likewise
+	* mkfs/inodemap.h: Likewise
+	* mkfs/inodes.c: Likewise
+	* mkfs/inodes.h: Likewise
+	* mkfs/mkfs.c: Likewise
+	* tune/Makefile.am: Likewise
+	* tune/tune.c: Likewise
+	* xpeek/Makefile.am: Likewise
+	* xpeek/alter.c: Likewise
+	* xpeek/display.c: Likewise
+	* xpeek/dmap.c: Likewise
+	* xpeek/fsckcbbl.c: Likewise
+	* xpeek/inode.c: Likewise
+	* xpeek/io.c: Likewise
+	* xpeek/super.c: Likewise
+	* xpeek/super2.c: Likewise
+	* xpeek/xpeek.c: Likewise
+	* xpeek/xpeek.h: Likewise
+
+2005-08-15 Dave Kleikamp <shaggy@austin.ibm.com>
+	* libfs/fssubs.c: Fix stack buffer overflow in Is_Device_Mounted
+
+2005-06-29 Dave Kleikamp <shaggy@austin.ibm.com>
+	* mkfs/mkfs.c: Fix problem with option -J journal_dev
+
+2005-06-20 Dave Kleikamp <shaggy@austin.ibm.com>
+	* fsck/fsckmeta.c: fsck shouldn't quit if unused aggregate inode is bad
+
+2005-06-16 Dave Kleikamp <shaggy@austin.ibm.com>
+	* fsck/fsck_message.c: use basename(file_name) to avoid overlong msgs
+	* libfs/fsck_message.h: add declaration of v_fsck_send_msg to header
+	* libfs/logredo.c: declaration of v_fsck_send_msg is now in header
+
+2005-05-03 Dave Kleikamp <shaggy@austin.ibm.com>
+	* mkfs/initmap.c: Use O_DIRECT when checking for bad blocks
+	* configure.in: Bumped version to 1.1.8
+	* NEWS: likewise
+	* README: likewise
+
+2005-04-29 Dave Kleikamp <shaggy@austin.ibm.com>
+	* fsck/dirindex.c: Update directory index table when moving entries
+	* fsck/fsckdire.c: Likewise
+	* fsck/fsckdtre.c: Likewise
+	* fsck/xchkdsk.c: Likewise
+	* fsck/xfsckint.h: Likewise
+	* include/jfs_dtree.c: Likewise
+
+2005-04-18 Dave Kleikamp <shaggy@austin.ibm.com>
+	* fsck/fsckmeta.c: ignore errors in inode 1 in phase 3 too
+
+2005-03-22 Dave Kleikamp <shaggy@austin.ibm.com>
+	* libfs/log_work.c: Don't let i_data update wipe out btroot
+
+2005-03-16 Dave Kleikamp <shaggy@austin.ibm.com>
+	* fsck/fsckpfs.c: Make sure data gets flushed to disk
+	* libfs/devices.c: Likewise
+	* libfs/devices.h: Likewise
+	* libfs/logform.c: Likewise
+	* mkfs/mkfs.c: Likewise
+	* xpeek/xpeek.c: Likewise
+	* defrag/helpers.c: Get rid of silly HFILE define
+	* defrag/helpers.h: Likewise
+	* fsck/dirindex.c: Likewise
+	* fsck/fsckbmap.c: Likewise
+	* fsck/fsckcbbl.c: Likewise
+	* fsck/fsckconn.c: Likewise
+	* fsck/fsckdtre.c: Likewise
+	* fsck/fsckimap.c: Likewise
+	* fsck/fsckino.c: Likewise
+	* fsck/fsckmeta.c: Likewise
+	* fsck/fsckwsp.c: Likewise
+	* fsck/fsckxtre.c: Likewise
+	* fsck/xchkdsk.c: Likewise
+	* fsck/xfsckint.h: Likewise
+	* fscklog/extract.c: Likewise
+	* libfs/inode.c: Likewise
+	* libfs/inode.h: Likewise
+	* libfs/super.c: Likewise
+	* libfs/super.h: Likewise
+	* logdump/logdump.c: Likewise
+	* mkfs/initmap.c: Likewise
+	* mkfs/inodemap.c: Likewise
+	* mkfs/inodemap.h: Likewise
+	* mkfs/inodes.c: Likewise
+	* mkfs/inodes.h: Likewise
+	* xpeek/xpeek.h: Likewise
+
+2005-03-09 Dave Kleikamp <shaggy@austin.ibm.com>
+	* fsck/fsck.c: Added blocks pararmeter to specify file system size
+	* fsck/jfs_fsck.8: Likewise.
+
+2005-02-18 Dave Kleikamp <shaggy@austin.ibm.com>
+	* README: Homepage changed to sourceforge.net
+	* jfsutils.spec.in: Likewise.
+	* fsck/jfs_fsck.8: Likewise
+	* fscklog/jfs_fscklog.8: Likewise
+	* logdump/jfs_logdump.8: Likewise
+	* mkfs/jfs_mkfs.8: Likewise
+	* tune/jfs_tune.8: Likewise
+	* xpeek/jfs_debugfs.8: Likewise
+
+2004-12-15 Dave Kleikamp <shaggy@austin.ibm.com>
+	* fsck/dirindex.c: Remove unused variables & eliminate compiler warnings
+	* fsck/fsckbmap.c: Likewise
+	* fsck/fsckcbbl.c: Likewise
+	* fsck/fsckconn.c: Likewise
+	* fsck/fsckdtre.c: Likewise
+	* fsck/fsckimap.c: Likewise
+	* fsck/fsckino.c: Likewise
+	* fsck/fsckmeta.c: Likewise
+	* fsck/fsckpfs.c: Likewise
+	* fsck/fsckwsp.c: Likewise
+	* fsck/fsckxtre.c: Likewise
+	* fsck/xchkdsk.c: Likewise
+	* fscklog/display.c: Likewise
+	* fscklog/extract.c: Likewise
+	* fscklog/fscklog.c: Likewise
+	* libfs/log_dump.c: Likewise
+	* libfs/log_map.c: Likewise
+	* libfs/log_read.c: Likewise
+	* libfs/log_work.c: Likewise
+	* libfs/logredo.c: Likewise
+	* libfs/logredo.h: Likewise
+	* logdump/helpers.c: Likewise
+	* logdump/logdump.c: Likewise
+
+2004-12-02 Dave Kleikamp <shaggy@austin.ibm.com>
+	* libfs/devices.c: print message on read/write errors
+
+2004-11-02 Dave Kleikamp <shaggy@austin.ibm.com>
+	* libfs/logform.c: pad log_sup to 4K since we do 4K reads & writes on it
+
+2004-09-24 Dave Kleikamp <shaggy@austin.ibm.com>
+	* fsck/fsckmeta.c: Don't bail out if reserved inode 1 is bad
+	* fsck/xchkdsk.c: If phase 1 fails, don't act like it's ok
+	* libfs/logredo.c: always rebuild inode map, even if sb is dirty
+
+2004-07-22 Dave Kleikamp <shaggy@austin.ibm.com>
+	* fsck/fsckconn.c: Pass proper number of args to fsck_send_msg
+	* libfs/fsckmsgdef.c: Lots of message corrections
+	* fsck/fsckdtre.c: directory index table fixes for big endian systems
+	* fsck/fsckino.c: Likewise
+	* libfs/jfs_endian.c: Likewise
+	* xpeek/directory.c: Likewise
+	* fsck/xchkdsk.c: Warn that running fsck on mounted fs is not dependable
+	* configure.in: Bumped version to 1.1.7
+	* NEWS: likewise
+	* README: likewise
+
+2004-07-21 Dave Kleikamp <shaggy@austin.ibm.com>
+	* fsck/fsckea.c: Verify that xattr length is correct
+	* fsck/fsckino.c: Likewise
+	* fsck/xfsck.h: Likewise
+
+2004-06-29 Dave Kleikamp <shaggy@austin.ibm.com>
+	* libfs/logredo.c: Ensure changes to disk occur in proper order
+
+2004-05-24 Dave Kleikamp <shaggy@austin.ibm.com>
+	* fsck/xchkdsk.c: --replay_journal_only shouldn't clear FM_DIRTY
+
+2004-04-26 Dave Kleikamp <shaggy@austin.ibm.com>
+	* configure.in: Bumped version to 1.1.6.
+	* NEWS: likewise
+	* README: likewise
+	* fsck/Makefile.am: Add new source file: dirindex.c
+	* fsck/dirindex.c: verify and reset directory index table
+	* fsck/fsckdtre.c: Likewise
+	* fsck/fsckino.c: Likewise
+	* fsck/fsckpfs.c: Likewise
+	* fsck/fsckwsp.c: Likewise
+	* fsck/fsckxtre.c: Likewise
+	* fsck/xchkdsk.c: Likewise
+	* fsck/xfsckint.h: Likewise
+	* include/jfs_dtree.h: Likewise
+	* libfs/fsck_message.h: Likewise
+	* libfs/fsckmsgdef.c: Likewise
+	* libfs/fsckwsp.h: Likewise
+
+2004-04-26 Dave Kleikamp <shaggy@austin.ibm.com>
+	* fsck/fsckdtre.c: restructure dTree_process_leaf_slots for readability
+
+2004-04-19 Dave Kleikamp <shaggy@austin.ibm.com>
+	* fsck/fsckdtre.c: restructure dTree_processing for readability
+
+2004-04-12 Dave Kleikamp <shaggy@austin.ibm.com>
+	* tune/tune.c: Change superblock version to 2 if setting uuid
+
+2004-03-04 Dave Kleikamp <shaggy@austin.ibm.com>
+	* configure.in: Bumped version to 1.1.5.
+	* NEWS: likewise
+	* README: likewise
+	* fsck/xchkdsk.c: Support multiple volumes sharing journal
+	* libfs/fsck_message.h: Likewise
+	* libfs/fsckmsgdef.c: Likewise
+	* libfs/log_dump.c: Likewise
+	* libfs/log_read.c: Likewise
+	* libfs/log_work.c: Likewise
+	* libfs/logredo.c: Likewise
+	* libfs/logredo.h: Likewise
+	* libfs/open_by_label.c: Likewise
+	* mkfs/mkfs.c: Likewise
+	* tune/tune.c: Likewise
+
+2004-01-29 Dave Kleikamp <shaggy@austin.ibm.com>
+	* tune/tune.c: Don't use O_EXCL unless filesystem should be unmounted
+	* xpeek/xpeek.c: Don't use O_EXCL
+
+2004-01-21 Dave Kleikamp <shaggy@austin.ibm.com>
+	* libfs/devices.h: remove dev_to_kdev
+	* libfs/logredo.c: likewise
+	* mkfs/mkfs.c: likewise
+	* tune/tune.c: likewise
+	* libfs/fsckmsgdef.c: fix errant message that caused a seg fault
+	* fsck/fsckconn.c: likewise
+
+2003-12-17 Dave Kleikamp <shaggy@austin.ibm.com>
+	* fsck/fsckmeta.c: Rework duplicate block checking to avoid horrible
+			   performance
+	* fsck/fsckwsp.c: likewise
+	* fsck/xfsckint.h: likewise
+	* libfs/fsckwsp.h: likewise
+	* libfs/fsck_message.h: Remove redundant semicolons
+
+2003-12-10 Dave Kleikamp <shaggy@austin.ibm.com>
+	* libfs/log_work.c: fix replaying of symlink journal records
+
+2003-12-09 Dave Kleikamp <shaggy@austin.ibm.com>
+	* fsck/xchkdsk.c: fix buffer overflow
+
+2003-11-10 Dave Kleikamp <shaggy@austin.ibm.com>
+	* fsck/fsckdire.c: zero directory index field
+	* fsck/fsckdtre.c: shorten names in lost+found
+
+2003-10-30 Dave Kleikamp <shaggy@austin.ibm.com>
+	* configure.in: Bumped version to 1.1.4.
+	* NEWS: likewise
+	* README: likewise
+
+2003-10-21 Dave Kleikamp <shaggy@austin.ibm.com>
+	* libfs/fsckmsgdef.c: Message format fix
+
+2003-10-15 Dave Kleikamp <shaggy@austin.ibm.com>
+	* fscklog/fscklog.c: Add missing prototype, submitted by Stasys Smailys
+
+2003-10-14 Dave Kleikamp <shaggy@austin.ibm.com>
+	* libfs/devices.c: BLKGETSIZE64 definition had incorrect parameter
+
+2003-09-16 Dave Kleikamp <shaggy@austin.ibm.com>
+	* fsck/fsck_message.c: Handle log full without crashing
+
+2003-09-11 Dave Kleikamp <shaggy@austin.ibm.com>
+	* libfs/fsck_message.h: Work around gcc 2.95 bug
+
+2003-09-05 Dave Kleikamp <shaggy@austin.ibm.com>
+	* fsck/fsckpfs.c: Attempt r/w open without O_EXCL
+	* libfs/fsckmsgdef.c: Add back carriage return for heartbeat msgs
+	* configure.in: Bumped version to 1.1.3.
+	* NEWS: likewise
+	* README: likewise
+	* AUTHORS: likewise
+
+2003-08-01 Karl Rister <krister@us.ibm.com>
+	* fsck/xchkdsk.c: Return 0 when the journal is replayed successfully
+
+2003-07-07 Dave Kleikamp <shaggy@austin.ibm.com>
+	* tune/super.c: Do not right-justify when printing volume label
+	* xpeek/super.c: Likewise.
+
+2003-06-25 Karl Rister <krister@us.ibm.com>
+	* Cleaned up fsck messages by making single function call without the use of global variables
+	* libfs/fsck_message.h: New file to cleanup fsck messages
+	* libfs/fsckmsgdef.c: Likewise
+	* fsck/fsck_message.c: Likewise
+	* libfs/fsckmsgc.h: Removed as part of fsck message cleanup
+	* libfs/fsckmsge.h: Likewise
+	* fsck/fsckmsgs.c: Likewise
+	* fsck/fsckmsgp.h: Likewise
+	* fsck/Makefile.am: Modified as part of fsck message cleanup
+	* fsck/fsckbmap.c: Likewise
+	* fsck/fsckcbbl.c: Likewise
+	* fsck/fsckconn.c: Likewise
+	* fsck/fsckdtre.c: Likewise
+	* fsck/fsckimap.c: Likewise
+	* fsck/fsckino.c: Likewise
+	* fsck/fsckmeta.c: Likewise
+	* fsck/fsckpfs.c: Likewise
+	* fsck/fsckruns.c: Likewise
+	* fsck/fsckwsp.c: Likewise
+	* fsck/fsckwsp.c: Likewise
+	* fsck/fsckxtre.c: Likewise
+	* fsck/xchkdsk.c: Likewise
+	* fsck/xfsckint.h: Likewise
+	* fscklog/display.c: Likewise
+	* fscklog/extract.c: Likewise
+	* fscklog/fscklog.c: Likewise
+	* fscklog/jfs_fscklog.h: Likewise
+	* libfs/Makefile.am: Likewise
+	* libfs/fscklog.h: Likewise
+	* libfs/jfs_endian.c: Likewise
+	* libfs/log_map.c: Likewise
+	* libfs/log_read.c: Likewise
+	* libfs/log_work.c: Likewise
+	* libfs/logredo.c: Likewise
+	* logdump/helpers.c: Likewise
+	* logdump/logdump.c: Likewise
+
+2003-05-22 Dave Kleikamp <shaggy@austin.ibm.com>
+	* libfs/open_by_label.c: Look for evms volumes in /dev/evms
+
+2003-04-24  Dave Blaschke <blaschke@us.ibm.com>
+
+	* fsck/fsckwsp.c: start_time formatted incorrectly
+	* fsck/xchkdsk.c: end_time stored incorrectly
+
+2003-03-25  Dave Blaschke <blaschke@us.ibm.com>
+
+	* README: Updated reference to mailing lists.
+
+2003-03-25 Dave Kleikamp <shaggy@austin.ibm.com>
+
+	* configure.in: Bumped version to 1.1.2.
+	* NEWS: likewise
+	* README: likewise
+
+2003-03-21  Dave Blaschke <blaschke@us.ibm.com>
+
+	* tune/super.c: s_label displayed incorrectly when 16 chars long.
+	* xpeek/super.c: Likewise.
+	* xpeek/super2.c: Likewise.
+
+2003-03-07  Dave Blaschke <blaschke@us.ibm.com>
+
+	* fsck/fsckbmap.c: Code cleanup suggested by static analysis tool.
+	* fsck/fsckdire.c: Likewise.
+	* fsck/fsckdtre.c: Likewise.
+	* fsck/fsckimap.c: Likewise.
+	* fsck/fsckino.c: Likewise.
+	* fsck/fsckmeta.c: Likewise.
+	* fsck/fsckpfs.c: Likewise.
+	* fsck/fsckxtre.c: Likewise.
+	* fsck/xchkdsk.c: Likewise.
+	* fscklog/extract.c: Likewise.
+	* libfs/log_dump.c: Likewise.
+	* libfs/log_map.c: Likewise.
+	* libfs/log_work.c: Likewise.
+	* libfs/logredo.c: Likewise.
+	* mkfs/mkfs.c: Likewise.
+	* xpeek/dmap.c: Likewise.
+
+2003-02-07  Dave Kleikamp <shaggy@austin.ibm.com>
+
+	* libfs/logredo.c: for-loop was going past end of vopen array
+	* fsck/fsckimap: Was not checking for negative this_ag
+
+2003-01-27  Dave Kleikamp <shaggy@austin.ibm.com>
+
+	* libfs/devices.c: Wrap long lines to 80 columns.
+	* libfs/devices.c: Allow jfs_mkfs to run on regular file.
+	* mkfs/mkfs.c: Likewise.
+
+2003-01-27 Steve Best <sbest@us.ibm.com>
+
+	* README: Remove linuxjfs e-mail id.
+	* jfsutils.spec.in: Likewise.
+
+2003-01-17  Dave Kleikamp <shaggy@austin.ibm.com>
+
+	* fsck/fsckimap.c: Restructure code to reduce indenting.
+
+2003-01-13  Barry Arndt  <barndt@us.ibm.com>
+
+	* fsck/fsckbmap.c: Restructure code to reduce indenting.
+	* fsck/fsckimap.c: Likewise.
+	* fsck/fsckmeta.c: Likewise.
+	* fsck/fsckpfs.c: Likewise.
+	* fsck/fsckwsp.c: Likewise.
+	* fsck/xchkdsk.c: Likewise.
+
+2003-01-06 Steve Best <sbest@us.ibm.com>
+
+	* Fix undefined reference to 'errno' (G. D. Haraldsson)
+	* libfs/fssubs.c: Include <errno.h> instead of extern int errno
+	* libfs/log_dump.c: Likewise.
+	* libfs/log_map.c: Likwwise.
+	* libfs/log_read.c: Likewise.
+	* libfs/logredo.c: Likewise.
+
+2002-12-17  Dave Kleikamp <shaggy@austin.ibm.com>
+
+	* configure.in: Bumped version to 1.1.1.
+	* README: Likewise.
+	* NEWS: Likewise.
+
+2002-12-11  Barry Arndt  <barndt@us.ibm.com>
+
+	* mkfs/mkfs.c (main): Fix seg fault - use proper device_name pointer when
+	                      printing "not a valid block device" error message.
+
+2002-12-04  Dave Kleikamp <shaggy@austin.ibm.com>
+
+	* xpeek/directory.c: Show and allow modification of directory index
+
+2002-12-02  Steve Best <sbest@us.ibm.com>
+
+	* Add note about uuid.h file required to build utilities (Bob Cochran)
+	* remove info about 2.5 cvs tree
+
+2002-11-20  Barry Arndt  <barndt@us.ibm.com>
+
+	* jfs_fscklog/Makefile.am: add jfs_fscklog.h to SOURCES
+	* configure.in: Bumped version to 1.1.0.
+	* README: Likewise.
+	* NEWS: Likewise.
+
+2002-11-19  Barry Arndt  <barndt@us.ibm.com>
+
+	* fsck/fsckconn.c: Remove unused parameter current_fsck_phase.
+	* fsck/fsckdtre.c: Likewise.
+	* fsck/fsckino.c: Likewise.
+	* fsck/fsckpfs.c: Likewise.
+	* fsck/fsckwsp.c: Likewise.
+	* fsck/fsckxtre.c: Likewise.
+	* fsck/xchkdsk.c: Likewise.
+	* fsck/xfsck.h: Likewise.
+
+2002-11-19  Dave Kleikamp <shaggy@austin.ibm.com>
+
+	* fsck/fsckino.c: Fix off-by-one error validate_data
+
+2002-11-14  Dave Kleikamp <shaggy@austin.ibm.com>
+
+	* fsck/fsckino.c: Restructure code to reduce indenting.
+			  Fix bogus minor format error when inline symlink is
+			  greater than 128 bytes.
+
+2002-11-13  Dave Kleikamp <shaggy@austin.ibm.com>
+
+	* xpeek/inode.c: jfs_debugfs should recognize all inode types
+
+2002-11-12  Dave Kleikamp <shaggy@austin.ibm.com>
+
+	* fsck/fsckxtre.c: Restructure code to reduce indenting.
+			   Allow zero key of intermediate xad, even if first
+			   leaf key is non-zero.
+
+2002-10-30  Barry Arndt  <barndt@us.ibm.com>
+
+	* jfsutils.spec.in: Rename logdump to jfs_logdump, rename xpeek to jfs_debugfs.
+	* logdump/Makefile.am: Rename logdump to jfs_logdump.
+	* logdump/helpers.c: Likewise.
+	* logdump/logdump.c: Likewise.
+	* logdump/jfs_logdump.8: Add renamed man page.
+	* logdump/logdump.8: Remove.
+	* xpeek/Makefile.am: Rename xpeek to jfs_debugfs.
+	* xpeek/help.c: Likewise.
+	* xpeek/xpeek.c: Likewise.
+	* xpeek/jfs_debugfs.8: Add renamed man page.
+	* xpeek/xpeek.8: Remove.
+	* fsck/jfs_fsck.8: Update 'SEE ALSO' program names with new names.
+	* fscklog/jfs_fscklog.8: Likewise.
+	* mkfs/jfs_mkfs.8: Likewise.
+	* tune/jfs_tune.8: Likewise.
+	* fsck/Makefile.am: Change install-exec-local to install-exec-hook.
+	                    Change install-data-local to install-data-hook.
+	                    Add uninstall-local.
+	* mkfs/Makefile.am: Likewise.
+
+2002-10-29  Barry Arndt  <barndt@us.ibm.com>
+
+	* configure.in: Add AC_PATH_PROG(LN, ln, ln).
+	* jfsutils.spec.in: Rename fsck.jfs to jfs_fsck, rename mkfs.jfs to jfs_mkfs.
+	* fsck/Makefile.am: Rename fsck.jfs to jfs_fsck.
+	                    Add install-exec-local to hard link fsck.jfs to jfs_fsck.
+	                    Add install-exec-data to hard link fsck.jfs.8 to jfs_fsck.8.
+	* fsck/jfs_fsck.8: Add renamed man page.
+	* fsck/fsck.jfs.8: Remove.
+	* fsck/xchkdsk.c: Add program_name and logic to display proper name.
+	                  Change argc type from int32_t to int.
+	                  Rename fsck.jfs to jfs_fsck.
+	* mkfs/Makefile.am: Rename mkfs.jfs to jfs_mkfs.
+	                    Add install-exec-local to hard link mkfs.jfs to jfs_mkfs.
+	                    Add install-exec-data to hard link mkfs.jfs.8 to jfs_mkfs.8.
+	* mkfs/jfs_mkfs.8: Add renamed man page.
+	* mkfs/mkfs.jfs.8: Remove.
+	* mkfs/mkfs.c: Add program_name and logic to display proper name.
+	               Rename mkfs.jfs to jfs_mkfs.
+
+2002-10-29  Dave Kleikamp <shaggy@austin.ibm.com>
+
+	* libfs/log_work.c: Remove fileset from nodofilehash.
+			    xtroot and btroot weren't hashing to the same
+			    page as inode.
+			    Update both pieces when first two parts of inode
+			    are updated in same log record.
+	* libfs/logredo.c: Reset bufhdr[].modify flag to avoid constantly
+			   re-writing the same buffers
+
+2002-10-28  Barry Arndt  <barndt@us.ibm.com>
+
+	* libfs/fsckwsp.h: Add logredo_only flag to fsck_agg_record.
+	* fsck/xchkdsk.c: Add include getopt.h.
+	* fsck/xchkdsk.c (parse_parms): Add processing for --replay_journal_only option.
+	                                Change -o to --omit_journal_replay.
+	                                Allow -o (undocumented) for backwards compat.
+	* fsck/xchkdsk.c (phase0_processing): Likewise.
+	* fsck/xchkdsk.c (fsck_usage): Update usage message with new options.
+	* fsck/fsck.jfs.8: Update man page with new options.
+	* logredo/: Remove logredo.
+	* Makefile.am: Remove logredo, change xchkdmp/xchklog to jfs_fscklog.
+	* configure.in: Likewise.
+	* jfsutils.spec.in: Likewise.
+	* fsck/fsck.jfs.8: Likewise.
+	* logdump/logdump.8: Likewise.
+	* mkfs/mkfs.jfs.8: Likewise.
+	* tune/jfs_tune.8: Likewise.
+	* xchdmp/xchkdmp.8: Likewise.
+	* xchklog/xchklog.8: Likewise.
+	* xpeek/xpeek.8: Likewise.
+	* fscklog/: Add directory and source for new jfs_fscklog tool combining
+	            functions of xchkdmp and xchklog.
+	* xchkdmp/: Remove.
+	* xchklog/: Remove.
+
+2002-10-18  Dave Kleikamp <shaggy@austin.ibm.com>
+
+	* fsck/fsckea.c: Fix big-endian extended attribute checking
+	* libfs/jfs_endian.c: Bounds-check dtree byte-swapping
+	* libfs/log_work.c: Remove incorrect __le32_to_cpu usage.
+	* configure.in: Bumped version to 1.0.24.
+	* README: Likewise.
+	* NEWS: Likewise.
+
+2002-10-16  Barry Arndt  <barndt@us.ibm.com>
+
+	* man_html/: Remove from CVS.
+	* tune/super.c: Don't display unused superblock field 'compress'.
+
+2002-10-16  Dave Kleikamp <shaggy@austin.ibm.com>
+
+	* libfs/log_work.c: xad->len was not being byte-swapped on ppc
+
+2002-09-27  Barry Arndt  <barndt@us.ibm.com>
+
+	* libfs/Makefile.am: Remove fssubs.h from libfs_a_SOURCES.
+	* fsck/Makefile.am: Remove fsckxlog.h from fsck_jfs_SOURCES.
+	* configure.in: Bumped version to 1.0.23.
+	* README: Likewise.
+	* NEWS: Likewise.
+
+2002-09-26  Barry Arndt  <barndt@us.ibm.com>
+
+	* mkfs/*.c: More code cleanup.
+	* fsck/*.c: Likewise.
+
+2002-09-23  Barry Arndt  <barndt@us.ibm.com>
+
+	* defrag/defragfs.c: Remove typedef's.
+	* defrag/helpers.c: Likewise.
+	* defrag/helpers.h: Likewise.
+	* include/*.h: Likewise.
+	* logdump/helpers.c: Likewise.
+	* logredo/helpers.c: Likewise.
+	* mkfs/initmap.c: Likewise.
+	* mkfs/inodemap.c: Likewise.
+	* mkfs/inodes.c: Likewise.
+	* mkfs/mkfs.c: Likewise.
+	* tune/super.c: Likewise.
+	* tune/tune.c: Likewise.
+	* xchkdmp/xchkdmp.c: Likewise.
+	* xchklog/xchklog.c: Likewise.
+	* xpeek/display.c: Likewise.
+	* xpeek/directory.c: Likewise.
+	* xpeek/dmap.c: Likewise.
+	* xpeek/fsckcbbl.c: Likewise.
+	* xpeek/iag.c: Likewise.
+	* xpeek/inode.c: Likewise.
+	* xpeek/xpeek.h: Likewise.
+	* libfs/*.h, *.c: Run through 'indent', remove typedef's, clean up int32_t returns.
+	* fsck/*.h, *.c: Likewise.
+	* fsck/fsckxlog.h: Remove.
+
+2002-09-13  Barry Arndt  <barndt@us.ibm.com>
+
+	* logredo/helpers.c: Run through 'indent', clean up int types.
+	* logredo/xlogredo.c: Likewise.
+	* xchkdmp/xchkdmp.c: Likewise.
+	* xpeek/alter.c: Likewise.
+	* xpeek/directory.c: Likewise.
+	* xpeek/display.c: Likewise.
+	* xpeek/dmap.c: Likewise.
+	* xpeek/fsckcbbl.c: Likewise.
+	* xpeek/help.c: Likewise.
+	* xpeek/iag.c: Likewise.
+	* xpeek/inode.c: Likewise.
+	* xpeek/io.c: Likewise.
+	* xpeek/super2.c: Likewise.
+	* xpeek/super.c: Likewise.
+	* xpeek/ui.c: Likewise.
+	* xpeek/xpeek.c: Likewise.
+	* xpeek/xpeek.h: Likewise.
+
+2002-09-12  Barry Arndt  <barndt@us.ibm.com>
+
+	* mkfs/initmap.c: Run through 'indent', clean up int types.
+	* mkfs/initmap.h: Likewise.
+	* mkfs/inodemap.c: Likewise.
+	* mkfs/inodemap.h: Likewise.
+	* mkfs/inodes.c: Likewise.
+	* mkfs/inodes.h: Likewise.
+	* mkfs/mkfs.c: Likewise.
+	* xchklog/xchklog.c:  Likewise. Remove JFS_INLINELOG from initialization
+	                      of variable expected_flag in validate_super().
+	* fsck/xchkdsk.c (initial_processing): Fix fsck.jfs start timestamp.
+	* logdump/helpers.c: Run through 'indent', clean up int types.
+	* logdump/logdump.c: Likewise.  Initialize variable prog in main().
+
+2002-09-11  Barry Arndt  <barndt@us.ibm.com>
+
+	* libfs/fssubs.h: Remove.
+	* libfs/fssubs.c: Run through 'indent', change int32_t returns and rc's to int,
+	                  remove routines and declarations specific to defrag.
+	* defrag/helpers.c: Add. Contains contents of old libfs/fssubs.c specific to defrag.
+	* defrag/helpers.h: Add. Contains contents of old libfs/fssubs.h specific to defrag.
+	* defrag/defragfs.c: Run through 'indent', change int32_t returns and rc's to int,
+	                     include helpers.h instead of fssubs.h.
+	* defrag/Makefile.am: Add helpers.c and helpers.h to defragfs_SOURCES.
+
+2002-09-10  Barry Arndt  <barndt@us.ibm.com>
+
+	* defrag/defragfs.c: Run through 'indent', change int32_t returns and rc's to int,
+	                     replace countLZ32 and countTZ32 calls with actual function.
+	* libfs/utilsubs.c: Run through 'indent', change more() return from int32_t to int,
+	                    remove countLZ32() and countTZ32().
+	* libfs/utilsubs.h: Likewise.
+
+2002-09-09  Barry Arndt  <barndt@us.ibm.com>
+
+	* configure.in: Bumped version to 1.0.22.
+	* README: Likewise.
+	* NEWS: Likewise.
+
+2002-09-06  Barry Arndt  <barndt@us.ibm.com>
+
+	* mkfs/mkfs.c (main): Change volume_label size from 11 chars to 16 to
+	                      correctly store a volume label in superblock s_label.
+
+2002-09-05  Barry Arndt  <barndt@us.ibm.com>
+
+	* libfs/logform.c (jfs_logform): Pass external journal volume label.
+	* libfs/logform.h: Likewise.
+	* fsck/xchkdsk.c (phase9_processing): Likewise.
+	* libfs/logredo.c: Make LogOpenMode extern for better portability.
+	* libfs/open_by_label.c: Define LogOpenMode here for better portability.
+	                         (open_by_label): Pass device name.
+	* mkfs/mkfs.c: Update jfs_logform() call to pass external journal volume label.
+	               Update open_by_label() call to pass device name.
+	               Add -J option to create external journal only or attach existing
+	                   journal to about-to-be formatted JFS file system.  Existing
+	                   journal can be specified by device name, label, or UUID.
+	               Update -L to allow user to set volume label of external journal.
+	* mkfs/mkfs.jfs.8: Update man page with above information.
+	* all of the above: Run through 'indent' to begin code cleanup and style unification.
+	* Makefile.am: Add /tune for jfs_tune utility.
+	* jfsutils.spec.in: Likewise.
+	* configure.in: Likewise.
+	* tune/Makefile.am: Create.
+	* tune/tune.c: Likewise.
+	* tune/super.c: Likewise.
+	* tune/jfs_tune.8: Likewise.
+
+2002-08-12  Barry Arndt  <barndt@us.ibm.com>
+
+	* configure.in: Bumped version to 1.0.21.
+	* README: Likewise.
+	* NEWS: Likewise.
+
+2002-08-10  Christoph Hellwig  <hch@infradead.org>
+
+	* AUTHORS: Update my email address.
+	* libfs/logform.c (jfs_logform): Calculate log_begin earlier.
+	* libfs/log_work.c (open_device):  Fix sprintf format string.
+	* libfs/logredo.h:  Don't define NEWLOG.
+	* jfs_logmgr.h: Provide alternative struct identifier for logsuper_t.
+	* libfs/super.c (inrange): Return int instead of int32_t.
+		(validate_sizes): Likewise.
+		(ujfs_validate_super): Likewise.
+		(ujfs_put_superblk): Likewise.
+		(ujfs_get_superblk): Likewise.
+	* libfs/super.h: Update prototypes for the above change, add missing
+		prototypes for ujfs_put_logsuper and ujfs_get_logsuper, add needed
+		struct forward declarations.
+	* xpeek/fsckcbbl.c: Include <super.h>.
+
+2002-08-08  Barry Arndt  <barndt@us.ibm.com>
+
+	* libfs/super.c: Add ujfs_validate_logsuper(), ujfs_put_logsuper(), ujfs_get_logsuper().
+	* xpeek/fsckcbbl.c: Use ujfs_put_logsuper, ujfs_get_logsuper calls instead of
+	                    put_logsuper, get_logsuper.
+	                    Get rid of put_logsuper() and get_logsuper().
+
+2002-08-07  Barry Arndt  <barndt@us.ibm.com>
+
+	* fsck/xchkdsk.c (phase0_processing): Update log device number in superblock
+	                                      after logredo with external log.
+
+2002-07-18  Barry Arndt  <barndt@us.ibm.com>
+
+	* xpeek/Makefile.am: Add -luuid to LDADD for external log support.
+	* xpeek/fsckcbbl.c (display_logsuper): Add support for external log.
+	                                       Clean up file.
+	* xpeek/super.c (display_super): Likewise.
+	* xpeek/super2.c (display_super2): Likewise.
+
+2002-07-15  Christoph Hellwig  <hch@infradead.org>
+
+	* libfs/logredo.c (jfs_logredo): Remove unused variables.
+	* libfs/log_work.c (logredoInit): Likewise.
+	* libfs/log_dump.c (ldmp_logError): Likewise.
+	* fsck/xchkdsk.c (final_processing):  Likewise.
+	* libfs/logredo.h: Add prototype for findLog().
+	* xpeek/fsckcbbl.c (display_logsuper): Fix printf format specifiers.
+
+2002-07-12  Barry Arndt  <barndt@us.ibm.com>
+
+	* Makefile.am (SUBDIRS): Remove defrag and extendfs.
+	* configure.in (AC_OUTPUT): Likewise.
+	* extendfs/: Remove contents.
+	* *.h, *.c: Clean up license boilerplates and comments.
+
+2002-07-10  Barry Arndt  <barndt@us.ibm.com>
+
+	* defrag/defragfs.c: Remove register keyword.
+	* fsck/fsckdire.c: Likewise.
+	* include/jfs_unicode.h: Likewise.
+	* libfs/log_dump.c: Likewise.
+	* libfs/logredo.c: Likewise.
+	* libfs/utilsubs.c: Likewise.
+	* include/jfs_logmgr.h: Only include uuid/uuid.h if not already included.
+	* include/jfs_superblock.h: Likewise.
+	* libfs/logform.c: Remove unneeded #include <uuid/uuid.h>.
+	* libfs/logform.h: Likewise.
+	* libfs/logredo.h: Likewise.
+	* libfs/open_by_label.c: Likewise.
+
+2002-06-24  Barry Arndt  <barndt@us.ibm.com>
+
+	* mkfs/mkfs.c (mkfs_usage): Fixed typo in Emergency help. (Bas)
+
+2002-06-21  Barry Arndt  <barndt@us.ibm.com>
+
+	* configure.in: Bumped version to 1.0.20.
+	* README: Likewise.
+	* NEWS: Likewise.
+
+2002-06-20  Barry Arndt  <barndt@us.ibm.com>
+
+	* libfs/logform.c: Include unistd.h.
+	  (jfs_logform): Do not display logform heartbeat if output is redirected.
+
+2002-06-20  peterc@gelato.unsw.edu.au
+
+	* libfs/devices.c: Add support for BLKGETSIZE64.
+	* mkfs/initmap.c (calc_map_size): Change int32_t vars to int64_t.
+
+2002-06-20  Christoph Hellwig  <hch@infradead.org>
+
+	* fsck/fsckimap.c (AIS_replication): Remove unused variables.
+	* fsck/fsckpfs.c (ait_special_read_ext1): Likewise.
+	  (blkmap_find_bit): Likewise.
+	  (blkmap_get_page): Likewise.
+	  (blktbl_dmap_get): Likewise.
+	  (blktbl_dmaps_flush): Likewise.
+	  (imapleaf_get): Likewise.
+	  (inode_get): Likewise.
+	  (inode_get_first_fs): Likewise.
+	  (inode_get_next): Likewise.
+	  (inodes_flush): Likewise.
+	  (node_get): Likewise.
+
+2002-06-11  Barry Arndt  <barndt@us.ibm.com>
+
+	* mkfs/mkfs.c (create_aggregate): Set version in superblock properly if external log.
+
+2002-06-07  Barry Arndt  <barndt@us.ibm.com>
+
+	* configure.in: Bumped version to 1.0.19.
+	* README: Likewise.
+	* NEWS: Likewise.
+
+2002-05-24  Barry Arndt  <barndt@us.ibm.com>
+
+	* configure.in: Bumped version to 1.0.18.
+	* README: Likewise.
+	* NEWS: Likewise, and updated with current fixes/features.
+
+2002-05-24  Dave Kleikamp  <shaggy@austin.ibm.com>
+
+	* libfs/logform.c: Set maximum working size of external log at 128 MB
+
+2002-05-24  Dave Kleikamp  <shaggy@austin.ibm.com>
+
+	* fsck/fsck.c: warn user about destroying data on log device
+
+2002-05-21  Dave Kleikamp  <shaggy@austin.ibm.com>
+
+	* configure.in: Add check for uuid library
+	* fsck/Makefile.am: add -luuid
+	* libfs/Makefile.am: Likewise
+	* logdump/Makefile.am: Likewise
+	* logredo/Makefile.am: Likewise
+	* mkfs/Makefile.am: Likewise
+	* include/jfs_logmgr.h: Add uuid and label to superblock, log_superblock
+	* include/jfs_superblock.h: Likewise, bump JFS_VERSION to 2
+	* fsck/fsckmeta.c: Suport for external log
+	* fsck/xchkdsk.c: Likewise
+	* libfs/devices.h: Likewise
+	* libfs/fssubs.c: Likewise
+	* libfs/jfs_endian.c: Likewise
+	* libfs/log_dump.c: Likewise
+	* libfs/log_read.c: Likewise
+	* libfs/log_work.c: Likewise
+	* libfs/logform.c: Likewise
+	* libfs/logform.h: Likewise
+	* libfs/logredo.c: Likewise
+	* libfs/logredo.h: Likewise
+	* libfs/open_by_label.c: Likewise
+	* libfs/super.c: Likewise
+	* libfs/super.h: Likewise
+	* logdump/logdump.c: Likewise
+	* logredo/xlogredo.c: Likewise
+	* mkfs/mkfs.c: Likewise
+	* xpeek/super.c: Likewise
+	* xpeek/super2.c: Likewise
+	* fsck/fsck.jfs.8: Add -j option
+	* mkfs/mkfs.jfs.8: Likewise
+	* man_html/fsck.jfs.8.html: Likewise
+	* man_html/mkfs.jfs.8.html: Likewise
+
+2002-04-26  Dave Kleikamp  <shaggy@austin.ibm.com>
+
+	* include/jfs_filsys.h: Remove JFS_SWAP_BYTES define
+	* libfs/Makefile.am: add jfs_endian.h to libfs_a_SOURCES
+	* libfs/jfs_endian.c: Remove i386_byteorder & jfs_native_flag
+			      Put all swap code in #if block
+	* libfs/jfs_endian.h: Conditional declare swap routines or define
+			      noop macros based on __BYTE_ORDER
+	* fsck/xfsckint.h: Include jfs_endian.h
+	* fsck/fsckimap.c: Remove conditionals around swap functions
+			   Swap/Write/Swap-back rather than copy/swap/write
+	* fsck/fsckbmap.c: Likewise
+	* fsck/fsckmsgs.c: Likewise
+	* fsck/fsckpfs.c: Likewise
+	* fsck/fsckwps.c: Likewise
+	* fsck/xchkdsk.c: Likewise
+	* libfs/fssubs.c: Likewise
+	* libfs/inode.c: Likewise
+	* libfs/log_dump.c: Likewise
+	* libfs/log_map.c: Likewise
+	* libfs/log_read.c: Likewise
+	* libfs/log_work.c: Likewise
+	* libfs/logform.c: Likewise
+	* libfs/logredo.c: Likewise
+	* libfs/super.c: Likewise
+	* mkfs/initmap.c: Likewise
+	* mkfs/inodemap.c: Likewise
+	* mkfs/inodes.c: Likewise
+	* mkfs/mkfs.c: Likewise
+	* xchklog/xchklog.c: Likewise
+	* xpeek/directory.c: Likewise
+	* xpeek/display.c: Likewise
+	* xpeek/dmap.c: Likewise
+	* xpeek/fsckcbbl.c: Likewise
+	* xpeek/iag.c: Likewise
+	* xpeek/inode.c: Likewise
+	* xpeek/xpeek.c: Likewise
+
+2002-04-24  Barry Arndt  <barndt@us.ibm.com>
+
+	* fsck/xchkdsk.c: Fix typo in fsck.jfs Emergency Help.
+	* fsck/fsckpfs.c (blkmap_put_ctl_page): Endian-swap buffer, not
+	                 original block map control page.
+
+2002-04-02  Dave Kleikamp <shaggy@austin.ibm.com>
+
+	* include/jfs_logmgr.h: Changed "active" from bitmap to list.
+				Added field for log device number
+				Removed unneeded rsrvd field
+	* include/jfs_superblock.h: Remove never-used DFS fields
+				    Added s_device field to superblock
+	* libfs/jfs_endian.c: Reflect changes to superblock and logsuper
+	* libfs/super.c: Likewise
+	* xpeek/super.c: Likewise
+	* xpeek/super2.c: Likewise
+
+2002-04-02  Barry Arndt  <barndt@us.ibm.com>
+
+	* configure.in: Bumped version to 1.0.17.
+	* README: Likewise.
+	* NEWS: Likewise, and updated with current fixes/features.
+
+2002-03-28  Barry Arndt  <barndt@us.ibm.com>
+
+	* libfs/fsckmsge.h: Remove fsck_PRMUSAGE message 116.
+	* libfs/fsckmsgc.h: Remove fsck_PRMUSAGE #define.
+	* libfs/message.c: Remove MSG_OSO_MKFS_USAGE message.
+	* libfs/message.h: Remove MSG_OSO_MKFS_USAGE #define.
+	* fsck/xchkdsk.c: Add fsck_usage().
+	  (parse_parms): Call fsck_usage() instead of message 116,
+	                 improve error checking.
+	* mkfs/mkfs.c: Add mkfs_usage().
+	  (main): Call mkfs_usage() instead of MSG_OSO_MKFS_USAGE
+		  message, improve error checking.
+
+2002-03-27  Barry Arndt  <barndt@us.ibm.com>
+
+	* fsck/xchkdsk.c (parse_parms): Rewrite routine to use getopt()
+
+2002-03-27  Dave Kleikamp <shaggy@austin.ibm.com>
+
+	* libfs/log_map.c: Run through indent, clean up wrapped comments, etc.
+	* libfs/log_read.c: Likewise
+	* libfs/log_work.c: Likewise
+	* libfs/log_form.c: Likewise
+	* libfs/log_form.h: Likewise
+	* libfs/log_redo.c: Likewise
+	* libfs/log_redo.h: Likewise
+
+2002-03-27  Christoph Hellwig  <hch@infradead.org>
+
+	* libfs/message.c (message_user): Remove 'device' and 'response'
+		parameters, change return value to 'void', remove now
+		unused code and update callers.
+	* libfs/message.h: Remove unused defines.
+	* mkfs/mkfs.c (main): Implement Yes/No reply handling ourselves.
+
+2002-03-25  Dave Kleikamp <shaggy@austin.ibm.com>
+
+	* libfs/jfs_endian.c:  Cosmetic: remove carriage returns (^M)
+
+2002-03-24  Christoph Hellwig  <hch@infradead.org>
+
+	* configure.in: Don't check for libpthreads.
+	* fsck/fsckruns.c: Rewritten for alarm()-based heartbeat.
+	* fsck/xchkdsk.c: Don't include <pthread.h>.
+
+2002-03-22  Barry Arndt  <barndt@us.ibm.com>
+
+	* xpeek/super.c (display_super): Display proper endian format of pxd structs.
+	* xpeek/super2.c (display_super2): Likewise.
+
+2002-03-21  Barry Arndt  <barndt@us.ibm.com>
+
+	* libfs/jfs_endian.c: Add ujfs_swap_fscklog_entry_hdr_t().
+	* fsck/fsckmsgs.c (fsck_record_msg): Swap log entry if on big endian.
+	* fsck/fsckwsp.c: Include jfs_byteorder.h.
+	  (fscklog_end): Swap entry_length if on big endian.
+	* xchklog/xchklog.c (initial_processing): Detect if big endian.
+	  (extract_service_log): Swap log entry if on big endian.
+
+2002-03-19  Dave Kleikamp  <shaggy@austin.ibm.com>
+
+	* fsck/fsckdtre.c: More rigorous dtree validation
+
+2002-03-11  Barry Arndt  <barndt@us.ibm.com>
+
+	* configure.in: Bumped version to 1.0.16.
+	* README: Likewise.
+	* NEWS: Likewise, and updated with current fixes/features.
+
+2002-03-07  Barry Arndt  <barndt@us.ibm.com>
+
+	* libfs/fsckmsge.h: Add exit code to 'fsck session end' debug message.
+	* fsck/xchkdsk.c (main): Pass exit code to fsck_SESSEND message.
+	* xchkdmp/Makefile.am (INCLUDES): Add -I$(top_srcdir)/fsck.
+	* xchkdmp/xchkdmp.c: Delete dump_msg(), use send_msg() instead.
+	                     Include xfsck.h.
+	                     Delete hardcoded fsck_highest_msgid_defined.
+
+2002-03-04  Barry Arndt  <barndt@us.ibm.com>
+
+	* fsck/fsckwsp.c (alloc_vlarge_buffer): Add error checking for
+	                                        malloc failure.
+	* fsck/xfsck.h: Add fsck exit codes.
+	* fsck/xchkdsk.c: Set/return appropriate exit codes.
+	                  Remove unused default_vol, message_buffer_0,
+	                  terse_msg_ptr, chkdsk32 definition, unnecessary
+	                  _JFS_DEBUG statements.
+	                  Check for alloc_vlarge_buffer failure.
+	                  Update comments.
+	* fsck/fsck.jfs.8: Update man page with new exit code information.
+
+2002-02-26  Barry Arndt  <barndt@us.ibm.com>
+
+	* libfs/devices.c: Include jfs_filsys.h, remove BLKSSZGET ioctl.
+	  (ujfs_get_dev_size): Use PBSIZE for sector size.
+
+2002-02-25  Barry Arndt  <barndt@us.ibm.com>
+
+	* fsck/xfsckint.h: Remove unused second parameter in fsck_send_msg definition.
+	* fsck/fsckbmap.c: Remove unused second parameter in calls to fsck_send_msg.
+	                   Remove unused extern char *terse_msg_ptr.
+	* fsck/fsckcbbl.c: Likewise.
+	* fsck/fsckconn.c: Likewise.
+	* fsck/fsckdtre.c: Likewise.
+	* fsck/fsckimap.c: Likewise.
+	* fsck/fsckino.c: Likewise.
+	* fsck/fsckmeta.c: Likewise.
+	* fsck/fsckmsgs.c: Likewise.
+	* fsck/fsckpfs.c: Likewise.
+	* fsck/fsckwsp.c: Likewise.
+	* fsck/fsckxtre.c: Likewise.
+	* fsck/xchkdsk.c: Likewise.
+	* libfs/log_map.c: Likewise.
+	* libfs/log_read.c: Likewise.
+	* libfs/log_work.c: Likewise.
+	* libfs/logredo.c: Likewise.
+	* logdump/helpers.c: Likewise.
+	* logdump/logdump.c: Likewise.
+	* logredo/helpers.c: Likewise.
+	* logredo/xlogredo.c: Likewise.
+	* fsck/fsckpfs.c (open_device_read): Init Dev_blksize and
+	                                     Dev_SectorSize to PBSIZE.
+	                 (open_device_rw_exclusize): Likewise.
+	* xchklog/xchklog.c (open_device_read): Likewise.
+	* libfs/fssubs.c (OpenLV): Init LVMount.pbsize to PBSIZE.
+	* logdump/logdump.c: Remove unused Dev_SectorSize definition.
+	* mkfs/mkfs.c (main): Init phys_block_size to PBSIZE.
+
+2002-02-25  Christoph Hellwig  <hch@infradead.org>
+
+	* fsck/fsckpfs.c: Include <fcntl.h>.
+	  (close_volume): Use close instead of ujfs_close.
+	  (open_device_read): Use open instead of ujfs_open_device.
+	  (open_device_rw_exclusive): Likewise.
+	* libfs/device.c (ujfs_open_device): Removed.
+	  (ujfs_close): Likewise.
+	  (ujfs_rw_diskblocks): Update comment.
+	* libfs/devices.h: Remove declarations of ujfs_open_device and
+	                   ujfs_close.
+	* libfs/fssubs.c (openLV): Use open instead of ujfs_open_device.
+	  (closeFS): Use close instead of ujfs_close.
+	* logdump/logdump.c: Include <fcntl.h>.
+	  (main): Use open/close instead of ujfs_open_device/ujfs_close.
+	* logredo/xlogredo.c: Include <fcntl.h>.
+	  (main): Use open instead of ujfs_open_device.
+	* mkfs/mkfs.c: Include <fcntl.h>.
+	  (main): Use open/close instead of ujfs_open_device/ujfs_close.
+	* xchklog/xchklog.c: Include <fcntl.h>.
+	  (final_processing): Use close instead of ujfs_close.
+	  (open_device_read): Use open instead of ujfs_open_device.
+	* xpeek/xpeek.c: Include <fcntl.h>, <unistd.h>.
+	  (main): Use open/close instead of ujfs_open_device/ujfs_close.
+
+2002-02-23  Christoph Hellwig  <hch@infradead.org>
+
+	* fsck/fsckcbbl.c: Do not define INCL_TYPES.
+	* fsck/fsckea.c: Do not define INCL_DOSERRORS and INCL_DOSPROCESS.
+	                 Get rid of remaining OS/2 cdecl handling.
+	* fsck/fsckruns.c: Do not define INCL_DOSPROCESS.
+
+2002-02-18  Barry Arndt  <barndt@us.ibm.com>
+
+	* fsck/fsckmsgl.h: Remove.
+	* fsck/fsckmsgp.h: Change MsgProtocol[][3] to MsgProtocol[][2].
+	                   Remove 'output stream' field from MsgProtocol[][].
+	                   Change fsck_autochk to fsck_quiet, msg 145.
+	* fsck/fsckmsgs.c: Change MsgProtocol[][3] to MsgProtocol[][2].
+	                   (fsck_send_msg): Remove dead code using unneeded
+                                            fsck_terse, fsck_out, MP_STREAM,
+	                                    UFS_CHKDSK_AUTOCHECK, fsck_autochk.
+	* fsck/Makefile.am: Remove fsckmsgl.h.
+	* fsck/xchkdsk.c: Remove unneeded UFS_CHKDSK_AUTOCHECK.
+	* fsck/xchkdsk.h: Likewise.
+	* fsck/xfsck.h: Decrement defines MP_MSGLVL, MP_MSGFILE.
+	                Remove unneeded defines MP_STREAM, fsck_suffix,
+	                fsck_notqry, fsck_terse, fsck_autochk, fsck_engl_only,
+	                fsck_local_lang, fsck_out, fsck_err, fsck_in.
+	* libfs/message.c: Remove unused messages.
+	* libfs/message.h: Remove defines for unused messages.
+	* logdump/helpers.c: Change MsgProtocol[][4] to MsgProtocol[][2].
+	* logredo/helpers.c: Likewise.
+	* xchklog/xchklog.c: Remove dead code using MP_STREAM, fsck_out.
+
+2002-02-15  Dave Kleikamp  <shaggy@austin.ibm.com>
+
+	* remove complete largefile support changes from 2000-01-28 CH
+
+2002-02-15  Barry Arndt  <barndt@us.ibm.com>
+
+	* configure.in: Bumped version to 1.0.15.
+	* README: Likewise.
+	* NEWS: Likewise, and updated with current fixes/features.
+
+2002-02-15  Hiten Pandya  <hiten@uk.FreeBSD.org>
+
+	* include/jfs_types.h: Include <sys/types.h> to satisfy BSD systems,
+	                       for various types, such as caddr_t.
+
+2002-02-15  Christoph Hellwig  <hch@infradead.org>
+
+	* fsck/xchkdsk.c: Do not include <mntent.h>.
+	* libfs/log_map.c: Make updDmapPage prototype match the declaration.
+	* libfs/fssubs.c (Is_Device_Mounted): Fix typo.
+	                 (Is_Device_Type_JFS): Likewise.
+
+2002-02-13  Christoph Hellwig  <hch@infradead.org>
+
+	* include/jfs_types.h: Don't define MAXPATHLEN.
+	* libfs/log_dump.c: Remove unused variable loglockpath.
+	* libfs/logredo.c: Likewise.
+	* xpeek/directory.c: Include <limits.h>, replace all instances
+	                     of MAXPATHLEN with PATH_MAX.
+	* configure.in (AC_CHECK_HEADERS): Add mntent.h.
+	               (AC_CHECK_FUNCS): Add getmntinfo.
+	* libfs/fssubs.c: Include "config.h", include <mntent.h> only if
+	                  HAVE_MNTENT_H is defined, move Is_Device_Mounted and
+	                  Is_Device_Type_JFS under if HAVE_MNTENT_H.
+	                  Move Is_Root_Mounted_RO above Is_Device_Mounted.
+	  [HAVE_GETMNTINFO]: Include <paths.h>, <sys/param.h>, <sys/mount.h>,
+	                     add getmntinfo based versions of Is_Device_Mounted
+	                     and Is_Device_Type_JFS.
+
+2002-02-12  Barry Arndt  <barndt@us.ibm.com>
+
+	* mkfs/inodes.c (init_fileset_inode_table): Change 'inostamp' to unsigned type.
+	                (init_fileset_inodes): Likewise.
+	* mkfs/mkfs.c (create_fileset): Likewise.
+	* mkfs/inodes.h: Change function definitions to match above changes.
+
+2002-02-10  Christoph Hellwig  <hch@infradead.org>
+
+	* mkfs/mkfs.c: Don't include <getopt.h> and <mntent.h>.
+	* xchkdmp/xchkdmp.c: Include <unistd.h> instead of <getopt.h>.
+	* xchklog/xchklog.c: Likewise.
+	* defrag/defragfs.c (defragfs): Zero-initialize unused variable.
+	                    (addDtree): Likewise.
+	                    (fscntlMove): Likewise.
+	* extendfs/extendfs.c (extendfs): Likewise.
+	* mkfs/inodes.c (init_inode): Change 'inostamp' to unsigned type.
+
+2002-02-08  Barry Arndt  <barndt@us.ibm.com>
+
+	* fsck/fsckino.c: Don't let xTree_processing error flag influence dTree_processing,
+	                  could cause fsck.jfs internal error 10.
+	* fsck/fsck.jfs.8: Remove unneeded comments that cause man2html format errors.
+	* xpeek/xpeek.8: Update xpeek man page.
+	* xpeek/help.c: Change output text from chkdsk to fsck.
+
+2002-01-30  Barry Arndt  <barndt@us.ibm.com>
+
+	* fsck/fsckmeta.c: add new error message if magic number is not jfs,
+	                   take out misleading 'superblock corrupt' debug message
+	* libfs/message.c: update message 335, 'not jfs in /etc/fstab'.
+
+2002-01-29  Christoph Hellwig  <hch@infradead.org>
+
+	* defrag/defragfs.c: Include <assert.h> instead of "jfs_debug.h".
+	  [_JFS_DEBUG] (jFYI, jEVENT, jERROR): New, debugging macros.
+	  [!_JFS_DEBUG] (jFYI, jEVENT, jERROR): New, stubs.
+	* extendfs/extendfs.c: Don't include "jfs_debug.h".
+	* fsck/fsckdire.c: Likewise.
+	* libfs/fssubs.c: Likewise.
+	* libfs/log_dump.c: Likewise.
+	* libfs/log_read.c: Likewise.
+	* libfs/log_work.c: Likewise.
+	* libfs/log_map.c: Include <assert.h> instead of "jfs_debug.h".
+	* libfs/logredo.c: Likewise.
+	  (recoverExtendFS): Use assert() instead of ASSERT().
+	* include/Makefile.am (EXTRA_DIST): Remove jfs_debug.h.
+	* include/jfs_debug.h: Removed.
+
+2002-01-28  Christoph Hellwig  <hch@infradead.org>
+
+	* configure.in:  Check for canonical host name and largefile support.
+	* libfs/Makefile.am: Remove AM_CFLAGS.
+	* xchkdmp/Makefile.am: Likewise.
+	* xchklog/Makefile.am: Likewise.
+	* xpeek/Makefile.am: Likewise.
+	* logdump/Makefile.am (AM_CFLAGS): Remove -D_FILE_OFFSET_BITS=64.
+	* logredo/Makefile.am (AM_CFLAGS): Likewise.
+	* mkfs/Makefile.am (AM_CFLAGS): Likewise.
+	* acinlude.m4: New file.
+
+2002-01-28  Barry Arndt  <barndt@us.ibm.com>
+
+	* include/jfs_types.c: remove old types PVOID, UCHAR, USHORT, ULONG.
+	* defrag/defragfs.c: change UCHAR to char*, ULONG to unsigned long.
+	* extendfs/extendfs.c: change PVOID to void*, UCHAR to char*,
+	                       ULONG to unsigned long.
+	* mkfs/mkfs.c: change UCHAR to char*.
+	* fsck/fsckea.c: change USHORT to unsigned short, ULONG to unsigned long.
+	* fsck/fsckcbbl.c: change ULONG to unsigned long.
+	* fsck/fsckino.c: Likewise.
+	* fsck/fsckmsgs.c: Likewise.
+	* fsck/fsckpfs.c: Likewise.
+	* fsck/fsckruns.c: Likewise.
+	* fsck/xchkdsk.c: Likewise.
+	* fsck/xfsck.h: Likewise.
+	* libfs/fssubs.c: Likewise.
+	* libfs/fssubs.h: Likewise.
+	* logdump/helpers.c: Likewise.
+	* logdump/logdump.c: Likewise.
+	* logredo/helpers.c: Likewise.
+	* logredo/xlogredo.c: Likewise.
+	* xchkdmp/xchkdmp.c: Likewise.
+	* xchklog/xchklog.c: Likewise.
+	* libfs/devices.c (ujfs_get_dev_size): fix typecast problem causing fsck.jfs
+	                                       'corrupt superblock' error message
+	* configure.in: Bumped version to 1.0.14.
+	* README: Likewise.
+	* NEWS: Likewise, and updated with current fixes/features.
+
+2002-01-25  Barry Arndt  <barndt@us.ibm.com>
+
+	* defrag/(*.h *.c): change types uxx and uintxx to C99 type uintxx_t,
+	                    change types sxx and intxx to C99 type intxx_t.
+	* extendfs/(*.h *.c): Likewise.
+	* fsck/(*.h *.c): Likewise.
+	* include/(*.h): Likewise.
+	* libfs/(*.h *.c): Likewise.
+	* logdump/(*.c): Likewise.
+	* logredo/(*.c): Likewise.
+	* mkfs/(*.h *.c): Likewise.
+	* xchkdmp/(*.c): Likewise.
+	* xchklog/(*.c): Likewise.
+	* xpeek/(*.h *.c): Likewise.
+	* include/jfs_types.h: Remove uxx, uintxx, sxx, intxx typedef's
+	* configure.in: Bumped version to 1.0.13.
+	* README: Likewise.
+	* NEWS: Likewise, and updated with current fixes/features.
+
+2002-01-24  Dave Kleikamp  <shaggy@austin.ibm.com>
+
+	* jfsutils.spec.in: Fixed typo s/RPM_OPTFLAGS/RPM_OPT_FLAGS/
+
+2002-01-21  Christoph Hellwig  <hch@infradead.org>
+
+	* configure.in (AC_CHECK_HEADERS): Check for endian.h, sys/byteorder.h,
+		and machine/endian.h. Use non-prefixed versions of
+		BYTE_ORDER, LITTLE_ENDIAN and BIG_ENDIAN.
+	* include/jfs_byteorder.h: Include "config.h", make inclusion of
+		<endian.h> depending on HAVE_ENDIAN_H.
+	[HAVE_MACHINE_ENDIAN_H]: Include <machine/endian.h>.
+	[HAVE_SYS_BYTEORDER_H]: Include <sys/byteorder.h>.
+	* fsck/fsckdire.c: Don't define _ULS_UNIDEFK and UNICASERANGE_DEFINED,
+		don't include "jfs_uniupr.h" and remove mess around it.
+	* fsck/fsckdtre.c: Don't define _ULS_UNIDEFK.
+	* fsck/xchkdsk.c: Likewise.
+	* include/Makefile.am (EXTRA_DIST): Remove jfs_uniupr.h.
+	* include/jfs_types.h: Define UniChar in terms of uint16_t.
+	* include/jfs_unicode.h: Remove lots of unused code.
+	* include/jfs_uniupr.h: Removed.
+	* libfs/Makefile.am (libfs_a_SOURCES): Add uniupr.c.
+	* libfs/uniupr.c: New file.
+	* xpeek/directory.c: Don't define UNICASERANGEDEFINED and
+		UNIUPR_NOUPPER.
+
+2002-01-16  Dave Kleikamp  <shaggy@austin.ibm.com>
+
+	* configure.in: Define AM_MAINTAINER_MODE
+
+2002-01-14  Christoph Hellwig  <hch@infradead.org>
+
+	* include/Makefile.am (EXTRA_DIST): Remove
+	* include/jfs_types.h: Don't define __BYTEORDER_HAS_U64__,
+		don't include <asm/byteorder.h> and "endian24.h".
+	* include/jfs_byteorder.h: New file.
+	* include/endian24.h: Removed.
+	* fsck/fsckimap.c: Include "jfs_byteorder.h" instead of
+		<asm/byteorder.h> and "endian24.h".
+	* fsck/fsckmeta.c: Likewise.
+	* fsck/fsckpfs.c: Likewise.
+	* libfs/jfs_endian.c: Likewise.
+	* libfs/logform.c: Include "jfs_byteorder.h" instead of
+		<asm/byteorder.h>.
+	* mkfs/inodes.c: Likewise.
+	* defrag/defragfs.c: Include "jfs_byteorder.h".
+	* fsck/fsckdire.c: Likewise.
+	* fsck/fsckdtre.c: Likewise.
+	* fsck/fsckino.c: Likewise.
+	* fsck/fsckxtre.c: Likewise.
+	* fsck/xchkdsk.c: Likewise.
+	* libfs/fssubs.c: Likewise.
+	* libfs/inode.c: Likewise.
+	* libfs/log_dump.c: Likewise.
+	* libfs/log_map.c: Likewise.
+	* libfs/log_read.c: Likewise.
+	* libfs/log_work.c: Likewise.
+	* libfs/logredo.c: Likewise.
+	* libfs/super.c: Likewise.
+	* mkfs/initmap.c: Likewise.
+	* mkfs/inodemap.c: Likewise.
+	* mkfs/mkfs.c: Likewise.
+	* xchklog/xchklog.c: Likewise.
+	* xpeek/directory.c: Likewise.
+	* xpeek/iag.c: Likewise.
+	* xpeek/inode.c: Likewise.
+	* xpeek/super.c: Likewise.
+	* xpeek/super2.c: Likewise.
+	* xpeek/xpeek.c: Likewise.
+	* fsck/fsckwsp.c: Don't include <asm/byteorder.h>.
+	* include/jfs_unicode.h: Likewise.
+
+2002-01-14  Barry Arndt  <barndt@us.ibm.com>
+
+	* libfs/devices.c (ujfs_get_dev_size): use ioctl to find device size,
+			remove unneeded 'hidden' from passed parms, routine.
+	* libfs/devices.h: remove 'hidden' from ujfs_get_dev_size.
+	* libfs/fssubs.c (openLV): remove 'hidden' from ujfs_get_dev_size call.
+	* fsck/fsckmeta.c (validate_super): Likewise.
+	* mkfs/mkfs.c (main): Likewise.
+	* xchklog/xchklog.c (validate_super): Likewise.
+
+2002-01-13  Christoph Hellwig  <hch@infradead.org>
+
+	* configure.in (AC_CHECK_HEADERS): add stdint.h.
+	* include/jfs_types.h: Declare primitive types based on C99 inttypes,
+		make inclusion of <sys/types.h> conditional on !HAVE_STDINT_H,
+		include "config.h".
+	  [!HAVE_STDINT_H]: Declare C99 unsigned inttypes based on BSD ones.
+	  [HAVE_STDINT_H]: Include <stdint.h>.
+	* libfs/unicode_to_utf8.h: Include "jfs_types.h" instead of <stdint.h>.
+	* libfs/Makefile.am (AM_CFLAGS): Remove -DONE_FILESET_PER_AGGR.
+	* logdump/Makefile.am (AM_CFLAGS): Likewise.
+	* logredo/Makefile.am (AM_CFLAGS): Likewise.
+	* xchkdmp/Makefile.am (AM_CFLAGS): Likewise.
+	* xchklog/Makefile.am (AM_CFLAGS): Likewise.
+	* xpeek/Makefile.am (AM_CFLAGS): Likewise.
+
+2002-01-11  Barry Arndt  <barndt@us.ibm.com>
+
+	* xchklog/xchklog.c (parse_parms): rewrite to make parm parsing better.
+	* xchklog/xchklog.8: update xchklog man page.
+	* xchkdmp/xchkdmp.c (parse_parms): rewrite to make parm parsing better.
+		(main): print xchkdmp version and date.
+	* xchkdmp/xchkdmp.8: update xchkdmp man page.
+	* libfs/fsckmsge.h: update usage messages for xchklog(66), xchkdmp(222).
+
+2002-01-08  Dave Kleikamp  <shaggy@austin.ibm.com>
+
+	* xpeek/Makefile.am: Remove _JFS_UNICODE.
+	* xpeek/directory.c: Likewise.
+
+2002-01-06  Christoph Hellwig  <hch@infradead.org>
+
+	* defrag/defragfs.c (main): Convert to ANSI prototype of main().
+	* extendfs/extendfs.c (main): Likewise.
+	* logdump/logdump.c (main): Likewise.
+	* xchkdmp/xchkdmp.c (main): Likewise.
+	* xchklog/xchklog.c (main): Likewise.
+
+2002-01-05  Christoph Hellwig  <hch@infradead.org>
+
+	* configure.in (AC_CHECK_HEADERS): add stdbool.h.
+	* include/jfs_types.h: Remove boolean_t, TRUE and FALSE.
+	  [HAVE_STDBOOL_H]: Include <stdbool.h>.
+	  [!HAVE_STDBOOL_H]: Provide a C99 bool type.
+	* defrag/defragfs.c: Remove write-only variable 'Query',
+			     Change 'DoIt' type to 'bool'.
+	* extendfs/extendfs.c: Remove unused variable 'Query'.
+	  (whatDoYouWant): Change 'devFound' type to 'bool'.
+	* libfs/fssubs.c (xtLMLeaf): Don't use 'TRUE' for infinite loop.
+	* libfs/logredo.c (recoverExtendFS): Likewise.
+	* mkfs/initmap.c (verify_last_blocks):
+			Change 'write_inode' type to 'bool'.
+	* mkfs/mkfs.c (create_aggregate): Change 'verify_blocks' type to bool.
+	  (main): Change 'verify_blocks' and 'no_questions_asked' type to bool.
+
+2002-01-05  Christoph Hellwig  <hch@caldera.de>
+
+	* libfs/fssubs.c: Include <errno.h> instead of <asm/errno.h>.
+	* fsck/xfsck.c: Don't include <linux/types.h>.
+	* xpeek/directory.c: [_JFS_UNICODE]: Likewise.
+
+2001-12-20  Dave Kleikamp  <shaggy@austin.ibm.com>
+
+	* libfs/logredo.h: add active flag to vopen structure
+	* libfs/log_dump.c: use active flag instead of testing fd == 0
+	* libfs/logredo.c: Likewise.
+
+2001-12-19  Christoph Hellwig  <hch@caldera.de>
+
+	* include/jfs_version.h: Define JFSUTILS_DATE to __DATE__.
+
+2001-12-19  Dave Kleikamp  <shaggy@austin.ibm.com>
+
+	* autogen.sh: Make sure autoheader runs before automake.
+
+2001-12-18  Christoph Hellwig  <hch@caldera.de>
+
+	* Makefile.am (dist-hook): Autocreate jfs_version.h.
+	* jfsutils.spec.in (Files): Add AUTHORS, NEWS and manpages.
+	* fsck/Makefile.am: Add manpages.
+	* logdump/Makefile.am: Likewise.
+	* logredo/Makefile.am: Likewise.
+	* mkfs/Makefile.am: Likewise.
+	* xchkdmp/Makefile.am: Likewise.
+	* xchklog/Makefile.am: Likewise.
+	* xpeek/Makefile.am: Likewise.
+
+2001-12-17  Christoph Hellwig  <hch@caldera.de>
+
+	* autogen.sh: Make sure autoheader runs after automake.
+	* configure.in: Add AM_CONFIG_HEADER().
+	* fsck/xchkdsk.c: Include "config.h".
+		(main): Replace JFSUTILS_VERSION with VERSION.
+	* logdump/logdump.c: Likewise.
+	* logredo/xlogredo.c: Likewise.
+	* mkfs/mkfs.c: Likewise.
+	* xchklog/xchklog.c: Likewise.
+	* xpeek/xpeek.c: Likewise.
+	* libfs/Makefile.am: Trim down DEFS and rename to AM_CFLAGS.
+	* mkfs/Makefile.am: Likewise.
+	* logdump/Makefile.am: Likewise.
+	* logredo/Makefile.am: Likewise.
+	* xchkdmp/Makefile.am: Likewise.
+	* xchklog/Makefile.am: Likewise.
+	* xpeek/Makefile.am: Likewise.
+	* libfs/fssubs.c: Properly include <sys/stat.h>.
+	* include/jfs_version.h: Remove JFSUTILS_VERSION
+
+2001-12-17  Barry Arndt  <barndt@us.ibm.com>
+
+	* changelog.jfs: Removed.
+	* Makefile.am: Removed changelog.jfs
+	* jfsutils.spec.in: Removed changelog.jfs
+	* configure.in: Bumped version to 1.0.11.
+	* include/jfs_version.h: Likewise.
+	* README: Added install instructions.
+	* NEWS: Update for 1.0.11.
+
+2001-12-14  Christoph Hellwig  <hch@caldera.de>
+
+	* configure.in: Install into system directories by default.
+	* jfsutils.spec.in: Remove --prefix=/usr argument to configure.
+	* NEWS: Add useful content.
+
+2001-12-05  Christoph Hellwig  <hch@caldera.de>
+
+	* configure.in: Install tools into /sbin if prefix is /usr.
+	* Makefile.am (EXTRA_DIST): add jfsutils.spec.in.
+		(dist-hook): new rule to copy the specfile.
+	* configure.in (AC_OUTPUT): add jfsutils.spec
+	* jfsutils.spec.in: New file.
+	* SPECS/jfsutils.spec: Removed.
+
+2001-12-05  Christoph Hellwig  <hch@caldera.de>
+
+	* AUTHORS: New file.
+	* NEWS: Likewise.
+	* autogen.sh: Likewise.
+	* include/Makefile.am: Likewise.
+	* Makefile.am (EXTRA_DIST): Add changelog.jfs.
+		(SUBDIRS): Add include.
+	* configure.in (AC_OUTPUT): Add include/Makefile
+	* defrag/Makefile.am (SOURCES): Add headers.
+	* extendfs/Makefile.am: Likewise.
+	* fsck/Makefile.am: Likewise.
+	* libfs/Makefile.am: Likewise.
+	* mkfs/Makefile.am: Likewise.
+	* xpeek/Makefile.am: Likewise.

@@ -1,0 +1,145 @@
+.TH jfs_fscklog 8 "October 28, 2002" " " "Extract/Display JFS fsck Log"
+
+.SH NAME
+.B jfs_fscklog
+\- extract a JFS fsck service log into a file and/or format and display the extracted file
+
+.SH SYNOPSIS
+.B jfs_fscklog
+[
+.B -d
+] [
+.BI -e " device"
+] [
+.BI -f " output.file"
+] [
+.B -p
+] [
+.B -V
+]
+
+.SH DESCRIPTION
+.PP
+.B jfs_fscklog
+with option
+.BI -e " device"
+extracts the contents of either the most recent or immediately prior
+(specified with option
+.BR -p )
+JFS fsck service log from the specified device, and writes the output to
+a file.  The file name may be specified with the
+.B -f
+option, or the default file name is
+.IR <pwd>fscklog.new "."
+If the
+.B -p
+option is used, the default file name is
+.IR <pwd>fscklog.old "."
+.PP
+.B jfs_fscklog
+with option
+.B -d
+formats and displays the contents of the extracted file.
+.PP
+.B jfs_fscklog
+with options
+.B -d
+and
+.BI -e " device"
+extracts and displays the JFS fsck service log.
+
+.SH OPTIONS
+.TP
+.BI \-d
+Format and display a previously extracted JFS fsck service log.
+.TP
+.BI \-e  " device"
+Extract the JFS fsck service log from
+.I device
+and store it in a file.
+.RI ( device
+is the special file name corresponding to the actual device from which the fsck log will be extracted (e.g.
+.BR /dev/hdb1 " )). "
+.TP
+.BI \-f  " file.name"
+Specify the file name, overriding the default file name.  When used with
+.B -e
+.IR device ,
+file.name specifies the name of the file into which the JFS fsck log will be extracted.
+When used with
+.BR -d ,
+file.name specifies the name of the extracted file whose contents will be formatted and displayed.
+.RS
+.LP
+.IR file.name " must be 127 characters or less in length."
+.LP
+.IR file.name " will be created in the present working directory unless it is fully qualified."
+.RE
+.TP
+.BI \-p
+Extract the prior log (as opposed to the most recent log).
+.TP
+.BI \-V
+Print version information and exit (regardless of any other chosen options).
+.SH EXAMPLES
+.LP
+ Extract the most recent JFS fsck log on /dev/hda5 into
+.IR <pwd>fscklog.new :
+.IP
+.B jfs_fscklog -e /dev/hda5
+.IP
+.LP
+Extract the most recent JFS fsck log on /dev/hdb3 into
+.IR /temp/l9651107.log :
+.IP
+.B jfs_fscklog -e /dev/hdb3 -f /temp/l9651107.log
+.IP
+.LP
+Display the JFS fsck log that was extracted into
+.IR /temp/l9651107.log :
+.IP
+.B jfs_fscklog -d -f /temp/l9651107.log
+.IP
+.LP
+Extract and display the previous JFS fsck log from /dev/hda8:
+.IP
+.B jfs_fscklog -e /dev/hda8 -d -p
+.IP
+
+.SH "REPORTING BUGS"
+.PP
+If you find a bug in
+.B JFS
+or
+.BR jfs_fscklog,
+please report it via the bug tracking system ("Report Bugs" section) of the JFS project web site:
+.nf
+http://jfs.sourceforge.net/
+.fi
+.PP
+Please send as much pertinent information as possible, including any
+.B jfs_fscklog
+error messages and the complete output of running
+.B jfs_fsck
+with the
+.B \-v
+option on the JFS device.
+
+.SH SEE ALSO
+.BR jfs_fsck (8),
+.BR jfs_mkfs (8),
+.BR jfs_tune (8),
+.BR jfs_logdump (8),
+.BR jfs_debugfs (8)
+
+.SH AUTHOR
+.nf
+Barry Arndt  (barndt@us.ibm.com)
+
+.fi
+.B jfs_fscklog
+is maintained by IBM.
+.nf
+See the JFS project web site for more details:
+http://jfs.sourceforge.net/
+.fi

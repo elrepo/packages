@@ -1,0 +1,77 @@
+.TH jfs_logdump 8 "October 29, 2002" " " "JFS utility - journal log dump"
+
+.SH NAME
+.B jfs_logdump
+\- dump a JFS formatted device's journal log
+
+.SH SYNOPSIS
+.B jfs_logdump [ -a ]
+.I device
+
+.SH DESCRIPTION
+.PP
+.B jfs_logdump
+dumps the contents of the journal log from the specified JFS formatted
+device into output file
+.IR ./jfslog.dmp "."
+.PP
+.I device
+is the special file name corresponding to the actual device from
+which the journal log will be dumped (e.g.
+.BR /dev/hdb1 " ). "
+.PP
+.B jfs_logdump
+must be run as root.
+
+.SH OPTIONS
+.TP
+.B -a
+Dump the entire contents of the journal log instead of just the
+committed transactions since the last synch point.
+
+.SH EXAMPLE
+.LP
+Dump the entire JFS journal log from the 3rd partition of the 2nd hard disk into
+.IR ./jfslog.dmp :
+.IP
+.B jfs_logdump -a /dev/hdb3
+.IP
+
+.SH REPORTING BUGS
+.PP
+If you find a bug in
+.B JFS
+or
+.BR jfs_logdump ","
+please report it via the bug tracking system ("Report Bugs" section) of the JFS project web site:
+.nf
+http://jfs.sourceforge.net/
+.fi
+.PP
+Please send as much pertinent information as possible, including any
+.B jfs_logdump
+error messages and the complete output of running
+.B jfs_fsck
+with the
+.B \-v
+option on the JFS device.
+
+.SH SEE ALSO
+.BR jfs_fsck (8),
+.BR jfs_mkfs (8),
+.BR jfs_fscklog (8),
+.BR jfs_tune (8),
+.BR jfs_debugfs (8)
+
+.SH AUTHORS
+.nf
+Barry Arndt  (barndt@us.ibm.com)
+William Braswell, Jr.
+
+.fi
+.B jfs_logdump
+is maintained by IBM.
+.nf
+See the JFS project web site for more details:
+http://jfs.sourceforge.net/
+.fi
