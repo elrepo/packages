@@ -2,13 +2,13 @@
 %define kmod_name	hello-1
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 6.11.0-0.rc5.23.el10}
+%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-48.el10}
 
 %{!?dist: %define dist .el10}
 
 Name:           kmod-%{kmod_name}
 Version:        0.0
-Release:        14%{?dist}
+Release:        15%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -182,6 +182,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sun Feb 16 2025 Akemi Yagi <toracat@elrepo.org> - 0.0-15
+- Rebuilt against el10 beta kernel 6.12.0-48.el10
+
 * Tue Dec 17 2024 Akemi Yagi <toracat@elrepo.org> - 0.0-14
 - Rebuilt for el0 beta kernel-6.11.0-0.rc5.23.el10
 
