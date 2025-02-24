@@ -1,0 +1,58 @@
+# If KERNELRELEASE is defined, the make command using this Makefile has
+# been invoked by the kernel build system and so can use its language.
+# Otherwise, if KERNELRELEASE is null, a make command was issued from
+# the command line. So invoke the kernel build system.
+
+ifeq ($(KERNELRELEASE),)
+
+    # KVERSION should be set in the environment if this
+    # build is not for the currently running kernel.
+    KVERSION ?= $(shell uname -r)
+
+    # BUILD_DIR should be set in the environment if a
+    # subdirectory of /lib/modules/ is not appropriate.
+    BUILD_DIR ?= /lib/modules/${KVERSION}/build
+
+    PWD := $(shell pwd)
+
+modules:
+	$(MAKE) -C $(BUILD_DIR) M=$(PWD) modules
+
+modules_install:
+	$(MAKE) -C $(BUILD_DIR) M=$(PWD) modules_install
+
+clean:
+	rm -rf *~ *.o .*.cmd *.mod.c *.ko *.ko.unsigned .depend \
+	.tmp_versions modules.order Module.symvers Module.markers
+
+.PHONY: modules modules_install clean
+
+else
+
+# Called from kernel build system -- just declare the module(s).
+
+EXTRA_CFLAGS += -DCONFIG_R8125_NAPI
+EXTRA_CFLAGS += -DCONFIG_R8125_VLAN
+EXTRA_CFLAGS += -DCONFIG_SOC_LAN
+EXTRA_CFLAGS += -DENABLE_FIBER_SUPPORT
+EXTRA_CFLAGS += -DCONFIG_ASPM
+EXTRA_CFLAGS += -DENABLE_S5WOL
+EXTRA_CFLAGS += -DENABLE_EEE
+EXTRA_CFLAGS += -DENABLE_S0_MAGIC_PACKET
+EXTRA_CFLAGS += -DENABLE_TX_NO_CLOSE
+EXTRA_CFLAGS += -DENABLE_MULTIPLE_TX_QUEUE
+EXTRA_CFLAGS += -DENABLE_PTP_SUPPORT
+EXTRA_CFLAGS += -DENABLE_PTP_MASTER_MODE
+EXTRA_CFLAGS += -DENABLE_RSS_SUPPORT
+EXTRA_CFLAGS += -DENABLE_USE_FIRMWARE_FILE
+EXTRA_CFLAGS += -DENABLE_DOUBLE_VLAN
+EXTRA_CFLAGS += -DENABLE_GIGA_LITE
+
+obj-m := r8125.o
+r8125-objs := r8125_n.o rtl_eeprom.o rtltool.o
+r8125-objs += r8125_fiber.o
+r8125-objs += r8125_ptp.o
+r8125-objs += r8125_rss.o
+r8125-objs += r8125_firmware.o
+
+endif
