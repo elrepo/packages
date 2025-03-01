@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	8.054.00
+Version:	8.055.00
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -17,7 +17,9 @@ URL:		http://www.realtek.com/en
 # Sources
 Source0:	%{kmod_name}-%{version}.tar.bz2
 Source5:	GPL-v2.0.txt
-Source10:	ELRepo-Makefile-%{kmod_name}
+Source10:	blacklist-r8169.conf
+Source20:	ELRepo-Makefile-%{kmod_name}
+
 
 # Patches
 Patch0: ELRepo-r8168.patch
@@ -68,9 +70,8 @@ of the same variant of the Linux kernel and not on any one specific build.
 %setup -q -n %{kmod_name}-%{version}
 %patch0 -p1
 %{__rm} -f src/Makefile*
-%{__cp} -a %{SOURCE10} src/Makefile
+%{__cp} -a %{SOURCE20} src/Makefile
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
-echo "blacklist r8169" > blacklist-r8169.conf
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD/src
@@ -90,7 +91,7 @@ sort -u greylist | uniq > greylist.txt
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_prefix}/lib/modprobe.d/
-%{__install} blacklist-r8169.conf %{buildroot}%{_prefix}/lib/modprobe.d/
+%{__install} -m 0644 %{SOURCE10} %{buildroot}%{_prefix}/lib/modprobe.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
@@ -188,6 +189,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat Mar 01 2025 Tuan Hoang <tqhoang@elrepo.org> - 8.055.00-1
+- Update to version 8.054.00
+- Add blacklist file to source
+
 * Mon Oct 28 2024 Tuan Hoang <tqhoang@elrepo.org> - 8.054.00-1
 - Update to version 8.054.00
 - Revised patch to not overwrite the RTL_NAPI_CONFIG() macro

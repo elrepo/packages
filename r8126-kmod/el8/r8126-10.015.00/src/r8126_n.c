@@ -203,21 +203,20 @@ static int tx_no_close_enable = 1;
 #else
 static int tx_no_close_enable = 0;
 #endif
-#ifdef ENABLE_PTP_MASTER_MODE
-static int enable_ptp_master_mode = 1;
-#else
-static int enable_ptp_master_mode = 0;
-#endif
 #ifdef DISABLE_WOL_SUPPORT
 static int disable_wol_support = 1;
 #else
 static int disable_wol_support = 0;
 #endif
-
 #ifdef ENABLE_DOUBLE_VLAN
 static int enable_double_vlan = 1;
 #else
 static int enable_double_vlan = 0;
+#endif
+#ifdef ENABLE_GIGA_LITE
+static int eee_giga_lite = 1;
+#else
+static int eee_giga_lite = 0;
 #endif
 
 MODULE_AUTHOR("Realtek and the Linux r8126 crew <netdev@vger.kernel.org>");
@@ -259,14 +258,14 @@ MODULE_PARM_DESC(s0_magic_packet, "Enable S0 Magic Packet.");
 module_param(tx_no_close_enable, int, 0);
 MODULE_PARM_DESC(tx_no_close_enable, "Enable TX No Close.");
 
-module_param(enable_ptp_master_mode, int, 0);
-MODULE_PARM_DESC(enable_ptp_master_mode, "Enable PTP Master Mode.");
-
 module_param(disable_wol_support, int, 0);
 MODULE_PARM_DESC(disable_wol_support, "Disable PM support.");
 
 module_param(enable_double_vlan, int, 0);
 MODULE_PARM_DESC(enable_double_vlan, "Enable Double VLAN.");
+
+module_param(eee_giga_lite, int, 0);
+MODULE_PARM_DESC(eee_giga_lite, "Enable Giga Lite.");
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
 module_param_named(debug, debug.msg_enable, int, 0);
@@ -341,14 +340,17 @@ static int rtl8126_poll(napi_ptr napi, napi_budget budget);
 static void rtl8126_reset_task(void *_data);
 static void rtl8126_esd_task(void *_data);
 static void rtl8126_linkchg_task(void *_data);
+static void rtl8126_link_task(void *_data);
 #else
 static void rtl8126_reset_task(struct work_struct *work);
 static void rtl8126_esd_task(struct work_struct *work);
 static void rtl8126_linkchg_task(struct work_struct *work);
+static void rtl8126_link_task(struct work_struct *work);
 #endif
 static void rtl8126_schedule_reset_work(struct rtl8126_private *tp);
 static void rtl8126_schedule_esd_work(struct rtl8126_private *tp);
 static void rtl8126_schedule_linkchg_work(struct rtl8126_private *tp);
+static void rtl8126_schedule_link_work(struct rtl8126_private *tp);
 static void rtl8126_init_all_schedule_work(struct rtl8126_private *tp);
 static void rtl8126_cancel_all_schedule_work(struct rtl8126_private *tp);
 
@@ -630,11 +632,8 @@ static u32 rtl8126_read_thermal_sensor(struct rtl8126_private *tp)
 {
         u16 ts_digout;
 
-        switch (tp->mcfg) {
-        default:
-                ts_digout = 0xffff;
-                break;
-        }
+        ts_digout = rtl8126_mdio_direct_read_phy_ocp(tp, 0xBD84);
+        ts_digout &= 0x3ff;
 
         return ts_digout;
 }
@@ -715,16 +714,16 @@ rtl8126_sysfs_testmode_on(struct rtl8126_private *tp)
 #endif
 }
 
-static u32 rtl8126_convert_link_speed(u16 status)
+static u32 rtl8126_convert_link_speed(u32 status)
 {
         u32 speed = SPEED_UNKNOWN;
 
         if (status & LinkStatus) {
                 if (status & _5000bpsF)
                         speed = SPEED_5000;
-                else if (status & _2500bpsF)
+                else if (status & (_2500bpsF | _5000bpsL))
                         speed = SPEED_2500;
-                else if (status & _1000bpsF)
+                else if (status & (_1000bpsF | _2500bpsL | _1000bpsL))
                         speed = SPEED_1000;
                 else if (status & _100bps)
                         speed = SPEED_100;
@@ -819,13 +818,9 @@ static void rtl8126_get_cp_len(struct rtl8126_private *tp,
                         rtl8126_mdio_write(tp, 0x1f, 0x0a88);
                         tmp_cp_len = rtl8126_mdio_read(tp, 0x10);
                 } else if (status & _2500bpsF) {
-                        switch (tp->mcfg) {
-                        default:
-                                rtl8126_mdio_write(tp, 0x1f, 0x0acb);
-                                tmp_cp_len = rtl8126_mdio_read(tp, 0x15);
-                                tmp_cp_len >>= 2;
-                                break;
-                        }
+                        rtl8126_mdio_write(tp, 0x1f, 0x0acb);
+                        tmp_cp_len = rtl8126_mdio_read(tp, 0x15);
+                        tmp_cp_len >>= 2;
                 } else
                         tmp_cp_len = 0;
         } else
@@ -1042,6 +1037,7 @@ static int proc_get_driver_variable(struct seq_file *m, void *v)
         seq_printf(m, "s0_magic_packet\t0x%x\n", s0_magic_packet);
         seq_printf(m, "disable_wol_support\t0x%x\n", disable_wol_support);
         seq_printf(m, "enable_double_vlan\t0x%x\n", enable_double_vlan);
+        seq_printf(m, "eee_giga_lite\t0x%x\n", eee_giga_lite);
         seq_printf(m, "HwSuppMagicPktVer\t0x%x\n", tp->HwSuppMagicPktVer);
         seq_printf(m, "HwSuppLinkChgWakeUpVer\t0x%x\n", tp->HwSuppLinkChgWakeUpVer);
         seq_printf(m, "HwSuppD0SpeedUpVer\t0x%x\n", tp->HwSuppD0SpeedUpVer);
@@ -1068,13 +1064,16 @@ static int proc_get_driver_variable(struct seq_file *m, void *v)
         seq_printf(m, "HwSuppNumTxQueues\t0x%x\n", tp->HwSuppNumTxQueues);
         seq_printf(m, "EnableRss\t0x%x\n", tp->EnableRss);
         seq_printf(m, "EnablePtp\t0x%x\n", tp->EnablePtp);
-        seq_printf(m, "ptp_master_mode\t0x%x\n", tp->ptp_master_mode);
         seq_printf(m, "min_irq_nvecs\t0x%x\n", tp->min_irq_nvecs);
         seq_printf(m, "irq_nvecs\t0x%x\n", tp->irq_nvecs);
         seq_printf(m, "hw_supp_irq_nvecs\t0x%x\n", tp->hw_supp_irq_nvecs);
         seq_printf(m, "ring_lib_enabled\t0x%x\n", tp->ring_lib_enabled);
         seq_printf(m, "HwSuppIsrVer\t0x%x\n", tp->HwSuppIsrVer);
         seq_printf(m, "HwCurrIsrVer\t0x%x\n", tp->HwCurrIsrVer);
+        seq_printf(m, "HwSuppMacMcuVer\t0x%x\n", tp->HwSuppMacMcuVer);
+        seq_printf(m, "MacMcuPageSize\t0x%x\n", tp->MacMcuPageSize);
+        seq_printf(m, "hw_mcu_patch_code_ver\t0x%llx\n", tp->hw_mcu_patch_code_ver);
+        seq_printf(m, "bin_mcu_patch_code_ver\t0x%llx\n", tp->bin_mcu_patch_code_ver);
 #ifdef ENABLE_PTP_SUPPORT
         seq_printf(m, "tx_hwtstamp_timeouts\t0x%x\n", tp->tx_hwtstamp_timeouts);
         seq_printf(m, "tx_hwtstamp_skipped\t0x%x\n", tp->tx_hwtstamp_skipped);
@@ -1415,11 +1414,6 @@ static int proc_get_temperature(struct seq_file *m, void *v)
         struct net_device *dev = m->private;
         struct rtl8126_private *tp = netdev_priv(dev);
         u16 ts_digout, tj, fah;
-
-        switch (tp->mcfg) {
-        default:
-                return -EOPNOTSUPP;
-        }
 
         rtnl_lock();
 
@@ -1767,6 +1761,7 @@ static int proc_get_driver_variable(char *page, char **start,
                         "s0_magic_packet\t0x%x\n"
                         "disable_wol_support\t0x%x\n"
                         "enable_double_vlan\t0x%x\n"
+                        "eee_giga_lite\t0x%x\n"
                         "HwSuppMagicPktVer\t0x%x\n"
                         "HwSuppLinkChgWakeUpVer\t0x%x\n"
                         "HwSuppD0SpeedUpVer\t0x%x\n"
@@ -1793,13 +1788,16 @@ static int proc_get_driver_variable(char *page, char **start,
                         "HwSuppNumTxQueues\t0x%x\n"
                         "EnableRss\t0x%x\n"
                         "EnablePtp\t0x%x\n"
-                        "ptp_master_mode\t0x%x\n"
                         "min_irq_nvecs\t0x%x\n"
                         "irq_nvecs\t0x%x\n"
                         "hw_supp_irq_nvecs\t0x%x\n"
                         "ring_lib_enabled\t0x%x\n"
                         "HwSuppIsrVer\t0x%x\n"
                         "HwCurrIsrVer\t0x%x\n"
+                        "HwSuppMacMcuVer\t0x%x\n"
+                        "MacMcuPageSize\t0x%x\n"
+                        "hw_mcu_patch_code_ver\t0x%llx\n"
+                        "bin_mcu_patch_code_ver\t0x%llx\n"
 #ifdef ENABLE_PTP_SUPPORT
                         "tx_hwtstamp_timeouts\t0x%x\n"
                         "tx_hwtstamp_skipped\t0x%x\n"
@@ -1893,6 +1891,7 @@ static int proc_get_driver_variable(char *page, char **start,
                         s0_magic_packet,
                         disable_wol_support,
                         enable_double_vlan,
+                        eee_giga_lite,
                         tp->HwSuppMagicPktVer,
                         tp->HwSuppLinkChgWakeUpVer,
                         tp->HwSuppD0SpeedUpVer,
@@ -1919,13 +1918,16 @@ static int proc_get_driver_variable(char *page, char **start,
                         tp->HwSuppNumTxQueues,
                         tp->EnableRss,
                         tp->EnablePtp,
-                        tp->ptp_master_mode,
                         tp->min_irq_nvecs,
                         tp->irq_nvecs,
                         tp->hw_supp_irq_nvecs,
                         tp->ring_lib_enabled,
                         tp->HwSuppIsrVer,
                         tp->HwCurrIsrVer,
+                        tp->HwSuppMacMcuVer,
+                        tp->MacMcuPageSize,
+                        tp->hw_mcu_patch_code_ver,
+                        tp->bin_mcu_patch_code_ver,
 #ifdef ENABLE_PTP_SUPPORT
                         tp->tx_hwtstamp_timeouts,
                         tp->tx_hwtstamp_skipped,
@@ -2422,11 +2424,6 @@ static int proc_get_temperature(char *page, char **start,
         struct rtl8126_private *tp = netdev_priv(dev);
         u16 ts_digout, tj, fah;
         int len = 0;
-
-        switch (tp->mcfg) {
-        default:
-                return -EOPNOTSUPP;
-        }
 
         rtnl_lock();
 
@@ -3534,7 +3531,7 @@ void rtl8126_dash2_disable_tx(struct rtl8126_private *tp)
                                 break;
                         }
 
-                        udelay(50);
+                        fsleep(50);
                         WaitCnt++;
                 } while(WaitCnt < 2000);
 
@@ -3593,7 +3590,7 @@ static int rtl8126_wait_dash_fw_ready(struct rtl8126_private *tp)
                 goto out;
 
         for (timeout = 0; timeout < 10; timeout++) {
-                mdelay(10);
+                fsleep(10000);
                 if (rtl8126_ocp_read(tp, 0x124, 1) & BIT_0) {
                         rc = 1;
                         goto out;
@@ -3657,14 +3654,14 @@ void rtl8126_ephy_write(struct rtl8126_private *tp, int RegAddr, int value)
                 (value & EPHYAR_Data_Mask));
 
         for (i = 0; i < R8126_CHANNEL_WAIT_COUNT; i++) {
-                udelay(R8126_CHANNEL_WAIT_TIME);
+                fsleep(R8126_CHANNEL_WAIT_TIME);
 
                 /* Check if the RTL8125 has completed EPHY write */
                 if (!(RTL_R32(tp, EPHYAR) & EPHYAR_Flag))
                         break;
         }
 
-        udelay(R8126_CHANNEL_EXIT_DELAY_TIME);
+        fsleep(R8126_CHANNEL_EXIT_DELAY_TIME);
 }
 
 u16 rtl8126_ephy_read(struct rtl8126_private *tp, int RegAddr)
@@ -3676,7 +3673,7 @@ u16 rtl8126_ephy_read(struct rtl8126_private *tp, int RegAddr)
                 EPHYAR_Read | (RegAddr & EPHYAR_Reg_Mask_v2) << EPHYAR_Reg_shift);
 
         for (i = 0; i < R8126_CHANNEL_WAIT_COUNT; i++) {
-                udelay(R8126_CHANNEL_WAIT_TIME);
+                fsleep(R8126_CHANNEL_WAIT_TIME);
 
                 /* Check if the RTL8125 has completed EPHY read */
                 if (RTL_R32(tp, EPHYAR) & EPHYAR_Flag) {
@@ -3685,7 +3682,7 @@ u16 rtl8126_ephy_read(struct rtl8126_private *tp, int RegAddr)
                 }
         }
 
-        udelay(R8126_CHANNEL_EXIT_DELAY_TIME);
+        fsleep(R8126_CHANNEL_EXIT_DELAY_TIME);
 
         return value;
 }
@@ -3740,7 +3737,7 @@ rtl8126_csi_other_fun_read(struct rtl8126_private *tp,
         RTL_W32(tp, CSIAR, cmd);
 
         for (i = 0; i < R8126_CHANNEL_WAIT_COUNT; i++) {
-                udelay(R8126_CHANNEL_WAIT_TIME);
+                fsleep(R8126_CHANNEL_WAIT_TIME);
 
                 /* Check if the RTL8125 has completed CSI read */
                 if (RTL_R32(tp, CSIAR) & CSIAR_Flag) {
@@ -3749,7 +3746,7 @@ rtl8126_csi_other_fun_read(struct rtl8126_private *tp,
                 }
         }
 
-        udelay(R8126_CHANNEL_EXIT_DELAY_TIME);
+        fsleep(R8126_CHANNEL_EXIT_DELAY_TIME);
 
 exit:
         return value;
@@ -3777,14 +3774,14 @@ rtl8126_csi_other_fun_write(struct rtl8126_private *tp,
         RTL_W32(tp, CSIAR, cmd);
 
         for (i = 0; i < R8126_CHANNEL_WAIT_COUNT; i++) {
-                udelay(R8126_CHANNEL_WAIT_TIME);
+                fsleep(R8126_CHANNEL_WAIT_TIME);
 
                 /* Check if the RTL8125 has completed CSI write */
                 if (!(RTL_R32(tp, CSIAR) & CSIAR_Flag))
                         break;
         }
 
-        udelay(R8126_CHANNEL_EXIT_DELAY_TIME);
+        fsleep(R8126_CHANNEL_EXIT_DELAY_TIME);
 }
 
 static u32
@@ -3832,7 +3829,7 @@ rtl8126_csi_fun0_read_byte(struct rtl8126_private *tp,
                 RetVal = (u8)TmpUlong;
         }
 
-        udelay(R8126_CHANNEL_EXIT_DELAY_TIME);
+        fsleep(R8126_CHANNEL_EXIT_DELAY_TIME);
 
         return RetVal;
 }
@@ -3859,7 +3856,7 @@ rtl8126_csi_fun0_write_byte(struct rtl8126_private *tp,
                 rtl8126_csi_other_fun_write(tp, 0, RegAlignAddr, TmpUlong);
         }
 
-        udelay(R8126_CHANNEL_EXIT_DELAY_TIME);
+        fsleep(R8126_CHANNEL_EXIT_DELAY_TIME);
 }
 
 u32 rtl8126_eri_read_with_oob_base_address(struct rtl8126_private *tp, int addr, int len, int type, const u32 base_address)
@@ -3892,7 +3889,7 @@ u32 rtl8126_eri_read_with_oob_base_address(struct rtl8126_private *tp, int addr,
                 RTL_W32(tp, ERIAR, eri_cmd);
 
                 for (i = 0; i < R8126_CHANNEL_WAIT_COUNT; i++) {
-                        udelay(R8126_CHANNEL_WAIT_TIME);
+                        fsleep(R8126_CHANNEL_WAIT_TIME);
 
                         /* Check if the RTL8125 has completed ERI read */
                         if (RTL_R32(tp, ERIAR) & ERIAR_Flag)
@@ -3916,7 +3913,7 @@ u32 rtl8126_eri_read_with_oob_base_address(struct rtl8126_private *tp, int addr,
                 }
         }
 
-        udelay(R8126_CHANNEL_EXIT_DELAY_TIME);
+        fsleep(R8126_CHANNEL_EXIT_DELAY_TIME);
 
         return value2;
 }
@@ -3966,7 +3963,7 @@ int rtl8126_eri_write_with_oob_base_address(struct rtl8126_private *tp, int addr
                 RTL_W32(tp, ERIAR, eri_cmd);
 
                 for (i = 0; i < R8126_CHANNEL_WAIT_COUNT; i++) {
-                        udelay(R8126_CHANNEL_WAIT_TIME);
+                        fsleep(R8126_CHANNEL_WAIT_TIME);
 
                         /* Check if the RTL8125 has completed ERI write */
                         if (!(RTL_R32(tp, ERIAR) & ERIAR_Flag))
@@ -3982,7 +3979,7 @@ int rtl8126_eri_write_with_oob_base_address(struct rtl8126_private *tp, int addr
                 }
         }
 
-        udelay(R8126_CHANNEL_EXIT_DELAY_TIME);
+        fsleep(R8126_CHANNEL_EXIT_DELAY_TIME);
 
         return 0;
 }
@@ -3997,14 +3994,7 @@ rtl8126_enable_rxdvgate(struct net_device *dev)
 {
         struct rtl8126_private *tp = netdev_priv(dev);
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                RTL_W8(tp, 0xF2, RTL_R8(tp, 0xF2) | BIT_3);
-                mdelay(2);
-                break;
-        }
+        RTL_W8(tp, 0xF2, RTL_R8(tp, 0xF2) | BIT_3);
 }
 
 static void
@@ -4012,14 +4002,7 @@ rtl8126_disable_rxdvgate(struct net_device *dev)
 {
         struct rtl8126_private *tp = netdev_priv(dev);
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                RTL_W8(tp, 0xF2, RTL_R8(tp, 0xF2) & ~BIT_3);
-                mdelay(2);
-                break;
-        }
+        RTL_W8(tp, 0xF2, RTL_R8(tp, 0xF2) & ~BIT_3);
 }
 
 static u8
@@ -4074,16 +4057,21 @@ rtl8126_is_in_phy_disable_mode(struct net_device *dev)
         return in_phy_disable_mode;
 }
 
-static bool
+static void
 rtl8126_stop_all_request(struct net_device *dev)
 {
         struct rtl8126_private *tp = netdev_priv(dev);
 
         RTL_W8(tp, ChipCmd, RTL_R8(tp, ChipCmd) | StopReq);
-        udelay(200);
-        RTL_W8(tp, ChipCmd, RTL_R8(tp, ChipCmd) & (CmdTxEnb | CmdRxEnb));
+        fsleep(200);
+}
 
-        return 1;
+static void
+rtl8126_clear_stop_all_request(struct net_device *dev)
+{
+        struct rtl8126_private *tp = netdev_priv(dev);
+
+        RTL_W8(tp, ChipCmd, RTL_R8(tp, ChipCmd) & (CmdTxEnb | CmdRxEnb));
 }
 
 void
@@ -4092,36 +4080,17 @@ rtl8126_wait_txrx_fifo_empty(struct net_device *dev)
         struct rtl8126_private *tp = netdev_priv(dev);
         int i;
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_stop_all_request(dev);
-                break;
+        /* Txfifo_empty require StopReq been set */
+        for (i = 0; i < 3000; i++) {
+                fsleep(50);
+                if ((RTL_R8(tp, MCUCmd_reg) & (Txfifo_empty | Rxfifo_empty)) == (Txfifo_empty | Rxfifo_empty))
+                        break;
         }
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                for (i = 0; i < 3000; i++) {
-                        udelay(50);
-                        if ((RTL_R8(tp, MCUCmd_reg) & (Txfifo_empty | Rxfifo_empty)) == (Txfifo_empty | Rxfifo_empty))
-                                break;
-                }
-                break;
-        }
-
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                for (i = 0; i < 3000; i++) {
-                        udelay(50);
-                        if ((RTL_R16(tp, IntrMitigate) & (BIT_0 | BIT_1 | BIT_8)) == (BIT_0 | BIT_1 | BIT_8))
-                                break;
-                }
-                break;
+        for (i = 0; i < 3000; i++) {
+                fsleep(50);
+                if ((RTL_R16(tp, IntrMitigate) & (BIT_0 | BIT_1 | BIT_8)) == (BIT_0 | BIT_1 | BIT_8))
+                        break;
         }
 }
 
@@ -4311,14 +4280,14 @@ rtl8126_nic_reset(struct net_device *dev)
 
         rtl8126_wait_txrx_fifo_empty(dev);
 
-        mdelay(2);
+        rtl8126_clear_stop_all_request(dev);
 
         /* Soft reset the chip. */
         RTL_W8(tp, ChipCmd, CmdReset);
 
         /* Check that the chip has finished the reset. */
         for (i = 100; i > 0; i--) {
-                udelay(100);
+                fsleep(100);
                 if ((RTL_R8(tp, ChipCmd) & CmdReset) == 0)
                         break;
         }
@@ -4360,16 +4329,10 @@ rtl8126_hw_clear_timer_int(struct net_device *dev)
 {
         struct rtl8126_private *tp = netdev_priv(dev);
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                RTL_W32(tp, TIMER_INT0_8125, 0x0000);
-                RTL_W32(tp, TIMER_INT1_8125, 0x0000);
-                RTL_W32(tp, TIMER_INT2_8125, 0x0000);
-                RTL_W32(tp, TIMER_INT3_8125, 0x0000);
-                break;
-        }
+        RTL_W32(tp, TIMER_INT0_8125, 0x0000);
+        RTL_W32(tp, TIMER_INT1_8125, 0x0000);
+        RTL_W32(tp, TIMER_INT2_8125, 0x0000);
+        RTL_W32(tp, TIMER_INT3_8125, 0x0000);
 }
 
 static void
@@ -4469,7 +4432,7 @@ rtl8126_xmii_reset_pending(struct net_device *dev)
 }
 
 static unsigned int
-rtl8126_xmii_link_ok(struct net_device *dev)
+_rtl8126_xmii_link_ok(struct net_device *dev)
 {
         struct rtl8126_private *tp = netdev_priv(dev);
         u16 status;
@@ -4479,6 +4442,24 @@ rtl8126_xmii_link_ok(struct net_device *dev)
                 return 0;
 
         return (status & LinkStatus) ? 1 : 0;
+}
+
+static unsigned int
+rtl8126_xmii_link_ok(struct net_device *dev)
+{
+        struct rtl8126_private *tp = netdev_priv(dev);
+        unsigned int link_state;
+
+        link_state = _rtl8126_xmii_link_ok(dev);
+#ifdef ENABLE_FIBER_SUPPORT
+        if (HW_FIBER_MODE_ENABLED(tp) &&
+            (link_state == R8126_LINK_STATE_ON))
+                return rtl8126_fiber_link_ok(dev);
+#else
+        (void)tp;
+#endif /* ENABLE_FIBER_SUPPORT */
+
+        return link_state;
 }
 
 static int
@@ -4573,13 +4554,7 @@ rtl8126_init_ring_indexes(struct rtl8126_private *tp)
 static void
 rtl8126_issue_offset_99_event(struct rtl8126_private *tp)
 {
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_mac_ocp_write(tp, 0xE09A,  rtl8126_mac_ocp_read(tp, 0xE09A) | BIT_0);
-                break;
-        }
+        rtl8126_mac_ocp_write(tp, 0xE09A,  rtl8126_mac_ocp_read(tp, 0xE09A) | BIT_0);
 }
 
 #ifdef ENABLE_DASH_SUPPORT
@@ -4600,68 +4575,26 @@ NICChkTypeEnableDashInterrupt(struct rtl8126_private *tp)
 
 static int rtl8126_enable_eee_plus(struct rtl8126_private *tp)
 {
-        int ret;
+        rtl8126_mac_ocp_write(tp, 0xE080, rtl8126_mac_ocp_read(tp, 0xE080)|BIT_1);
 
-        ret = 0;
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_mac_ocp_write(tp, 0xE080, rtl8126_mac_ocp_read(tp, 0xE080)|BIT_1);
-                break;
-        default:
-//      dev_printk(KERN_DEBUG, tp_to_dev(tp), "Not Support EEEPlus\n");
-                ret = -EOPNOTSUPP;
-                break;
-        }
-
-        return ret;
+        return 0;
 }
 
 static int rtl8126_disable_eee_plus(struct rtl8126_private *tp)
 {
-        int ret;
+        rtl8126_mac_ocp_write(tp, 0xE080, rtl8126_mac_ocp_read(tp, 0xE080)&~BIT_1);
 
-        ret = 0;
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_mac_ocp_write(tp, 0xE080, rtl8126_mac_ocp_read(tp, 0xE080)&~BIT_1);
-                break;
-        default:
-//      dev_printk(KERN_DEBUG, tp_to_dev(tp), "Not Support EEEPlus\n");
-                ret = -EOPNOTSUPP;
-                break;
-        }
-
-        return ret;
+        return 0;
 }
 
 static void rtl8126_enable_double_vlan(struct rtl8126_private *tp)
 {
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                RTL_W16(tp, DOUBLE_VLAN_CONFIG, 0xf002);
-                break;
-        default:
-                break;
-        }
+        RTL_W16(tp, DOUBLE_VLAN_CONFIG, 0xf002);
 }
 
 static void rtl8126_disable_double_vlan(struct rtl8126_private *tp)
 {
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                RTL_W16(tp, DOUBLE_VLAN_CONFIG, 0);
-                break;
-        default:
-                break;
-        }
+        RTL_W16(tp, DOUBLE_VLAN_CONFIG, 0);
 }
 
 static void
@@ -4672,16 +4605,8 @@ rtl8126_link_on_patch(struct net_device *dev)
 
         rtl8126_hw_config(dev);
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                if (RTL_R8(tp, PHYstatus) & _10bps)
-                        rtl8126_enable_eee_plus(tp);
-                break;
-        default:
-                break;
-        }
+        if (RTL_R8(tp, PHYstatus) & _10bps)
+                rtl8126_enable_eee_plus(tp);
 
         rtl8126_hw_start(dev);
 
@@ -4712,15 +4637,7 @@ rtl8126_link_down_patch(struct net_device *dev)
         tp->phy_reg_gbsr = 0;
         tp->phy_reg_status_2500 = 0;
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_disable_eee_plus(tp);
-                break;
-        default:
-                break;
-        }
+        rtl8126_disable_eee_plus(tp);
 
         netif_carrier_off(dev);
 
@@ -4869,7 +4786,7 @@ rtl8126_wait_ll_share_fifo_ready(struct net_device *dev)
         int i;
 
         for (i = 0; i < 10; i++) {
-                udelay(100);
+                fsleep(100);
                 if (RTL_R16(tp, 0xD2) & BIT_9)
                         break;
         }
@@ -4878,21 +4795,9 @@ rtl8126_wait_ll_share_fifo_ready(struct net_device *dev)
 static void
 rtl8126_disable_pci_offset_99(struct rtl8126_private *tp)
 {
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_mac_ocp_write(tp, 0xE032,  rtl8126_mac_ocp_read(tp, 0xE032) & ~(BIT_0 | BIT_1));
-                break;
-        }
+        rtl8126_mac_ocp_write(tp, 0xE032,  rtl8126_mac_ocp_read(tp, 0xE032) & ~(BIT_0 | BIT_1));
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_csi_fun0_write_byte(tp, 0x99, 0x00);
-                break;
-        }
+        rtl8126_csi_fun0_write_byte(tp, 0x99, 0x00);
 }
 
 static void
@@ -4900,40 +4805,24 @@ rtl8126_enable_pci_offset_99(struct rtl8126_private *tp)
 {
         u32 csi_tmp;
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_csi_fun0_write_byte(tp, 0x99, tp->org_pci_offset_99);
-                break;
-        }
+        rtl8126_csi_fun0_write_byte(tp, 0x99, tp->org_pci_offset_99);
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                csi_tmp = rtl8126_mac_ocp_read(tp, 0xE032);
-                csi_tmp &= ~(BIT_0 | BIT_1);
-                if (tp->org_pci_offset_99 & (BIT_5 | BIT_6))
-                        csi_tmp |= BIT_1;
-                if (tp->org_pci_offset_99 & BIT_2)
-                        csi_tmp |= BIT_0;
-                rtl8126_mac_ocp_write(tp, 0xE032, csi_tmp);
-                break;
-        }
+        csi_tmp = rtl8126_mac_ocp_read(tp, 0xE032);
+        csi_tmp &= ~(BIT_0 | BIT_1);
+        if (tp->org_pci_offset_99 & (BIT_5 | BIT_6))
+                csi_tmp |= BIT_1;
+        if (tp->org_pci_offset_99 & BIT_2)
+                csi_tmp |= BIT_0;
+        rtl8126_mac_ocp_write(tp, 0xE032, csi_tmp);
 }
 
 static void
 rtl8126_init_pci_offset_99(struct rtl8126_private *tp)
 {
-        u32 csi_tmp;
-
         switch (tp->mcfg) {
         case CFG_METHOD_1:
                 rtl8126_mac_ocp_write(tp, 0xCDD0, 0x9003);
-                csi_tmp = rtl8126_mac_ocp_read(tp, 0xE034);
-                csi_tmp |= (BIT_15 | BIT_14);
-                rtl8126_mac_ocp_write(tp, 0xE034, csi_tmp);
+                rtl8126_set_mac_ocp_bit(tp, 0xE034, (BIT_15 | BIT_14));
                 rtl8126_mac_ocp_write(tp, 0xCDD2, 0x889C);
                 rtl8126_mac_ocp_write(tp, 0xCDD8, 0x9003);
                 rtl8126_mac_ocp_write(tp, 0xCDD4, 0x8C30);
@@ -4946,39 +4835,29 @@ rtl8126_init_pci_offset_99(struct rtl8126_private *tp)
                 rtl8126_mac_ocp_write(tp, 0xCDEE, 0x9003);
                 rtl8126_mac_ocp_write(tp, 0xCDF0, 0x8C09);
                 rtl8126_mac_ocp_write(tp, 0xCDF2, 0x9003);
-                csi_tmp = rtl8126_mac_ocp_read(tp, 0xE032);
-                csi_tmp |= (BIT_14);
-                rtl8126_mac_ocp_write(tp, 0xE032, csi_tmp);
-                csi_tmp = rtl8126_mac_ocp_read(tp, 0xE0A2);
-                csi_tmp |= (BIT_0);
-                rtl8126_mac_ocp_write(tp, 0xE0A2, csi_tmp);
+                rtl8126_set_mac_ocp_bit(tp, 0xE032, BIT_14);
+                rtl8126_set_mac_ocp_bit(tp, 0xE0A2, BIT_0);
                 break;
         case CFG_METHOD_2:
         case CFG_METHOD_3:
                 rtl8126_mac_ocp_write(tp, 0xCDD0, 0x9003);
-                csi_tmp = rtl8126_mac_ocp_read(tp, 0xE034);
-                csi_tmp |= (BIT_15 | BIT_14);
-                rtl8126_mac_ocp_write(tp, 0xE034, csi_tmp);
-                rtl8126_mac_ocp_write(tp, 0xCDD2, 0x8A71);
+                rtl8126_set_mac_ocp_bit(tp, 0xE034, (BIT_15 | BIT_14));
+                rtl8126_mac_ocp_write(tp, 0xCDD2, 0x8C09);
                 rtl8126_mac_ocp_write(tp, 0xCDD8, 0x9003);
                 rtl8126_mac_ocp_write(tp, 0xCDD4, 0x9003);
                 rtl8126_mac_ocp_write(tp, 0xCDDA, 0x9003);
                 rtl8126_mac_ocp_write(tp, 0xCDD6, 0x9003);
                 rtl8126_mac_ocp_write(tp, 0xCDDC, 0x9003);
-                rtl8126_mac_ocp_write(tp, 0xCDE8, 0x88FA);
+                rtl8126_mac_ocp_write(tp, 0xCDE8, 0x887A);
                 rtl8126_mac_ocp_write(tp, 0xCDEA, 0x9003);
-                rtl8126_mac_ocp_write(tp, 0xCDEC, 0x89F4);
+                rtl8126_mac_ocp_write(tp, 0xCDEC, 0x8C09);
                 rtl8126_mac_ocp_write(tp, 0xCDEE, 0x9003);
-                rtl8126_mac_ocp_write(tp, 0xCDF0, 0x8C27);
+                rtl8126_mac_ocp_write(tp, 0xCDF0, 0x8A62);
                 rtl8126_mac_ocp_write(tp, 0xCDF2, 0x9003);
-                rtl8126_mac_ocp_write(tp, 0xCDF4, 0x887D);
+                rtl8126_mac_ocp_write(tp, 0xCDF4, 0x883E);
                 rtl8126_mac_ocp_write(tp, 0xCDF6, 0x9003);
-                csi_tmp = rtl8126_mac_ocp_read(tp, 0xE032);
-                csi_tmp |= (BIT_14);
-                rtl8126_mac_ocp_write(tp, 0xE032, csi_tmp);
-                csi_tmp = rtl8126_mac_ocp_read(tp, 0xE0A2);
-                csi_tmp |= (BIT_0);
-                rtl8126_mac_ocp_write(tp, 0xE0A2, csi_tmp);
+                rtl8126_set_mac_ocp_bit(tp, 0xE032, BIT_14);
+                rtl8126_set_mac_ocp_bit(tp, 0xE0A2, BIT_0);
                 break;
         }
 
@@ -4988,44 +4867,15 @@ rtl8126_init_pci_offset_99(struct rtl8126_private *tp)
 static void
 rtl8126_disable_pci_offset_180(struct rtl8126_private *tp)
 {
-        u32 csi_tmp;
-
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                csi_tmp = rtl8126_mac_ocp_read(tp, 0xE092);
-                csi_tmp &= 0xFF00;
-                rtl8126_mac_ocp_write(tp, 0xE092, csi_tmp);
-                break;
-        }
+        rtl8126_clear_set_mac_ocp_bit(tp, 0xE092, 0x00FF, BIT_3);
 }
 
 static void
 rtl8126_enable_pci_offset_180(struct rtl8126_private *tp)
 {
-        u32 csi_tmp;
+        rtl8126_clear_mac_ocp_bit(tp, 0xE094, 0xFF00);
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                csi_tmp = rtl8126_mac_ocp_read(tp, 0xE094);
-                csi_tmp &= 0x00FF;
-                rtl8126_mac_ocp_write(tp, 0xE094, csi_tmp);
-                break;
-        }
-
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                csi_tmp = rtl8126_mac_ocp_read(tp, 0xE092);
-                csi_tmp &= 0xFF00;
-                csi_tmp |= BIT_2;
-                rtl8126_mac_ocp_write(tp, 0xE092, csi_tmp);
-                break;
-        }
+        rtl8126_clear_set_mac_ocp_bit(tp, 0xE092, 0x00FF, BIT_2);
 }
 
 static void
@@ -5035,27 +4885,13 @@ rtl8126_init_pci_offset_180(struct rtl8126_private *tp)
 }
 
 static void
-rtl8126_set_pci_99_180_exit_driver_para(struct net_device *dev)
+rtl8126_set_pci_99_exit_driver_para(struct net_device *dev)
 {
         struct rtl8126_private *tp = netdev_priv(dev);
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                if (tp->org_pci_offset_99 & BIT_2)
-                        rtl8126_issue_offset_99_event(tp);
-                rtl8126_disable_pci_offset_99(tp);
-                break;
-        }
-
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_disable_pci_offset_180(tp);
-                break;
-        }
+        if (tp->org_pci_offset_99 & BIT_2)
+                rtl8126_issue_offset_99_event(tp);
+        rtl8126_disable_pci_offset_99(tp);
 }
 
 static void
@@ -5116,9 +4952,18 @@ rtl8126_enable_force_clkreq(struct rtl8126_private *tp, bool enable)
 static void
 rtl8126_enable_aspm_clkreq_lock(struct rtl8126_private *tp, bool enable)
 {
+        bool unlock_cfg_wr;
+
+        if ((RTL_R8(tp, Cfg9346) & Cfg9346_EEM_MASK) == Cfg9346_Unlock)
+                unlock_cfg_wr = false;
+        else
+                unlock_cfg_wr = true;
+
+        if (unlock_cfg_wr)
+                rtl8126_enable_cfg9346_write(tp);
+
         switch (tp->mcfg) {
         case CFG_METHOD_1:
-                rtl8126_enable_cfg9346_write(tp);
                 if (enable) {
                         RTL_W8(tp, Config2, RTL_R8(tp, Config2) | BIT_7);
                         RTL_W8(tp, Config5, RTL_R8(tp, Config5) | BIT_0);
@@ -5126,11 +4971,9 @@ rtl8126_enable_aspm_clkreq_lock(struct rtl8126_private *tp, bool enable)
                         RTL_W8(tp, Config2, RTL_R8(tp, Config2) & ~BIT_7);
                         RTL_W8(tp, Config5, RTL_R8(tp, Config5) & ~BIT_0);
                 }
-                rtl8126_disable_cfg9346_write(tp);
                 break;
         case CFG_METHOD_2:
         case CFG_METHOD_3:
-                rtl8126_enable_cfg9346_write(tp);
                 if (enable) {
                         RTL_W8(tp, INT_CFG0_8125, RTL_R8(tp, INT_CFG0_8125) | BIT_3);
                         RTL_W8(tp, Config5, RTL_R8(tp, Config5) | BIT_0);
@@ -5138,9 +4981,11 @@ rtl8126_enable_aspm_clkreq_lock(struct rtl8126_private *tp, bool enable)
                         RTL_W8(tp, INT_CFG0_8125, RTL_R8(tp, INT_CFG0_8125) & ~BIT_3);
                         RTL_W8(tp, Config5, RTL_R8(tp, Config5) & ~BIT_0);
                 }
-                rtl8126_disable_cfg9346_write(tp);
                 break;
         }
+
+        if (unlock_cfg_wr)
+                rtl8126_disable_cfg9346_write(tp);
 }
 
 static void
@@ -5150,22 +4995,15 @@ rtl8126_hw_d3_para(struct net_device *dev)
 
         RTL_W16(tp, RxMaxSize, RX_BUF_SIZE);
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_enable_force_clkreq(tp, 0);
-                rtl8126_enable_aspm_clkreq_lock(tp, 0);
-                break;
-        }
+        rtl8126_enable_force_clkreq(tp, 0);
+        rtl8126_enable_aspm_clkreq_lock(tp, 0);
 
         rtl8126_disable_exit_l1_mask(tp);
 
 #ifdef ENABLE_REALWOW_SUPPORT
         rtl8126_set_realwow_d3_para(dev);
 #endif
-
-        rtl8126_set_pci_99_180_exit_driver_para(dev);
+        rtl8126_set_pci_99_exit_driver_para(dev);
 
         rtl8126_disable_rxdvgate(dev);
 
@@ -5330,13 +5168,14 @@ rtl8126_set_hw_wol(struct net_device *dev, u32 wolopts)
 
         switch (tp->HwSuppMagicPktVer) {
         case WAKEUP_MAGIC_PACKET_V3:
-        default:
                 tmp = ARRAY_SIZE(cfg) - 1;
 
                 if (wolopts & WAKE_MAGIC)
                         rtl8126_enable_magic_packet(dev);
                 else
                         rtl8126_disable_magic_packet(dev);
+                break;
+        default:
                 break;
         }
 
@@ -5415,6 +5254,32 @@ rtl8126_set_pci_pme(struct rtl8126_private *tp, int set)
         else
                 pmc &= ~PCI_PM_CTRL_PME_ENABLE;
         pci_write_config_word(pdev, pdev->pm_cap + PCI_PM_CTRL, pmc);
+}
+
+static void
+rtl8126_enable_giga_lite(struct rtl8126_private *tp, u64 adv)
+{
+        if (adv & ADVERTISED_1000baseT_Full)
+                rtl8126_set_eth_phy_ocp_bit(tp, 0xA428, BIT_9);
+        else
+                rtl8126_clear_eth_phy_ocp_bit(tp, 0xA428, BIT_9);
+
+        if (adv & ADVERTISED_2500baseX_Full)
+                rtl8126_set_eth_phy_ocp_bit(tp, 0xA5EA, BIT_0);
+        else
+                rtl8126_clear_eth_phy_ocp_bit(tp, 0xA5EA, BIT_0);
+
+        if (adv & RTK_ADVERTISED_5000baseX_Full)
+                rtl8126_set_eth_phy_ocp_bit(tp, 0xA5EA, BIT_1);
+        else
+                rtl8126_clear_eth_phy_ocp_bit(tp, 0xA5EA, BIT_1);
+}
+
+static void
+rtl8126_disable_giga_lite(struct rtl8126_private *tp)
+{
+        rtl8126_clear_eth_phy_ocp_bit(tp, 0xA428, BIT_9);
+        rtl8126_clear_eth_phy_ocp_bit(tp, 0xA5EA, BIT_0 | BIT_1 | BIT_2);
 }
 
 static void
@@ -5511,6 +5376,8 @@ skip_check_lpa:
         rtl8126_mdio_write(tp, MII_CTRL1000, giga_ctrl);
         rtl8126_mdio_direct_write_phy_ocp(tp, 0xA5D4, ctrl_2500);
 
+        rtl8126_disable_giga_lite(tp);
+
         rtl8126_phy_restart_nway(dev);
 
 exit:
@@ -5537,19 +5404,17 @@ rtl8126_powerdown_pll(struct net_device *dev, u8 from_suspend)
 {
         struct rtl8126_private *tp = netdev_priv(dev);
 
+        /* Reboot not set wol link speed */
+        if (system_state == SYSTEM_RESTART)
+                return;
+
         tp->check_keep_link_speed = 0;
         if (tp->wol_enabled == WOL_ENABLED || tp->DASH || tp->EnableKCPOffload) {
                 rtl8126_set_hw_wol(dev, tp->wol_opts);
 
-                switch (tp->mcfg) {
-                case CFG_METHOD_1 ... CFG_METHOD_3:
-                        rtl8126_enable_cfg9346_write(tp);
-                        RTL_W8(tp, Config2, RTL_R8(tp, Config2) | PMSTS_En);
-                        rtl8126_disable_cfg9346_write(tp);
-                        break;
-                default:
-                        break;
-                };
+                rtl8126_enable_cfg9346_write(tp);
+                RTL_W8(tp, Config2, RTL_R8(tp, Config2) | PMSTS_En);
+                rtl8126_disable_cfg9346_write(tp);
 
                 /* Enable the PME and clear the status */
                 rtl8126_set_pci_pme(tp, 1);
@@ -5585,36 +5450,17 @@ rtl8126_powerdown_pll(struct net_device *dev, u8 from_suspend)
 
         rtl8126_phy_power_down(dev);
 
-        if (!tp->HwIcVerUnknown) {
-                switch (tp->mcfg) {
-                case CFG_METHOD_1:
-                case CFG_METHOD_2:
-                case CFG_METHOD_3:
-                        RTL_W8(tp, PMCH, RTL_R8(tp, PMCH) & ~BIT_7);
-                        break;
-                }
-        }
+        if (!tp->HwIcVerUnknown)
+                RTL_W8(tp, PMCH, RTL_R8(tp, PMCH) & ~BIT_7);
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                RTL_W8(tp, 0xF2, RTL_R8(tp, 0xF2) & ~BIT_6);
-                break;
-        }
+        RTL_W8(tp, 0xF2, RTL_R8(tp, 0xF2) & ~BIT_6);
 }
 
 static void rtl8126_powerup_pll(struct net_device *dev)
 {
         struct rtl8126_private *tp = netdev_priv(dev);
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                RTL_W8(tp, PMCH, RTL_R8(tp, PMCH) | BIT_7 | BIT_6);
-                break;
-        }
+        RTL_W8(tp, PMCH, RTL_R8(tp, PMCH) | BIT_7 | BIT_6);
 
         if (tp->resume_not_chg_speed)
                 return;
@@ -5722,17 +5568,16 @@ rtl8126_set_speed_xmii(struct net_device *dev,
 
         spin_lock_irqsave(&tp->phy_lock, flags);
 
-        //Disable Giga Lite
-        rtl8126_clear_eth_phy_ocp_bit(tp, 0xA428, BIT_9);
-        rtl8126_clear_eth_phy_ocp_bit(tp, 0xA5EA, BIT_0);
-        if (HW_SUPP_PHY_LINK_SPEED_5000M(tp))
-                rtl8126_clear_eth_phy_ocp_bit(tp, 0xA5EA, BIT_1);
-
         if (!rtl8126_is_speed_mode_valid(speed)) {
                 speed = SPEED_5000;
                 duplex = DUPLEX_FULL;
                 adv |= tp->advertising;
         }
+
+        if (eee_giga_lite && (autoneg == AUTONEG_ENABLE))
+                rtl8126_enable_giga_lite(tp, adv);
+        else
+                rtl8126_disable_giga_lite(tp);
 
         giga_ctrl = rtl8126_mdio_read(tp, MII_CTRL1000);
         giga_ctrl &= ~(ADVERTISE_1000HALF | ADVERTISE_1000FULL);
@@ -5779,7 +5624,6 @@ rtl8126_set_speed_xmii(struct net_device *dev,
                 rtl8126_mdio_write(tp, MII_CTRL1000, giga_ctrl);
                 rtl8126_mdio_direct_write_phy_ocp(tp, 0xA5D4, ctrl_2500);
                 rtl8126_phy_restart_nway(dev);
-                mdelay(20);
         } else {
                 /*true force*/
                 if (speed == SPEED_10 || speed == SPEED_100)
@@ -5952,11 +5796,11 @@ rtl8126_rx_desc_opts1(struct rtl8126_private *tp,
 {
         switch (tp->InitRxDescType) {
         case RX_DESC_RING_TYPE_3:
-                return ((struct RxDescV3 *)desc)->RxDescNormalDDWord4.opts1;
+                return READ_ONCE(((struct RxDescV3 *)desc)->RxDescNormalDDWord4.opts1);
         case RX_DESC_RING_TYPE_4:
-                return ((struct RxDescV4 *)desc)->RxDescNormalDDWord2.opts1;
+                return READ_ONCE(((struct RxDescV4 *)desc)->RxDescNormalDDWord2.opts1);
         default:
-                return desc->opts1;
+                return READ_ONCE(desc->opts1);
         }
 }
 
@@ -6022,18 +5866,12 @@ rtl8126_vlan_rx_register(struct net_device *dev,
 
         tp->vlgrp = grp;
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                if (tp->vlgrp) {
-                        tp->rtl8126_rx_config |= (EnableInnerVlan | EnableOuterVlan);
-                        RTL_W32(tp, RxConfig, RTL_R32(tp, RxConfig) | (EnableInnerVlan | EnableOuterVlan))
-                } else {
-                        tp->rtl8126_rx_config &= ~(EnableInnerVlan | EnableOuterVlan);
-                        RTL_W32(tp, RxConfig, RTL_R32(tp, RxConfig) & ~(EnableInnerVlan | EnableOuterVlan))
-                }
-                break;
+        if (tp->vlgrp) {
+                tp->rtl8126_rx_config |= (EnableInnerVlan | EnableOuterVlan);
+                RTL_W32(tp, RxConfig, RTL_R32(tp, RxConfig) | (EnableInnerVlan | EnableOuterVlan))
+        } else {
+                tp->rtl8126_rx_config &= ~(EnableInnerVlan | EnableOuterVlan);
+                RTL_W32(tp, RxConfig, RTL_R32(tp, RxConfig) & ~(EnableInnerVlan | EnableOuterVlan))
         }
 }
 
@@ -6192,7 +6030,7 @@ static void rtl8126_gset_xmii(struct net_device *dev,
         u16 status_2500 = tp->phy_reg_status_2500;
         unsigned long flags;
         u64 lpa_adv = 0;
-        u16 status;
+        u32 status;
         u8 autoneg, duplex;
         u32 speed = 0;
         u16 bmcr;
@@ -6250,9 +6088,14 @@ static void rtl8126_gset_xmii(struct net_device *dev,
 
         advertising |= ADVERTISED_TP;
 
-        status = RTL_R16(tp, PHYstatus);
+        status = RTL_R32(tp, PHYstatus);
         if (netif_running(dev) && (status & LinkStatus))
                 report_lpa = 1;
+#ifdef ENABLE_FIBER_SUPPORT
+        if (HW_FIBER_MODE_ENABLED(tp) &&
+            (rtl8126_fiber_link_ok(dev) != R8126_LINK_STATE_ON))
+                report_lpa = 0;
+#endif /* ENABLE_FIBER_SUPPORT */
 
         if (report_lpa) {
                 /*link on*/
@@ -6409,16 +6252,9 @@ static void rtl8126_get_regs(struct net_device *dev, struct ethtool_regs *regs,
         }
         data = (u8*)p + 256 * 3;
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-        default:
-                for (i = 0; i < R8126_ERI_REGS_SIZE; i+=4) {
-                        *(u32*)data = rtl8126_eri_read(tp, i , 4, ERIAR_ExGMAC);
-                        data += 4;
-                }
-                break;
+        for (i = 0; i < R8126_ERI_REGS_SIZE; i+=4) {
+                *(u32*)data = rtl8126_eri_read(tp, i , 4, ERIAR_ExGMAC);
+                data += 4;
         }
 }
 
@@ -6713,15 +6549,8 @@ static int rtl_get_eeprom(struct net_device *dev, struct ethtool_eeprom *eeprom,
                 return -EINVAL;
         }
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-        default:
-                VPD_addr = 0xD2;
-                VPD_data = 0xD4;
-                break;
-        }
+        VPD_addr = 0xD2;
+        VPD_data = 0xD4;
 
         start_w = eeprom->offset >> 2;
         end_w = (eeprom->offset + eeprom->len - 1) >> 2;
@@ -6736,7 +6565,7 @@ static int rtl_get_eeprom(struct net_device *dev, struct ethtool_eeprom *eeprom,
                 pci_write_config_word(tp->pci_dev, VPD_addr, (u16)i*4);
                 ret = -EFAULT;
                 for (j = 0; j < 10; j++) {
-                        udelay(400);
+                        fsleep(400);
                         pci_read_config_word(tp->pci_dev, VPD_addr, &tmp);
                         if (tmp&0x8000) {
                                 ret = 0;
@@ -6805,45 +6634,20 @@ rtl8126_set_eee_lpi_timer(struct rtl8126_private *tp)
 
         dev_lpi_timer = tp->eee.tx_lpi_timer;
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                RTL_W16(tp, EEE_TXIDLE_TIMER_8125, dev_lpi_timer);
-                break;
-        default:
-                break;
-        }
+        RTL_W16(tp, EEE_TXIDLE_TIMER_8125, dev_lpi_timer);
 }
 
 static bool rtl8126_is_adv_eee_enabled(struct rtl8126_private *tp)
 {
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                if (rtl8126_mdio_direct_read_phy_ocp(tp, 0xA430) & BIT_15)
-                        return true;
-                break;
-        default:
-                break;
-        }
-
-        return false;
+        if (rtl8126_mdio_direct_read_phy_ocp(tp, 0xA430) & BIT_15)
+                return true;
+        else
+                return false;
 }
 
 static void rtl8126_disable_adv_eee(struct rtl8126_private *tp)
 {
         bool lock;
-
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                break;
-        default:
-                return;
-        }
 
         if (rtl8126_is_adv_eee_enabled(tp))
                 lock = true;
@@ -6866,65 +6670,42 @@ static int rtl8126_enable_eee(struct rtl8126_private *tp)
         struct ethtool_keee *eee = &tp->eee;
         u16 eee_adv_cap1_t = rtl8126_ethtool_adv_to_mmd_eee_adv_cap1_t(eee->advertised);
         u16 eee_adv_cap2_t = rtl8126_ethtool_adv_to_mmd_eee_adv_cap2_t(eee->advertised);
-        int ret;
 
-        ret = 0;
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_set_mac_ocp_bit(tp, 0xE040, (BIT_1|BIT_0));
+        rtl8126_set_mac_ocp_bit(tp, 0xE040, (BIT_1|BIT_0));
 
-                rtl8126_clear_and_set_eth_phy_ocp_bit(tp,
-                                                      0xA5D0,
-                                                      MDIO_EEE_100TX | MDIO_EEE_1000T,
-                                                      eee_adv_cap1_t);
-                rtl8126_clear_and_set_eth_phy_ocp_bit(tp,
-                                                      0xA6D4,
-                                                      MDIO_EEE_2_5GT | MDIO_EEE_5GT,
-                                                      eee_adv_cap2_t);
-                rtl8126_clear_eth_phy_ocp_bit(tp, 0xA6D8, BIT_4);
-                rtl8126_clear_eth_phy_ocp_bit(tp, 0xA428, BIT_7);
-                rtl8126_clear_eth_phy_ocp_bit(tp, 0xA4A2, BIT_9);
-                break;
-        default:
-                ret = -EOPNOTSUPP;
-                break;
-        }
+        rtl8126_clear_and_set_eth_phy_ocp_bit(tp,
+                                              0xA5D0,
+                                              MDIO_EEE_100TX | MDIO_EEE_1000T,
+                                              eee_adv_cap1_t);
+        rtl8126_clear_and_set_eth_phy_ocp_bit(tp,
+                                              0xA6D4,
+                                              MDIO_EEE_2_5GT | MDIO_EEE_5GT,
+                                              eee_adv_cap2_t);
+        rtl8126_clear_eth_phy_ocp_bit(tp, 0xA6D8, BIT_4);
+        rtl8126_clear_eth_phy_ocp_bit(tp, 0xA428, BIT_7);
+        rtl8126_clear_eth_phy_ocp_bit(tp, 0xA4A2, BIT_9);
 
         /*Advanced EEE*/
         rtl8126_disable_adv_eee(tp);
 
-        return ret;
+        return 0;
 }
 
 static int rtl8126_disable_eee(struct rtl8126_private *tp)
 {
-        int ret;
+        rtl8126_clear_mac_ocp_bit(tp, 0xE040, (BIT_1|BIT_0));
 
-        ret = 0;
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_clear_mac_ocp_bit(tp, 0xE040, (BIT_1|BIT_0));
+        rtl8126_clear_eth_phy_ocp_bit(tp, 0xA5D0, (MDIO_EEE_100TX | MDIO_EEE_1000T));
+        rtl8126_clear_eth_phy_ocp_bit(tp, 0xA6D4, MDIO_EEE_2_5GT | MDIO_EEE_5GT);
 
-                rtl8126_clear_eth_phy_ocp_bit(tp, 0xA5D0, (MDIO_EEE_100TX | MDIO_EEE_1000T));
-                rtl8126_clear_eth_phy_ocp_bit(tp, 0xA6D4, MDIO_EEE_2_5GT | MDIO_EEE_5GT);
-
-                rtl8126_clear_eth_phy_ocp_bit(tp, 0xA6D8, BIT_4);
-                rtl8126_clear_eth_phy_ocp_bit(tp, 0xA428, BIT_7);
-                rtl8126_clear_eth_phy_ocp_bit(tp, 0xA4A2, BIT_9);
-                break;
-        default:
-                ret = -EOPNOTSUPP;
-                break;
-        }
+        rtl8126_clear_eth_phy_ocp_bit(tp, 0xA6D8, BIT_4);
+        rtl8126_clear_eth_phy_ocp_bit(tp, 0xA428, BIT_7);
+        rtl8126_clear_eth_phy_ocp_bit(tp, 0xA4A2, BIT_9);
 
         /*Advanced EEE*/
         rtl8126_disable_adv_eee(tp);
 
-        return ret;
+        return 0;
 }
 
 static int rtl_nway_reset(struct net_device *dev)
@@ -7400,13 +7181,7 @@ rtl8126_clear_phy_ups_reg(struct net_device *dev)
 {
         struct rtl8126_private *tp = netdev_priv(dev);
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_clear_eth_phy_ocp_bit(tp, 0xA466, BIT_0);
-                break;
-        };
+        rtl8126_clear_eth_phy_ocp_bit(tp, 0xA466, BIT_0);
         rtl8126_clear_eth_phy_ocp_bit(tp, 0xA468, BIT_3 | BIT_1);
 }
 
@@ -7415,12 +7190,7 @@ rtl8126_is_ups_resume(struct net_device *dev)
 {
         struct rtl8126_private *tp = netdev_priv(dev);
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1 ... CFG_METHOD_3:
-                return (rtl8126_mac_ocp_read(tp, 0xD42C) & BIT_8);
-        default:
-                return 0;
-        };
+        return (rtl8126_mac_ocp_read(tp, 0xD42C) & BIT_8);
 }
 
 static void
@@ -7428,24 +7198,13 @@ rtl8126_clear_ups_resume_bit(struct net_device *dev)
 {
         struct rtl8126_private *tp = netdev_priv(dev);
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1 ... CFG_METHOD_3:
-                rtl8126_clear_mac_ocp_bit(tp, 0xD42C, BIT_8);
-                break;
-        default:
-                return;
-        };
+        rtl8126_clear_mac_ocp_bit(tp, 0xD42C, BIT_8);
 }
 
 static u8
 rtl8126_get_phy_state(struct rtl8126_private *tp)
 {
-        switch (tp->mcfg) {
-        case CFG_METHOD_1 ... CFG_METHOD_3:
-                return (rtl8126_mdio_direct_read_phy_ocp(tp, 0xA420) & 0x7);
-        default:
-                return 0xff;
-        };
+        return (rtl8126_mdio_direct_read_phy_ocp(tp, 0xA420) & 0x7);
 }
 
 static void
@@ -7454,22 +7213,16 @@ rtl8126_wait_phy_ups_resume(struct net_device *dev, u16 PhyState)
         struct rtl8126_private *tp = netdev_priv(dev);
         int i;
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1 ... CFG_METHOD_3:
-                for (i=0; i< 100; i++) {
-                        if (rtl8126_get_phy_state(tp) == PhyState)
-                                break;
-                        else
-                                mdelay(1);
-                }
+        for (i=0; i< 100; i++) {
+                if (rtl8126_get_phy_state(tp) == PhyState)
+                        break;
+                else
+                        mdelay(1);
+        }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,18)
-                WARN_ON_ONCE(i == 100);
+        WARN_ON_ONCE(i == 100);
 #endif
-                break;
-        default:
-                break;
-        };
 }
 
 void
@@ -7506,51 +7259,33 @@ rtl8126_exit_oob(struct net_device *dev)
         rtl8126_realwow_hw_init(dev);
 #else
         //Disable realwow  function
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_mac_ocp_write(tp, 0xC0BC, 0x00FF);
-                break;
-        }
+        rtl8126_mac_ocp_write(tp, 0xC0BC, 0x00FF);
 #endif //ENABLE_REALWOW_SUPPORT
 
         rtl8126_nic_reset(dev);
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_disable_now_is_oob(tp);
+        rtl8126_disable_now_is_oob(tp);
 
-                data16 = rtl8126_mac_ocp_read(tp, 0xE8DE) & ~BIT_14;
-                rtl8126_mac_ocp_write(tp, 0xE8DE, data16);
-                rtl8126_wait_ll_share_fifo_ready(dev);
+        data16 = rtl8126_mac_ocp_read(tp, 0xE8DE) & ~BIT_14;
+        rtl8126_mac_ocp_write(tp, 0xE8DE, data16);
+        rtl8126_wait_ll_share_fifo_ready(dev);
 
-                rtl8126_mac_ocp_write(tp, 0xC0AA, 0x07D0);
+        rtl8126_mac_ocp_write(tp, 0xC0AA, 0x07D0);
 #ifdef ENABLE_LIB_SUPPORT
-                rtl8126_mac_ocp_write(tp, 0xC0A6, 0x04E2);
+        rtl8126_mac_ocp_write(tp, 0xC0A6, 0x04E2);
 #else
-                rtl8126_mac_ocp_write(tp, 0xC0A6, 0x01B5);
+        rtl8126_mac_ocp_write(tp, 0xC0A6, 0x01B5);
 #endif
-                rtl8126_mac_ocp_write(tp, 0xC01E, 0x5555);
+        rtl8126_mac_ocp_write(tp, 0xC01E, 0x5555);
 
-                rtl8126_wait_ll_share_fifo_ready(dev);
-                break;
-        }
+        rtl8126_wait_ll_share_fifo_ready(dev);
 
         //wait ups resume (phy state 2)
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                if (rtl8126_is_ups_resume(dev)) {
-                        rtl8126_wait_phy_ups_resume(dev, 2);
-                        rtl8126_clear_ups_resume_bit(dev);
-                        rtl8126_clear_phy_ups_reg(dev);
-                }
-                break;
-        };
+        if (rtl8126_is_ups_resume(dev)) {
+                rtl8126_wait_phy_ups_resume(dev, 2);
+                rtl8126_clear_ups_resume_bit(dev);
+                rtl8126_clear_phy_ups_reg(dev);
+        }
 }
 
 void
@@ -7560,35 +7295,17 @@ rtl8126_hw_disable_mac_mcu_bps(struct net_device *dev)
 
         struct rtl8126_private *tp = netdev_priv(dev);
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_enable_aspm_clkreq_lock(tp, 0);
-                break;
+        rtl8126_enable_aspm_clkreq_lock(tp, 0);
+
+        rtl8126_mac_ocp_write(tp, 0xFC48, 0x0000);
+
+        for (regAddr = 0xFC28; regAddr < 0xFC48; regAddr += 2) {
+                rtl8126_mac_ocp_write(tp, regAddr, 0x0000);
         }
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_mac_ocp_write(tp, 0xFC48, 0x0000);
-                break;
-        }
+        fsleep(3000);
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                for (regAddr = 0xFC28; regAddr < 0xFC48; regAddr += 2) {
-                        rtl8126_mac_ocp_write(tp, regAddr, 0x0000);
-                }
-
-                mdelay(3);
-
-                rtl8126_mac_ocp_write(tp, 0xFC26, 0x0000);
-                break;
-        }
+        rtl8126_mac_ocp_write(tp, 0xFC26, 0x0000);
 }
 
 #ifndef ENABLE_USE_FIRMWARE_FILE
@@ -7602,6 +7319,72 @@ rtl8126_switch_mac_mcu_ram_code_page(struct rtl8126_private *tp, u16 page)
         tmpUshort &= ~(BIT_1 | BIT_0);
         tmpUshort |= page;
         rtl8126_mac_ocp_write(tp, 0xE446, tmpUshort);
+}
+
+static void
+_rtl8126_set_hw_mcu_patch_code_ver(struct rtl8126_private *tp, u64 ver)
+{
+        int i;
+
+        /* Switch to page 2 */
+        rtl8126_switch_mac_mcu_ram_code_page(tp, 2);
+
+        for (i = 0; i < 8; i += 2) {
+                rtl8126_mac_ocp_write(tp, 0xF9F8 + 6 - i, (u16)ver);
+                ver >>= 16;
+        }
+
+        /* Switch back to page 0 */
+        rtl8126_switch_mac_mcu_ram_code_page(tp, 0);
+
+        tp->hw_mcu_patch_code_ver = tp->bin_mcu_patch_code_ver;
+}
+
+static void
+rtl8126_set_hw_mcu_patch_code_ver(struct rtl8126_private *tp, u64 ver)
+{
+        _rtl8126_set_hw_mcu_patch_code_ver(tp, ver);
+
+        tp->hw_mcu_patch_code_ver = ver;
+}
+
+static u64
+rtl8126_get_hw_mcu_patch_code_ver(struct rtl8126_private *tp)
+{
+        u64 ver;
+        int i;
+
+        /* Switch to page 2 */
+        rtl8126_switch_mac_mcu_ram_code_page(tp, 2);
+
+        ver = 0;
+        for (i = 0; i < 8; i += 2) {
+                ver <<= 16;
+                ver |= rtl8126_mac_ocp_read(tp, 0xF9F8 + i);
+        }
+
+        /* Switch back to page 0 */
+        rtl8126_switch_mac_mcu_ram_code_page(tp, 0);
+
+        return ver;
+}
+
+static u64
+rtl8126_get_bin_mcu_patch_code_ver(const u16 *entry, u16 entry_cnt)
+{
+        u64 ver;
+        int i;
+
+        if (entry == NULL || entry_cnt == 0 || entry_cnt < 4)
+                return 0;
+
+        ver = 0;
+        for (i = 0; i < 4; i++) {
+                ver <<= 16;
+                ver |= entry[entry_cnt - 4 + i];
+        }
+
+        return ver;
 }
 
 static void
@@ -7645,13 +7428,16 @@ rtl8126_write_mac_mcu_ram_code(struct rtl8126_private *tp, const u16 *entry, u16
                 _rtl8126_write_mac_mcu_ram_code_with_page(tp, entry, entry_cnt, tp->MacMcuPageSize);
         else
                 _rtl8126_write_mac_mcu_ram_code(tp, entry, entry_cnt);
+
+        if (tp->bin_mcu_patch_code_ver > 0)
+                rtl8126_set_hw_mcu_patch_code_ver(tp, tp->bin_mcu_patch_code_ver);
 }
 
 static void
 rtl8126_set_mac_mcu_8126a_1(struct net_device *dev)
 {
         struct rtl8126_private *tp = netdev_priv(dev);
-        static const u16 mcu_patch_code_8126a_1[] =  {
+        static const u16 mcu_patch_code[] =  {
                 0xE010, 0xE019, 0xE01B, 0xE01D, 0xE01F, 0xE021, 0xE023, 0xE025, 0xE027,
                 0xE029, 0xE02B, 0xE02D, 0xE02F, 0xE031, 0xE033, 0xE035, 0x48C0, 0x9C66,
                 0x7446, 0x4840, 0x48C1, 0x48C2, 0x9C46, 0xC402, 0xBC00, 0x0AD6, 0xC602,
@@ -7662,9 +7448,7 @@ rtl8126_set_mac_mcu_8126a_1(struct net_device *dev)
                 0xBE00, 0x0000, 0xC602, 0xBE00, 0x0000, 0xC602, 0xBE00, 0x0000
         };
 
-        rtl8126_hw_disable_mac_mcu_bps(dev);
-
-        rtl8126_write_mac_mcu_ram_code(tp, mcu_patch_code_8126a_1, ARRAY_SIZE(mcu_patch_code_8126a_1));
+        rtl8126_write_mac_mcu_ram_code(tp, mcu_patch_code, ARRAY_SIZE(mcu_patch_code));
 
         rtl8126_mac_ocp_write(tp, 0xFC26, 0x8000);
 
@@ -7677,9 +7461,9 @@ static void
 rtl8126_set_mac_mcu_8126a_2(struct net_device *dev)
 {
         struct rtl8126_private *tp = netdev_priv(dev);
-        static const u16 mcu_patch_code_8126a_2[] =  {
-                0xE010, 0xE02C, 0xE04E, 0xE0A4, 0xE0A8, 0xE0AA, 0xE0AC, 0xE0AE, 0xE0B0,
-                0xE0B2, 0xE0B4, 0xE0B6, 0xE0B8, 0xE0BA, 0xE0BC, 0xE0BE, 0xC716, 0xC616,
+        static const u16 mcu_patch_code[] =  {
+                0xE010, 0xE02C, 0xE04E, 0xE0A4, 0xE0A8, 0xE0AB, 0xE0AE, 0xE0B1, 0xE0B3,
+                0xE0B5, 0xE0B7, 0xE0B9, 0xE0BB, 0xE0BD, 0xE0BF, 0xE0C1, 0xC716, 0xC616,
                 0x9EE0, 0xC616, 0x65C0, 0x1500, 0xF009, 0xC714, 0x66E0, 0x41B5, 0x8EE0,
                 0xC611, 0x75C0, 0x4858, 0x9DC0, 0xC707, 0xC608, 0x9EE0, 0xC608, 0xC502,
                 0xBD00, 0x0100, 0xE86C, 0xE000, 0xA000, 0xB404, 0xB430, 0xC070, 0xE926,
@@ -7697,78 +7481,18 @@ rtl8126_set_mac_mcu_8126a_2(struct net_device *dev)
                 0x4818, 0x9902, 0xE7C9, 0x1200, 0xF0E9, 0x4998, 0xF002, 0x1B01, 0x0A01,
                 0x4898, 0x9902, 0xE7C0, 0xC00A, 0xC606, 0xBE00, 0x0C01, 0x1400, 0xF1FE,
                 0xFF80, 0x2362, 0xD456, 0xD404, 0xE400, 0x4166, 0x9CF6, 0xC002, 0xB800,
-                0x14A6, 0xC602, 0xBE00, 0x0000, 0xC602, 0xBE00, 0x0000, 0xC602, 0xBE00,
+                0x14A6, 0x49D1, 0xC602, 0xBE00, 0x4160, 0x49D1, 0xC602, 0xBE00, 0x41E6,
+                0x49D1, 0xC602, 0xBE00, 0x4282, 0xC602, 0xBE00, 0x0000, 0xC602, 0xBE00,
                 0x0000, 0xC602, 0xBE00, 0x0000, 0xC602, 0xBE00, 0x0000, 0xC602, 0xBE00,
                 0x0000, 0xC602, 0xBE00, 0x0000, 0xC602, 0xBE00, 0x0000, 0xC602, 0xBE00,
-                0x0000, 0xC602, 0xBE00, 0x0000, 0xC602, 0xBE00, 0x0000, 0xC602, 0xBE00,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x6847,
-                0x0A18, 0x0409, 0x0A10
+                0x0000, 0xC602, 0xBE00, 0x0000, 0x6847, 0x0A18, 0x0C02, 0x0B30
         };
 
-        rtl8126_hw_disable_mac_mcu_bps(dev);
+        /* Get BIN mac mcu patch code version */
+        tp->bin_mcu_patch_code_ver = rtl8126_get_bin_mcu_patch_code_ver(mcu_patch_code, ARRAY_SIZE(mcu_patch_code));
 
-        rtl8126_write_mac_mcu_ram_code(tp, mcu_patch_code_8126a_2, ARRAY_SIZE(mcu_patch_code_8126a_2));
+        if (tp->hw_mcu_patch_code_ver != tp->bin_mcu_patch_code_ver)
+                rtl8126_write_mac_mcu_ram_code(tp, mcu_patch_code, ARRAY_SIZE(mcu_patch_code));
 
         rtl8126_mac_ocp_write(tp, 0xFC26, 0x8000);
 
@@ -7776,17 +7500,20 @@ rtl8126_set_mac_mcu_8126a_2(struct net_device *dev)
         //rtl8126_mac_ocp_write(tp, 0xFC2A, 0x4A14);
         rtl8126_mac_ocp_write(tp, 0xFC2C, 0x2360);
         rtl8126_mac_ocp_write(tp, 0xFC2E, 0x14A4);
+        rtl8126_mac_ocp_write(tp, 0xFC30, 0x415E);
+        rtl8126_mac_ocp_write(tp, 0xFC32, 0x41E4);
+        rtl8126_mac_ocp_write(tp, 0xFC34, 0x4280);
 
-        rtl8126_mac_ocp_write(tp, 0xFC48, 0x000C);
+        rtl8126_mac_ocp_write(tp, 0xFC48, 0x007C);
 }
 
 static void
 rtl8126_set_mac_mcu_8126a_3(struct net_device *dev)
 {
         struct rtl8126_private *tp = netdev_priv(dev);
-        static const u16 mcu_patch_code_8126a_3[] =  {
-                0xE010, 0xE02C, 0xE04E, 0xE052, 0xE054, 0xE056, 0xE058, 0xE05A, 0xE05C,
-                0xE05E, 0xE060, 0xE062, 0xE064, 0xE066, 0xE068, 0xE06A, 0xC716, 0xC616,
+        static const u16 mcu_patch_code[] =  {
+                0xE010, 0xE02C, 0xE04E, 0xE052, 0xE055, 0xE058, 0xE05B, 0xE05D, 0xE05F,
+                0xE061, 0xE063, 0xE065, 0xE067, 0xE069, 0xE06B, 0xE06D, 0xC716, 0xC616,
                 0x9EE0, 0xC616, 0x65C0, 0x1500, 0xF009, 0xC714, 0x66E0, 0x41B5, 0x8EE0,
                 0xC611, 0x75C0, 0x4858, 0x9DC0, 0xC707, 0xC608, 0x9EE0, 0xC608, 0xC502,
                 0xBD00, 0x0100, 0xE86C, 0xE000, 0xA000, 0xB404, 0xB430, 0xC070, 0xE926,
@@ -7794,96 +7521,30 @@ rtl8126_set_mac_mcu_8126a_3(struct net_device *dev)
                 0xF002, 0x4821, 0x49B2, 0xF002, 0x4822, 0x49B3, 0xF002, 0x4823, 0xC411,
                 0x6380, 0x48B0, 0x8B80, 0x6320, 0x41DA, 0x8B20, 0x6380, 0x4830, 0x8B80,
                 0xE003, 0x73A4, 0x9B20, 0xC302, 0xBB00, 0x55E2, 0xC070, 0xE022, 0x4166,
-                0x9CF6, 0xC602, 0xBE00, 0x14A6, 0xC602, 0xBE00, 0x0000, 0xC602, 0xBE00,
+                0x9CF6, 0xC602, 0xBE00, 0x14A6, 0x49D1, 0xC602, 0xBE00, 0x4178, 0x49D1,
+                0xC602, 0xBE00, 0x41FE, 0x49D1, 0xC602, 0xBE00, 0x429A, 0xC602, 0xBE00,
                 0x0000, 0xC602, 0xBE00, 0x0000, 0xC602, 0xBE00, 0x0000, 0xC602, 0xBE00,
                 0x0000, 0xC602, 0xBE00, 0x0000, 0xC602, 0xBE00, 0x0000, 0xC602, 0xBE00,
                 0x0000, 0xC602, 0xBE00, 0x0000, 0xC602, 0xBE00, 0x0000, 0xC602, 0xBE00,
-                0x0000, 0xC602, 0xBE00, 0x0000, 0xC602, 0xBE00, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-                0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x6847,
-                0x0B18, 0x0409, 0x0A1C
+                0x0000, 0x6847, 0x0B18, 0x0C02, 0x0D10
         };
 
-        rtl8126_hw_disable_mac_mcu_bps(dev);
+        /* Get BIN mac mcu patch code version */
+        tp->bin_mcu_patch_code_ver = rtl8126_get_bin_mcu_patch_code_ver(mcu_patch_code, ARRAY_SIZE(mcu_patch_code));
 
-        rtl8126_write_mac_mcu_ram_code(tp, mcu_patch_code_8126a_3, ARRAY_SIZE(mcu_patch_code_8126a_3));
+        if (tp->hw_mcu_patch_code_ver != tp->bin_mcu_patch_code_ver)
+                rtl8126_write_mac_mcu_ram_code(tp, mcu_patch_code, ARRAY_SIZE(mcu_patch_code));
 
         rtl8126_mac_ocp_write(tp, 0xFC26, 0x8000);
 
         //rtl8126_mac_ocp_write(tp, 0xFC28, 0x00FE);
         //rtl8126_mac_ocp_write(tp, 0xFC2A, 0x55DE);
         rtl8126_mac_ocp_write(tp, 0xFC2C, 0x14A4);
+        rtl8126_mac_ocp_write(tp, 0xFC2E, 0x4176);
+        rtl8126_mac_ocp_write(tp, 0xFC30, 0x41FC);
+        rtl8126_mac_ocp_write(tp, 0xFC32, 0x4298);
 
-        rtl8126_mac_ocp_write(tp, 0xFC48, 0x0004);
+        rtl8126_mac_ocp_write(tp, 0xFC48, 0x003C);
 }
 
 static void
@@ -7893,6 +7554,11 @@ rtl8126_hw_mac_mcu_config(struct net_device *dev)
 
         if (tp->NotWrMcuPatchCode == TRUE)
                 return;
+
+        rtl8126_hw_disable_mac_mcu_bps(dev);
+
+        /* Get H/W mac mcu patch code version */
+        tp->hw_mcu_patch_code_ver = rtl8126_get_hw_mcu_patch_code_ver(tp);
 
         switch (tp->mcfg) {
         case CFG_METHOD_1:
@@ -7945,23 +7611,11 @@ rtl8126_hw_init(struct net_device *dev)
         struct rtl8126_private *tp = netdev_priv(dev);
         u32 csi_tmp;
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_enable_aspm_clkreq_lock(tp, 0);
-                rtl8126_enable_force_clkreq(tp, 0);
-                break;
-        }
+        rtl8126_enable_aspm_clkreq_lock(tp, 0);
+        rtl8126_enable_force_clkreq(tp, 0);
 
         //Disable UPS
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_mac_ocp_write(tp, 0xD40A, rtl8126_mac_ocp_read(tp, 0xD40A) & ~(BIT_4));
-                break;
-        }
+        rtl8126_mac_ocp_write(tp, 0xD40A, rtl8126_mac_ocp_read(tp, 0xD40A) & ~(BIT_4));
 
 #ifndef ENABLE_USE_FIRMWARE_FILE
         if (!tp->rtl_fw)
@@ -7994,30 +7648,17 @@ rtl8126_hw_init(struct net_device *dev)
 static void
 rtl8126_hw_ephy_config(struct net_device *dev)
 {
-        struct rtl8126_private *tp = netdev_priv(dev);
-
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                /* nothing to do */
-                break;
-        }
+        (void)dev;
+        /* nothing to do */
 }
 
 static u16
 rtl8126_get_hw_phy_mcu_code_ver(struct rtl8126_private *tp)
 {
-        u16 hw_ram_code_ver = ~0;
+        u16 hw_ram_code_ver;
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_mdio_direct_write_phy_ocp(tp, 0xA436, 0x801E);
-                hw_ram_code_ver = rtl8126_mdio_direct_read_phy_ocp(tp, 0xA438);
-                break;
-        }
+        rtl8126_mdio_direct_write_phy_ocp(tp, 0xA436, 0x801E);
+        hw_ram_code_ver = rtl8126_mdio_direct_read_phy_ocp(tp, 0xA438);
 
         return hw_ram_code_ver;
 }
@@ -8094,15 +7735,9 @@ rtl8126_write_hw_phy_mcu_code_ver(struct net_device *dev)
 {
         struct rtl8126_private *tp = netdev_priv(dev);
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_mdio_direct_write_phy_ocp(tp, 0xA436, 0x801E);
-                rtl8126_mdio_direct_write_phy_ocp(tp, 0xA438, tp->sw_ram_code_ver);
-                tp->hw_ram_code_ver = tp->sw_ram_code_ver;
-                break;
-        }
+        rtl8126_mdio_direct_write_phy_ocp(tp, 0xA436, 0x801E);
+        rtl8126_mdio_direct_write_phy_ocp(tp, 0xA438, tp->sw_ram_code_ver);
+        tp->hw_ram_code_ver = tp->sw_ram_code_ver;
 }
 
 static void
@@ -12043,14 +11678,7 @@ rtl8126_hw_phy_config(struct net_device *dev)
         }
 
         //legacy force mode(Chap 22)
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-        default:
-                rtl8126_clear_eth_phy_ocp_bit(tp, 0xA5B4, BIT_15);
-                break;
-        }
+        rtl8126_clear_eth_phy_ocp_bit(tp, 0xA5B4, BIT_15);
 
 #ifdef ENABLE_FIBER_SUPPORT
         if (HW_FIBER_MODE_ENABLED(tp))
@@ -12250,40 +11878,19 @@ rtl8126_init_software_variable(struct net_device *dev)
         tp->ring_lib_enabled = 1;
 #endif
 
-        switch (tp->mcfg) {
-        default:
-                tp->HwSuppDashVer = 0;
-                break;
-        }
+        tp->HwSuppDashVer = 0;
+
         tp->AllowAccessDashOcp = rtl8126_is_allow_access_dash_ocp(tp);
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                tp->HwPkgDet = rtl8126_mac_ocp_read(tp, 0xDC00);
-                tp->HwPkgDet = (tp->HwPkgDet >> 3) & 0x07;
-                break;
-        }
+        tp->HwPkgDet = rtl8126_mac_ocp_read(tp, 0xDC00);
+        tp->HwPkgDet = (tp->HwPkgDet >> 3) & 0x07;
 
         if (HW_DASH_SUPPORT_TYPE_3(tp) && tp->HwPkgDet == 0x06)
                 eee_enable = 0;
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                tp->HwSuppNowIsOobVer = 1;
-                break;
-        }
+        tp->HwSuppNowIsOobVer = 1;
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                tp->HwPcieSNOffset = 0x174;
-                break;
-        }
+        tp->HwPcieSNOffset = 0x174;
 
 #ifdef ENABLE_REALWOW_SUPPORT
         rtl8126_get_realwow_hw_version(dev);
@@ -12330,97 +11937,36 @@ rtl8126_init_software_variable(struct net_device *dev)
                 tp->cmac_ioaddr = tp->mapped_cmac_ioaddr;
 
         if (aspm) {
-                switch (tp->mcfg) {
-                case CFG_METHOD_1:
-                case CFG_METHOD_2:
-                case CFG_METHOD_3:
-                        tp->org_pci_offset_99 = rtl8126_csi_fun0_read_byte(tp, 0x99);
-                        tp->org_pci_offset_99 &= ~(BIT_5|BIT_6);
-                        break;
-                }
+                tp->org_pci_offset_99 = rtl8126_csi_fun0_read_byte(tp, 0x99);
+                tp->org_pci_offset_99 &= ~(BIT_5|BIT_6);
 
-                switch (tp->mcfg) {
-                case CFG_METHOD_1:
-                case CFG_METHOD_2:
-                case CFG_METHOD_3:
-                        tp->org_pci_offset_180 = rtl8126_csi_fun0_read_byte(tp, 0x22c);
-                        break;
-                }
+                tp->org_pci_offset_180 = rtl8126_csi_fun0_read_byte(tp, 0x22c);
         }
 
         pci_read_config_byte(pdev, 0x80, &tp->org_pci_offset_80);
         pci_read_config_byte(pdev, 0x81, &tp->org_pci_offset_81);
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-        default:
-                tp->use_timer_interrupt = TRUE;
-                break;
-        }
+        tp->use_timer_interrupt = TRUE;
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-        default:
-                tp->HwSuppMaxPhyLinkSpeed = 5000;
-                break;
-        }
+        tp->HwSuppMaxPhyLinkSpeed = 5000;
 
         if (timer_count == 0 || tp->mcfg == CFG_METHOD_DEFAULT)
                 tp->use_timer_interrupt = FALSE;
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                tp->ShortPacketSwChecksum = TRUE;
-                tp->UseSwPaddingShortPkt = TRUE;
-                break;
-        default:
-                break;
-        }
+        tp->ShortPacketSwChecksum = TRUE;
+        tp->UseSwPaddingShortPkt = TRUE;
 
 #ifdef ENABLE_FIBER_SUPPORT
         rtl8126_check_fiber_mode_support(tp);
 #endif /* ENABLE_FIBER_SUPPORT */
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                tp->HwSuppMagicPktVer = WAKEUP_MAGIC_PACKET_V3;
-                break;
-        default:
-                tp->HwSuppMagicPktVer = WAKEUP_MAGIC_PACKET_NOT_SUPPORT;
-                break;
-        }
+        tp->HwSuppMagicPktVer = WAKEUP_MAGIC_PACKET_V3;
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                tp->HwSuppLinkChgWakeUpVer = 3;
-                break;
-        }
+        tp->HwSuppLinkChgWakeUpVer = 3;
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                tp->HwSuppD0SpeedUpVer = 1;
-                break;
-        }
+        tp->HwSuppD0SpeedUpVer = 1;
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                tp->HwSuppCheckPhyDisableModeVer = 3;
-                break;
-        }
+        tp->HwSuppCheckPhyDisableModeVer = 3;
 
         switch (tp->mcfg) {
         case CFG_METHOD_1:
@@ -12468,34 +12014,12 @@ rtl8126_init_software_variable(struct net_device *dev)
                 tp->NotWrMcuPatchCode = TRUE;
         }
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                tp->HwSuppMacMcuVer = 2;
-                break;
-        }
+        tp->HwSuppMacMcuVer = 2;
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                tp->MacMcuPageSize = RTL8126_MAC_MCU_PAGE_SIZE;
-                break;
-        }
+        tp->MacMcuPageSize = RTL8126_MAC_MCU_PAGE_SIZE;
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                tp->HwSuppNumTxQueues = 2;
-                tp->HwSuppNumRxQueues = 4;
-                break;
-        default:
-                tp->HwSuppNumTxQueues = 1;
-                tp->HwSuppNumRxQueues = 1;
-                break;
-        }
+        tp->HwSuppNumTxQueues = 2;
+        tp->HwSuppNumRxQueues = 4;
 
         //init interrupt
         switch (tp->mcfg) {
@@ -12529,14 +12053,8 @@ rtl8126_init_software_variable(struct net_device *dev)
                 tp->num_tx_rings = 1;
 
         //RSS
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                tp->HwSuppRssVer = 5;
-                tp->HwSuppIndirTblEntries = 128;
-                break;
-        }
+        tp->HwSuppRssVer = 5;
+        tp->HwSuppIndirTblEntries = 128;
 
         tp->num_rx_rings = 1;
 #ifdef ENABLE_RSS_SUPPORT
@@ -12565,13 +12083,7 @@ rtl8126_init_software_variable(struct net_device *dev)
 
         rtl8126_set_ring_size(tp, NUM_RX_DESC, NUM_TX_DESC);
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                tp->HwSuppPtpVer = 2;
-                break;
-        }
+        tp->HwSuppPtpVer = 2;
 #ifdef ENABLE_PTP_SUPPORT
         if (tp->HwSuppPtpVer > 0)
                 tp->EnablePtp = 1;
@@ -12587,26 +12099,14 @@ rtl8126_init_software_variable(struct net_device *dev)
                 break;
         }
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                tp->HwSuppTcamVer = 2;
+        tp->HwSuppTcamVer = 2;
 
-                tp->TcamNotValidReg = TCAM_NOTVALID_ADDR_V2;
-                tp->TcamValidReg = TCAM_VALID_ADDR_V2;
-                tp->TcamMaAddrcOffset = TCAM_MAC_ADDR_V2;
-                tp->TcamVlanTagOffset = TCAM_VLAN_TAG_V2;
-                break;
-        }
+        tp->TcamNotValidReg = TCAM_NOTVALID_ADDR_V2;
+        tp->TcamValidReg = TCAM_VALID_ADDR_V2;
+        tp->TcamMaAddrcOffset = TCAM_MAC_ADDR_V2;
+        tp->TcamVlanTagOffset = TCAM_VLAN_TAG_V2;
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                tp->HwSuppExtendTallyCounterVer = 1;
-                break;
-        }
+        tp->HwSuppExtendTallyCounterVer = 1;
 
         timer_count_v2 = (timer_count / 0x100);
 
@@ -12685,8 +12185,6 @@ rtl8126_init_software_variable(struct net_device *dev)
                 eee->tx_lpi_timer = dev->mtu + ETH_HLEN + 0x20;
         }
 
-        tp->ptp_master_mode = enable_ptp_master_mode;
-
 #ifdef ENABLE_RSS_SUPPORT
         if (tp->EnableRss)
                 rtl8126_init_rss(tp);
@@ -12741,14 +12239,8 @@ rtl8126_get_mac_address(struct net_device *dev)
         for (i = 0; i < MAC_ADDR_LEN; i++)
                 mac_addr[i] = RTL_R8(tp, MAC0 + i);
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1 ... CFG_METHOD_3:
-                *(u32*)&mac_addr[0] = RTL_R32(tp, BACKUP_ADDR0_8125);
-                *(u16*)&mac_addr[4] = RTL_R16(tp, BACKUP_ADDR1_8125);
-                break;
-        default:
-                break;
-        };
+        *(u32*)&mac_addr[0] = RTL_R32(tp, BACKUP_ADDR0_8125);
+        *(u16*)&mac_addr[4] = RTL_R16(tp, BACKUP_ADDR1_8125);
 
         if (!is_valid_ether_addr(mac_addr)) {
                 netif_err(tp, probe, dev, "Invalid ether addr %pM\n",
@@ -13640,13 +13132,7 @@ rtl8126_phy_power_up(struct net_device *dev)
         rtl8126_mdio_write(tp, MII_BMCR, BMCR_ANENABLE);
 
         //wait ups resume (phy state 3)
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_wait_phy_ups_resume(dev, 3);
-                break;
-        };
+        rtl8126_wait_phy_ups_resume(dev, 3);
 
         spin_unlock_irqrestore(&tp->phy_lock, flags);
 }
@@ -14096,29 +13582,12 @@ static int rtl8126_try_msi(struct rtl8126_private *tp)
         unsigned msi = 0;
         int nvecs = 1;
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1 ... CFG_METHOD_3:
-                hw_supp_irq_nvecs = R8126_MAX_MSIX_VEC_8125B;
-                break;
-        default:
-                hw_supp_irq_nvecs = 1;
-                break;
-        }
+        hw_supp_irq_nvecs = R8126_MAX_MSIX_VEC_8125B;
         tp->hw_supp_irq_nvecs = clamp_val(hw_supp_irq_nvecs, 1,
                                           R8126_MAX_MSIX_VEC);
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                tp->max_irq_nvecs = tp->hw_supp_irq_nvecs;
-                tp->min_irq_nvecs = R8126_MIN_MSIX_VEC_8125B;
-                break;
-        default:
-                tp->max_irq_nvecs = 1;
-                tp->min_irq_nvecs = 1;
-                break;
-        }
+        tp->max_irq_nvecs = tp->hw_supp_irq_nvecs;
+        tp->min_irq_nvecs = R8126_MIN_MSIX_VEC_8125B;
 #ifdef DISABLE_MULTI_MSIX_VECTOR
         tp->max_irq_nvecs = 1;
 #endif
@@ -14614,11 +14083,7 @@ rtl8126_init_one(struct pci_dev *pdev,
                 tp->cp_cmd |= RxChkSum;
 #else
                 dev->features |= NETIF_F_RXCSUM;
-                switch (tp->mcfg) {
-                default:
-                        dev->features |= NETIF_F_SG | NETIF_F_TSO;
-                        break;
-                };
+                dev->features |= NETIF_F_SG | NETIF_F_TSO;
                 dev->hw_features = NETIF_F_SG | NETIF_F_IP_CSUM | NETIF_F_TSO |
                                    NETIF_F_RXCSUM | NETIF_F_HW_VLAN_TX | NETIF_F_HW_VLAN_RX;
                 dev->vlan_features = NETIF_F_SG | NETIF_F_IP_CSUM | NETIF_F_TSO |
@@ -14631,11 +14096,7 @@ rtl8126_init_one(struct pci_dev *pdev,
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,22)
                 dev->hw_features |= NETIF_F_IPV6_CSUM | NETIF_F_TSO6;
                 dev->features |= NETIF_F_IPV6_CSUM;
-                switch (tp->mcfg) {
-                default:
-                        dev->features |= NETIF_F_TSO6;
-                        break;
-                };
+                dev->features |= NETIF_F_TSO6;
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5,19,0)
                 netif_set_tso_max_size(dev, LSO_64K);
                 netif_set_tso_max_segs(dev, NIC_MAX_PHYS_BUF_COUNT_LSO2);
@@ -14762,6 +14223,8 @@ rtl8126_remove_one(struct pci_dev *pdev)
 #endif
         if (HW_DASH_SUPPORT_DASH(tp))
                 rtl8126_driver_stop(tp);
+
+        rtl8126_disable_pci_offset_180(tp);
 
 #ifdef ENABLE_R8126_SYSFS
         rtl8126_sysfs_remove(dev);
@@ -15081,9 +14544,12 @@ int rtl8126_open(struct net_device *dev)
         }
 
         //rtl8126_request_link_timer(dev);
+#ifdef ENABLE_FIBER_SUPPORT
+        if (HW_FIBER_MODE_ENABLED(tp))
+                rtl8126_schedule_link_work(tp);
+#endif /* ENABLE_FIBER_SUPPORT */
 
         rtl8126_enable_hw_linkchg_interrupt(tp);
-
 out:
 
         return retval;
@@ -15095,7 +14561,7 @@ err_free_all_allocated_mem:
 }
 
 static void
-set_offset70F(struct rtl8126_private *tp, u8 setting)
+_rtl8126_set_l1_l0s_entry_latency(struct rtl8126_private *tp, u8 setting)
 {
         u32 csi_tmp;
         u32 temp;
@@ -15110,20 +14576,32 @@ set_offset70F(struct rtl8126_private *tp, u8 setting)
 }
 
 static void
-set_offset79(struct rtl8126_private *tp, u8 setting)
+rtl8126_set_l1_l0s_entry_latency(struct rtl8126_private *tp)
+{
+        _rtl8126_set_l1_l0s_entry_latency(tp, 0x27);
+}
+
+static void
+_rtl8126_set_mrrs(struct rtl8126_private *tp, u8 setting)
 {
         //Set PCI configuration space offset 0x79 to setting
 
         struct pci_dev *pdev = tp->pci_dev;
         u8 device_control;
 
-        if (hwoptimize & HW_PATCH_SOC_LAN)
-                return;
-
         pci_read_config_byte(pdev, 0x79, &device_control);
         device_control &= ~0x70;
         device_control |= setting;
         pci_write_config_byte(pdev, 0x79, device_control);
+}
+
+static void
+rtl8126_set_mrrs(struct rtl8126_private *tp)
+{
+        if (hwoptimize & HW_PATCH_SOC_LAN)
+                return;
+
+        _rtl8126_set_mrrs(tp, 0x40);
 }
 
 static void
@@ -15247,7 +14725,7 @@ rtl8126_clear_tcam_entries(struct rtl8126_private *tp)
                 return;
 
         rtl8126_set_mac_ocp_bit(tp, 0xEB54, BIT_0);
-        udelay(1);
+        fsleep(1);
         rtl8126_clear_mac_ocp_bit(tp, 0xEB54, BIT_0);
 }
 
@@ -15257,14 +14735,7 @@ rtl8126_get_l1off_cap_bits(struct rtl8126_private *tp)
         u8 l1offCapBits = 0;
 
         l1offCapBits = (BIT_0 | BIT_1);
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                l1offCapBits |= (BIT_2 | BIT_3);
-        default:
-                break;
-        }
+        l1offCapBits |= (BIT_2 | BIT_3);
 
         return l1offCapBits;
 }
@@ -15281,27 +14752,15 @@ rtl8126_hw_config(struct net_device *dev)
         rtl8126_hw_reset(dev);
 
         rtl8126_enable_cfg9346_write(tp);
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_enable_force_clkreq(tp, 0);
-                rtl8126_enable_aspm_clkreq_lock(tp, 0);
-                break;
-        }
+        rtl8126_enable_force_clkreq(tp, 0);
+        rtl8126_enable_aspm_clkreq_lock(tp, 0);
 
         rtl8126_set_eee_lpi_timer(tp);
 
         //keep magic packet only
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                mac_ocp_data = rtl8126_mac_ocp_read(tp, 0xC0B6);
-                mac_ocp_data &= BIT_0;
-                rtl8126_mac_ocp_write(tp, 0xC0B6, mac_ocp_data);
-                break;
-        }
+        mac_ocp_data = rtl8126_mac_ocp_read(tp, 0xC0B6);
+        mac_ocp_data &= BIT_0;
+        rtl8126_mac_ocp_write(tp, 0xC0B6, mac_ocp_data);
 
         rtl8126_tally_counter_addr_fill(tp);
 
@@ -15321,121 +14780,112 @@ rtl8126_hw_config(struct net_device *dev)
         else
                 rtl8126_disable_double_vlan(tp);
 
-        if (tp->mcfg == CFG_METHOD_1 ||
-            tp->mcfg == CFG_METHOD_2 ||
-            tp->mcfg == CFG_METHOD_3) {
-                set_offset70F(tp, 0x27);
-                set_offset79(tp, 0x40);
+        rtl8126_set_l1_l0s_entry_latency(tp);
 
-                rtl8126_disable_l1_timeout(tp);
+        rtl8126_set_mrrs(tp);
+
+        rtl8126_disable_l1_timeout(tp);
 
 #ifdef ENABLE_RSS_SUPPORT
-                rtl8126_config_rss(tp);
+        rtl8126_config_rss(tp);
 #else
-                RTL_W32(tp, RSS_CTRL_8125, 0x00);
+        RTL_W32(tp, RSS_CTRL_8125, 0x00);
 #endif
-                rtl8126_set_rx_q_num(tp, rtl8126_tot_rx_rings(tp));
+        rtl8126_set_rx_q_num(tp, rtl8126_tot_rx_rings(tp));
 
-                RTL_W8(tp, Config1, RTL_R8(tp, Config1) & ~0x10);
+        RTL_W8(tp, Config1, RTL_R8(tp, Config1) & ~0x10);
 
-                rtl8126_mac_ocp_write(tp, 0xC140, 0xFFFF);
-                rtl8126_mac_ocp_write(tp, 0xC142, 0xFFFF);
+        rtl8126_mac_ocp_write(tp, 0xC140, 0xFFFF);
+        rtl8126_mac_ocp_write(tp, 0xC142, 0xFFFF);
 
-                //new tx desc format
-                mac_ocp_data = rtl8126_mac_ocp_read(tp, 0xEB58);
-                if (tp->mcfg == CFG_METHOD_2 || tp->mcfg == CFG_METHOD_3)
-                        mac_ocp_data &= ~(BIT_0 | BIT_1);
-                mac_ocp_data |= (BIT_0);
-                rtl8126_mac_ocp_write(tp, 0xEB58, mac_ocp_data);
+        //new tx desc format
+        mac_ocp_data = rtl8126_mac_ocp_read(tp, 0xEB58);
+        if (tp->mcfg == CFG_METHOD_2 || tp->mcfg == CFG_METHOD_3)
+                mac_ocp_data &= ~(BIT_0 | BIT_1);
+        mac_ocp_data |= (BIT_0);
+        rtl8126_mac_ocp_write(tp, 0xEB58, mac_ocp_data);
 
-                if (tp->HwSuppRxDescType == RX_DESC_RING_TYPE_4) {
-                        if (tp->InitRxDescType == RX_DESC_RING_TYPE_4)
-                                RTL_W8(tp, 0xd8, RTL_R8(tp, 0xd8) |
-                                       EnableRxDescV4_0);
-                        else
-                                RTL_W8(tp, 0xd8, RTL_R8(tp, 0xd8) &
-                                       ~EnableRxDescV4_0);
-                }
-
-                mac_ocp_data = rtl8126_mac_ocp_read(tp, 0xE614);
-                mac_ocp_data &= ~(BIT_10 | BIT_9 | BIT_8);
-                if (tp->mcfg == CFG_METHOD_1 || tp->mcfg == CFG_METHOD_2 ||
-                    tp->mcfg == CFG_METHOD_3)
-                        mac_ocp_data |= ((4 & 0x07) << 8);
+        if (tp->HwSuppRxDescType == RX_DESC_RING_TYPE_4) {
+                if (tp->InitRxDescType == RX_DESC_RING_TYPE_4)
+                        RTL_W8(tp, 0xd8, RTL_R8(tp, 0xd8) |
+                               EnableRxDescV4_0);
                 else
-                        mac_ocp_data |= ((3 & 0x07) << 8);
-                rtl8126_mac_ocp_write(tp, 0xE614, mac_ocp_data);
-
-                rtl8126_set_tx_q_num(tp, rtl8126_tot_tx_rings(tp));
-
-                mac_ocp_data = rtl8126_mac_ocp_read(tp, 0xE63E);
-                mac_ocp_data &= ~(BIT_5 | BIT_4);
-                if (tp->mcfg == CFG_METHOD_1 || tp->mcfg == CFG_METHOD_2 ||
-                    tp->mcfg == CFG_METHOD_3)
-                        mac_ocp_data |= ((0x02 & 0x03) << 4);
-                rtl8126_mac_ocp_write(tp, 0xE63E, mac_ocp_data);
-
-                rtl8126_enable_mcu(tp, 0);
-                rtl8126_enable_mcu(tp, 1);
-
-                mac_ocp_data = rtl8126_mac_ocp_read(tp, 0xC0B4);
-                mac_ocp_data |= (BIT_3 | BIT_2);
-                rtl8126_mac_ocp_write(tp, 0xC0B4, mac_ocp_data);
-
-                mac_ocp_data = rtl8126_mac_ocp_read(tp, 0xEB6A);
-                mac_ocp_data &= ~(BIT_7 | BIT_6 | BIT_5 | BIT_4 | BIT_3 | BIT_2 | BIT_1 | BIT_0);
-                mac_ocp_data |= (BIT_5 | BIT_4 | BIT_1 | BIT_0);
-                rtl8126_mac_ocp_write(tp, 0xEB6A, mac_ocp_data);
-
-                mac_ocp_data = rtl8126_mac_ocp_read(tp, 0xEB50);
-                mac_ocp_data &= ~(BIT_9 | BIT_8 | BIT_7 | BIT_6 | BIT_5);
-                mac_ocp_data |= (BIT_6);
-                rtl8126_mac_ocp_write(tp, 0xEB50, mac_ocp_data);
-
-                mac_ocp_data = rtl8126_mac_ocp_read(tp, 0xE056);
-                mac_ocp_data &= ~(BIT_7 | BIT_6 | BIT_5 | BIT_4);
-                //mac_ocp_data |= (BIT_4 | BIT_5);
-                rtl8126_mac_ocp_write(tp, 0xE056, mac_ocp_data);
-
-                RTL_W8(tp, TDFNR, 0x10);
-
-                mac_ocp_data = rtl8126_mac_ocp_read(tp, 0xE040);
-                mac_ocp_data &= ~(BIT_12);
-                rtl8126_mac_ocp_write(tp, 0xE040, mac_ocp_data);
-
-                mac_ocp_data = rtl8126_mac_ocp_read(tp, 0xEA1C);
-                mac_ocp_data &= ~(BIT_1 | BIT_0);
-                mac_ocp_data |= (BIT_0);
-                rtl8126_mac_ocp_write(tp, 0xEA1C, mac_ocp_data);
-
-                rtl8126_mac_ocp_write(tp, 0xE0C0, 0x4000);
-
-                rtl8126_set_mac_ocp_bit(tp, 0xE052, (BIT_6 | BIT_5));
-                rtl8126_clear_mac_ocp_bit(tp, 0xE052, BIT_3 | BIT_7);
-
-                mac_ocp_data = rtl8126_mac_ocp_read(tp, 0xD430);
-                mac_ocp_data &= ~(BIT_11 | BIT_10 | BIT_9 | BIT_8 | BIT_7 | BIT_6 | BIT_5 | BIT_4 | BIT_3 | BIT_2 | BIT_1 | BIT_0);
-                mac_ocp_data |= 0x45F;
-                rtl8126_mac_ocp_write(tp, 0xD430, mac_ocp_data);
-
-                //rtl8126_mac_ocp_write(tp, 0xE0C0, 0x4F87);
-                if (!tp->DASH)
-                        RTL_W8(tp, 0xD0, RTL_R8(tp, 0xD0) | BIT_6 | BIT_7);
-                else
-                        RTL_W8(tp, 0xD0, RTL_R8(tp, 0xD0) & ~(BIT_6 | BIT_7));
-
-                rtl8126_disable_eee_plus(tp);
-
-                mac_ocp_data = rtl8126_mac_ocp_read(tp, 0xEA1C);
-                mac_ocp_data &= ~(BIT_2);
-                if (tp->mcfg == CFG_METHOD_2 || tp->mcfg == CFG_METHOD_3)
-                        mac_ocp_data &= ~(BIT_9 | BIT_8);
-                rtl8126_mac_ocp_write(tp, 0xEA1C, mac_ocp_data);
-
-                rtl8126_clear_tcam_entries(tp);
-
-                RTL_W16(tp, 0x1880, RTL_R16(tp, 0x1880) & ~(BIT_4 | BIT_5));
+                        RTL_W8(tp, 0xd8, RTL_R8(tp, 0xd8) &
+                               ~EnableRxDescV4_0);
         }
+
+        mac_ocp_data = rtl8126_mac_ocp_read(tp, 0xE614);
+        mac_ocp_data &= ~(BIT_10 | BIT_9 | BIT_8);
+        mac_ocp_data |= ((4 & 0x07) << 8);
+        rtl8126_mac_ocp_write(tp, 0xE614, mac_ocp_data);
+
+        rtl8126_set_tx_q_num(tp, rtl8126_tot_tx_rings(tp));
+
+        mac_ocp_data = rtl8126_mac_ocp_read(tp, 0xE63E);
+        mac_ocp_data &= ~(BIT_5 | BIT_4);
+        mac_ocp_data |= ((0x02 & 0x03) << 4);
+        rtl8126_mac_ocp_write(tp, 0xE63E, mac_ocp_data);
+
+        rtl8126_enable_mcu(tp, 0);
+        rtl8126_enable_mcu(tp, 1);
+
+        mac_ocp_data = rtl8126_mac_ocp_read(tp, 0xC0B4);
+        mac_ocp_data |= (BIT_3 | BIT_2);
+        rtl8126_mac_ocp_write(tp, 0xC0B4, mac_ocp_data);
+
+        mac_ocp_data = rtl8126_mac_ocp_read(tp, 0xEB6A);
+        mac_ocp_data &= ~(BIT_7 | BIT_6 | BIT_5 | BIT_4 | BIT_3 | BIT_2 | BIT_1 | BIT_0);
+        mac_ocp_data |= (BIT_5 | BIT_4 | BIT_1 | BIT_0);
+        rtl8126_mac_ocp_write(tp, 0xEB6A, mac_ocp_data);
+
+        mac_ocp_data = rtl8126_mac_ocp_read(tp, 0xEB50);
+        mac_ocp_data &= ~(BIT_9 | BIT_8 | BIT_7 | BIT_6 | BIT_5);
+        mac_ocp_data |= (BIT_6);
+        rtl8126_mac_ocp_write(tp, 0xEB50, mac_ocp_data);
+
+        mac_ocp_data = rtl8126_mac_ocp_read(tp, 0xE056);
+        mac_ocp_data &= ~(BIT_7 | BIT_6 | BIT_5 | BIT_4);
+        //mac_ocp_data |= (BIT_4 | BIT_5);
+        rtl8126_mac_ocp_write(tp, 0xE056, mac_ocp_data);
+
+        RTL_W8(tp, TDFNR, 0x10);
+
+        mac_ocp_data = rtl8126_mac_ocp_read(tp, 0xE040);
+        mac_ocp_data &= ~(BIT_12);
+        rtl8126_mac_ocp_write(tp, 0xE040, mac_ocp_data);
+
+        mac_ocp_data = rtl8126_mac_ocp_read(tp, 0xEA1C);
+        mac_ocp_data &= ~(BIT_1 | BIT_0);
+        mac_ocp_data |= (BIT_0);
+        rtl8126_mac_ocp_write(tp, 0xEA1C, mac_ocp_data);
+
+        rtl8126_mac_ocp_write(tp, 0xE0C0, 0x4000);
+
+        rtl8126_set_mac_ocp_bit(tp, 0xE052, (BIT_6 | BIT_5));
+        rtl8126_clear_mac_ocp_bit(tp, 0xE052, BIT_3 | BIT_7);
+
+        mac_ocp_data = rtl8126_mac_ocp_read(tp, 0xD430);
+        mac_ocp_data &= ~(BIT_11 | BIT_10 | BIT_9 | BIT_8 | BIT_7 | BIT_6 | BIT_5 | BIT_4 | BIT_3 | BIT_2 | BIT_1 | BIT_0);
+        mac_ocp_data |= 0x45F;
+        rtl8126_mac_ocp_write(tp, 0xD430, mac_ocp_data);
+
+        //rtl8126_mac_ocp_write(tp, 0xE0C0, 0x4F87);
+        if (!tp->DASH)
+                RTL_W8(tp, 0xD0, RTL_R8(tp, 0xD0) | BIT_6 | BIT_7);
+        else
+                RTL_W8(tp, 0xD0, RTL_R8(tp, 0xD0) & ~(BIT_6 | BIT_7));
+
+        rtl8126_disable_eee_plus(tp);
+
+        mac_ocp_data = rtl8126_mac_ocp_read(tp, 0xEA1C);
+        mac_ocp_data &= ~(BIT_2);
+        if (tp->mcfg == CFG_METHOD_2 || tp->mcfg == CFG_METHOD_3)
+                mac_ocp_data &= ~(BIT_9 | BIT_8);
+        rtl8126_mac_ocp_write(tp, 0xEA1C, mac_ocp_data);
+
+        rtl8126_clear_tcam_entries(tp);
+
+        RTL_W16(tp, 0x1880, RTL_R16(tp, 0x1880) & ~(BIT_4 | BIT_5));
 
         /* csum offload command for RTL8125 */
         tp->tx_tcp_csum_cmd = TxTCPCS_C;
@@ -15463,36 +14913,17 @@ rtl8126_hw_config(struct net_device *dev)
 
         rtl8126_enable_exit_l1_mask(tp);
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_mac_ocp_write(tp, 0xE098, 0xC302);
-                break;
-        }
+        rtl8126_mac_ocp_write(tp, 0xE098, 0xC302);
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
+        if (aspm && (tp->org_pci_offset_99 & (BIT_2 | BIT_5 | BIT_6)))
+                rtl8126_init_pci_offset_99(tp);
+        else
                 rtl8126_disable_pci_offset_99(tp);
-                if (aspm) {
-                        if (tp->org_pci_offset_99 & (BIT_2 | BIT_5 | BIT_6))
-                                rtl8126_init_pci_offset_99(tp);
-                }
-                break;
-        }
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
+
+        if (aspm && (tp->org_pci_offset_180 & rtl8126_get_l1off_cap_bits(tp)))
+                rtl8126_init_pci_offset_180(tp);
+        else
                 rtl8126_disable_pci_offset_180(tp);
-                if (aspm) {
-                        if (tp->org_pci_offset_180 & rtl8126_get_l1off_cap_bits(tp))
-                                rtl8126_init_pci_offset_180(tp);
-                }
-                break;
-        }
 
         tp->cp_cmd &= ~(EnableBist | Macdbgo_oe | Force_halfdup |
                         Force_rxflow_en | Force_txflow_en | Cxpl_dbg_sel |
@@ -15538,17 +14969,11 @@ rtl8126_hw_config(struct net_device *dev)
                 NICChkTypeEnableDashInterrupt(tp);
 #endif
 
-        switch (tp->mcfg) {
-        case CFG_METHOD_1:
-        case CFG_METHOD_2:
-        case CFG_METHOD_3:
-                rtl8126_enable_aspm_clkreq_lock(tp, aspm ? 1 : 0);
-                break;
-        }
+        rtl8126_enable_aspm_clkreq_lock(tp, aspm ? 1 : 0);
 
         rtl8126_disable_cfg9346_write(tp);
 
-        udelay(10);
+        fsleep(10);
 }
 
 void
@@ -16114,9 +15539,18 @@ static void rtl8126_schedule_linkchg_work(struct rtl8126_private *tp)
 #endif //LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
 }
 
+static void rtl8126_schedule_link_work(struct rtl8126_private *tp)
+{
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
+        set_bit(R8126_FLAG_TASK_LINK_CHECK_PENDING, tp->task_flags);
+        schedule_delayed_work(&tp->link_task, RTL8126_LINK_TIMEOUT);
+#endif //LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
+}
+
 #define rtl8126_cancel_schedule_reset_work(a)
 #define rtl8126_cancel_schedule_esd_work(a)
 #define rtl8126_cancel_schedule_linkchg_work(a)
+#define rtl8126_cancel_schedule_link_work(a)
 
 #else
 static void rtl8126_schedule_reset_work(struct rtl8126_private *tp)
@@ -16166,6 +15600,22 @@ static void rtl8126_cancel_schedule_linkchg_work(struct rtl8126_private *tp)
 
         cancel_delayed_work_sync(&tp->linkchg_task);
 }
+
+static void rtl8126_schedule_link_work(struct rtl8126_private *tp)
+{
+        set_bit(R8126_FLAG_TASK_LINK_CHECK_PENDING, tp->task_flags);
+        schedule_delayed_work(&tp->link_task, RTL8126_LINK_TIMEOUT);
+}
+
+static void rtl8126_cancel_schedule_link_work(struct rtl8126_private *tp)
+{
+        struct work_struct *work = &tp->link_task.work;
+
+        if (!work->func)
+                return;
+
+        cancel_delayed_work_sync(&tp->link_task);
+}
 #endif
 
 static void rtl8126_init_all_schedule_work(struct rtl8126_private *tp)
@@ -16174,10 +15624,12 @@ static void rtl8126_init_all_schedule_work(struct rtl8126_private *tp)
         INIT_WORK(&tp->reset_task, rtl8126_reset_task, dev);
         INIT_WORK(&tp->esd_task, rtl8126_esd_task, dev);
         INIT_WORK(&tp->linkchg_task, rtl8126_linkchg_task, dev);
+        INIT_WORK(&tp->link_task, rtl8126_link_task, dev);
 #else
         INIT_DELAYED_WORK(&tp->reset_task, rtl8126_reset_task);
         INIT_DELAYED_WORK(&tp->esd_task, rtl8126_esd_task);
         INIT_DELAYED_WORK(&tp->linkchg_task, rtl8126_linkchg_task);
+        INIT_DELAYED_WORK(&tp->link_task, rtl8126_link_task);
 #endif
 }
 
@@ -16186,6 +15638,7 @@ static void rtl8126_cancel_all_schedule_work(struct rtl8126_private *tp)
         rtl8126_cancel_schedule_reset_work(tp);
         rtl8126_cancel_schedule_esd_work(tp);
         rtl8126_cancel_schedule_linkchg_work(tp);
+        rtl8126_cancel_schedule_link_work(tp);
 }
 
 static void
@@ -16350,6 +15803,35 @@ static void rtl8126_linkchg_task(struct work_struct *work)
                 goto out_unlock;
 
         rtl8126_check_link_status(dev);
+
+out_unlock:
+        rtnl_unlock();
+}
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,20)
+static void rtl8126_link_task(void *_data)
+{
+        struct net_device *dev = _data;
+        //struct rtl8126_private *tp = netdev_priv(dev);
+#else
+static void rtl8126_link_task(struct work_struct *work)
+{
+        struct rtl8126_private *tp =
+                container_of(work, struct rtl8126_private, link_task.work);
+        struct net_device *dev = tp->dev;
+#endif
+        rtnl_lock();
+
+        if (!netif_running(dev) ||
+            test_bit(R8126_FLAG_DOWN, tp->task_flags) ||
+            !test_and_clear_bit(R8126_FLAG_TASK_LINK_CHECK_PENDING,
+                                tp->task_flags))
+                goto out_unlock;
+
+        if (netif_carrier_ok(dev) != tp->link_ok(dev))
+                rtl8126_schedule_linkchg_work(tp);
+
+        rtl8126_schedule_link_work(tp);
 
 out_unlock:
         rtnl_unlock();
@@ -16532,10 +16014,7 @@ static int msdn_giant_send_check(struct sk_buff *skb)
 
 static bool rtl8126_require_pad_ptp_pkt(struct rtl8126_private *tp)
 {
-        switch (tp->mcfg) {
-        default:
-                return false;
-        }
+        return false;
 }
 
 #define MIN_PATCH_LEN (47)
@@ -17034,7 +16513,7 @@ rtl8126_tx_interrupt_close(struct rtl8126_tx_ring *ring, int budget)
                 unsigned int entry = dirty_tx % ring->num_tx_desc;
                 struct ring_info *tx_skb = ring->tx_skb + entry;
 
-                if (le32_to_cpu(ring->TxDescArray[entry].opts1) & DescOwn)
+                if (le32_to_cpu(READ_ONCE(ring->TxDescArray[entry].opts1)) & DescOwn)
                         break;
 
                 rtl8126_unmap_tx_skb(tp->pci_dev,
@@ -17070,7 +16549,7 @@ rtl8126_tx_interrupt_close(struct rtl8126_tx_ring *ring, int budget)
                         netif_start_subqueue(dev, ring->index);
                 }
 
-                if (ring->cur_tx != dirty_tx)
+                if (READ_ONCE(ring->cur_tx) != dirty_tx)
                         rtl8126_doorbell(tp, ring);
         }
 
@@ -17920,6 +17399,8 @@ static void rtl8126_shutdown(struct pci_dev *pdev)
         if (HW_DASH_SUPPORT_DASH(tp))
                 rtl8126_driver_stop(tp);
 
+        rtl8126_disable_pci_offset_180(tp);
+
         if (s5_keep_curr_mac == 0 && tp->random_mac == 0)
                 rtl8126_rar_set(tp, tp->org_mac_addr);
 
@@ -17962,16 +17443,10 @@ rtl8126_suspend(struct pci_dev *pdev, pm_message_t state)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,10)
         u32 pci_pm_state = pci_choose_state(pdev, state);
 #endif
+        rtnl_lock();
+
         if (!netif_running(dev))
                 goto out;
-
-        //rtl8126_cancel_all_schedule_work(tp);
-
-        //rtl8126_delete_esd_timer(dev, &tp->esd_timer);
-
-        //rtl8126_delete_link_timer(dev, &tp->link_timer);
-
-        rtnl_lock();
 
         set_bit(R8126_FLAG_DOWN, tp->task_flags);
 
@@ -17992,11 +17467,11 @@ rtl8126_suspend(struct pci_dev *pdev, pm_message_t state)
 
         rtl8126_powerdown_pll(dev, 1);
 
+out:
         if (HW_DASH_SUPPORT_DASH(tp))
                 rtl8126_driver_stop(tp);
 
         rtnl_unlock();
-out:
 
         pci_disable_device(pdev);
 
@@ -18029,7 +17504,7 @@ static int rtl8126_wait_phy_nway_complete_sleep(struct rtl8126_private *tp)
                 if (val)
                         return 0;
 
-                msleep(100);
+                fsleep(100000);
         }
 
         return -1;
@@ -18093,6 +17568,11 @@ rtl8126_resume(struct device *device)
         rtl8126_schedule_reset_work(tp);
 
         rtl8126_schedule_esd_work(tp);
+
+#ifdef ENABLE_FIBER_SUPPORT
+        if (HW_FIBER_MODE_ENABLED(tp))
+                rtl8126_schedule_link_work(tp);
+#endif /* ENABLE_FIBER_SUPPORT */
 
         //mod_timer(&tp->esd_timer, jiffies + RTL8126_ESD_TIMEOUT);
         //mod_timer(&tp->link_timer, jiffies + RTL8126_LINK_TIMEOUT);

@@ -2,7 +2,7 @@
 /*
 ################################################################################
 #
-# r8126 is the Linux device driver released for Realtek 5 Gigabit Ethernet
+# r8125 is the Linux device driver released for Realtek 2.5 Gigabit Ethernet
 # controllers with PCI-Express interface.
 #
 # Copyright(c) 2024 Realtek Semiconductor Corp. All rights reserved.
@@ -40,11 +40,11 @@
 #include <linux/in.h>
 #include <linux/ethtool.h>
 #include <asm/uaccess.h>
-#include "r8126.h"
+#include "r8125.h"
 #include "rtl_eeprom.h"
 #include "rtltool.h"
 
-int rtl8126_tool_ioctl(struct rtl8126_private *tp, struct ifreq *ifr)
+int rtl8125_tool_ioctl(struct rtl8125_private *tp, struct ifreq *ifr)
 {
         struct rtltool_cmd my_cmd;
         int ret;
@@ -55,6 +55,11 @@ int rtl8126_tool_ioctl(struct rtl8126_private *tp, struct ifreq *ifr)
         ret = 0;
         switch (my_cmd.cmd) {
         case RTLTOOL_READ_MAC:
+                if ((my_cmd.offset + my_cmd.len) > pci_resource_len(tp->pci_dev, 2)) {
+                        ret = -EINVAL;
+                        break;
+                }
+
                 if (my_cmd.len==1)
                         my_cmd.data = readb(tp->mmio_addr+my_cmd.offset);
                 else if (my_cmd.len==2)
@@ -73,6 +78,11 @@ int rtl8126_tool_ioctl(struct rtl8126_private *tp, struct ifreq *ifr)
                 break;
 
         case RTLTOOL_WRITE_MAC:
+                if ((my_cmd.offset + my_cmd.len) > pci_resource_len(tp->pci_dev, 2)) {
+                        ret = -EINVAL;
+                        break;
+                }
+
                 if (my_cmd.len==1)
                         writeb(my_cmd.data, tp->mmio_addr+my_cmd.offset);
                 else if (my_cmd.len==2)
@@ -87,7 +97,7 @@ int rtl8126_tool_ioctl(struct rtl8126_private *tp, struct ifreq *ifr)
                 break;
 
         case RTLTOOL_READ_PHY:
-                my_cmd.data = rtl8126_mdio_prot_read(tp, my_cmd.offset);
+                my_cmd.data = rtl8125_mdio_prot_read(tp, my_cmd.offset);
                 if (copy_to_user(ifr->ifr_data, &my_cmd, sizeof(my_cmd))) {
                         ret = -EFAULT;
                         break;
@@ -96,11 +106,11 @@ int rtl8126_tool_ioctl(struct rtl8126_private *tp, struct ifreq *ifr)
                 break;
 
         case RTLTOOL_WRITE_PHY:
-                rtl8126_mdio_prot_write(tp, my_cmd.offset, my_cmd.data);
+                rtl8125_mdio_prot_write(tp, my_cmd.offset, my_cmd.data);
                 break;
 
         case RTLTOOL_READ_EPHY:
-                my_cmd.data = rtl8126_ephy_read(tp, my_cmd.offset);
+                my_cmd.data = rtl8125_ephy_read(tp, my_cmd.offset);
                 if (copy_to_user(ifr->ifr_data, &my_cmd, sizeof(my_cmd))) {
                         ret = -EFAULT;
                         break;
@@ -109,13 +119,13 @@ int rtl8126_tool_ioctl(struct rtl8126_private *tp, struct ifreq *ifr)
                 break;
 
         case RTLTOOL_WRITE_EPHY:
-                rtl8126_ephy_write(tp, my_cmd.offset, my_cmd.data);
+                rtl8125_ephy_write(tp, my_cmd.offset, my_cmd.data);
                 break;
 
         case RTLTOOL_READ_ERI:
                 my_cmd.data = 0;
                 if (my_cmd.len==1 || my_cmd.len==2 || my_cmd.len==4) {
-                        my_cmd.data = rtl8126_eri_read(tp, my_cmd.offset, my_cmd.len, ERIAR_ExGMAC);
+                        my_cmd.data = rtl8125_eri_read(tp, my_cmd.offset, my_cmd.len, ERIAR_ExGMAC);
                 } else {
                         ret = -EOPNOTSUPP;
                         break;
@@ -130,7 +140,7 @@ int rtl8126_tool_ioctl(struct rtl8126_private *tp, struct ifreq *ifr)
 
         case RTLTOOL_WRITE_ERI:
                 if (my_cmd.len==1 || my_cmd.len==2 || my_cmd.len==4) {
-                        rtl8126_eri_write(tp, my_cmd.offset, my_cmd.len, my_cmd.data, ERIAR_ExGMAC);
+                        rtl8125_eri_write(tp, my_cmd.offset, my_cmd.len, my_cmd.data, ERIAR_ExGMAC);
                 } else {
                         ret = -EOPNOTSUPP;
                         break;
@@ -177,7 +187,7 @@ int rtl8126_tool_ioctl(struct rtl8126_private *tp, struct ifreq *ifr)
                 break;
 
         case RTLTOOL_READ_EEPROM:
-                my_cmd.data = rtl8126_eeprom_read_sc(tp, my_cmd.offset);
+                my_cmd.data = rtl8125_eeprom_read_sc(tp, my_cmd.offset);
                 if (copy_to_user(ifr->ifr_data, &my_cmd, sizeof(my_cmd))) {
                         ret = -EFAULT;
                         break;
@@ -186,13 +196,13 @@ int rtl8126_tool_ioctl(struct rtl8126_private *tp, struct ifreq *ifr)
                 break;
 
         case RTLTOOL_WRITE_EEPROM:
-                rtl8126_eeprom_write_sc(tp, my_cmd.offset, my_cmd.data);
+                rtl8125_eeprom_write_sc(tp, my_cmd.offset, my_cmd.data);
                 break;
 
         case RTL_READ_OOB_MAC:
-                rtl8126_oob_mutex_lock(tp);
-                my_cmd.data = rtl8126_ocp_read(tp, my_cmd.offset, 4);
-                rtl8126_oob_mutex_unlock(tp);
+                rtl8125_oob_mutex_lock(tp);
+                my_cmd.data = rtl8125_ocp_read(tp, my_cmd.offset, 4);
+                rtl8125_oob_mutex_unlock(tp);
                 if (copy_to_user(ifr->ifr_data, &my_cmd, sizeof(my_cmd))) {
                         ret = -EFAULT;
                         break;
@@ -203,9 +213,9 @@ int rtl8126_tool_ioctl(struct rtl8126_private *tp, struct ifreq *ifr)
                 if (my_cmd.len == 0 || my_cmd.len > 4)
                         return -EOPNOTSUPP;
 
-                rtl8126_oob_mutex_lock(tp);
-                rtl8126_ocp_write(tp, my_cmd.offset, my_cmd.len, my_cmd.data);
-                rtl8126_oob_mutex_unlock(tp);
+                rtl8125_oob_mutex_lock(tp);
+                rtl8125_ocp_write(tp, my_cmd.offset, my_cmd.len, my_cmd.data);
+                rtl8125_oob_mutex_unlock(tp);
                 break;
 
         case RTL_ENABLE_PCI_DIAG:
@@ -224,7 +234,7 @@ int rtl8126_tool_ioctl(struct rtl8126_private *tp, struct ifreq *ifr)
                 if (my_cmd.offset % 2)
                         return -EOPNOTSUPP;
 
-                my_cmd.data = rtl8126_mac_ocp_read(tp, my_cmd.offset);
+                my_cmd.data = rtl8125_mac_ocp_read(tp, my_cmd.offset);
                 if (copy_to_user(ifr->ifr_data, &my_cmd, sizeof(my_cmd))) {
                         ret = -EFAULT;
                         break;
@@ -235,11 +245,11 @@ int rtl8126_tool_ioctl(struct rtl8126_private *tp, struct ifreq *ifr)
                 if ((my_cmd.offset % 2) || (my_cmd.len != 2))
                         return -EOPNOTSUPP;
 
-                rtl8126_mac_ocp_write(tp, my_cmd.offset, (u16)my_cmd.data);
+                rtl8125_mac_ocp_write(tp, my_cmd.offset, (u16)my_cmd.data);
                 break;
 
         case RTL_DIRECT_READ_PHY_OCP:
-                my_cmd.data = rtl8126_mdio_prot_direct_read_phy_ocp(tp, my_cmd.offset);
+                my_cmd.data = rtl8125_mdio_prot_direct_read_phy_ocp(tp, my_cmd.offset);
                 if (copy_to_user(ifr->ifr_data, &my_cmd, sizeof(my_cmd))) {
                         ret = -EFAULT;
                         break;
@@ -248,7 +258,7 @@ int rtl8126_tool_ioctl(struct rtl8126_private *tp, struct ifreq *ifr)
                 break;
 
         case RTL_DIRECT_WRITE_PHY_OCP:
-                rtl8126_mdio_prot_direct_write_phy_ocp(tp, my_cmd.offset, my_cmd.data);
+                rtl8125_mdio_prot_direct_write_phy_ocp(tp, my_cmd.offset, my_cmd.data);
                 break;
 
 #ifdef ENABLE_FIBER_SUPPORT
@@ -258,7 +268,7 @@ int rtl8126_tool_ioctl(struct rtl8126_private *tp, struct ifreq *ifr)
                         break;
                 }
 
-                my_cmd.data = rtl8126_fiber_mdio_read(tp, my_cmd.offset);
+                my_cmd.data = rtl8125_fiber_mdio_read(tp, my_cmd.offset);
                 if (copy_to_user(ifr->ifr_data, &my_cmd, sizeof(my_cmd))) {
                         ret = -EFAULT;
                         break;
@@ -272,7 +282,7 @@ int rtl8126_tool_ioctl(struct rtl8126_private *tp, struct ifreq *ifr)
                         break;
                 }
 
-                rtl8126_fiber_mdio_write(tp, my_cmd.offset, my_cmd.data);
+                rtl8125_fiber_mdio_write(tp, my_cmd.offset, my_cmd.data);
                 break;
 #endif /* ENABLE_FIBER_SUPPORT */
 
