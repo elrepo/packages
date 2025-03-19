@@ -16,14 +16,17 @@
   Rel. 1.5.2  - May      2015
   Rel. 1.6.0  - May      2016
   Rel. 1.6.1  - April    2017
-  Rel. 1.6.2  - Dec    	 2018
-  Rel. 1.6.3  - Feb    	 2020
-  Rel. 1.6.4  - Jan    	 2021
-  Rel. 1.6.5  - Aug    	 2021
-  Rel. 1.6.6  - Aug    	 2021
-  Rel. 1.6.7  - Oct    	 2021
-  Rel. 1.6.8  - May    	 2022
-  Rel. 1.6.9  - Nov    	 2023
+  Rel. 1.6.2  - Dec      2018
+  Rel. 1.6.3  - Feb      2020
+  Rel. 1.6.4  - Jan      2021
+  Rel. 1.6.5  - Aug      2021
+  Rel. 1.6.6  - Aug      2021
+  Rel. 1.6.7  - Oct      2021
+  Rel. 1.6.8  - May      2022
+  Rel. 1.6.9  - Nov      2023
+  Rel. 1.6.10 - May      2024
+  Rel. 1.6.11 - Oct      2024
+  Rel. 1.6.12 - Dec      2024
 
   -----------------------------------------------------------------------------
 
@@ -39,12 +42,23 @@
 
  System Requirements
  -------------------
-
   - CAEN A3818 PCIe Board
   - Linux kernel 2.6/3.x/4.x/5.4/5.11/6.5 and GNU C/C++ compiler
   - Tested on Linux kernel 4.18, 5.4, 5.11 and 6.5
 
-  What's New in Rel. 1.6.8
+  What's New in Rel. 1.6.12
+  -------------------------
+  - fix permissions for non root users
+
+  What's New in Rel. 1.6.11
+  -------------------------
+  - fix DKMS support
+
+  What's New in Rel. 1.6.10
+  -------------------------
+  - added compatibility with RHEL 9.4
+  
+  What's New in Rel. 1.6.9
   -------------------------
   - added compatibility with kernel up to 6.5
   

@@ -1,0 +1,14 @@
+MAKE="make"
+CLEAN="make clean"
+BUILT_MODULE_NAME=a3818
+BUILT_MODULE_LOCATION=src
+PACKAGE_NAME=a3818
+DEST_MODULE_LOCATION[0]="/kernel/drivers/misc"
+
+PACKAGE_VERSION=${version}
+
+REMAKE_INITRD=no
+AUTOINSTALL=yes
+NO_WEAK_MODULES="yes"
+POST_ADD="./dkms_post_add.sh"
+POST_REMOVE="./dkms_post_remove.sh"

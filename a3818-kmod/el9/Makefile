@@ -25,7 +25,7 @@ ifeq ($(DEBUG),y)
 else
   DEBFLAGS = -O2 -Wall
 endif
-EXTRA_CFLAGS  += $(DEBFLAGS) -I$(LDDINCDIR)
+EXTRA_CFLAGS  += $(DEBFLAGS)
 
 KERNELDIR ?= /lib/modules/$(shell uname -r)/build
 PWD       := $(shell pwd)
@@ -33,28 +33,15 @@ PWD       := $(shell pwd)
 ifneq ($(KERNELRELEASE),)
 # call from kernel build system
 
-
-ifneq ("$(wildcard $(KERNELDIR)/include/linux/pci-aspm.h)","")
-	CAEN_ASPM_EXISTS = -DCAEN_ASPM_EXISTS
-		
-endif
-
-ccflags-y := $(CAEN_ASPM_EXISTS)	
-
-
 obj-m := src/a3818.o
 
 endif
 
-
-
 default:
-	$(MAKE) -C $(KERNELDIR) M=$(PWD) LDDINCDIR=$(PWD)/include modules
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
 	
 install:
-	@echo "KERNEL==\"a3818_[0-9]\", MODE=\"0666\"" > /etc/udev/rules.d/10-CAEN-A3818.rules
-	@echo "KERNEL==\"a3818_[0-9][0-9]\", MODE=\"0666\"" >> /etc/udev/rules.d/10-CAEN-A3818.rules
-	@udevadm control --reload-rules
+	@./dkms_post_add.sh
 	@cp src/*.ko /lib/modules/$(shell uname -r)/kernel/drivers/misc/
 	@echo a3818 >> /etc/modules
 	@if test -d /etc/sysconfig/modules; then \
@@ -71,8 +58,7 @@ install:
 
 uninstall:
 	@modprobe -r a3818
-	@rm /etc/udev/rules.d/10-CAEN-A3818.rules
-	@udevadm control --reload-rules
+	@./dkms_post_remove.sh
 	@rm /lib/modules/$(shell uname -r)/kernel/drivers/misc/a3818.ko
 	@sed -i '/a3818/d' /etc/modules
 	@if test -d /etc/sysconfig/modules; then \
@@ -85,7 +71,7 @@ clean:
 	rm -rf src/*.o src/*~ src/core src/.depend src/.*.cmd src/*.ko src/*.ko.* src/*.mod.c src/.tmp_versions src/*.mod ./modules.order ./Module.markers ./Module.symvers ./report.log
 	
 all:
-	$(MAKE) -C $(KERNELDIR) M=$(PWD) LDDINCDIR=$(PWD)/include modules
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
 	
 depend .depend dep:
 	$(CC) $(EXTRA_CFLAGS) -M *.c > .depend
