@@ -1,188 +1,160 @@
-Software License 
+EULA – Software and Firmware License – Free Version
+End User License Agreement for the CAEN Software and Firmware (the “EULA”)
 
-Copyright � 1998-2015 C.A.E.N. S.p.A
+Acceptance of the EULA
+The download, installation, use or copy of this software and/or firmware (hereinafter also the “CAEN Software”), or any work based on the CAEN Software, implies the acceptance of the terms and conditions set out in this EULA, that shall immediately enter into force.
 
-Licence Agreement for �CAEN Software or Firmware� (collectively, the " CAEN SwFw")
+The CAEN Software has been copyrighted by CAEN S.p.A. with registered office in Via Vetraia, 11 – 55049 – Viareggio (LU) – ITALY (hereinafter also “CAEN”).
 
-By using or distributing this CAEN SwFw (or any work based on the CAEN SwFw) you shall be deemed to have 
-accepted the terms and conditions set out below.
+CAEN hereby authorizes the end user (hereinafter also the “End User”) to use the CAEN Software within the context of the following licensing conditions, whereas this EULA represents a binding agreement between the End User and CAEN.
 
-C.A.E.N. S.p.A ("C.A.E.N.") is making this CAEN SwFw freely available on the basis that it is accepted as found and 
-that the user checks its fitness for purpose prior to use.
+The term “CAEN Software” is used to identify the program received by the End User from CAEN and/or CAEN’s independent distributors, downloaded from CAEN’s official website or anyhow provided to the End User by CAEN. Such term does not include any other program that is covered by a separate license and distributed as a different entity.
 
-The CAEN SwFw is provided 'as-is', without any express or implied warranties whatsoever. In no event will the 
-authors, partners or contributors be held liable for any damages, claims or other liabilities direct or indirect, arising 
-from the use of this CAEN SwFw or any derivative work.
+The unauthorized reproduction and/or the unauthorized sale of the CAEN Software or of parts thereof by the End User, is liable to prosecution under the applicable criminal or civil law and will result in severe penalties and claims for damages.
 
-C.A.E.N. will from time to time make CAEN SwFw updates available.  However, C.A.E.N. accepts no obligation to 
-provide any support to free licence holders.
+License
+Subject to the End User’s compliance with this EULA, CAEN hereby grants the End User with a free of charge, personal, limited, non-exclusive, non-transferable, non-sublicensable, revocable, worldwide (except as limited below) license to download, install, access, and use of the CAEN Software.
 
-C.A.E.N. grants you a limited non-exclusive licence to use this CAEN SwFw for any purpose, including commercial 
-applications and redistribute it freely, subject to the following restrictions:
+Proprietary rights
+The CAEN Software and any accompanying documentation, local computer files installed or utilized by the installer application are in the property of CAEN and are protected by Italian and international laws.
 
-1. The origin of this CAEN SwFw must not be misrepresented; you must not claim that you wrote the original CAEN SwFw.
-2. You must not alter the CAEN SwFw, user licence or installer in any way.
-3. This notice may not be removed or altered from any distribution.
-4. You may not resell or charge for the CAEN SwFw.
-5. You may not reverse engineer, decompile, disassemble, derive the source code of or modify the CAEN SwFw in order to resell,  
-   rent, lease, loan, derivative works. 
-6. You must not use CAEN SwFw to engage in or allow others to engage in any illegal activity.
-7. You may not claim any sponsorship by, endorsement by, or affiliation with our company.
-8. You acknowledge that C.A.E.N. owns the copyright and all associated intellectual property rights relating to the 
-CAEN SwFw except to the extent that the CAEN SwFw includes identifiable separate components originating from 
-the CAEN SwFw.
+This EULA defines the legal use of the CAEN Software, and any copies of the CAEN Software made by or for the End User.
 
-1.	Licensed Uses and Restrictions. 
+The End User further acknowledges and agrees that CAEN owns and shall continue to own all rights, titles, and interests in and to the CAEN Software, including associated intellectual property rights under copyright, trade secrets, patents, or trademark laws.
 
-CAEN SwFw applications, documentation, and local computer files installed or utilised by the installer application 
-are owned by C.A.E.N., and are licensed to you on a worldwide (except as limited below), non-exclusive, non-
-sublicenseable basis on the terms and conditions set forth herein. This CAEN SwFw Licence defines legal use of the 
-CAEN SwFw, all updates, revisions, substitutions, and any copies of the CAEN SwFw made by or for you. All rights 
-not expressly granted to you are reserved by C.A.E.N. or their respective owners. 
+This EULA does not grant the End User any ownership interest in or to the CAEN Software, but only a limited and strictly personal right of use of the CAEN Software that is revocable in accordance with the terms of this EULA.
 
-A(i)  YOU MAY install and personally use the CAEN SwFw and any updates provided by C.A.E.N. (in its sole 
-discretion) in object code form on a personal computer or on board on CAEN Products owned or controlled by you 
-and may use the CAEN SwFw for your own non commercial use or benefit. Your licence to the CAEN SwFw under 
-this CAEN SwFw Licence continues until it is terminated by either party. You may terminate the CAEN SwFw Licence 
-by discontinuing use of all or any of the CAEN SwFw and by destroying all your copies of the applicable CAEN 
-SwFw. This CAEN SwFw Licence terminates automatically if you violate any term of this CAEN SwFw Licence, 
-C.A.E.N. publicly posts a written notice of termination on C.A.E.N.�s web site, or C.A.E.N. sends a written notice of 
-termination to you.
+All rights not expressly granted to the End User are reserved to CAEN or to their respective owners.
 
-A (ii) You may make a CAEN SwFw copy only if it is necessary for its use.
+The structure, organization, and code of the CAEN Software are CAEN’s valuable trade secrets and constitutes CAEN’s confidential information, that cannot be disclosed by the End User without CAEN’s prior written consent.
 
-b.  YOU MAY NOT: 
+License Conditions
+With regards to the CAEN Software and/or to any of its parts, the End User undertakes not to:
 
-(i)  decompile, reverse engineer, disassemble, modify the CAEN SwFw or any portion thereof in order to resell,
-rent, lease,  derivative works (as defined by the Italian Copyright Act, l.22 April 1941, n.633 and following 
-amendments) or improvements (as defined by Italian patent law), without C.A.E.N.�s prior, express, written 
-permission.
+misrepresent the origin of the CAEN Software and/or alter the CAEN Software, user license or installer in any way;
+use it commercially and/or for any promotional purposes;
+use it on more than one device at a time;
+provide any third party with its credential and password to access the CAEN Software and/or any other mean (e.g. token) that enables the access and/or use of the CAEN Software;
+decompile, reverse engineer, disassemble, attempt to derive the source code of, modify the CAEN Software, any updates, or any part thereof in order to modify the CAEN Software or any portion thereof (with the exception of the case in which CAEN provides the END User with the specific source code of the relevant CAEN Software);
+sell, lease, loan, distribute, transfer, or sub-license the CAEN Software or access thereto or derive income from the use or provision of the CAEN Software, whether for direct commercial or monetary gain or otherwise, without CAEN’s prior, express and written permission;
+remove, disable, circumvent, or modify any proprietary notice or label or security technology included in it;
+use it to infringe or violate the rights of any third party, including but not limited to any intellectual property, publicity, or privacy rights;
+use the CAEN Software in any unlawful manner and/or export, or re-export it in violation of any applicable law or regulations;
+incorporate the CAEN Software into any electronic device manufactured by or for the End User except into those that you the End User have has received from CAEN and/or its partners or authorized by the latter;
+use the CAEN Software to operate nuclear facilities, life support, or other critical application where human life or property may be at stake. The End User acknowledges that the CAEN Software is not designed for such purposes and that its failure in such cases could lead to death, personal injury, or severe property or environmental damage for which CAEN is not responsible;
+disable or circumvent, or attempt to disable or circumvent, any technological mechanisms or measures intended to prevent, limit or control use or copying of, or access to, any CAEN Software;
+use the CAEN Software with any software or other materials that are subject to licenses or restrictions (e.g., open-source software licenses) that, when combined with the CAEN Software, would require us to disclose, license, distribute or otherwise make all or any part of such CAEN Software available to anyone, or grant others any rights to modify the Software;
+incorporate any portion of the Software into its own programs or compile any portion of the Software in combination with its own programs;
+claim any sponsorship by, endorsement by, or affiliation with CAEN;
+except for the reproductions expressly authorized in this EULA, to create other reproductions of the CAEN Software or of the documentation, either wholly or in part, on the same or on other disks/carrier media; this also includes the output of the programmed code to a printer;
+transfer the CAEN Software from one computer or modules to another computer or modules or recording device via a network orother data transfer channel, insofar as the receiving device is not a computer or other recording device of the End User, which is referred to in, and understood to be within, the framework of this EULA;
+create works derived from the CAEN Software or documentation, or to reproduce, translate, change, or create works derived from thedocumentation, insofar as this is not necessary within the context of contractual use;
+transfer the CAEN Software to third parties or provide access to the CAEN Software in any other form;
+remove copyright endorsements, serial numbers or other features which serve to identify the program, unless CAEN has provided prior written authorization.
+Admitted reproduction of the CAEN Software
+The End User may reproduce the CAEN Software only if such reproduction is strictly necessary for the use of the CAEN Software.
 
-(ii)  incorporate the CAEN SwFw into any computer chip or the firmware of a computing device manufactured by or 
-for you except in those where you have received. 
+Necessary reproductions include the installation of the CAEN Software from the original system disk or from the downloaded installation archive on the mass memory of the hardware, as well as the loading of the CAEN Software into the main memory during CAEN Software operation.
 
-(iii) use the CAEN SwFw in any unlawful manner, for any unlawful purpose.
+Moreover, the End User may reproduce the CAEN Software for backup purposes. However, only one backup copy of the original system disk or the downloaded installation archive may be created and/or stored. Said copy must be marked as a backup.
 
-(iv)  you may not use the CAEN SwFw to operate nuclear facilities, life support, or other mission critical application 
-where human life or property may be at stake. You understand that the CAEN SwFw is not designed for such 
-purposes and that its failure in such cases could lead to death, personal injury, or severe property or environmental 
-damage for which C.A.E.N. is not responsible. 
+Should a rotational backup of a system’s entire data set, including the CAEN Software programmers, be essential for a fast reactivation of the system following a complete breakdown, the End User may create backup copies in the required quantities. The pertinent system disks shall be marked accordingly. These backup copies may be used for archive purposes in connection with data backup only.
 
-(v)  use or export the CAEN SwFw in violation of applicable Italian laws or regulations
- 
-(vi)  sell, lease, loan, distribute, transfer, or sub-license the CAEN SwFw or access thereto or derive income from 
-the use or provision of the CAEN SwFw, whether for direct commercial or monetary gain or otherwise, without 
-C.A.E.N.�s prior, express, written permission. 
+The End User will not modify the user guides, operating manuals and release notes made available by CAEN, if any. Such documentation may:
 
-c. As provided from Berna Convention concerning the Protection of Works of Art and Literature acknowledged in 
-Italy with Law 20 June 1978, n. 399, the provisions of this agreement can not be interpreted to allow their 
-application is a jeopardizing event for the owner of the rights or is in conflict with the ordinary use of the CAEN 
-SwFw
+only be used to support the End User’s use of the CAEN Software;
+not be republished or redistributed to any unauthorized third party;
+not be distributed or used to conduct training for which the End User, or any other party, receives a fee.
+The End User shall take the necessary steps to prohibit unauthorized access to the CAEN Software and its documentation by third parties.
 
-2.	Ownership and Relationship of Parties. 
+The original data media, as well as all backup copies, shall be stored in a secure place, safe from access by unauthorized third parties.
 
-The CAEN SwFw is protected by copyrights, trademarks, service marks, international treaties, and/or other 
-proprietary rights and laws of the U.S. and other countries. You agree to abide by all applicable proprietary rights 
-laws and other laws. C.A.E.N. owns all rights, title, and interest in and to their applicable contributions to the CAEN 
-SwFw. This CAEN SwFw Licence grants you no right, title, or interest in any intellectual property owned or licensed 
-by C.A.E.N., including (but not limited to) the CAEN SwFw and the C.A.E.N. trademarks, and creates no relationship 
-between you and C.A.E.N. other than that of C.A.E.N. to licensee. 
+Disclaimer of Warranties by CAEN
+To the maximum extent permitted by applicable laws and regulations, the CAEN Software is provided on an “as is” and “as available” basis, “with all faults” and without warranty of any kind.
 
-You agree that you will use the CAEN SwFw, and any data accessed through the CAEN SwFw, for your own 
-personal non-commercial use only. You agree not to assign, copy, transfer, or transmit CAEN SwFw. Your licence to 
-use the CAEN SwFw will terminate if you violate these restrictions. If your licence terminates, you agree to cease 
-any and all use of the CAEN SwFw. All rights in any third-party data, any third-party CAEN SwFw, and any third-
-party data servers, including all ownership rights are reserved and remain with the respective third parties. You 
-agree that these third parties may enforce their rights under this Agreement against you directly in their own name. 
+CAEN, its licensors, and its and their affiliates disclaim all warranties, conditions, and representations (express, implied, oral, and written) with respect to the CAEN Software including without limitation to all express, implied, and statutory warranties and conditions of any kind, such as title, non-interference with enjoyment, authority, non-infringement, merchantability, fitness or suitability for any purpose (whether or not CAEN knows or has reason to know of any such purpose), system integration, accuracy or completeness, results, reasonable care, workmanlike effort, lack of negligence, and lack of viruses, whether alleged to arise under law, by reason of custom or usage in the trade, or by course of dealing.
 
-3.	Support and CAEN SwFw Updates. 
-	
-C.A.E.N. may elect to provide you with customer support and/or CAEN SwFw upgrades, enhancements, or 
-modifications for the CAEN SwFw (collectively, "Support"), in its sole discretion, and may terminate such Support at 
-any time without notice to you. C.A.E.N. may change, suspend, or discontinue any aspect of the CAEN SwFw at any 
-time, including the availability of any CAEN SwFw feature, database, or content. C.A.E.N. may also impose limits on 
-certain features and services or restrict your access to parts or all of the CAEN SwFw or the C.A.E.N. web site 
-without notice or liability. 
+CAEN does not warrant that the CAEN Software will operate uninterrupted or be error free or that defects are correctable or will be corrected.
 
-4.  	Fees and Payments. 
+Any service obtained using the CAEN Software is done at the End User’s own discretion and risk, and the End User will be solely responsible for any damage to his/her computer system or loss of data that results from the download and/or use of any such material or service.
 
-C.A.E.N. reserves the right to charge fees for future use of or access to the CAEN SwFw in C.A.E.N.�s sole 
-discretion. If C.A.E.N. decides to charge for the CAEN SwFw , such charges will be disclosed to you 28 days before 
-they are applied. 
+Without limiting the generality of the foregoing, CAEN, its licensors, and its and their affiliates make no warranty that:
 
-5.	Disclaimer of Warranties by C.A.E.N.
+the CAEN Software will operate properly;
+the CAEN Software will meet the End User’s system/technical requirements;
+the operation of the CAEN Software will be uninterrupted, bug free, or error free in any or all circumstances;
+any defects in the CAEN Software can or will be corrected by CAEN.
+The terms set forth herein will apply to the maximum extent permitted by applicable laws.
 
-Use of the CAEN SwFw and any data accessed through the CAEN SwFw is at your sole risk. They are Provided "as 
-is."
+Limitation of Liability
+To the extent not prohibited by the applicable laws, in no event shall CAEN be liable for personal injury or any incidental, special, indirect, or consequential damages whatsoever, including, without limitation, damages for loss of profits, loss of data, business interruption, or any other commercial damages or losses, arising out of or related to the End User’s use of or inability to use the CAEN Software, however caused, regardless of the theory of liability (contract, tort, or otherwise) and even if CAEN has been advised of the possibility of such damages.
 
-Any service or otherwise obtained through the use of the CAEN SwFw is done at your own discretion and risk, and 
-you will be solely responsible for any damage to your computer system or loss of data that results from the 
-download and/or use of any such material or service.
+As mentioned in para. no. 6, CAEN Software is provided on an “as is” and “as available” basis, “with all faults” and without warranty of any kind, therefore the End User acknowledge that the use of the CAEN Software shall be at its own risk and the End User waves any right to compensation for any kind of damage or loss directly or indirectly consequential to the use of the CAEN Software.
 
-C.A.E.N., its officers, directors, employees, contractors, agents, affiliates, and assigns (collectively, "C.A.E.N. 
-Entities"), and C.A.E.N.�s Licensors do not represent that the CAEN SwFw or any data accessed therefrom is 
-appropriate or available for use outside Italy. 
+Indemnification
+The End User is solely responsible for compliance with agreements it has executed with third parties.
 
-The C.A.E.N. Entities and C.A.E.N. Licensors expressly disclaim all warranties of any kind, whether express or 
-implied, relating to the CAEN SwFw and any data accessed therefrom, or the accuracy, timeliness, completeness, or 
-adequacy of the CAEN SwFw and any data accessed therefrom, including the implied warranties of title, 
-merchantability, satisfactory quality, fitness for a particular purpose, and non-infringement. 
+The End User agrees to indemnify and hold CAEN harmless from any claim or demand, including reasonable legal fees, made by any third party in connection with or arising out of the End User’s use of the CAEN Software, the End User’s violation of any terms or conditions of the CAEN Software license and/or violation of applicable laws, or the violation of any rights of another person or entity.
 
-If the CAEN SwFw or any data accessed therefrom proves defective, you (and not the C.A.E.N. Entities, or the 
-C.A.E.N. Licensors) assume the entire cost of all repair or injury of any kind, even if the C.A.E.N. Entities, or 
-C.A.E.N. Licensors have been advised of the possibility of such a defect or damages. Some jurisdictions do not 
-allow restrictions on implied warranties so some of these limitations may not apply to you. 
+CAEN Software Updates
+The End User acknowledges that, under this EULA, CAEN is not obliged to provide the End User with:
 
-6. 	Limitation of liability. 
+any update of the CAEN Software;
+technical maintenance services (included bug fixing and/or similar activities);
+technical support activities (both on site and/or remotely).
+If the End User would need any of such activities, It shall enter into a specific and separate agreement with CAEN having as object the required activities.
 
-Notwithstanding any other provision, nothing in this CAEN SwFw Licence shall exclude or limit either party�s liability 
-for the tort of deceit, fraudulent misrepresentation, death or personal injury caused by negligence.
+Consent to the Use of Data
+If applicable due to the software provided to the End User, the End User acknowledges and agrees that CAEN may remotely extract and collect, at any time and without any obligation to notice the End User, technical and performance data concerning the CAEN Software’s usage by the End User and its performance, and all the necessary related information.
 
-The C.A.E.N. Entities and C.A.E.N. Licensors will not be liable to you for claims and liabilities of any kind arising out 
-of or in any way related to the use of the CAEN SwFw or any derivative work by yourself or by third parties, to the 
-use or non-use of any brokerage firm or dealer, or to the sale or purchase of any security, whether such claims and 
-liabilities are based on any legal or equitable theory. 
+Such technical and performance data will be collected, stored and used by CAEN and/or CAEN’s technical partners only for the purpose of monitoring and improving the performance of the CAEN Software, to prevent and/or fix technical failures and/or bugs as well as to facilitate the performance of any technical support activity.
 
-The C.A.E.N. Entities and C.A.E.N. Licensors are not liable to you for any and all direct, incidental, special, indirect, 
-or consequential damages arising out of the use or inability to use the CAEN SwFw or any derivative work, 
-arising out of or related to any third-party CAEN SwFw or any derivative work , any data accessed through the 
-CAEN SwFw or any derivative work, your use or inability to use or access the CAEN SwFw or any derivative work , 
-or any data provided through the CAEN SwFw or any derivative work , whether such damage claims are brought 
-under any theory of law or equity. Damages excluded by this clause include, without limitation, those for loss of 
-business profits, injury to person or property, business interruption, loss of business or personal information. Some 
-jurisdictions do not allow limitation of incidental or consequential damages so this restriction may not apply to you. 
+In addition to the above, CAEN and/or its technical partners might collect personal data of the End User for the sole purposes of the management of the license and the performance of technical additional services.
 
-Information provided through the CAEN SwFw , may be delayed, inaccurate, or contain errors or omissions, and the 
-C.A.E.N. Entities and C.A.E.N. Licensors will have no liability with respect thereto. C.A.E.N. may change or 
-discontinue any aspect or feature of the CAEN SwFw or the use of all or any features or technology in the CAEN 
-SwFw at any time without prior notice to you, including, but not limited to, content, hours of availability. 
+The personal data collected by CAEN and/or its technical partners might consist in the following:
 
-7. 	 Indemnification. 
+End User’s name and last name;
+End User’s e-mail;
+End User’s “MyCAEN” chosen username;
+the identifier number of the device from which the End User is accessing and downloading the CAEN Software (the “Machine ID”);
+the IP address of the End User’s internet connection.
+CAEN and/or its technical partners shall process the personal data collected in accordance with the applicable data protection laws, as specified in CAEN’s and/or its technical partners’ privacy notices provided to the End User during the registration process and/or immediately after such process.
 
-You are solely responsible for compliance with agreements you have executed with third parties. You agree to 
-indemnify and hold the C.A.E.N. Entities harmless from any claim or demand, including reasonable legal fees, made 
-by any third party in connection with or arising out of your use of the CAEN SwFw , your violation of any terms or 
-conditions of this CAEN SwFw Licence, your violation of applicable laws, or your violation of any rights of another 
-person or entity. 
+Audit Rights and Non-compliance
+During the term of this EULA, the End User will maintain electronic and other records sufficient for CAEN to confirm that the End User has complied with the terms and conditions of this EULA.
 
-8.  	Controlling Law. 
+CAEN may audit, and/or have third party to audit, the End User’s records and computer systems (including servers, databases, and all other applicable software and hardware) to ensure that the End User has fully complied with this EULA.
 
-This CAEN SwFw Licence and the relationship between you and C.A.E.N. is governed by the laws of Italy. 
-This Agreement shall be construed and governed by Italian Law.
-The United Nations Convention on the International Sale of Goods does not apply to this CAEN SwFw Licence. 
-Any dispute arising out of or in connection with this Agreement shall be referred to and finally resolved by 
-Arbitration under the provisions of Italian Law (c.p.c. art 816 and following.) by one Arbitrator.
-The Arbitrator shall be nominated from Chairman of the Court of Milan. 
-The place of Arbitration shall be Milan, Italy and the language shall be English
+The End User shall cooperate with CAEN’s audit team and promptly and accurately respond to database queries, location information, system reports, and other reports requested by CAEN.
 
-9.	Precedence . 
+If the End User is not in compliance with the CAEN Software licenses, the End User shall fully compensate CAEN for all the loss and damages caused directly and/or indirectly by the relevant non-compliance, as liquidated by the competent court of law.
 
-This CAEN SwFw Licence constitute the entire understanding between the parties respecting use of the CAEN 
-SwFw, superseding all prior agreements between you and C.A.E.N.. In the event of any conflict between the terms 
-and conditions of this CAEN SwFw Licence, the terms and conditions of this CAEN SwFw Licence will control
-	
-10.	Surviving Provisions. 
+Export Control
+This EULA involves software, products and/or technical data that may be controlled under laws and regulations that might forbid and/or regulate the export of such software, products and/or technical data (“Export Laws“).
 
-Sections 2, and 4 through 10, will survive any termination of this Agreement.
+The End User shall comply with all Export Laws to assure that the CAEN Software is not exported, directly or indirectly, in contravention of the applicable Export Laws.
 
-Tel No: +39.0584.388398 , Fax No.: +39.0584.388959, E-mail: support.computing@caen.it 
+Term and Termination
+The license granted to the End User is perpetual with reference to the version of the CAEN Software originally provided to the End User.
+
+Notwithstanding with the above, the Parties acknowledge that:
+
+the End User may terminate the CAEN Software license by discontinuing use of all or any of the CAEN Software and by destroying all copies of the applicable CAEN Software;
+the license terminates automatically if the End User violates any terms of the EULA, if CAEN sends a written notice of termination to the End User.
+After a termination, the End User shall immediately:
+
+cease any use of the CAEN Software;
+fully delete all CAEN Software, in particular the original files, any backup copies and any pertinent CAEN Software files installed on the End User’s devices;
+delete/destroy/return any documentation related to the CAEN Software.
+CAEN has the right to demand a sworn statement from the End User regarding the fulfillment of its obligations under the present paragraph.
+
+Unilateral amendments to the EULA
+CAEN has the right, at any time, when necessary, to unilaterally amend and modify the EULA without the obligation to priorly inform the End User of such changes.
+
+Applicable Law
+This CAEN Software License and the relationship between the End User and the Licensor is governed by the laws of Italy and shall be interpreted accordingly.
+
+Any dispute arising out of or in connection with this EULA shall be referred to and finally resolved by the Court of Florence, Italy.
+
+Precedence
+This EULA constitutes the entire understanding between the parties regarding the use of the CAEN Software.
