@@ -16,14 +16,10 @@
 #define USE_MIDAS 0
 
 #define USE_MSI_IRQ 1
-
-#ifndef VERSION
-	#define VERSION(ver,rel,seq) (((ver)<<16) | ((rel)<<8) | (seq))
-#endif
 /*
         Version Information
 */
-#define DRIVER_VERSION "v1.6.8s"
+#define DRIVER_VERSION "v1.6.12"
 #define DRIVER_AUTHOR "CAEN Computing Division  support.computing@caen.it"
 #define DRIVER_DESC "CAEN A3818 PCI Express CONET2 board driver"
 
@@ -39,9 +35,13 @@
 #include <linux/errno.h>
 #include <linux/proc_fs.h>
 #include <linux/pci.h>
-#if LINUX_VERSION_CODE >= VERSION(2,6,26)
 #include <linux/vmalloc.h>
-#ifdef CAEN_ASPM_EXISTS 
+#ifdef RHEL_RELEASE_VERSION
+#if RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(8, 0)
+#include <linux/pci-aspm.h>
+#endif
+#else
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,4,0)
 #include <linux/pci-aspm.h>
 #endif
 #endif
@@ -60,10 +60,6 @@
         a3818_mmiowb
         ----------------------------------------------------------------------
 */
-
-#ifndef VERSION
-	#define VERSION(ver,rel,seq) (((ver)<<16) | ((rel)<<8) | (seq))
-#endif
 
 #define a3818_mmiowb()
 
@@ -90,11 +86,11 @@
 static int a3818_open(struct inode *, struct file *);
 static int a3818_release(struct inode *, struct file *);
 static int a3818_ioctl(struct inode *, struct file *, unsigned int,unsigned long);
-#if LINUX_VERSION_CODE >= VERSION(2,6,11)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,11)
 static long a3818_ioctl_unlocked(struct file *, unsigned int, unsigned long);
 #endif
 static struct class *a3818_class;
-#if LINUX_VERSION_CODE >= VERSION(3,10,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
 static ssize_t a3818_procinfo(struct file* filp, char* buf, size_t count, loff_t* pos);
 #else
 static int a3818_procinfo(char *, char **, off_t, int, int *,void *);
@@ -116,12 +112,12 @@ static int a3818_major = 0;
 static struct a3818_state *devs;
 static struct proc_dir_entry *a3818_procdir;
 
-#if  LINUX_VERSION_CODE >= VERSION(5,6,0)
+#if  LINUX_VERSION_CODE >= KERNEL_VERSION(5,6,0)
 		static struct proc_ops a3818_procdir_fops = {
 		.proc_read = a3818_procinfo
 		};
 #else
-        #if LINUX_VERSION_CODE >= VERSION(3,10,0)
+        #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
         static struct file_operations a3818_procdir_fops = {
          read: a3818_procinfo
         };
@@ -131,7 +127,7 @@ static struct proc_dir_entry *a3818_procdir;
 
 static struct file_operations a3818_fops =
 {
-#if LINUX_VERSION_CODE >= VERSION(2,6,11)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,11)
         unlocked_ioctl: 	a3818_ioctl_unlocked,
 #else
 		ioctl:				a3818_ioctl,
@@ -610,7 +606,7 @@ static void a3818_handle_vme_irq(u32 irq0, u32 irq1, struct a3818_state *s, int 
 
         ----------------------------------------------------------------------
 */
-#if LINUX_VERSION_CODE >= VERSION(3,10,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
 static ssize_t a3818_procinfo(struct file* filp, char __user *buf, size_t count, loff_t* pos) {
     char *tbuf;
 	int len=0;
@@ -697,7 +693,7 @@ static int a3818_procinfo(char *buf, char **start, off_t fpos, int lenght, int *
   ----------------------------------------------------------------------
 */
 static void a3818_register_proc(void) {
-#if LINUX_VERSION_CODE >= VERSION(3,10,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
 	a3818_procdir = proc_create("a3818", 0, NULL, &a3818_procdir_fops);
 #else
 	a3818_procdir = create_proc_entry("a3818", S_IFREG | S_IRUGO, 0);
@@ -1115,10 +1111,10 @@ err_send:
 
         ----------------------------------------------------------------------
 */
-#if LINUX_VERSION_CODE >= VERSION(2,6,11)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,11)
 static long a3818_ioctl_unlocked(struct file *file, unsigned int cmd, unsigned long arg)
 {
-#if LINUX_VERSION_CODE >= VERSION(3,19,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,19,0)
   struct inode *inode = file->f_path.dentry->d_inode;
 #else	
   struct inode *inode = file->f_dentry->d_inode;
@@ -1148,7 +1144,7 @@ static long a3818_ioctl_unlocked(struct file *file, unsigned int cmd, unsigned l
 
 // Rev 1.5
 
-#if  LINUX_VERSION_CODE < VERSION(2,6,23)
+#if  LINUX_VERSION_CODE < KERNEL_VERSION(2,6,23)
 static irqreturn_t a3818_interrupt(int irq, void *dev_id, struct pt_regs *regs)
 #else
 static irqreturn_t a3818_interrupt(int irq, void *dev_id)
@@ -1270,7 +1266,7 @@ static int a3818_init_board(struct pci_dev *pcidev, int index) {
 		return -1;
 	}
 	
-#if LINUX_VERSION_CODE >= VERSION(2,6,26)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
 	// Xilinx bug. Force to disable ASPM 
 	pci_disable_link_state(pcidev, PCIE_LINK_STATE_L0S | PCIE_LINK_STATE_L1 |PCIE_LINK_STATE_CLKPM);
 #endif	
@@ -1324,7 +1320,7 @@ static int a3818_init_board(struct pci_dev *pcidev, int index) {
 		printk("Found Digitizer PCIe\n");
 	  s->TypeOfBoard = A3818DIGIT;
 	  s->irq = pcidev->irq;
-#if LINUX_VERSION_CODE < VERSION(2,6,23)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,23)
 	if( request_irq(s->irq, a3818_interrupt, SA_SHIRQ, "a3818", s) )
 #else
 	if( request_irq(s->irq, a3818_interrupt, IRQF_SHARED , "a3818", s) )
@@ -1345,7 +1341,7 @@ static int a3818_init_board(struct pci_dev *pcidev, int index) {
 	}
 	else { // empty board => to be programmed
 	  s->irq = pcidev->irq;
-#if LINUX_VERSION_CODE < VERSION(2,6,23)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,23)
 	if( request_irq(s->irq, a3818_interrupt, SA_SHIRQ, "a3818", s) )
 #else
 	if( request_irq(s->irq, a3818_interrupt, IRQF_SHARED , "a3818", s) )
@@ -1422,7 +1418,7 @@ static int a3818_init_board(struct pci_dev *pcidev, int index) {
 
 	s->irq = pcidev->irq;
 
-#if LINUX_VERSION_CODE < VERSION(2,6,23)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,23)
 	if( request_irq(s->irq, a3818_interrupt, SA_SHIRQ, "a3818", s) )
 #else
 	if( request_irq(s->irq, a3818_interrupt, IRQF_SHARED , "a3818", s) )
@@ -1560,10 +1556,18 @@ static int __init a3818_init(void) {
           printk("  Error getting Major Number.\n");
           return -ENODEV;
       }
+#ifdef RHEL_RELEASE_VERSION
+#if RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 4)
+	  a3818_class = class_create(THIS_MODULE, "a3818");
+#else
+	  a3818_class = class_create("a3818");
+#endif
+#else
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6, 4, 0)
 	  a3818_class = class_create(THIS_MODULE, "a3818");
 #else
 	  a3818_class = class_create("a3818");
+#endif
 #endif
 	  s = devs;
 	  while(s) {
@@ -1571,7 +1575,7 @@ static int __init a3818_init(void) {
 			for (j=0;j<MAX_V2718;j++) {
 				index = (s->CardNumber << 6) + (i << 3) + j;
 				sprintf(DevEntryName,"a3818_%d",index);
-#if LINUX_VERSION_CODE < VERSION(2,6,27)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
 				device_create(a3818_class, NULL, MKDEV(a3818_major, index), DevEntryName);
 #else
 				device_create(a3818_class, NULL, MKDEV(a3818_major, index), NULL, DevEntryName);
@@ -1580,7 +1584,7 @@ static int __init a3818_init(void) {
 		}
 		if (s->NumOfLink == 0) {
 			sprintf(DevEntryName,"a3818_%d",(s->CardNumber << 6));
-#if LINUX_VERSION_CODE < VERSION(2,6,27)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
 			device_create(a3818_class, NULL, MKDEV(a3818_major, index), DevEntryName);
 #else
 			device_create(a3818_class, NULL, MKDEV(a3818_major, index), NULL, DevEntryName);
@@ -1665,6 +1669,6 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR( DRIVER_AUTHOR );
 MODULE_DESCRIPTION( DRIVER_DESC );
 
-#if LINUX_VERSION_CODE >= VERSION(2,6,26)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
 MODULE_DEVICE_TABLE( pci, a3818_pci_tbl );
 #endif

@@ -17,31 +17,32 @@
 #DEBUG = y
 
 # Add your debugging flag (or not) to EXTRA_CFLAGS 
+
+
+
 ifeq ($(DEBUG),y)
   DEBFLAGS = -O -g # "-O" is needed to expand inlines
 else
   DEBFLAGS = -O2 -Wall
 endif
-EXTRA_CFLAGS  += $(DEBFLAGS) -I$(LDDINCDIR)
-
-ifneq ($(KERNELRELEASE),)
-# call from kernel build system
-
-obj-m	:= src/a3818.o
-
-endif
+EXTRA_CFLAGS  += $(DEBFLAGS)
 
 KERNELDIR ?= /lib/modules/$(shell uname -r)/build
 PWD       := $(shell pwd)
 
-default:
-	$(MAKE) -C $(KERNELDIR) M=$(PWD) LDDINCDIR=$(PWD)/include modules
+ifneq ($(KERNELRELEASE),)
+# call from kernel build system
 
+obj-m := src/a3818.o
+
+endif
+
+default:
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
+	
 install:
-	@echo "KERNEL==\"a3818_[0-9]\", MODE=\"0666\"" > /etc/udev/rules.d/10-CAEN-A3818.rules
-	@echo "KERNEL==\"a3818_[0-9][0-9]\", MODE=\"0666\"" >> /etc/udev/rules.d/10-CAEN-A3818.rules
-	@udevadm control --reload-rules
-	@cp src/a3818.ko /lib/modules/$(shell uname -r)/kernel/drivers/misc/
+	@./dkms_post_add.sh
+	@cp src/*.ko /lib/modules/$(shell uname -r)/kernel/drivers/misc/
 	@echo a3818 >> /etc/modules
 	@if test -d /etc/sysconfig/modules; then \
 	echo #!/bin/sh > /etc/sysconfig/modules/a3818.modules; \
@@ -57,8 +58,7 @@ install:
 
 uninstall:
 	@modprobe -r a3818
-	@rm /etc/udev/rules.d/10-CAEN-A3818.rules
-	@udevadm control --reload-rules
+	@./dkms_post_remove.sh
 	@rm /lib/modules/$(shell uname -r)/kernel/drivers/misc/a3818.ko
 	@sed -i '/a3818/d' /etc/modules
 	@if test -d /etc/sysconfig/modules; then \
@@ -66,13 +66,13 @@ uninstall:
 	fi
 	@depmod -a
 	@echo "driver uninstalled"
-
-all:
-	$(MAKE) -C $(KERNELDIR) M=$(PWD) LDDINCDIR=$(PWD)/include modules
-
+	
 clean:
-	rm -rf src/*.o src/*~ src/core src/.depend src/.*.cmd src/*.ko src/*.ko.* src/*.mod.c src/.tmp_versions ./modules.order ./Module.markers ./Module.symvers ./report.log
-
+	rm -rf src/*.o src/*~ src/core src/.depend src/.*.cmd src/*.ko src/*.ko.* src/*.mod.c src/.tmp_versions src/*.mod ./modules.order ./Module.markers ./Module.symvers ./report.log
+	
+all:
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
+	
 depend .depend dep:
 	$(CC) $(EXTRA_CFLAGS) -M *.c > .depend
 
@@ -80,3 +80,4 @@ depend .depend dep:
 ifeq (.depend,$(wildcard .depend))
 include .depend
 endif
+

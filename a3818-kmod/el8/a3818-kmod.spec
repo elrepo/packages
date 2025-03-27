@@ -2,20 +2,20 @@
 %define kmod_name a3818
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.45.1.el8_10}
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
-Version:        1.6.9
-Release:        2%{?dist}
+Version:        1.6.12
+Release:        1%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
 URL:            http://www.kernel.org/
 
 # Sources.
-Source0:  A3818Drv-%{version}.tar.gz
+Source0:  a3818_linux_driver-v%{version}.tar.gz
 Source5:  CAEN_License_Agreement.txt
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
@@ -31,7 +31,6 @@ Source5:  CAEN_License_Agreement.txt
                              PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
 
 # Source code patches
-Patch0: a3818-h.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -69,12 +68,10 @@ of the same variant of the Linux kernel and not on any one specific build.
 
 
 %prep
-%setup -q -n A3818Drv-%{version}
+%setup -q -n a3818_linux_driver-v%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
-
-%patch0 -p1 
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD
@@ -188,6 +185,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Mar 27 2025 Tuan Hoang <tqhoang@elrepo.org> - 1.6.12-1
+- Update version to 1.6.12
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.45.1.el8_10
+
 * Sat May 25 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.6.9-2
 - Rebuilt against RHEL 8.10 GA kernel 4.18.0-553.el8_10
 
