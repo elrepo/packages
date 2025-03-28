@@ -98,7 +98,7 @@ enum {
 #define	PMC_GLOBAL_INT_BIT0		0x00000001
 
 #ifndef AAC_DRIVER_BUILD
-# define AAC_DRIVER_BUILD 50877
+# define AAC_DRIVER_BUILD 50983
 # define AAC_DRIVER_BRANCH "-custom"
 #endif
 #define MAXIMUM_NUM_CONTAINERS	32
@@ -1551,6 +1551,7 @@ struct aac_dev
 	unsigned int		max_num_aif;
 
 	unsigned int		max_cmd_size;	/* max_fib_size or MAX_NATIVE */
+	unsigned int		max_cmds_supported;
 
 	/*
 	 *	Map for 128 fib objects (64k)

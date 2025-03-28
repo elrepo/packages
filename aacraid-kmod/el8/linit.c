@@ -543,7 +543,7 @@ static int aac_slave_configure(struct scsi_device *sdev)
 		if (num_lsu == 0)
 			++num_lsu;
 
-		depth = (host->can_queue - num_one) / num_lsu;
+		depth = (aac->max_cmds_supported - num_one) / num_lsu;
 
 		if (sdev_channel(sdev) != NATIVE_CHANNEL)
 			goto common_config;
@@ -626,10 +626,10 @@ static int aac_change_queue_depth(struct scsi_device *sdev, int depth)
 				++num;
 			++num;
 		}
-		if (num >= host->can_queue)
-			num = host->can_queue - 1;
-		if (depth > (host->can_queue - num))
-			depth = host->can_queue - num;
+		if (num >= aac->max_cmds_supported)
+			num = aac->max_cmds_supported - 1;
+		if (depth > (aac->max_cmds_supported - num))
+			depth = aac->max_cmds_supported - num;
 		if (depth > 256)
 			depth = 256;
 		else if (depth < 2)
@@ -782,7 +782,7 @@ static int aac_eh_abort(struct scsi_cmnd* cmd)
 		 host->host_no, sdev_channel(dev), sdev_id(dev), (int)dev->lun);
 
 		found = 0;
-		for (count = 0; count < (host->can_queue + AAC_NUM_MGT_FIB); ++count) {
+		for (count = 0; count < (aac->max_cmds_supported + AAC_NUM_MGT_FIB); ++count) {
 			fib = &aac->fibs[count];
 			if (*(u8 *)fib->hw_fib_va != 0 &&
 				(fib->flags & FIB_CONTEXT_FLAG_NATIVE_HBA) &&
@@ -849,7 +849,7 @@ static int aac_eh_abort(struct scsi_cmnd* cmd)
 			 * eh handler does this
 			 */
 			for (count = 0;
-				count < (host->can_queue + AAC_NUM_MGT_FIB);
+				count < (aac->max_cmds_supported + AAC_NUM_MGT_FIB);
 				++count) {
 				struct fib *fib = &aac->fibs[count];
 
@@ -870,7 +870,7 @@ static int aac_eh_abort(struct scsi_cmnd* cmd)
 			 * eh handler does this
 			 */
 			for (count = 0;
-				count < (host->can_queue + AAC_NUM_MGT_FIB);
+				count < (aac->max_cmds_supported + AAC_NUM_MGT_FIB);
 				++count) {
 				struct scsi_cmnd *command;
 				struct fib *fib = &aac->fibs[count];
@@ -1103,7 +1103,7 @@ static int aac_eh_bus_reset(struct scsi_cmnd* cmd)
 
 	cmd_bus = aac_logical_to_phys(scmd_channel(cmd));
 	/* Mark the assoc. FIB to not complete, eh handler does this */
-	for (count = 0; count < (host->can_queue + AAC_NUM_MGT_FIB); ++count) {
+	for (count = 0; count < (aac->max_cmds_supported + AAC_NUM_MGT_FIB); ++count) {
 		struct fib *fib = &aac->fibs[count];
 
 		if (fib->hw_fib_va->header.XferState &&
@@ -1639,7 +1639,7 @@ static void __aac_shutdown(struct aac_dev * aac)
 	if (aac->aif_thread) {
 		int i;
 		/* Clear out events first */
-		for (i = 0; i < (aac->scsi_host_ptr->can_queue + AAC_NUM_MGT_FIB); i++) {
+		for (i = 0; i < (aac->max_cmds_supported + AAC_NUM_MGT_FIB); i++) {
 			struct fib *fib = &aac->fibs[i];
 			if (!(fib->hw_fib_va->header.XferState & cpu_to_le32(NoResponseExpected | Async)) &&
 			    (fib->hw_fib_va->header.XferState & cpu_to_le32(ResponseExpected)))
@@ -1765,7 +1765,8 @@ static int aac_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
 	if (aac_reset_devices || reset_devices)
 		aac->init_reset = true;
 
-	aac->fibs = kcalloc(shost->can_queue + AAC_NUM_MGT_FIB,
+	aac->max_cmds_supported = AAC_NUM_IO_FIB;
+	aac->fibs = kcalloc(aac->max_cmds_supported + AAC_NUM_MGT_FIB,
 			    sizeof(struct fib),
 			    GFP_KERNEL);
 	if (!aac->fibs)
@@ -1878,6 +1879,7 @@ static int aac_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
 
 	pci_set_drvdata(pdev, shost);
 	shost->nr_hw_queues = aac->max_msix;
+	shost->can_queue    = aac->vector_cap;
 	shost->host_tagset = 1;
 
 	error = scsi_add_host(shost, &pdev->dev);

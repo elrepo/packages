@@ -75,11 +75,11 @@ static int fib_map_alloc(struct aac_dev *dev)
 
 	dprintk((KERN_INFO
 	  "allocate hardware fibs dma_alloc_coherent(%p, %d * (%d + %d), %p)\n",
-	  &dev->pdev->dev, dev->max_cmd_size, dev->scsi_host_ptr->can_queue,
+	  &dev->pdev->dev, dev->max_cmd_size, dev->max_cmds_supported,
 	  AAC_NUM_MGT_FIB, &dev->hw_fib_pa));
 	dev->hw_fib_va = dma_alloc_coherent(&dev->pdev->dev,
 		(dev->max_cmd_size + sizeof(struct aac_fib_xporthdr))
-		* (dev->scsi_host_ptr->can_queue + AAC_NUM_MGT_FIB) + (ALIGN32 - 1),
+		* (dev->max_cmds_supported + AAC_NUM_MGT_FIB) + (ALIGN32 - 1),
 		&dev->hw_fib_pa, GFP_KERNEL);
 	if (dev->hw_fib_va == NULL)
 		return -ENOMEM;
@@ -103,7 +103,7 @@ void aac_fib_map_free(struct aac_dev *dev)
 	if(!dev->hw_fib_va || !dev->max_cmd_size)
 		return;
 
-	num_fibs = dev->scsi_host_ptr->can_queue + AAC_NUM_MGT_FIB;
+	num_fibs = dev->max_cmds_supported + AAC_NUM_MGT_FIB;
 	fib_size = dev->max_fib_size + sizeof(struct aac_fib_xporthdr);
 	alloc_size = fib_size * num_fibs + ALIGN32 - 1;
 
@@ -121,10 +121,10 @@ void aac_fib_vector_assign(struct aac_dev *dev)
 	struct fib *fibptr = NULL;
 
 	for (i = 0, fibptr = &dev->fibs[i];
-		i < (dev->scsi_host_ptr->can_queue + AAC_NUM_MGT_FIB);
+		i < (dev->max_cmds_supported + AAC_NUM_MGT_FIB);
 		i++, fibptr++) {
 		if ((dev->max_msix == 1) ||
-		  (i > ((dev->scsi_host_ptr->can_queue + AAC_NUM_MGT_FIB - 1)
+		  (i > ((dev->max_cmds_supported + AAC_NUM_MGT_FIB - 1)
 			- dev->vector_cap))) {
 			fibptr->vector_no = 0;
 		} else {
@@ -153,9 +153,9 @@ int aac_fib_setup(struct aac_dev * dev)
 	u32 max_cmds;
 
 	while (((i = fib_map_alloc(dev)) == -ENOMEM)
-	 && (dev->scsi_host_ptr->can_queue > (64 - AAC_NUM_MGT_FIB))) {
-		max_cmds = (dev->scsi_host_ptr->can_queue+AAC_NUM_MGT_FIB) >> 1;
-		dev->scsi_host_ptr->can_queue = max_cmds - AAC_NUM_MGT_FIB;
+	 && (dev->max_cmds_supported > (64 - AAC_NUM_MGT_FIB))) {
+		max_cmds = (dev->max_cmds_supported+AAC_NUM_MGT_FIB) >> 1;
+		dev->max_cmds_supported = max_cmds - AAC_NUM_MGT_FIB;
 		if (dev->comm_interface != AAC_COMM_MESSAGE_TYPE3)
 			dev->init->r7.max_io_commands = cpu_to_le32(max_cmds);
 	}
@@ -164,7 +164,7 @@ int aac_fib_setup(struct aac_dev * dev)
 
 	memset(dev->hw_fib_va, 0,
 		(dev->max_cmd_size + sizeof(struct aac_fib_xporthdr)) *
-		(dev->scsi_host_ptr->can_queue + AAC_NUM_MGT_FIB));
+		(dev->max_cmds_supported + AAC_NUM_MGT_FIB));
 
 	/* 32 byte alignment for PMC */
 	hw_fib_pa = (dev->hw_fib_pa + (ALIGN32 - 1)) & ~(ALIGN32 - 1);
@@ -180,7 +180,7 @@ int aac_fib_setup(struct aac_dev * dev)
 	 *	Initialise the fibs
 	 */
 	for (i = 0, fibptr = &dev->fibs[i];
-		i < (dev->scsi_host_ptr->can_queue + AAC_NUM_MGT_FIB);
+		i < (dev->max_cmds_supported + AAC_NUM_MGT_FIB);
 		i++, fibptr++)
 	{
 		fibptr->flags = 0;
@@ -218,11 +218,11 @@ int aac_fib_setup(struct aac_dev * dev)
 	/*
 	 *	Add the fib chain to the free list
 	 */
-	dev->fibs[dev->scsi_host_ptr->can_queue + AAC_NUM_MGT_FIB - 1].next = NULL;
+	dev->fibs[dev->max_cmds_supported + AAC_NUM_MGT_FIB - 1].next = NULL;
 	/*
 	*	Set 8 fibs aside for management tools
 	*/
-	dev->free_fib = &dev->fibs[dev->scsi_host_ptr->can_queue];
+	dev->free_fib = &dev->fibs[dev->max_cmds_supported];
 	return 0;
 }
 
@@ -1527,7 +1527,7 @@ static int _aac_reset_adapter(struct aac_dev *aac, int forced, u8 reset_type)
 	 *	Loop through the fibs, close the synchronous FIBS
 	 */
 	retval = 1;
-	num_of_fibs = aac->scsi_host_ptr->can_queue + AAC_NUM_MGT_FIB;
+	num_of_fibs = aac->max_cmds_supported + AAC_NUM_MGT_FIB;
 	for (index = 0; index <  num_of_fibs; index++) {
 
 		struct fib *fib = &aac->fibs[index];
