@@ -2,14 +2,14 @@
 %define kmod_name aic79xx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.45.1.el8_10}
 
 %{!?dist: %define dist .el8}
 
 Epoch:		1
 Name:           kmod-%{kmod_name}
 Version:        3.0
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -194,6 +194,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri Mar 28 2025 Tuan Hoang <tqhoang@elrepo.org> - 1:3.0-6
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.45.1.el8_10
+
 * Fri May 24 2024 Tuan Hoang <tqhoang@elrepo.org> - 1:3.0-5
 - Rebuilt against RHEL 8.10 GA kernel 4.18.0-553.el8_10
 - Rebase tarball to match contents with aic7xxx

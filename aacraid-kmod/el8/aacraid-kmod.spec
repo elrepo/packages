@@ -2,13 +2,13 @@
 %define kmod_name		aacraid
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.45.1.el8_10}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	1.2.1
-Release:	11.1%{?dist}
+Release:	12%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -182,6 +182,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Mar 27 2025 Tuan Hoang <tqhoang@elrepo.org> - 1.2.1-12
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.45.1.el8_10
+
 * Mon Jun 24 2024 Akemi Yagi <toracat@elrepo.org> - 1.2.1-11.1
 - Applied patch from commit c5becf57dd5659c687d41d623a69f42d63f59eb2
   [https://elrepo.org/bugs/view.php?id=1444]
