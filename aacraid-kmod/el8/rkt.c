@@ -60,10 +60,10 @@ static int aac_rkt_select_comm(struct aac_dev *dev, int comm)
 		 * hard coded FIB override is being utilized. This special
 		 * case warrants this half baked, but convenient, check here.
 		 */
-		if (dev->scsi_host_ptr->can_queue > AAC_NUM_IO_FIB_RKT) {
+		if (dev->max_cmds_supported > AAC_NUM_IO_FIB_RKT) {
 			dev->init->r7.max_io_commands =
 				cpu_to_le32(AAC_NUM_IO_FIB_RKT + AAC_NUM_MGT_FIB);
-			dev->scsi_host_ptr->can_queue = AAC_NUM_IO_FIB_RKT;
+			dev->max_cmds_supported = AAC_NUM_IO_FIB_RKT;
 		}
 	}
 	return retval;

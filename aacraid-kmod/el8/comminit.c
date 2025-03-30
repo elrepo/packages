@@ -82,12 +82,12 @@ static int aac_alloc_comm(struct aac_dev *dev, void **commaddr, unsigned long co
 		(dev->comm_interface == AAC_COMM_MESSAGE_TYPE3 &&
 		!dev->sa_firmware)) {
 		host_rrq_size =
-			(dev->scsi_host_ptr->can_queue + AAC_NUM_MGT_FIB)
+			(dev->max_cmds_supported + AAC_NUM_MGT_FIB)
 				* sizeof(u32);
 		aac_init_size = sizeof(union aac_init);
 	} else if (dev->comm_interface == AAC_COMM_MESSAGE_TYPE3 &&
 		dev->sa_firmware) {
-		host_rrq_size = (dev->scsi_host_ptr->can_queue
+		host_rrq_size = (dev->max_cmds_supported
 			+ AAC_NUM_MGT_FIB) * sizeof(u32)  * AAC_MAX_MSIX;
 		aac_init_size = sizeof(union aac_init) +
 			(AAC_MAX_HRRQ - 1) * sizeof(struct _rrq);
@@ -193,7 +193,7 @@ static int aac_alloc_comm(struct aac_dev *dev, void **commaddr, unsigned long co
 			cpu_to_le32(INITFLAGS_DRIVER_USES_UTC_TIME |
 			INITFLAGS_DRIVER_SUPPORTS_PM);
 		init->r7.max_io_commands =
-			cpu_to_le32(dev->scsi_host_ptr->can_queue +
+			cpu_to_le32(dev->max_cmds_supported +
 					AAC_NUM_MGT_FIB);
 		init->r7.max_io_size =
 			cpu_to_le32(dev->scsi_host_ptr->max_sectors << 9);
@@ -478,7 +478,7 @@ void aac_define_int_mode(struct aac_dev *dev)
 	    dev->sync_mode) {
 		dev->max_msix = 1;
 		dev->vector_cap =
-			dev->scsi_host_ptr->can_queue +
+			dev->max_cmds_supported +
 			AAC_NUM_MGT_FIB;
 		return;
 	}
@@ -515,10 +515,10 @@ void aac_define_int_mode(struct aac_dev *dev)
 			dev->max_msix = msi_count;
 	}
 	if (dev->comm_interface == AAC_COMM_MESSAGE_TYPE3 && dev->sa_firmware)
-		dev->vector_cap = dev->scsi_host_ptr->can_queue +
+		dev->vector_cap = dev->max_cmds_supported +
 				AAC_NUM_MGT_FIB;
 	else
-		dev->vector_cap = (dev->scsi_host_ptr->can_queue +
+		dev->vector_cap = (dev->max_cmds_supported +
 				AAC_NUM_MGT_FIB) / msi_count;
 
 }
@@ -620,20 +620,20 @@ struct aac_dev *aac_init_adapter(struct aac_dev *dev)
 		host->sg_tablesize = status[2] >> 16;
 		dev->sg_tablesize = status[2] & 0xFFFF;
 		if (aac_is_src(dev)) {
-			if (host->can_queue > (status[3] >> 16) -
+			if (dev->max_cmds_supported > (status[3] >> 16) -
 					AAC_NUM_MGT_FIB)
-				host->can_queue = (status[3] >> 16) -
+				dev->max_cmds_supported = (status[3] >> 16) -
 					AAC_NUM_MGT_FIB;
-		} else if (host->can_queue > (status[3] & 0xFFFF) -
+		} else if (dev->max_cmds_supported > (status[3] & 0xFFFF) -
 				AAC_NUM_MGT_FIB)
-			host->can_queue = (status[3] & 0xFFFF) -
+			dev->max_cmds_supported = (status[3] & 0xFFFF) -
 				AAC_NUM_MGT_FIB;
 
 		dev->max_num_aif = status[4] & 0xFFFF;
 	}
 	if (numacb > 0) {
-		if (numacb < host->can_queue)
-			host->can_queue = numacb;
+		if (numacb < dev->max_cmds_supported)
+			dev->max_cmds_supported = numacb;
 		else
 			pr_warn("numacb=%d ignored\n", numacb);
 	}
