@@ -1,3 +1,10 @@
+29 Mar 2025
+	Add support for RHEL 10
+	Add support for NVIDIA open driver
+	Add support for 71.xx legacy driver
+	Use generated nvidia-detect.h
+	Remove obsolete nvidia-detect_x86.h
+
 01 Mar 2024
 	Add support for RHEL 9
 

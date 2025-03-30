@@ -19,7 +19,7 @@ More verbose output is availabe using the verbose (-v) switch, for example:
 $ nvidia-detect -v
 Probing for supported NVIDIA devices...
 [10de:1d01] NVIDIA Corporation GP108 [GeForce GT 1030]
-This device requires the current 550.144.03 NVIDIA driver kmod-nvidia
+This device requires the current 570.133.07 NVIDIA driver kmod-nvidia
 
 $ nvidia-detect -v
 Probing for supported NVIDIA devices...
@@ -61,17 +61,19 @@ ABI compatibility check passed
 
 nvidia-detect may be run from within a script and will return the following codes:
 
-0: No supported devices found
-1: Device supported by the current 550.144.03 NVIDIA driver
-2: Device supported by the legacy 96.xx NVIDIA driver
-3: Device supported by the legacy 173.xx NVIDIA driver
-4: Device supported by the legacy 304.xx NVIDIA driver
-5: Device supported by the legacy 340.xx NVIDIA driver
-6: Device supported by the legacy 367.xx NVIDIA driver
-7: Device supported by the legacy 390.xx NVIDIA driver
-8: Device supported by the legacy 470.xx NVIDIA driver
+ 0: No supported devices found
+ 1: Device supported by the current 570.133.07 NVIDIA open driver
+ 2: Device supported by the current 570.133.07 NVIDIA driver
+ 3: Device supported by the legacy  71.xx NVIDIA driver
+ 4: Device supported by the legacy  96.xx NVIDIA driver
+ 5: Device supported by the legacy 173.xx NVIDIA driver
+ 6: Device supported by the legacy 304.xx NVIDIA driver
+ 7: Device supported by the legacy 340.xx NVIDIA driver
+ 8: Device supported by the legacy 367.xx NVIDIA driver
+ 9: Device supported by the legacy 390.xx NVIDIA driver
+10: Device supported by the legacy 470.xx NVIDIA driver
 
 For a full list of supported devices, see:
-https://download.nvidia.com/XFree86/Linux-x86_64/550.144.03/README/supportedchips.html
+https://download.nvidia.com/XFree86/Linux-x86_64/570.133.07/README/supportedchips.html
 
 Bugs should be reported at http://elrepo.org/bugs
