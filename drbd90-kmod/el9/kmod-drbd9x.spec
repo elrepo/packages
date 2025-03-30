@@ -3,12 +3,12 @@
 %define real_name 		drbd
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-427.13.1.el9_4}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-503.11.1.el9_5}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	9.1.22
+Version:	9.2.13
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -81,8 +81,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -n %{real_name}-%{version}
 
-echo "override %{real_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
-echo "override drbd_transport_tcp * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
 %{__make} %{?_smp_mflags} module KDIR=%{kernel_source}  KVER=%{kversion}
@@ -196,58 +195,42 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Mon Aug 12 2024 Akemi Yagi <toracat@elrepo.org> - 9.1.22-1.el9_4
-- Version updated to 9.1.22
+* Thu Mar 27 2025 Akemi Yagi <toracat@elrepo.org> - 9.2.13-1.el9_5
+- Updated to 9.2.13
 
-* Sat Jun 08 2024 Akemi Yagi <toracat@elrepo.org> - 9.1.21-1.el9_4
-- Version updated to 9.1.21
+* Mon Nov 18 2024 Akemi Yagi <toracat@elrepo.org> - 9.2.12-1.el9_5
+- Updated to 9.2.12
+- Built for RHEL 9.5
 
-* Sun May 12 2024 Akemi Yagi <toracat@elrepo.org> - 9.1.20-1.el9_4
-- Version updated to 9.1.20
+* Mon Aug 12 2024 Akemi Yagi <toracat@elrepo.org> - 9.2.11-1.el9_4
+- Updated to 9.2.11
 
-* Wed May 01 2024 Akemi Yagi <toracat@elrepo.org> - 9.1.19-2.el9_4
-- Rebuilt for RHEL 9.4
+* Fri Jun 28 2024 Akemi Yagi <toracat@elrepo.org> - 9.2.10-1.el9_4
+- Updated to 9.2.10
 
-* Tue Mar 05 2024 Akemi Yagi <toracat@elrepo.org> - 9.1.19-1.el9_3
-- Version updated to 9.1.19
+* Thu May 02 2024 Akemi Yagi <toracat@elrepo.org> - 9.2.8-1.el9_4
+- Updated to 9.2.8
+- Built for RHEL 9.4
 
-* Wed Jan 24 2024 Akemi Yagi <toracat@elrepo.org> - 9.1.18-2.el9_3
+* Wed Feb 07 2024 Akemi Yagi <toracat@elrepo.org> - 9.2.5-3.el9_3
 - Rebuilt against kernel-5.14.0-362.18.1.el9_3
 
-* Fri Dec 22 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.18-1.el9_3
-- Version updated to 9.1.18
+* Wed Feb 07 2024 Akemi Yagi <toracat@elrepo.org> - 9.2.5-2.el9_3
+- Built against el9.3 GA kernel 5.14.0-362.8.1.el9_3
 
-* Tue Nov 07 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.17-2.el9_3
-- Rebuilt against 9.3 GA kernel 5.14.0-362.8.1.el9_3
+* Sat Aug 12 2023 Akemi Yagi <toracat@elrepo.org> - 9.2.5-1.el9_2
+- Updated to 9.2.5
+- Built against kernel-5.14.0-284.11.1.el9_2
 
-* Tue Oct 31 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.17-1.el9_2
-- Version updated to 9.1.17
+* Tue Apr 11 2023 Akemi Yagi <toracat@elrepo.org> - 9.2.3-1.el9_1
+- Updated to 9.2.3
 
-* Fri Sep 22 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.16-2.el9_2
-- Rebuilt against kernel-5.14.0-284.30.1.el9_2
-  [https://elrepo.org/bugs/view.php?id=1386]
+* Wed Feb 01 2023 Akemi Yagi <toracat@elrepo.org> - 9.2.2-1.el9_1
+- Updated to 9.2.2
 
-* Sat Aug 12 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.16-1.el9_2
-- Version updated to 9.1.16
-
-* Tue Jun 06 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.15.1.el9_2
-- Version updated to 9.1.15.1
-
-* Tue May 09 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.14-3.el9_2
-- Rebuilt against RHEL 9.2 GA kernel 5.14.0-284.11.1.el9_2
-
-* Sun Apr 23 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.14-2.el9_1
-- Correct kmod-drbd90.conf
-- 'override drbd_transport_tcp' added to kmod-drbd90.conf
-
-* Sat Apr 08 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.14-1.el9_1
-- Updated to 9.1.14
-
-* Wed Mar 29 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.13-2.el9_1
-- Rebuilt against kernel-5.14.0-162.22.2.el9_1
-
-* Mon Jan 30 2023 Akemi Yagi <toracat@elrepo.org> - 9.1.13-1.el9_1
-- Updated to 9.1.13
+* Mon Nov 21 2022 Akemi Yagi <toracat@elrepo.org> - 9.2.1.el9_1
+- Upgraded to 9.2.1
+- Built against RHEL 9.1 GA kernel
 
 * Mon Nov 14 2022 Akemi Yagi <toracat@elrepo.org> - 9.1.12.el9_1
 - Updated to 9.1.12
