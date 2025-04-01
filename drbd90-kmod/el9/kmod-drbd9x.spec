@@ -9,7 +9,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	9.2.13
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -81,7 +81,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -n %{real_name}-%{version}
 
-echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "override %{real_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 echo "override drbd_transport_tcp * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 
 %build
@@ -196,6 +196,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Mar 31 2025 Akemi Yagi <toracat@elrepo.org> - 9.2.13-3.el9_5
+- Correct kmod-drbd9x.conf
+
 * Mon Mar 31 2025 Akemi Yagi <toracat@elrepo.org> - 9.2.13-2.el9_5
 - 'override drbd_transport_tcp' added to kmod-drbd9x.conf
 
