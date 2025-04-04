@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	6%{?dist}
+Release:	7%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -76,7 +76,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 %setup -q -n %{kmod_name}-%{version}
 cat /dev/null > kmod-%{kmod_name}.conf
 for modules in rtw88_8723du rtw88_8821cu rtw88_8822cu ; do
-	echo "override $modules * weak-updates/$modules" >> kmod-%{kmod_name}.conf
+	echo "override $modules * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 done
 
 %build
@@ -193,6 +193,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri Apr 04 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-7
+- Revert: Fix incorrect module name in depmod conf file
+
 * Wed Mar 26 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-6
 - Remove modules that are now included in RHEL 9.5 GA kernel
   - CONFIG_RTW88_USB
