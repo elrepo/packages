@@ -1,5 +1,11 @@
 # Define the kmod package name here.
-%define kmod_name	nvidia
+# Add the option '--with open' to build the kernel-open driver
+%if %{?_with_open:1}%{!?_with_open:0}
+%define kmod_open	-open
+%endif
+
+%define kmod_basename	nvidia
+%define kmod_name	%{kmod_basename}%{?kmod_open}
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
 %{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-503.11.1.el9_5}
@@ -7,17 +13,17 @@
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	550.144.03
+Version:	570.133.07
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
-License:	GPLv2
+License:	MIT and Redistributable, no modification permitted
 URL:		http://www.nvidia.com/
 
 # Sources
-Source0:  https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
-Source1:  blacklist-nouveau.conf
-Source2:  dracut-nvidia.conf
+Source0:	https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+Source1:	blacklist-nouveau.conf
+Source2:	dracut-nvidia.conf
 
 %if %{?_with_src:0}%{!?_with_src:1}
 NoSource: 0
@@ -44,7 +50,7 @@ NoSource: 0
 %global _use_internal_dependency_generator 0
 %global kernel_source() %{_usrsrc}/kernels/%{kmod_kernel_version}.%{_arch}
 
-BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
+BuildRoot:		%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 ExclusiveArch:		x86_64
 
@@ -57,37 +63,43 @@ BuildRequires:		rpm-build
 BuildRequires:		gcc
 BuildRequires:		make
 
-Provides:			kernel-modules >= %{kmod_kernel_version}.%{_arch}
-Provides:			kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:		kernel-modules >= %{kmod_kernel_version}.%{_arch}
+Provides:		kmod-%{kmod_basename} = %{?epoch:%{epoch}:}%{version}-%{release}
 
-Requires:			kernel >= %{kmod_kernel_version}
-Requires:			kernel-core-uname-r >= %{kmod_kernel_version}
-Requires:			nvidia-x11-drv = %{?epoch:%{epoch}:}%{version}
+%if %{?_with_open:1}%{!?_with_open:0}
+Conflicts:		kmod-%{kmod_basename}
+%else
+Conflicts:		kmod-%{kmod_basename}-open
+%endif
 
-Requires(post):		%{_sbindir}/depmod
+Requires:		kernel >= %{kmod_kernel_version}
+Requires:		kernel-core-uname-r >= %{kmod_kernel_version}
+Requires:		nvidia-x11-drv = %{?epoch:%{epoch}:}%{version}
+
+Requires(post): 	%{_sbindir}/depmod
 Requires(postun):	%{_sbindir}/depmod
-Requires(post):		%{_sbindir}/weak-modules
+Requires(post): 	%{_sbindir}/weak-modules
 Requires(postun):	%{_sbindir}/weak-modules
 
 %description
-This package provides the proprietary NVIDIA OpenGL kernel driver modules.
+This package provides the NVIDIA OpenGL kernel%{?kmod_open} driver modules.
 It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
 %setup -q -c -T
-echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
-echo "override %{kmod_name}-drm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
-echo "override %{kmod_name}-modeset * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
-echo "override %{kmod_name}-peermem * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
-echo "override %{kmod_name}-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+echo "override %{kmod_basename} * weak-updates/%{kmod_basename}" > kmod-%{kmod_name}.conf
+echo "override %{kmod_basename}-drm * weak-updates/%{kmod_basename}" >> kmod-%{kmod_name}.conf
+echo "override %{kmod_basename}-modeset * weak-updates/%{kmod_basename}" >> kmod-%{kmod_name}.conf
+echo "override %{kmod_basename}-peermem * weak-updates/%{kmod_basename}" >> kmod-%{kmod_name}.conf
+echo "override %{kmod_basename}-uvm * weak-updates/%{kmod_basename}" >> kmod-%{kmod_name}.conf
 sh %{SOURCE0} --extract-only --target nvidiapkg
 %{__cp} -a nvidiapkg _kmod_build_
 
 %build
 ## %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
 export SYSSRC=%{_usrsrc}/kernels/%{kmod_kernel_version}.%{_arch}
-pushd _kmod_build_/kernel
+pushd _kmod_build_/kernel%{?kmod_open}
 %{__make} %{?_smp_mflags} module
 popd
 
@@ -101,13 +113,13 @@ done
 sort -u greylist | uniq > greylist.txt
 
 %install
-%{__install} -d %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-pushd _kmod_build_/kernel
-%{__install} %{kmod_name}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-%{__install} %{kmod_name}-drm.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-%{__install} %{kmod_name}-modeset.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-%{__install} %{kmod_name}-peermem.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-%{__install} %{kmod_name}-uvm.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+%{__install} -d %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_basename}/
+pushd _kmod_build_/kernel%{?kmod_open}
+%{__install} %{kmod_basename}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_basename}/
+%{__install} %{kmod_basename}-drm.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_basename}/
+%{__install} %{kmod_basename}-modeset.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_basename}/
+%{__install} %{kmod_basename}-peermem.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_basename}/
+%{__install} %{kmod_basename}-uvm.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_basename}/
 popd
 pushd _kmod_build_
 # Install GPU System Processor (GSP) firmware
@@ -224,15 +236,21 @@ exit 0
 
 %files
 %defattr(644,root,root,755)
+%license nvidiapkg/LICENSE
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config /etc/depmod.d/kmod-%{kmod_name}.conf
-%config /etc/dracut.conf.d/dracut-nvidia.conf
-%config /usr/lib/modprobe.d/blacklist-nouveau.conf
-%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
+%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
+%config %{_sysconfdir}/dracut.conf.d/dracut-nvidia.conf
+%config %{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
+%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %dir /lib/firmware/nvidia/%{version}/
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Sat Apr 05 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.133.07-1
+- Updated to version 570.133.07
+- Add option to build kernel-open driver
+- Add LICENSE file
+
 * Tue Jan 28 2025 Tuan Hoang <tqhoang@elrepo.org> - 550.144.03-1
 - Updated to version 550.144.03
 - Rebuilt against RHEL 9.5 GA kernel
