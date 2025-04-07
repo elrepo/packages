@@ -1,5 +1,12 @@
 # Define the kmod package name here.
-%define kmod_name		nvidia
+# Add the option '--with open' to build the kernel-open driver
+%if %{?_with_open:1}%{!?_with_open:0}
+%define kmod_open	-open
+%endif
+
+%define kmod_basename	nvidia
+%define kmod_name	%{kmod_basename}%{?kmod_open}
+
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
 %{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
@@ -7,17 +14,17 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	550.144.03
+Version:	570.133.07
 Release:	1%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
-License:	Proprietary
+License:	MIT and Redistributable, no modification permitted
 URL:		https://www.nvidia.com/
 
 # Sources
-Source0:  https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
-Source1:  blacklist-nouveau.conf
-Source2:  dracut-nvidia.conf
+Source0:	https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+Source1:	blacklist-nouveau.conf
+Source2:dracut-nvidia.conf
 
 %if %{?_with_src:0}%{!?_with_src:1}
 NoSource: 0
@@ -68,7 +75,13 @@ BuildRequires:	gcc = 8.5.0
 %endif
 
 Provides:	kernel-modules >= %{kmod_kernel_version}.%{_arch}
-Provides:	kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:	kmod-%{kmod_basename} = %{?epoch:%{epoch}:}%{version}-%{release}
+
+%if %{?_with_open:1}%{!?_with_open:0}
+Conflicts:	kmod-%{kmod_basename}
+%else
+Conflicts:	kmod-%{kmod_basename}-open
+%endif
 
 Requires:	nvidia-x11-drv = %{?epoch:%{epoch}:}%{version}
 Requires(post):	%{_sbindir}/weak-modules
@@ -76,24 +89,24 @@ Requires(postun):	%{_sbindir}/weak-modules
 Requires:	kernel >= %{kmod_kernel_version}
 
 %description
-This package provides the proprietary NVIDIA OpenGL kernel driver module.
+This package provides the NVIDIA OpenGL kernel%{?kmod_open} driver module.
 It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
 %setup -q -c -T
-echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
-echo "override %{kmod_name}-drm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
-echo "override %{kmod_name}-modeset * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
-echo "override %{kmod_name}-peermem * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
-echo "override %{kmod_name}-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+echo "override %{kmod_basename} * weak-updates/%{kmod_basename}" > kmod-%{kmod_name}.conf
+echo "override %{kmod_basename}-drm * weak-updates/%{kmod_basename}" >> kmod-%{kmod_name}.conf
+echo "override %{kmod_basename}-modeset * weak-updates/%{kmod_basename}" >> kmod-%{kmod_name}.conf
+echo "override %{kmod_basename}-peermem * weak-updates/%{kmod_basename}" >> kmod-%{kmod_name}.conf
+echo "override %{kmod_basename}-uvm * weak-updates/%{kmod_basename}" >> kmod-%{kmod_name}.conf
 sh %{SOURCE0} --extract-only --target nvidiapkg
 %{__cp} -a nvidiapkg _kmod_build_
 
 %build
 # export IGNORE_CC_MISMATCH=1
 export SYSSRC=%{_usrsrc}/kernels/%{kmod_kernel_version}.%{_arch}
-pushd _kmod_build_/kernel
+pushd _kmod_build_/kernel%{?kmod_open}
 %{__make} %{?_smp_mflags} module
 popd
 
@@ -107,13 +120,13 @@ done
 sort -u greylist | uniq > greylist.txt
 
 %install
-%{__install} -d %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-pushd _kmod_build_/kernel
-%{__install} %{kmod_name}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-%{__install} %{kmod_name}-drm.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-%{__install} %{kmod_name}-modeset.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-%{__install} %{kmod_name}-peermem.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-%{__install} %{kmod_name}-uvm.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+%{__install} -d %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_basename}/
+pushd _kmod_build_/kernel%{?kmod_open}
+%{__install} %{kmod_basename}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_basename}/
+%{__install} %{kmod_basename}-drm.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_basename}/
+%{__install} %{kmod_basename}-modeset.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_basename}/
+%{__install} %{kmod_basename}-peermem.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_basename}/
+%{__install} %{kmod_basename}-uvm.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_basename}/
 popd
 pushd _kmod_build_
 # Install GPU System Processor (GSP) firmware
@@ -148,7 +161,7 @@ done
 %{__rm} -rf %{buildroot}
 
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_name} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_basename} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -230,15 +243,21 @@ exit 0
 
 %files
 %defattr(644,root,root,755)
+%license nvidiapkg/LICENSE
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config /etc/depmod.d/kmod-%{kmod_name}.conf
-%config /etc/dracut.conf.d/dracut-nvidia.conf
-%config /usr/lib/modprobe.d/blacklist-nouveau.conf
-%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
+%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
+%config %{_sysconfdir}/dracut.conf.d/dracut-nvidia.conf
+%config %{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
+%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %dir /lib/firmware/nvidia/%{version}/
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Sun Apr 06 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.133.07-1
+- Updated to version 570.133.07
+- Add option to build kernel-open driver
+- Add LICENSE file
+
 * Tue Jan 28 2025 Tuan Hoang <tqhoang@elrepo.org> - 550.144.03-1
 - Updated to version 550.144.03
 
