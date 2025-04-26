@@ -1,5 +1,5 @@
 Name:    nvidia-detect
-Version: 570.133.07
+Version: 570.144
 Release: 1%{?dist}
 Group:   Applications/System
 License: GPLv2
@@ -36,6 +36,9 @@ A utility to detect NVIDIA graphics cards.
 %{_bindir}/nvidia-detect
 
 %changelog
+* Sat Apr 26 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.144-1
+- Add support for detection of devices added to 570.144 driver release
+
 * Sat Mar 29 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.133.07-1
 - Add support for detection of devices added to 570.133.07 driver release
 - Add support for RHEL 10

@@ -13,7 +13,7 @@
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	570.133.07
+Version:	570.144
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -246,6 +246,9 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Sat Apr 26 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.144-1
+- Updated to version 570.144
+
 * Sat Apr 05 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.133.07-1
 - Updated to version 570.133.07
 - Add option to build kernel-open driver

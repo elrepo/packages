@@ -1,12 +1,12 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# https://download.nvidia.com/XFree86/Linux-x86_64/570.133.07/README/minimumrequirements.html
+# https://download.nvidia.com/XFree86/Linux-x86_64/570.144/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	570.133.07
+Version:	570.144
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	MIT and Redistributable, no modification permitted
@@ -210,8 +210,8 @@ pushd 32
 %endif
 %{__install} -p -m 0755 libnvidia-eglcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-egl-gbm.so.1.1.2 $RPM_BUILD_ROOT%{_libdir}/
-%{__install} -p -m 0755 libnvidia-egl-xcb.so.1.0.0 $RPM_BUILD_ROOT%{_libdir}/
-%{__install} -p -m 0755 libnvidia-egl-xlib.so.1.0.0 $RPM_BUILD_ROOT%{_libdir}/
+%{__install} -p -m 0755 libnvidia-egl-xcb.so.1.0.1 $RPM_BUILD_ROOT%{_libdir}/
+%{__install} -p -m 0755 libnvidia-egl-xlib.so.1.0.1 $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-fbc.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-glcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
@@ -219,7 +219,6 @@ pushd 32
 %{__install} -p -m 0755 libnvidia-glvkspirv.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-gpucomp.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %ifarch x86_64
-%{__install} -p -m 0755 libnvidia-gtk2.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-gtk3.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %endif
 %{__install} -p -m 0755 libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
@@ -299,9 +298,9 @@ popd
 %{__ln_s} libnvidia-eglcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-eglcore.so
 %{__ln_s} libnvidia-egl-gbm.so.1.1.2 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-gbm.so.1
 %{__ln_s} libnvidia-egl-gbm.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-gbm.so
-%{__ln_s} libnvidia-egl-xcb.so.1.0.0 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xcb.so.1
+%{__ln_s} libnvidia-egl-xcb.so.1.0.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xcb.so.1
 %{__ln_s} libnvidia-egl-xcb.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xcb.so
-%{__ln_s} libnvidia-egl-xlib.so.1.0.0 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xlib.so.1
+%{__ln_s} libnvidia-egl-xlib.so.1.0.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xlib.so.1
 %{__ln_s} libnvidia-egl-xlib.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xlib.so
 %{__ln_s} libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-encode.so.1
 %{__ln_s} libnvidia-encode.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-encode.so
@@ -312,7 +311,6 @@ popd
 %{__ln_s} libnvidia-glvkspirv.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-glvkspirv.so
 %{__ln_s} libnvidia-gpucomp.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-gpucomp.so
 %ifarch x86_64
-%{__ln_s} libnvidia-gtk2.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-gtk2.so
 %{__ln_s} libnvidia-gtk3.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-gtk3.so
 %endif
 %{__ln_s} libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ml.so.1
@@ -536,6 +534,10 @@ fi ||:
 %endif
 
 %changelog
+* Sat Apr 26 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.144-1
+- Updated to version 570.144
+- Remove unnecessary gtk2 files
+
 * Sat Apr 05 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.133.07-1
 - Updated to version 570.133.07
 - Add LICENSE and supported-gpus.json files
