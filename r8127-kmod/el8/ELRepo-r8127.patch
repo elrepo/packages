@@ -1,0 +1,117 @@
+diff -Naurp r8127-11.014.00.orig/src/r8127.h r8127-11.014.00/src/r8127.h
+--- r8127-11.014.00.orig/src/r8127.h	2025-03-28 14:04:19.000000000 +0000
++++ r8127-11.014.00/src/r8127.h	2025-04-29 16:35:29.026216431 +0000
+@@ -122,7 +122,7 @@ static inline bool skb_transport_header_
+ }
+ #endif /* LINUX_VERSION_CODE < KERNEL_VERSION(3,9,0) */
+ 
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(4,20,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4,20,0) && RHEL_MAJOR != 8
+ static inline void linkmode_set_bit(int nr, volatile unsigned long *addr)
+ {
+         __set_bit(nr, addr);
+@@ -139,7 +139,7 @@ static inline int linkmode_test_bit(int
+ }
+ #endif /* LINUX_VERSION_CODE < KERNEL_VERSION(4,20,0) */
+ 
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0) && RHEL_MAJOR != 8
+ static inline void linkmode_mod_bit(int nr, volatile unsigned long *addr,
+                                     int set)
+ {
+@@ -200,7 +200,7 @@ static inline void netdev_tx_completed_q
+ static inline void netdev_tx_reset_queue(struct netdev_queue *q) {}
+ #endif
+ 
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,8,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,8,0) && RHEL_MAJOR < 8
+ static inline void fsleep(unsigned long usecs)
+ {
+         if (usecs <= 10)
+@@ -229,7 +229,7 @@ static inline void fsleep(unsigned long
+ typedef int netdev_tx_t;
+ #endif
+ 
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,12,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,12,0) && RHEL_MAJOR != 8
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(4,1,9)
+ static inline bool page_is_pfmemalloc(struct page *page)
+ {
+@@ -933,7 +933,7 @@ typedef int *napi_budget;
+ typedef struct napi_struct *napi_ptr;
+ typedef int napi_budget;
+ 
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,1,0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,1,0) || RHEL_MAJOR == 8
+ #define RTL_NAPI_CONFIG(ndev, priv, function, weight)   netif_napi_add_weight(ndev, &priv->napi, function, weight)
+ #else
+ #define RTL_NAPI_CONFIG(ndev, priv, function, weight)   netif_napi_add(ndev, &priv->napi, function, weight)
+diff -Naurp r8127-11.014.00.orig/src/r8127_n.c r8127-11.014.00/src/r8127_n.c
+--- r8127-11.014.00.orig/src/r8127_n.c	2025-03-28 14:04:19.000000000 +0000
++++ r8127-11.014.00/src/r8127_n.c	2025-04-29 16:35:29.030216332 +0000
+@@ -58,7 +58,7 @@
+ #include <linux/completion.h>
+ 
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,4,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,4,0) && RHEL_MAJOR != 8
+ #include <linux/pci-aspm.h>
+ #endif
+ #endif
+@@ -296,7 +296,7 @@ static irqreturn_t rtl8127_interrupt_msi
+ static irqreturn_t rtl8127_interrupt_msix(int irq, void *dev_instance);
+ #endif
+ static void rtl8127_set_rx_mode(struct net_device *dev);
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,6,0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,6,0) || RHEL_MAJOR == 8
+ static void rtl8127_tx_timeout(struct net_device *dev, unsigned int txqueue);
+ #else
+ static void rtl8127_tx_timeout(struct net_device *dev);
+@@ -6472,7 +6472,7 @@ rtl8127_set_ring_size(struct rtl8127_pri
+ }
+ 
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,17,0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,17,0) || RHEL_MAJOR == 8
+ static void rtl8127_get_ringparam(struct net_device *dev,
+                                   struct ethtool_ringparam *ring,
+                                   struct kernel_ethtool_ringparam *kernel_ring,
+@@ -6490,7 +6490,7 @@ static void rtl8127_get_ringparam(struct
+         ring->tx_pending = tp->tx_ring[0].num_tx_desc;
+ }
+ 
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,17,0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,17,0) || RHEL_MAJOR == 8
+ static int rtl8127_set_ringparam(struct net_device *dev,
+                                  struct ethtool_ringparam *ring,
+                                  struct kernel_ethtool_ringparam *kernel_ring,
+@@ -14285,7 +14285,7 @@ rtl8127_init_one(struct pci_dev *pdev,
+                 dev->hw_features |= NETIF_F_IPV6_CSUM | NETIF_F_TSO6;
+                 dev->features |= NETIF_F_IPV6_CSUM;
+                 dev->features |= NETIF_F_TSO6;
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,19,0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,19,0) || RHEL_MAJOR >= 8
+                 netif_set_tso_max_size(dev, LSO_64K);
+                 netif_set_tso_max_segs(dev, NIC_MAX_PHYS_BUF_COUNT_LSO2);
+ #else //LINUX_VERSION_CODE >= KERNEL_VERSION(5,19,0)
+@@ -15982,7 +15982,7 @@ out_unlock:
+         rtnl_unlock();
+ }
+ 
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,6,0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,6,0) || RHEL_MAJOR == 8
+ static void
+ rtl8127_tx_timeout(struct net_device *dev, unsigned int txqueue)
+ #else
+diff -Naurp r8127-11.014.00.orig/src/r8127_ptp.h r8127-11.014.00/src/r8127_ptp.h
+--- r8127-11.014.00.orig/src/r8127_ptp.h	2025-03-28 14:04:19.000000000 +0000
++++ r8127-11.014.00/src/r8127_ptp.h	2025-04-29 16:35:29.030216332 +0000
+@@ -115,7 +115,7 @@ enum PTP_TRX_TS_STA_REG {
+ #define PTP_CTL_TYPE_2 (0x0FF)
+ #define PTP_CTL_TYPE_3 (0x03F)
+ 
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0) && RHEL_MAJOR != 8
+ struct clock_identity {
+         u8 id[8];
+ } __packed;
