@@ -1,0 +1,12 @@
+diff -up ecryptfs-utils-108/src/key_mod/ecryptfs_key_mod_passphrase.c.fixsalt ecryptfs-utils-108/src/key_mod/ecryptfs_key_mod_passphrase.c
+--- ecryptfs-utils-108/src/key_mod/ecryptfs_key_mod_passphrase.c.fixsalt	2015-02-10 17:59:34.000000000 +0100
++++ ecryptfs-utils-108/src/key_mod/ecryptfs_key_mod_passphrase.c	2015-08-11 14:43:52.660840311 +0200
+@@ -105,7 +105,7 @@ static int tf_pass_file(struct ecryptfs_
+ out:
+ 	free(node->val);
+ 	node->val = NULL;
+-	return rc;
++	return rc ? rc : DEFAULT_TOK;
+ }
+ 
+ static int tf_salt(struct ecryptfs_ctx *ctx, struct param_node *node,
