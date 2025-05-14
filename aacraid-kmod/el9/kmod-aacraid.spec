@@ -2,13 +2,13 @@
 %define kmod_name	aacraid
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-503.11.1.el9_5}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.12.1.el9_6}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	1.2.1
-Release:	9%{?dist}
+Release:	10%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -192,6 +192,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed May 14 2025 Tuan Hoang <tqhoang@elrepo.org> - 1.2.1-10
+- Rebuilt against RHEL 9.6 GA kernel
+- Source code from kernel-5.14.0-570.12.1.el9_6
+
 * Tue Nov 12 2024 Philip J Perry <phil@elrepo.org> - 1.2.1-9
 - Rebuilt for RHEL 9.5
 - Source updated from RHEL 9.5 GA kernel

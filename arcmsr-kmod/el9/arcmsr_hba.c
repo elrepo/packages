@@ -57,7 +57,6 @@
 #include <linux/timer.h>
 #include <linux/slab.h>
 #include <linux/pci.h>
-#include <linux/aer.h>
 #include <linux/circ_buf.h>
 #include <asm/dma.h>
 #include <asm/io.h>
@@ -948,7 +947,7 @@ msi_int0:
 				goto msi_int1;
 			}
 		}
-		nvec = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_LEGACY);
+		nvec = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_INTX);
 		if (nvec < 1)
 			return FAILED;
 msi_int1:
