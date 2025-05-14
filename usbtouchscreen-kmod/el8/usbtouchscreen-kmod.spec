@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -185,6 +185,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sun May 11 2025 Akemi Yagi <toracat@elrepo.org> 0.0-2
+- Added ccflags
+
 * Thu May 01 2025 Akemi Yagi <toracat@elrepo.org> 0.0-1
 - Initial el8 build of the kmod package.
 - Source code from the RHEL 8.10 kernel.
