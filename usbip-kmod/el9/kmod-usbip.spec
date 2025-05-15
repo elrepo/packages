@@ -2,13 +2,13 @@
 %define kmod_name	usbip
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-503.11.1.el9_5}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.16.1.el9_6}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	8%{?dist}
+Release:	9%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -190,6 +190,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed May 14 2025 Akemi Yagi <toracat@elrepo.org> - 0.0-9
+- Rebuilt for RHEL 9.6
+- Source updated from RHEL 9.6 GA kernel
+
 * Tue Nov 12 2024 Philip J Perry <phil@elrepo.org> - 0.0-8
 - Rebuilt for RHEL 9.5
 - Source updated from RHEL 9.5 GA kernel
