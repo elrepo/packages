@@ -2,13 +2,13 @@
 %define kmod_name	mvsas
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-503.11.1.el9_5}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.12.1.el9_6}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	0.8.16
-Release:	8%{?dist}
+Release:	9%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -17,6 +17,9 @@ URL:		http://www.kernel.org/
 # Sources.
 Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
+
+# Source code patches
+Patch0:		elrepo-mvsas-scsi_host_template.el9_6.patch
 
 %define __spec_install_post \
 		/usr/lib/rpm/check-buildroot \
@@ -72,8 +75,11 @@ of the same variant of the Linux kernel and not on any one specific build.
 %setup -q -n %{kmod_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
+# Apply patch(es)
+%patch0 -p1
+
 %build
-%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
+%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD CONFIG_SCSI_MVSAS=m
 
 whitelist="/lib/modules/kabi-current/kabi_stablelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -184,6 +190,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed May 14 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.8.16-9
+- Rebuilt against RHEL 9.6 GA kernel
+- Source code from kernel-5.14.0-570.12.1.el9_6
+- Change scsi_host_template .slave_configure to .device_configure
+
 * Tue Nov 12 2024 Philip J Perry <phil@elrepo.org> - 0.8.16-8
 - Rebuilt for RHEL 9.5
 

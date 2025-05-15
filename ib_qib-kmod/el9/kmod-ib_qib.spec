@@ -2,13 +2,13 @@
 %define kmod_name	ib_qib
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-503.11.1.el9_5}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.12.1.el9_6}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	1.11
-Release:	14%{?dist}
+Release:	15%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -200,6 +200,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed May 14 2025 Tuan Hoang <tqhoang@elrepo.org> - 1.11-15
+- Rebuilt against RHEL 9.6 GA kernel
+- Source code from kernel-5.14.0-570.12.1.el9_6
+
 * Wed Nov 27 2024 Akemi Yagi <toracat@elrepo.org> - 1.11-14
 - Add ib_qib-elrepo-bug1494.patch
   [https://elrepo.org/bugs/view.php?id=1494]

@@ -2,13 +2,13 @@
 %define kmod_name	jfs
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-503.11.1.el9_5}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.12.1.el9_6}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -79,7 +79,9 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 %patch0 -p1
 
 %build
-%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
+%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD \
+	CONFIG_JFS_FS=m CONFIG_JFS_POSIX_ACL=y \
+	EXTRA_CFLAGS='-DCONFIG_JFS_FS -DCONFIG_JFS_POSIX_ACL'
 
 whitelist="/lib/modules/kabi-current/kabi_stablelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -190,6 +192,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed May 14 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-2
+- Rebuilt against RHEL 9.6 GA kernel
+- Source code from kernel-5.14.0-570.12.1.el9_6
+
 * Sun Jan 26 2025 Philip J Perry <phil@elrepo.org> - 0.0-1
 - Initial build for RHEL 9
 - Backported from kernel-5.14.0-503.11.1.el9_5

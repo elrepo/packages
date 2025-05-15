@@ -1,0 +1,12 @@
+diff -Naurp mvsas-0.8.16.orig/mv_init.c mvsas-0.8.16/mv_init.c
+--- mvsas-0.8.16.orig/mv_init.c	2021-11-21 07:49:09.000000000 -0500
++++ mvsas-0.8.16/mv_init.c	2025-05-15 09:31:59.418421396 -0400
+@@ -35,7 +35,7 @@ static struct scsi_host_template mvs_sht
+ 	.queuecommand		= sas_queuecommand,
+ 	.dma_need_drain		= ata_scsi_dma_need_drain,
+ 	.target_alloc		= sas_target_alloc,
+-	.slave_configure	= sas_slave_configure,
++	.device_configure	= sas_device_configure,
+ 	.scan_finished		= mvs_scan_finished,
+ 	.scan_start		= mvs_scan_start,
+ 	.change_queue_depth	= sas_change_queue_depth,

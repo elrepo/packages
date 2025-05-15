@@ -1,0 +1,12 @@
+diff -Naurp isci-1.2.0.orig/init.c isci-1.2.0/init.c
+--- isci-1.2.0.orig/init.c	2025-04-04 09:12:14.000000000 -0400
++++ isci-1.2.0/init.c	2025-05-15 09:09:16.049863961 -0400
+@@ -151,7 +151,7 @@ static struct scsi_host_template isci_sh
+ 	.queuecommand			= sas_queuecommand,
+ 	.dma_need_drain			= ata_scsi_dma_need_drain,
+ 	.target_alloc			= sas_target_alloc,
+-	.slave_configure		= sas_slave_configure,
++	.device_configure		= sas_device_configure,
+ 	.scan_finished			= isci_host_scan_finished,
+ 	.scan_start			= isci_host_start,
+ 	.change_queue_depth		= sas_change_queue_depth,
