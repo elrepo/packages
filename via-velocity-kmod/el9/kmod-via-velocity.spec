@@ -2,7 +2,7 @@
 %define kmod_name	via-velocity
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.16.1.el9_6}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.12.1.el9_6}
 
 %{!?dist: %define dist .el9}
 

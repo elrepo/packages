@@ -2,7 +2,7 @@
 %define kmod_name	a2818
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.16.1.el9_6}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.12.1.el9_6}
 
 %{!?dist: %define dist .el9}
 
@@ -197,7 +197,7 @@ exit 0
 
 %changelog
 * Tue May 13 2025 Akemi Yagi <toracat@elrepo.org> - 1.26-3
-- Rebuilt against RHEL 9.6 GA kernel 5.14.0-570.16.1.el9_6
+- Rebuilt against RHEL 9.6 GA kernel 5.14.0-570.12.1.el9_6
 
 * Tue Nov 12 2024 Akemi Yagi <toracat@elrepo.org> - 1.26-2
 - Rebuilt against RHEL 9.5 GA kernel 5.14.0-503.11.1.el9_5

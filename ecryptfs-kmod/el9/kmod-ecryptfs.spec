@@ -2,7 +2,7 @@
 %define kmod_name	ecryptfs
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.16.1.el9_6}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.12.1.el9_6}
 
 %{!?dist: %define dist .el9}
 
@@ -195,7 +195,7 @@ exit 0
 
 %changelog
 * Tue May 13 2025 Akemi Yagi <toracat@elrepo.org> - 0.3-1
-- Built against RHEL 9.6 GA kernel 5.14.0-570.16.1.el9_6
+- Built against RHEL 9.6 GA kernel 5.14.0-570.12.1.el9_6
 - Source updated from RHEL 9.6 kernel
 
 * Tue Nov 12 2024 Akemi Yagi <toracat@elrepo.org> - 0.2-8
