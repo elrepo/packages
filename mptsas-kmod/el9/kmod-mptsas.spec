@@ -2,13 +2,13 @@
 %define kmod_name	mptsas
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-503.11.1.el9_5}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.12.1.el9_6}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	3.04.20
-Release:	9%{?dist}
+Release:	10%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -89,7 +89,18 @@ echo "override mptspi * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 %patch1 -p0
 
 %build
-%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
+%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD \
+	CONFIG_FUSION_SPI=m \
+	CONFIG_FUSION_FC=m \
+	CONFIG_FUSION_SAS=m \
+	CONFIG_FUSION_MAX_SGE=128 \
+	CONFIG_FUSION_CTL=m \
+	EXTRA_CFLAGS+='-DCONFIG_FUSION_SPI' \
+	EXTRA_CFLAGS+='-DCONFIG_FUSION_FC' \
+	EXTRA_CFLAGS+='-DCONFIG_FUSION_SAS' \
+	EXTRA_CFLAGS+='-DCONFIG_FUSION_MAX_SGE=128' \
+	EXTRA_CFLAGS+='-DCONFIG_FUSION_CTL' \
+
 
 whitelist="/lib/modules/kabi-current/kabi_stablelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -203,6 +214,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed May 14 2025 Tuan Hoang <tqhoang@elrepo.org> - 3.04.20-10
+- Rebuilt against RHEL 9.6 GA kernel
+- Source code from kernel-5.14.0-570.12.1.el9_6
+
 * Tue Nov 12 2024 Philip J Perry <phil@elrepo.org> - 3.04.20-9
 - Rebuilt for RHEL 9.5
 - Source updated from RHEL 9.5 GA kernel
