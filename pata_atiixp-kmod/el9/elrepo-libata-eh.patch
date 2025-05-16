@@ -1,6 +1,6 @@
---- a/libata-eh.c	2022-03-24 16:27:30.000000000 -0700
-+++ b/libata-eh.c	2022-05-16 15:40:17.936264327 -0700
-@@ -21,7 +21,7 @@
+--- a/libata-eh.c	2019-07-26 03:18:45.000000000 -0700
++++ b/libata-eh.c	2019-09-04 15:45:20.718226821 -0700
+@@ -38,7 +38,7 @@
  #include <scsi/scsi_device.h>
  #include <scsi/scsi_cmnd.h>
  #include <scsi/scsi_dbg.h>
