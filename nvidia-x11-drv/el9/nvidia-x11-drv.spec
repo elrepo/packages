@@ -7,7 +7,7 @@
 
 Name:		nvidia-x11-drv
 Version:	570.144
-Release:	1%{?dist}
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	MIT and Redistributable, no modification permitted
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -534,6 +534,9 @@ fi ||:
 %endif
 
 %changelog
+* Wed May 14 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.144-2
+- Rebuilt against RHEL 9.6 GA kernel
+
 * Sat Apr 26 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.144-1
 - Updated to version 570.144
 - Remove unnecessary gtk2 files
