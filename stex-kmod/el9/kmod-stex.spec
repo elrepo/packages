@@ -186,6 +186,7 @@ exit 0
 %changelog
 * Wed May 14 2025 Akemi Yagi <toracat@elrepo.org> - 6.02.0000.01-9
 - Rebuilt for RHEL 9.6
+- Source code from kernel-5.14.0-570.12.1.el9_6
 
 * Tue Nov 12 2024 Philip J Perry <phil@elrepo.org> - 6.02.0000.01-8
 - Rebuilt for RHEL 9.5
