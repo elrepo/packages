@@ -1,6 +1,6 @@
-diff -aurp r8126-10.015.00.orig/src/r8126.h r8126-10.015.00/src/r8126.h
---- r8126-10.015.00.orig/src/r8126.h	2025-01-16 03:54:27.000000000 -0500
-+++ r8126-10.015.00/src/r8126.h	2025-02-24 00:42:28.291933069 -0500
+diff -Naurp r8126-10.015.00.orig/src/r8126.h r8126-10.015.00/src/r8126.h
+--- r8126-10.015.00.orig/src/r8126.h	2025-05-16 19:07:30.537138079 -0400
++++ r8126-10.015.00/src/r8126.h	2025-05-16 19:07:05.150448888 -0400
 @@ -37,6 +37,7 @@
  
  //#include <linux/pci.h>
@@ -22,7 +22,7 @@ diff -aurp r8126-10.015.00.orig/src/r8126.h r8126-10.015.00/src/r8126.h
          return result;
  }
  #else
-+#if RHEL_MAJOR == 9
++#if RHEL_MAJOR == 9 && RHEL_MINOR < 6
 +static inline u32 linkmode_to_mii_eee_cap2_t(unsigned long *adv)
 +{
 +	u32 result = 0;
@@ -55,9 +55,9 @@ diff -aurp r8126-10.015.00.orig/src/r8126.h r8126-10.015.00/src/r8126.h
  #define RTL_NAPI_CONFIG(ndev, priv, function, weight)   netif_napi_add_weight(ndev, &priv->napi, function, weight)
  #else
  #define RTL_NAPI_CONFIG(ndev, priv, function, weight)   netif_napi_add(ndev, &priv->napi, function, weight)
-diff -aurp r8126-10.015.00.orig/src/r8126_n.c r8126-10.015.00/src/r8126_n.c
---- r8126-10.015.00.orig/src/r8126_n.c	2025-01-16 03:45:49.000000000 -0500
-+++ r8126-10.015.00/src/r8126_n.c	2025-02-24 00:52:42.167479667 -0500
+diff -Naurp r8126-10.015.00.orig/src/r8126_n.c r8126-10.015.00/src/r8126_n.c
+--- r8126-10.015.00.orig/src/r8126_n.c	2025-05-16 19:07:30.543138006 -0400
++++ r8126-10.015.00/src/r8126_n.c	2025-05-16 19:07:05.152448864 -0400
 @@ -2740,7 +2740,7 @@ static void rtl8126_proc_module_init(voi
  static int rtl8126_proc_open(struct inode *inode, struct file *file)
  {
@@ -112,9 +112,9 @@ diff -aurp r8126-10.015.00.orig/src/r8126_n.c r8126-10.015.00/src/r8126_n.c
                  netif_set_tso_max_size(dev, LSO_64K);
                  netif_set_tso_max_segs(dev, NIC_MAX_PHYS_BUF_COUNT_LSO2);
  #else //LINUX_VERSION_CODE >= KERNEL_VERSION(5,19,0)
-diff -aurp r8126-10.015.00.orig/src/r8126_ptp.c r8126-10.015.00/src/r8126_ptp.c
---- r8126-10.015.00.orig/src/r8126_ptp.c	2025-01-15 09:48:21.000000000 -0500
-+++ r8126-10.015.00/src/r8126_ptp.c	2025-02-24 00:55:08.050029439 -0500
+diff -Naurp r8126-10.015.00.orig/src/r8126_ptp.c r8126-10.015.00/src/r8126_ptp.c
+--- r8126-10.015.00.orig/src/r8126_ptp.c	2025-05-16 19:07:30.543138006 -0400
++++ r8126-10.015.00/src/r8126_ptp.c	2025-05-16 19:08:27.896435814 -0400
 @@ -222,7 +222,7 @@ static int _rtl8126_phc_adjfreq(struct p
          return 0;
  }
@@ -124,7 +124,21 @@ diff -aurp r8126-10.015.00.orig/src/r8126_ptp.c r8126-10.015.00/src/r8126_ptp.c
  static int rtl8126_ptp_adjfine(struct ptp_clock_info *ptp, long scaled_ppm)
  {
          s32 ppb = scaled_ppm_to_ppb(scaled_ppm);
-@@ -399,7 +399,7 @@ static const struct ptp_clock_info rtl_p
+@@ -356,8 +356,13 @@ static void rtl8126_ptp_enable_config(st
+         rtl8126_set_eth_phy_ocp_bit(tp, 0xA640, BIT_15);
+ }
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,11,0) || (RHEL_MAJOR == 9 && RHEL_MINOR >= 6)
++int rtl8126_get_ts_info(struct net_device *netdev,
++                        struct kernel_ethtool_ts_info *info)
++#else
+ int rtl8126_get_ts_info(struct net_device *netdev,
+                         struct ethtool_ts_info *info)
++#endif
+ {
+         struct rtl8126_private *tp = netdev_priv(netdev);
+ 
+@@ -399,7 +404,7 @@ static const struct ptp_clock_info rtl_p
          .n_per_out  = 0,
          .n_pins     = 0,
          .pps        = 1,
@@ -133,9 +147,26 @@ diff -aurp r8126-10.015.00.orig/src/r8126_ptp.c r8126-10.015.00/src/r8126_ptp.c
          .adjfine   = rtl8126_ptp_adjfine,
  #else
          .adjfreq    = rtl8126_phc_adjfreq,
-diff -aurp r8126-10.015.00.orig/src/r8126_rss.c r8126-10.015.00/src/r8126_rss.c
---- r8126-10.015.00.orig/src/r8126_rss.c	2025-01-15 09:48:21.000000000 -0500
-+++ r8126-10.015.00/src/r8126_rss.c	2025-02-24 00:55:52.766042872 -0500
+diff -Naurp r8126-10.015.00.orig/src/r8126_ptp.h r8126-10.015.00/src/r8126_ptp.h
+--- r8126-10.015.00.orig/src/r8126_ptp.h	2025-01-15 09:48:21.000000000 -0500
++++ r8126-10.015.00/src/r8126_ptp.h	2025-05-16 19:08:47.727193024 -0400
+@@ -185,8 +185,13 @@ static inline u8 ptp_get_msgtype(const s
+ struct rtl8126_private;
+ struct RxDescV3;
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,11,0) || (RHEL_MAJOR == 9 && RHEL_MINOR >= 6)
++int rtl8126_get_ts_info(struct net_device *netdev,
++                        struct kernel_ethtool_ts_info *info);
++#else
+ int rtl8126_get_ts_info(struct net_device *netdev,
+                         struct ethtool_ts_info *info);
++#endif
+ 
+ void rtl8126_ptp_reset(struct rtl8126_private *tp);
+ void rtl8126_ptp_init(struct rtl8126_private *tp);
+diff -Naurp r8126-10.015.00.orig/src/r8126_rss.c r8126-10.015.00/src/r8126_rss.c
+--- r8126-10.015.00.orig/src/r8126_rss.c	2025-05-16 19:07:30.544137993 -0400
++++ r8126-10.015.00/src/r8126_rss.c	2025-05-16 19:07:05.153448852 -0400
 @@ -354,7 +354,7 @@ static void rtl8126_store_rss_key(struct
                  RTL_W32(tp, rss_key_reg + i, *rss_key++);
  }
@@ -145,9 +176,9 @@ diff -aurp r8126-10.015.00.orig/src/r8126_rss.c r8126-10.015.00/src/r8126_rss.c
  int rtl8126_get_rxfh(struct net_device *dev, struct ethtool_rxfh_param *rxfh)
  {
          struct rtl8126_private *tp = netdev_priv(dev);
-diff -aurp r8126-10.015.00.orig/src/r8126_rss.h r8126-10.015.00/src/r8126_rss.h
---- r8126-10.015.00.orig/src/r8126_rss.h	2025-01-15 09:48:21.000000000 -0500
-+++ r8126-10.015.00/src/r8126_rss.h	2025-02-24 00:56:35.453964989 -0500
+diff -Naurp r8126-10.015.00.orig/src/r8126_rss.h r8126-10.015.00/src/r8126_rss.h
+--- r8126-10.015.00.orig/src/r8126_rss.h	2025-05-16 19:07:30.544137993 -0400
++++ r8126-10.015.00/src/r8126_rss.h	2025-05-16 19:07:05.153448852 -0400
 @@ -54,7 +54,7 @@ int rtl8126_get_rxnfc(struct net_device
  int rtl8126_set_rxnfc(struct net_device *dev, struct ethtool_rxnfc *cmd);
  u32 rtl8126_get_rxfh_key_size(struct net_device *netdev);

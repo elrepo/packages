@@ -1,6 +1,6 @@
 diff -Naurp r8127-11.014.00.orig/src/r8127.h r8127-11.014.00/src/r8127.h
---- r8127-11.014.00.orig/src/r8127.h	2025-03-28 10:04:19.000000000 -0400
-+++ r8127-11.014.00/src/r8127.h	2025-04-29 12:55:30.551400854 -0400
+--- r8127-11.014.00.orig/src/r8127.h	2025-05-16 19:34:09.228564930 -0400
++++ r8127-11.014.00/src/r8127.h	2025-05-16 19:33:45.783851968 -0400
 @@ -37,6 +37,7 @@
  
  //#include <linux/pci.h>
@@ -22,7 +22,7 @@ diff -Naurp r8127-11.014.00.orig/src/r8127.h r8127-11.014.00/src/r8127.h
          return result;
  }
  #else
-+#if RHEL_MAJOR == 9
++#if RHEL_MAJOR == 9 && RHEL_MINOR < 6
 +static inline u32 linkmode_to_mii_eee_cap2_t(unsigned long *adv)
 +{
 +	u32 result = 0;
@@ -56,8 +56,8 @@ diff -Naurp r8127-11.014.00.orig/src/r8127.h r8127-11.014.00/src/r8127.h
  #else
  #define RTL_NAPI_CONFIG(ndev, priv, function, weight)   netif_napi_add(ndev, &priv->napi, function, weight)
 diff -Naurp r8127-11.014.00.orig/src/r8127_n.c r8127-11.014.00/src/r8127_n.c
---- r8127-11.014.00.orig/src/r8127_n.c	2025-03-28 10:04:19.000000000 -0400
-+++ r8127-11.014.00/src/r8127_n.c	2025-04-29 12:55:30.552400927 -0400
+--- r8127-11.014.00.orig/src/r8127_n.c	2025-05-16 19:34:09.319563816 -0400
++++ r8127-11.014.00/src/r8127_n.c	2025-05-16 19:33:45.785851943 -0400
 @@ -2736,7 +2736,7 @@ static void rtl8127_proc_module_init(voi
  static int rtl8127_proc_open(struct inode *inode, struct file *file)
  {
@@ -113,8 +113,8 @@ diff -Naurp r8127-11.014.00.orig/src/r8127_n.c r8127-11.014.00/src/r8127_n.c
                  netif_set_tso_max_segs(dev, NIC_MAX_PHYS_BUF_COUNT_LSO2);
  #else //LINUX_VERSION_CODE >= KERNEL_VERSION(5,19,0)
 diff -Naurp r8127-11.014.00.orig/src/r8127_ptp.c r8127-11.014.00/src/r8127_ptp.c
---- r8127-11.014.00.orig/src/r8127_ptp.c	2025-03-28 10:04:19.000000000 -0400
-+++ r8127-11.014.00/src/r8127_ptp.c	2025-04-29 12:55:30.553401001 -0400
+--- r8127-11.014.00.orig/src/r8127_ptp.c	2025-05-16 19:34:09.330563682 -0400
++++ r8127-11.014.00/src/r8127_ptp.c	2025-05-16 19:35:32.883540718 -0400
 @@ -222,7 +222,7 @@ static int _rtl8127_phc_adjfreq(struct p
          return 0;
  }
@@ -124,7 +124,21 @@ diff -Naurp r8127-11.014.00.orig/src/r8127_ptp.c r8127-11.014.00/src/r8127_ptp.c
  static int rtl8127_ptp_adjfine(struct ptp_clock_info *ptp, long scaled_ppm)
  {
          s32 ppb = scaled_ppm_to_ppb(scaled_ppm);
-@@ -399,7 +399,7 @@ static const struct ptp_clock_info rtl_p
+@@ -356,8 +356,13 @@ static void rtl8127_ptp_enable_config(st
+         rtl8127_set_eth_phy_ocp_bit(tp, 0xA640, BIT_15);
+ }
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,11,0) || (RHEL_MAJOR == 9 && RHEL_MINOR >= 6)
++int rtl8127_get_ts_info(struct net_device *netdev,
++                        struct kernel_ethtool_ts_info *info)
++#else
+ int rtl8127_get_ts_info(struct net_device *netdev,
+                         struct ethtool_ts_info *info)
++#endif
+ {
+         struct rtl8127_private *tp = netdev_priv(netdev);
+ 
+@@ -399,7 +404,7 @@ static const struct ptp_clock_info rtl_p
          .n_per_out  = 0,
          .n_pins     = 0,
          .pps        = 1,
@@ -133,9 +147,26 @@ diff -Naurp r8127-11.014.00.orig/src/r8127_ptp.c r8127-11.014.00/src/r8127_ptp.c
          .adjfine   = rtl8127_ptp_adjfine,
  #else
          .adjfreq    = rtl8127_phc_adjfreq,
+diff -Naurp r8127-11.014.00.orig/src/r8127_ptp.h r8127-11.014.00/src/r8127_ptp.h
+--- r8127-11.014.00.orig/src/r8127_ptp.h	2025-03-28 10:04:19.000000000 -0400
++++ r8127-11.014.00/src/r8127_ptp.h	2025-05-16 19:35:56.851247285 -0400
+@@ -185,8 +185,13 @@ static inline u8 ptp_get_msgtype(const s
+ struct rtl8127_private;
+ struct RxDescV3;
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,11,0) || (RHEL_MAJOR == 9 && RHEL_MINOR >= 6)
++int rtl8127_get_ts_info(struct net_device *netdev,
++                        struct kernel_ethtool_ts_info *info);
++#else
+ int rtl8127_get_ts_info(struct net_device *netdev,
+                         struct ethtool_ts_info *info);
++#endif
+ 
+ void rtl8127_ptp_reset(struct rtl8127_private *tp);
+ void rtl8127_ptp_init(struct rtl8127_private *tp);
 diff -Naurp r8127-11.014.00.orig/src/r8127_rss.c r8127-11.014.00/src/r8127_rss.c
---- r8127-11.014.00.orig/src/r8127_rss.c	2025-03-28 10:04:19.000000000 -0400
-+++ r8127-11.014.00/src/r8127_rss.c	2025-04-29 12:55:30.553401001 -0400
+--- r8127-11.014.00.orig/src/r8127_rss.c	2025-05-16 19:34:09.330563682 -0400
++++ r8127-11.014.00/src/r8127_rss.c	2025-05-16 19:33:45.786851931 -0400
 @@ -354,7 +354,7 @@ static void rtl8127_store_rss_key(struct
                  RTL_W32(tp, rss_key_reg + i, *rss_key++);
  }
@@ -146,8 +177,8 @@ diff -Naurp r8127-11.014.00.orig/src/r8127_rss.c r8127-11.014.00/src/r8127_rss.c
  {
          struct rtl8127_private *tp = netdev_priv(dev);
 diff -Naurp r8127-11.014.00.orig/src/r8127_rss.h r8127-11.014.00/src/r8127_rss.h
---- r8127-11.014.00.orig/src/r8127_rss.h	2025-03-28 10:04:19.000000000 -0400
-+++ r8127-11.014.00/src/r8127_rss.h	2025-04-29 12:55:30.553401001 -0400
+--- r8127-11.014.00.orig/src/r8127_rss.h	2025-05-16 19:34:09.335563620 -0400
++++ r8127-11.014.00/src/r8127_rss.h	2025-05-16 19:33:45.786851931 -0400
 @@ -54,7 +54,7 @@ int rtl8127_get_rxnfc(struct net_device
  int rtl8127_set_rxnfc(struct net_device *dev, struct ethtool_rxnfc *cmd);
  u32 rtl8127_get_rxfh_key_size(struct net_device *netdev);
