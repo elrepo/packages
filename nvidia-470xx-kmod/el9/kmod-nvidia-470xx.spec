@@ -2,13 +2,13 @@
 %define kmod_name	nvidia-470xx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-503.11.1.el9_5}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.12.1.el9_6}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	470.256.02
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -18,6 +18,9 @@ URL:		http://www.nvidia.com/
 Source0:  https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 Source1:  blacklist-nouveau.conf
 Source2:  dracut-nvidia.conf
+
+# Source code patches
+Patch0:   nvidia-470xx-buildfix-el9_6.conf
 
 %if %{?_with_src:0}%{!?_with_src:1}
 NoSource: 0
@@ -82,6 +85,7 @@ echo "override nvidia-modeset * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.
 echo "override nvidia-peermem * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 echo "override nvidia-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 sh %{SOURCE0} --extract-only --target nvidiapkg
+%patch0 -p1
 %{__cp} -a nvidiapkg _kmod_build_
 
 %build
@@ -232,6 +236,9 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Wed May 14 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-3
+- Rebuilt against RHEL 9.6 GA kernel
+
 * Tue Nov 12 2024 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-2
 - Rebuilt against RHEL 9.5 GA kernel
 
