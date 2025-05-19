@@ -2,13 +2,13 @@
 %define kmod_name	ecryptfs
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-55.7.1.el10_0}
+%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-55.11.1.el10_0}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	0.2
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -188,6 +188,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon May 19 2025 Akemi Yagi <toracat@elrepo.org> - 0.2-2
+- Rebuilt against the RHEL 10 GA kernel 6.12.0-55.11.1.el10_0
+- Source code unchanged from 6.12.0-55.7.1.el10_0
+
 * Tue Apr 29 2025 Akemi Yagi <toracat@elrepo.org> - 0.2-1
 - Initial build for RHEL 10
 - Source code from kernel-6.12.0-55.7.1.el10_0 
