@@ -1,0 +1,39 @@
+diff -Naurp kmod-rr64xl-1.5.8.orig/osm/linux/osm_linux.c kmod-rr64xl-1.5.8/osm/linux/osm_linux.c
+--- kmod-rr64xl-1.5.8.orig/osm/linux/osm_linux.c	2022-04-15 02:54:13.000000000 -0400
++++ kmod-rr64xl-1.5.8/osm/linux/osm_linux.c	2025-05-19 08:32:53.496103151 -0400
+@@ -1796,13 +1796,20 @@ static DEF_SCSI_QCMD(hpt_queuecommand)
+ #endif
+ 
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0) /* 2.666666.x */
++#if RHEL_MAJOR == 9 && RHEL_MINOR >= 6
++static int hpt_device_config(struct scsi_device *sdev,
++		struct queue_limits *lim)
++#else
+ static int hpt_slave_config(struct scsi_device *sdev)
++#endif
+ {
+ 	struct request_queue *q = sdev->request_queue;
+ 	if (sdev->type == TYPE_TAPE) {
+ #if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,31)
+ 		blk_queue_max_sectors(q, 8192);
+-#else 
++#elif RHEL_MAJOR == 9 && RHEL_MINOR >= 6
++		lim->max_hw_sectors = 8192;
++#else
+ 		blk_queue_max_hw_sectors(q, 8192);
+ #endif
+ 
+@@ -2755,8 +2762,13 @@ static Scsi_Host_Template driver_templat
+ 	max_sectors:             128,
+ #endif
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0) /* 2.666666.x */
++#if RHEL_MAJOR == 9 && RHEL_MINOR >= 6
++	device_configure:       hpt_device_config,
++
++#else
+ 	slave_configure:        hpt_slave_config,
+ #endif
++#endif
+ 	this_id:                 -1,
+ 	module:			THIS_MODULE
+ };

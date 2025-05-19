@@ -3,13 +3,13 @@
 %define extid 22_06_10
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-503.11.1.el9_5}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.12.1.el9_6}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	1.5.8
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	HighPoint
@@ -24,6 +24,7 @@ Patch1:		elrepo-%{kmod_name}-atomic-bd_openers.el9_1.patch
 Patch2:		elrepo-%{kmod_name}-virt_to_bus.el9_3.patch
 Patch3:		elrepo-%{kmod_name}-blkdev_get_by_dev.el9_4.patch
 Patch4:		elrepo-%{kmod_name}-bdev_file_open_by_dev.el9_5.patch
+Patch5:		elrepo-%{kmod_name}-blk_queue_max_hw_sectors.el9_6.patch
 
 %define __spec_install_post \
 		/usr/lib/rpm/check-buildroot \
@@ -87,6 +88,7 @@ echo "override rr640l * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 
 %build
 pushd product/%{kmod_name}/linux >/dev/null
@@ -202,6 +204,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed May 14 2025 Tuan Hoang <tqhoang@elrepo.org> - 1.5.8-3
+- Rebuilt against RHEL 9.6 GA kernel
+- Add blk_queue_max_hw_sectors patch for RHEL 9.6
+
 * Wed Nov 13 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.5.8-2
 - Add bdev_file_open_by_dev patch for RHEL 9.5
 - Rebuilt against RHEL 9.5 GA kernel
