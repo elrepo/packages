@@ -3,7 +3,7 @@
 # Makefile for the Linux hfs filesystem routines.
 #
 
-obj-m += hfs.o
+obj-$(CONFIG_HFS_FS) += hfs.o
 
 hfs-objs := bitmap.o bfind.o bnode.o brec.o btree.o \
 	    catalog.o dir.o extent.o inode.o attr.o mdb.o \
