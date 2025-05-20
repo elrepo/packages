@@ -19,7 +19,7 @@ More verbose output is availabe using the verbose (-v) switch, for example:
 $ nvidia-detect -v
 Probing for supported NVIDIA devices...
 [10de:1d01] NVIDIA Corporation GP108 [GeForce GT 1030]
-This device requires the current 570.144 NVIDIA driver kmod-nvidia
+This device requires the current 570.153.02 NVIDIA driver kmod-nvidia
 
 $ nvidia-detect -v
 Probing for supported NVIDIA devices...
@@ -62,8 +62,8 @@ ABI compatibility check passed
 nvidia-detect may be run from within a script and will return the following codes:
 
  0: No supported devices found
- 1: Device supported by the current 570.144 NVIDIA open driver
- 2: Device supported by the current 570.144 NVIDIA driver
+ 1: Device supported by the current 570.153.02 NVIDIA open driver
+ 2: Device supported by the current 570.153.02 NVIDIA driver
  3: Device supported by the legacy  71.xx NVIDIA driver
  4: Device supported by the legacy  96.xx NVIDIA driver
  5: Device supported by the legacy 173.xx NVIDIA driver
@@ -74,6 +74,6 @@ nvidia-detect may be run from within a script and will return the following code
 10: Device supported by the legacy 470.xx NVIDIA driver
 
 For a full list of supported devices, see:
-https://download.nvidia.com/XFree86/Linux-x86_64/570.144/README/supportedchips.html
+https://download.nvidia.com/XFree86/Linux-x86_64/570.153.02/README/supportedchips.html
 
 Bugs should be reported at http://elrepo.org/bugs

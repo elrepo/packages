@@ -1,12 +1,12 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# https://download.nvidia.com/XFree86/Linux-x86_64/570.144/README/minimumrequirements.html
+# https://download.nvidia.com/XFree86/Linux-x86_64/570.153.02/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 %define		debug_package	%{nil}
 
 Name:		nvidia-x11-drv
-Version:	570.144
+Version:	570.153.02
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	MIT and Redistributable, no modification permitted
@@ -210,8 +210,8 @@ pushd 32
 %endif
 %{__install} -p -m 0755 libnvidia-eglcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-egl-gbm.so.1.1.2 $RPM_BUILD_ROOT%{_libdir}/
-%{__install} -p -m 0755 libnvidia-egl-xcb.so.1.0.1 $RPM_BUILD_ROOT%{_libdir}/
-%{__install} -p -m 0755 libnvidia-egl-xlib.so.1.0.1 $RPM_BUILD_ROOT%{_libdir}/
+%{__install} -p -m 0755 libnvidia-egl-xcb.so.1.0.2 $RPM_BUILD_ROOT%{_libdir}/
+%{__install} -p -m 0755 libnvidia-egl-xlib.so.1.0.2 $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-fbc.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-glcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
@@ -534,6 +534,9 @@ fi ||:
 %endif
 
 %changelog
+* Tue May 20 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.153.02-1
+- Updated to version 570.153.02
+
 * Sat Apr 26 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.144-1
 - Updated to version 570.144
 - Remove unnecessary gtk2 files
