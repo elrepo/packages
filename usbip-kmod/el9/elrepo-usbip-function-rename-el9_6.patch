@@ -1,0 +1,1146 @@
+diff -Naurp usbip-0.0.orig/stub_dev.c usbip-0.0/stub_dev.c
+--- usbip-0.0.orig/stub_dev.c	2025-04-29 16:09:13.000000000 -0400
++++ usbip-0.0/stub_dev.c	2025-05-20 00:00:38.153514846 -0400
+@@ -126,7 +126,7 @@ static ssize_t usbip_sockfd_store(struct
+ 
+ 		spin_unlock_irq(&sdev->ud.lock);
+ 
+-		usbip_event_add(&sdev->ud, SDEV_EVENT_DOWN);
++		elrepo_usbip_event_add(&sdev->ud, SDEV_EVENT_DOWN);
+ 		mutex_unlock(&sdev->ud.sysfs_lock);
+ 	}
+ 
+@@ -145,7 +145,7 @@ static DEVICE_ATTR_WO(usbip_sockfd);
+ static struct attribute *usbip_attrs[] = {
+ 	&dev_attr_usbip_status.attr,
+ 	&dev_attr_usbip_sockfd.attr,
+-	&dev_attr_usbip_debug.attr,
++	&elrepo_dev_attr_usbip_debug.attr,
+ 	NULL,
+ };
+ ATTRIBUTE_GROUPS(usbip);
+@@ -295,7 +295,7 @@ static struct stub_device *stub_device_a
+ 	sdev->ud.eh_ops.reset    = stub_device_reset;
+ 	sdev->ud.eh_ops.unusable = stub_device_unusable;
+ 
+-	usbip_start_eh(&sdev->ud);
++	elrepo_usbip_start_eh(&sdev->ud);
+ 
+ 	dev_dbg(&udev->dev, "register new device\n");
+ 
+@@ -417,10 +417,10 @@ sdev_free:
+ 
+ static void shutdown_busid(struct bus_id_priv *busid_priv)
+ {
+-	usbip_event_add(&busid_priv->sdev->ud, SDEV_EVENT_REMOVED);
++	elrepo_usbip_event_add(&busid_priv->sdev->ud, SDEV_EVENT_REMOVED);
+ 
+ 	/* wait for the stop of the event handler */
+-	usbip_stop_eh(&busid_priv->sdev->ud);
++	elrepo_usbip_stop_eh(&busid_priv->sdev->ud);
+ }
+ 
+ /*
+@@ -475,7 +475,7 @@ static void stub_disconnect(struct usb_d
+ 	}
+ 
+ 	/* If usb reset is called from event handler */
+-	if (usbip_in_eh(current))
++	if (elrepo_usbip_in_eh(current))
+ 		return;
+ 
+ 	/* we already have busid_priv, just lock busid_lock */
+diff -Naurp usbip-0.0.orig/stub_rx.c usbip-0.0/stub_rx.c
+--- usbip-0.0.orig/stub_rx.c	2025-04-29 16:09:13.000000000 -0400
++++ usbip-0.0/stub_rx.c	2025-05-19 23:59:10.082593224 -0400
+@@ -315,7 +315,7 @@ static struct stub_priv *stub_priv_alloc
+ 	if (!priv) {
+ 		dev_err(&sdev->udev->dev, "alloc stub_priv\n");
+ 		spin_unlock_irqrestore(&sdev->priv_lock, flags);
+-		usbip_event_add(ud, SDEV_EVENT_ERROR_MALLOC);
++		elrepo_usbip_event_add(ud, SDEV_EVENT_ERROR_MALLOC);
+ 		return NULL;
+ 	}
+ 
+@@ -453,7 +453,7 @@ static int stub_recv_xbuff(struct usbip_
+ 	int i;
+ 
+ 	for (i = 0; i < priv->num_urbs; i++) {
+-		ret = usbip_recv_xbuff(ud, priv->urbs[i]);
++		ret = elrepo_usbip_recv_xbuff(ud, priv->urbs[i]);
+ 		if (ret < 0)
+ 			break;
+ 	}
+@@ -562,11 +562,11 @@ static void stub_recv_cmd_submit(struct
+ 		priv->urbs[0]->setup_packet = kmemdup(&pdu->u.cmd_submit.setup,
+ 					8, GFP_KERNEL);
+ 		if (!priv->urbs[0]->setup_packet) {
+-			usbip_event_add(ud, SDEV_EVENT_ERROR_MALLOC);
++			elrepo_usbip_event_add(ud, SDEV_EVENT_ERROR_MALLOC);
+ 			return;
+ 		}
+ 
+-		usbip_pack_pdu(pdu, priv->urbs[0], USBIP_CMD_SUBMIT, 0);
++		elrepo_usbip_pack_pdu(pdu, priv->urbs[0], USBIP_CMD_SUBMIT, 0);
+ 	} else {
+ 		for_each_sg(sgl, sg, nents, i) {
+ 			priv->urbs[i] = usb_alloc_urb(0, GFP_KERNEL);
+@@ -576,7 +576,7 @@ static void stub_recv_cmd_submit(struct
+ 			if (!priv->urbs[i])
+ 				goto err_urb;
+ 
+-			usbip_pack_pdu(pdu, priv->urbs[i], USBIP_CMD_SUBMIT, 0);
++			elrepo_usbip_pack_pdu(pdu, priv->urbs[i], USBIP_CMD_SUBMIT, 0);
+ 			priv->urbs[i]->transfer_buffer = sg_virt(sg);
+ 			priv->urbs[i]->transfer_buffer_length = sg->length;
+ 		}
+@@ -602,7 +602,7 @@ static void stub_recv_cmd_submit(struct
+ 	if (stub_recv_xbuff(ud, priv) < 0)
+ 		return;
+ 
+-	if (usbip_recv_iso(ud, priv->urbs[0]) < 0)
++	if (elrepo_usbip_recv_iso(ud, priv->urbs[0]) < 0)
+ 		return;
+ 
+ 	/* urb is now ready to submit */
+@@ -615,14 +615,14 @@ static void stub_recv_cmd_submit(struct
+ 						pdu->base.seqnum);
+ 			else {
+ 				dev_err(&udev->dev, "submit_urb error, %d\n", ret);
+-				usbip_dump_header(pdu);
+-				usbip_dump_urb(priv->urbs[i]);
++				elrepo_usbip_dump_header(pdu);
++				elrepo_usbip_dump_urb(priv->urbs[i]);
+ 
+ 				/*
+ 				 * Pessimistic.
+ 				 * This connection will be discarded.
+ 				 */
+-				usbip_event_add(ud, SDEV_EVENT_ERROR_SUBMIT);
++				elrepo_usbip_event_add(ud, SDEV_EVENT_ERROR_SUBMIT);
+ 				break;
+ 			}
+ 		} else {
+@@ -645,7 +645,7 @@ err_urbs:
+ 	kfree(buffer);
+ 	sgl_free(sgl);
+ err_malloc:
+-	usbip_event_add(ud, SDEV_EVENT_ERROR_MALLOC);
++	elrepo_usbip_event_add(ud, SDEV_EVENT_ERROR_MALLOC);
+ }
+ 
+ /* recv a pdu */
+@@ -661,21 +661,21 @@ static void stub_rx_pdu(struct usbip_dev
+ 	memset(&pdu, 0, sizeof(pdu));
+ 
+ 	/* receive a pdu header */
+-	ret = usbip_recv(ud->tcp_socket, &pdu, sizeof(pdu));
++	ret = elrepo_usbip_recv(ud->tcp_socket, &pdu, sizeof(pdu));
+ 	if (ret != sizeof(pdu)) {
+ 		dev_err(dev, "recv a header, %d\n", ret);
+-		usbip_event_add(ud, SDEV_EVENT_ERROR_TCP);
++		elrepo_usbip_event_add(ud, SDEV_EVENT_ERROR_TCP);
+ 		return;
+ 	}
+ 
+-	usbip_header_correct_endian(&pdu, 0);
++	elrepo_usbip_header_correct_endian(&pdu, 0);
+ 
+ 	if (usbip_dbg_flag_stub_rx)
+-		usbip_dump_header(&pdu);
++		elrepo_usbip_dump_header(&pdu);
+ 
+ 	if (!valid_request(sdev, &pdu)) {
+ 		dev_err(dev, "recv invalid request\n");
+-		usbip_event_add(ud, SDEV_EVENT_ERROR_TCP);
++		elrepo_usbip_event_add(ud, SDEV_EVENT_ERROR_TCP);
+ 		return;
+ 	}
+ 
+@@ -691,7 +691,7 @@ static void stub_rx_pdu(struct usbip_dev
+ 	default:
+ 		/* NOTREACHED */
+ 		dev_err(dev, "unknown pdu\n");
+-		usbip_event_add(ud, SDEV_EVENT_ERROR_TCP);
++		elrepo_usbip_event_add(ud, SDEV_EVENT_ERROR_TCP);
+ 		break;
+ 	}
+ }
+@@ -701,7 +701,7 @@ int stub_rx_loop(void *data)
+ 	struct usbip_device *ud = data;
+ 
+ 	while (!kthread_should_stop()) {
+-		if (usbip_event_happened(ud))
++		if (elrepo_usbip_event_happened(ud))
+ 			break;
+ 
+ 		stub_rx_pdu(ud);
+diff -Naurp usbip-0.0.orig/stub_tx.c usbip-0.0/stub_tx.c
+--- usbip-0.0.orig/stub_tx.c	2025-04-29 16:09:13.000000000 -0400
++++ usbip-0.0/stub_tx.c	2025-05-19 23:54:37.365932532 -0400
+@@ -18,7 +18,7 @@ void stub_enqueue_ret_unlink(struct stub
+ 
+ 	unlink = kzalloc(sizeof(struct stub_unlink), GFP_ATOMIC);
+ 	if (!unlink) {
+-		usbip_event_add(&sdev->ud, VDEV_EVENT_ERROR_MALLOC);
++		elrepo_usbip_event_add(&sdev->ud, VDEV_EVENT_ERROR_MALLOC);
+ 		return;
+ 	}
+ 
+@@ -119,7 +119,7 @@ static void setup_ret_submit_pdu(struct
+ 	struct stub_priv *priv = (struct stub_priv *) urb->context;
+ 
+ 	setup_base_pdu(&rpdu->base, USBIP_RET_SUBMIT, priv->seqnum);
+-	usbip_pack_pdu(rpdu, urb, USBIP_RET_SUBMIT, 1);
++	elrepo_usbip_pack_pdu(rpdu, urb, USBIP_RET_SUBMIT, 1);
+ }
+ 
+ static void setup_ret_unlink_pdu(struct usbip_header *rpdu,
+@@ -193,7 +193,7 @@ static int stub_send_ret_submit(struct s
+ 		iov = kcalloc(iovnum, sizeof(struct kvec), GFP_KERNEL);
+ 
+ 		if (!iov) {
+-			usbip_event_add(&sdev->ud, SDEV_EVENT_ERROR_MALLOC);
++			elrepo_usbip_event_add(&sdev->ud, SDEV_EVENT_ERROR_MALLOC);
+ 			return -1;
+ 		}
+ 
+@@ -212,7 +212,7 @@ static int stub_send_ret_submit(struct s
+ 			pdu_header.u.ret_submit.actual_length = actual_length;
+ 		}
+ 
+-		usbip_header_correct_endian(&pdu_header, 1);
++		elrepo_usbip_header_correct_endian(&pdu_header, 1);
+ 
+ 		iov[iovnum].iov_base = &pdu_header;
+ 		iov[iovnum].iov_len  = sizeof(pdu_header);
+@@ -289,7 +289,7 @@ static int stub_send_ret_submit(struct s
+ 					urb->actual_length,
+ 					txsize-sizeof(pdu_header));
+ 				kfree(iov);
+-				usbip_event_add(&sdev->ud,
++				elrepo_usbip_event_add(&sdev->ud,
+ 						SDEV_EVENT_ERROR_TCP);
+ 				return -1;
+ 			}
+@@ -299,9 +299,9 @@ static int stub_send_ret_submit(struct s
+ 		if (usb_pipetype(urb->pipe) == PIPE_ISOCHRONOUS) {
+ 			ssize_t len = 0;
+ 
+-			iso_buffer = usbip_alloc_iso_desc_pdu(urb, &len);
++			iso_buffer = elrepo_usbip_alloc_iso_desc_pdu(urb, &len);
+ 			if (!iso_buffer) {
+-				usbip_event_add(&sdev->ud,
++				elrepo_usbip_event_add(&sdev->ud,
+ 						SDEV_EVENT_ERROR_MALLOC);
+ 				kfree(iov);
+ 				return -1;
+@@ -321,7 +321,7 @@ static int stub_send_ret_submit(struct s
+ 				ret, txsize);
+ 			kfree(iov);
+ 			kfree(iso_buffer);
+-			usbip_event_add(&sdev->ud, SDEV_EVENT_ERROR_TCP);
++			elrepo_usbip_event_add(&sdev->ud, SDEV_EVENT_ERROR_TCP);
+ 			return -1;
+ 		}
+ 
+@@ -382,7 +382,7 @@ static int stub_send_ret_unlink(struct s
+ 
+ 		/* 1. setup usbip_header */
+ 		setup_ret_unlink_pdu(&pdu_header, unlink);
+-		usbip_header_correct_endian(&pdu_header, 1);
++		elrepo_usbip_header_correct_endian(&pdu_header, 1);
+ 
+ 		iov[0].iov_base = &pdu_header;
+ 		iov[0].iov_len  = sizeof(pdu_header);
+@@ -394,7 +394,7 @@ static int stub_send_ret_unlink(struct s
+ 			dev_err(&sdev->udev->dev,
+ 				"sendmsg failed!, retval %d for %zd\n",
+ 				ret, txsize);
+-			usbip_event_add(&sdev->ud, SDEV_EVENT_ERROR_TCP);
++			elrepo_usbip_event_add(&sdev->ud, SDEV_EVENT_ERROR_TCP);
+ 			return -1;
+ 		}
+ 
+@@ -420,7 +420,7 @@ int stub_tx_loop(void *data)
+ 	struct stub_device *sdev = container_of(ud, struct stub_device, ud);
+ 
+ 	while (!kthread_should_stop()) {
+-		if (usbip_event_happened(ud))
++		if (elrepo_usbip_event_happened(ud))
+ 			break;
+ 
+ 		/*
+diff -Naurp usbip-0.0.orig/usbip_common.c usbip-0.0/usbip_common.c
+--- usbip-0.0.orig/usbip_common.c	2025-04-29 16:09:13.000000000 -0400
++++ usbip-0.0/usbip_common.c	2025-05-19 23:59:13.992545348 -0400
+@@ -21,29 +21,29 @@
+ #define DRIVER_DESC "USB/IP Core"
+ 
+ #ifdef CONFIG_USBIP_DEBUG
+-unsigned long usbip_debug_flag = 0xffffffff;
++unsigned long elrepo_usbip_debug_flag = 0xffffffff;
+ #else
+-unsigned long usbip_debug_flag;
++unsigned long elrepo_usbip_debug_flag;
+ #endif
+-EXPORT_SYMBOL_GPL(usbip_debug_flag);
+-module_param(usbip_debug_flag, ulong, S_IRUGO|S_IWUSR);
+-MODULE_PARM_DESC(usbip_debug_flag, "debug flags (defined in usbip_common.h)");
++EXPORT_SYMBOL_GPL(elrepo_usbip_debug_flag);
++module_param(elrepo_usbip_debug_flag, ulong, S_IRUGO|S_IWUSR);
++MODULE_PARM_DESC(elrepo_usbip_debug_flag, "debug flags (defined in usbip_common.h)");
+ 
+ /* FIXME */
+-struct device_attribute dev_attr_usbip_debug;
+-EXPORT_SYMBOL_GPL(dev_attr_usbip_debug);
++struct device_attribute elrepo_dev_attr_usbip_debug;
++EXPORT_SYMBOL_GPL(elrepo_dev_attr_usbip_debug);
+ 
+ static ssize_t usbip_debug_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+ {
+-	return sprintf(buf, "%lx\n", usbip_debug_flag);
++	return sprintf(buf, "%lx\n", elrepo_usbip_debug_flag);
+ }
+ 
+ static ssize_t usbip_debug_store(struct device *dev,
+ 				 struct device_attribute *attr, const char *buf,
+ 				 size_t count)
+ {
+-	if (sscanf(buf, "%lx", &usbip_debug_flag) != 1)
++	if (sscanf(buf, "%lx", &elrepo_usbip_debug_flag) != 1)
+ 		return -EINVAL;
+ 	return count;
+ }
+@@ -217,7 +217,7 @@ static void usbip_dump_usb_ctrlrequest(s
+ 	}
+ }
+ 
+-void usbip_dump_urb(struct urb *urb)
++void elrepo_usbip_dump_urb(struct urb *urb)
+ {
+ 	struct device *dev;
+ 
+@@ -254,9 +254,9 @@ void usbip_dump_urb(struct urb *urb)
+ 	dev_dbg(dev, "   interval              :%d\n", urb->interval);
+ 	dev_dbg(dev, "   error_count           :%d\n", urb->error_count);
+ }
+-EXPORT_SYMBOL_GPL(usbip_dump_urb);
++EXPORT_SYMBOL_GPL(elrepo_usbip_dump_urb);
+ 
+-void usbip_dump_header(struct usbip_header *pdu)
++void elrepo_usbip_dump_header(struct usbip_header *pdu)
+ {
+ 	pr_debug("BASE: cmd %u seq %u devid %u dir %u ep %u\n",
+ 		 pdu->base.command,
+@@ -296,10 +296,10 @@ void usbip_dump_header(struct usbip_head
+ 		break;
+ 	}
+ }
+-EXPORT_SYMBOL_GPL(usbip_dump_header);
++EXPORT_SYMBOL_GPL(elrepo_usbip_dump_header);
+ 
+ /* Receive data over TCP/IP. */
+-int usbip_recv(struct socket *sock, void *buf, int size)
++int elrepo_usbip_recv(struct socket *sock, void *buf, int size)
+ {
+ 	int result;
+ 	struct kvec iov = {.iov_base = buf, .iov_len = size};
+@@ -336,7 +336,7 @@ int usbip_recv(struct socket *sock, void
+ err:
+ 	return result;
+ }
+-EXPORT_SYMBOL_GPL(usbip_recv);
++EXPORT_SYMBOL_GPL(elrepo_usbip_recv);
+ 
+ /* there may be more cases to tweak the flags. */
+ static unsigned int tweak_transfer_flags(unsigned int flags)
+@@ -366,7 +366,7 @@ static unsigned int tweak_transfer_flags
+  * - Client rx path & Server tx path (USBIP_RET_SUBMIT)
+  *
+  * Code paths:
+- * usbip_pack_pdu() is the common routine that handles packing pdu from
++ * elrepo_usbip_pack_pdu() is the common routine that handles packing pdu from
+  * urb and unpack pdu to an urb.
+  *
+  * usbip_pack_cmd_submit() and usbip_pack_ret_submit() handle
+@@ -475,7 +475,7 @@ static void usbip_pack_ret_submit(struct
+ 	}
+ }
+ 
+-void usbip_pack_pdu(struct usbip_header *pdu, struct urb *urb, int cmd,
++void elrepo_usbip_pack_pdu(struct usbip_header *pdu, struct urb *urb, int cmd,
+ 		    int pack)
+ {
+ 	switch (cmd) {
+@@ -491,7 +491,7 @@ void usbip_pack_pdu(struct usbip_header
+ 		break;
+ 	}
+ }
+-EXPORT_SYMBOL_GPL(usbip_pack_pdu);
++EXPORT_SYMBOL_GPL(elrepo_usbip_pack_pdu);
+ 
+ static void correct_endian_basic(struct usbip_header_basic *base, int send)
+ {
+@@ -566,7 +566,7 @@ static void correct_endian_ret_unlink(st
+ 		be32_to_cpus(&pdu->status);
+ }
+ 
+-void usbip_header_correct_endian(struct usbip_header *pdu, int send)
++void elrepo_usbip_header_correct_endian(struct usbip_header *pdu, int send)
+ {
+ 	__u32 cmd = 0;
+ 
+@@ -597,7 +597,7 @@ void usbip_header_correct_endian(struct
+ 		break;
+ 	}
+ }
+-EXPORT_SYMBOL_GPL(usbip_header_correct_endian);
++EXPORT_SYMBOL_GPL(elrepo_usbip_header_correct_endian);
+ 
+ static void usbip_iso_packet_correct_endian(
+ 		struct usbip_iso_packet_descriptor *iso, int send)
+@@ -634,7 +634,7 @@ static void usbip_pack_iso(struct usbip_
+ 
+ /* must free buffer */
+ struct usbip_iso_packet_descriptor*
+-usbip_alloc_iso_desc_pdu(struct urb *urb, ssize_t *bufflen)
++elrepo_usbip_alloc_iso_desc_pdu(struct urb *urb, ssize_t *bufflen)
+ {
+ 	struct usbip_iso_packet_descriptor *iso;
+ 	int np = urb->number_of_packets;
+@@ -654,10 +654,10 @@ usbip_alloc_iso_desc_pdu(struct urb *urb
+ 
+ 	return iso;
+ }
+-EXPORT_SYMBOL_GPL(usbip_alloc_iso_desc_pdu);
++EXPORT_SYMBOL_GPL(elrepo_usbip_alloc_iso_desc_pdu);
+ 
+ /* some members of urb must be substituted before. */
+-int usbip_recv_iso(struct usbip_device *ud, struct urb *urb)
++int elrepo_usbip_recv_iso(struct usbip_device *ud, struct urb *urb)
+ {
+ 	void *buff;
+ 	struct usbip_iso_packet_descriptor *iso;
+@@ -678,16 +678,16 @@ int usbip_recv_iso(struct usbip_device *
+ 	if (!buff)
+ 		return -ENOMEM;
+ 
+-	ret = usbip_recv(ud->tcp_socket, buff, size);
++	ret = elrepo_usbip_recv(ud->tcp_socket, buff, size);
+ 	if (ret != size) {
+ 		dev_err(&urb->dev->dev, "recv iso_frame_descriptor, %d\n",
+ 			ret);
+ 		kfree(buff);
+ 
+ 		if (ud->side == USBIP_STUB || ud->side == USBIP_VUDC)
+-			usbip_event_add(ud, SDEV_EVENT_ERROR_TCP);
++			elrepo_usbip_event_add(ud, SDEV_EVENT_ERROR_TCP);
+ 		else
+-			usbip_event_add(ud, VDEV_EVENT_ERROR_TCP);
++			elrepo_usbip_event_add(ud, VDEV_EVENT_ERROR_TCP);
+ 
+ 		return -EPIPE;
+ 	}
+@@ -707,16 +707,16 @@ int usbip_recv_iso(struct usbip_device *
+ 			total_length, urb->actual_length);
+ 
+ 		if (ud->side == USBIP_STUB || ud->side == USBIP_VUDC)
+-			usbip_event_add(ud, SDEV_EVENT_ERROR_TCP);
++			elrepo_usbip_event_add(ud, SDEV_EVENT_ERROR_TCP);
+ 		else
+-			usbip_event_add(ud, VDEV_EVENT_ERROR_TCP);
++			elrepo_usbip_event_add(ud, VDEV_EVENT_ERROR_TCP);
+ 
+ 		return -EPIPE;
+ 	}
+ 
+ 	return ret;
+ }
+-EXPORT_SYMBOL_GPL(usbip_recv_iso);
++EXPORT_SYMBOL_GPL(elrepo_usbip_recv_iso);
+ 
+ /*
+  * This functions restores the padding which was removed for optimizing
+@@ -725,7 +725,7 @@ EXPORT_SYMBOL_GPL(usbip_recv_iso);
+  * buffer and iso packets need to be stored and be in propeper endian in urb
+  * before calling this function
+  */
+-void usbip_pad_iso(struct usbip_device *ud, struct urb *urb)
++void elrepo_usbip_pad_iso(struct usbip_device *ud, struct urb *urb)
+ {
+ 	int np = urb->number_of_packets;
+ 	int i;
+@@ -756,10 +756,10 @@ void usbip_pad_iso(struct usbip_device *
+ 			urb->iso_frame_desc[i].actual_length);
+ 	}
+ }
+-EXPORT_SYMBOL_GPL(usbip_pad_iso);
++EXPORT_SYMBOL_GPL(elrepo_usbip_pad_iso);
+ 
+ /* some members of urb must be substituted before. */
+-int usbip_recv_xbuff(struct usbip_device *ud, struct urb *urb)
++int elrepo_usbip_recv_xbuff(struct usbip_device *ud, struct urb *urb)
+ {
+ 	struct scatterlist *sg;
+ 	int ret = 0;
+@@ -800,7 +800,7 @@ int usbip_recv_xbuff(struct usbip_device
+ 			else
+ 				recv_size = sg->length;
+ 
+-			recv = usbip_recv(ud->tcp_socket, sg_virt(sg),
++			recv = elrepo_usbip_recv(ud->tcp_socket, sg_virt(sg),
+ 						recv_size);
+ 
+ 			if (recv != recv_size)
+@@ -816,7 +816,7 @@ int usbip_recv_xbuff(struct usbip_device
+ 		if (ret != size)
+ 			goto error;
+ 	} else {
+-		ret = usbip_recv(ud->tcp_socket, urb->transfer_buffer, size);
++		ret = elrepo_usbip_recv(ud->tcp_socket, urb->transfer_buffer, size);
+ 		if (ret != size)
+ 			goto error;
+ 	}
+@@ -826,13 +826,13 @@ int usbip_recv_xbuff(struct usbip_device
+ error:
+ 	dev_err(&urb->dev->dev, "recv xbuf, %d\n", ret);
+ 	if (ud->side == USBIP_STUB || ud->side == USBIP_VUDC)
+-		usbip_event_add(ud, SDEV_EVENT_ERROR_TCP);
++		elrepo_usbip_event_add(ud, SDEV_EVENT_ERROR_TCP);
+ 	else
+-		usbip_event_add(ud, VDEV_EVENT_ERROR_TCP);
++		elrepo_usbip_event_add(ud, VDEV_EVENT_ERROR_TCP);
+ 
+ 	return -EPIPE;
+ }
+-EXPORT_SYMBOL_GPL(usbip_recv_xbuff);
++EXPORT_SYMBOL_GPL(elrepo_usbip_recv_xbuff);
+ 
+ static int __init usbip_core_init(void)
+ {
+diff -Naurp usbip-0.0.orig/usbip_common.h usbip-0.0/usbip_common.h
+--- usbip-0.0.orig/usbip_common.h	2025-04-29 16:09:13.000000000 -0400
++++ usbip-0.0/usbip_common.h	2025-05-20 00:00:33.661569845 -0400
+@@ -47,21 +47,21 @@ enum {
+ 	usbip_debug_vhci_sysfs  = (1 << 12)
+ };
+ 
+-#define usbip_dbg_flag_xmit	(usbip_debug_flag & usbip_debug_xmit)
+-#define usbip_dbg_flag_vhci_rh	(usbip_debug_flag & usbip_debug_vhci_rh)
+-#define usbip_dbg_flag_vhci_hc	(usbip_debug_flag & usbip_debug_vhci_hc)
+-#define usbip_dbg_flag_vhci_rx	(usbip_debug_flag & usbip_debug_vhci_rx)
+-#define usbip_dbg_flag_vhci_tx	(usbip_debug_flag & usbip_debug_vhci_tx)
+-#define usbip_dbg_flag_stub_rx	(usbip_debug_flag & usbip_debug_stub_rx)
+-#define usbip_dbg_flag_stub_tx	(usbip_debug_flag & usbip_debug_stub_tx)
+-#define usbip_dbg_flag_vhci_sysfs  (usbip_debug_flag & usbip_debug_vhci_sysfs)
++#define usbip_dbg_flag_xmit	(elrepo_usbip_debug_flag & usbip_debug_xmit)
++#define usbip_dbg_flag_vhci_rh	(elrepo_usbip_debug_flag & usbip_debug_vhci_rh)
++#define usbip_dbg_flag_vhci_hc	(elrepo_usbip_debug_flag & usbip_debug_vhci_hc)
++#define usbip_dbg_flag_vhci_rx	(elrepo_usbip_debug_flag & usbip_debug_vhci_rx)
++#define usbip_dbg_flag_vhci_tx	(elrepo_usbip_debug_flag & usbip_debug_vhci_tx)
++#define usbip_dbg_flag_stub_rx	(elrepo_usbip_debug_flag & usbip_debug_stub_rx)
++#define usbip_dbg_flag_stub_tx	(elrepo_usbip_debug_flag & usbip_debug_stub_tx)
++#define usbip_dbg_flag_vhci_sysfs  (elrepo_usbip_debug_flag & usbip_debug_vhci_sysfs)
+ 
+-extern unsigned long usbip_debug_flag;
+-extern struct device_attribute dev_attr_usbip_debug;
++extern unsigned long elrepo_usbip_debug_flag;
++extern struct device_attribute elrepo_dev_attr_usbip_debug;
+ 
+ #define usbip_dbg_with_flag(flag, fmt, args...)		\
+ 	do {						\
+-		if (flag & usbip_debug_flag)		\
++		if (flag & elrepo_usbip_debug_flag)		\
+ 			pr_debug(fmt, ##args);		\
+ 	} while (0)
+ 
+@@ -299,31 +299,31 @@ struct usbip_device {
+ })
+ 
+ /* usbip_common.c */
+-void usbip_dump_urb(struct urb *purb);
+-void usbip_dump_header(struct usbip_header *pdu);
++void elrepo_usbip_dump_urb(struct urb *purb);
++void elrepo_usbip_dump_header(struct usbip_header *pdu);
+ 
+-int usbip_recv(struct socket *sock, void *buf, int size);
++int elrepo_usbip_recv(struct socket *sock, void *buf, int size);
+ 
+-void usbip_pack_pdu(struct usbip_header *pdu, struct urb *urb, int cmd,
++void elrepo_usbip_pack_pdu(struct usbip_header *pdu, struct urb *urb, int cmd,
+ 		    int pack);
+-void usbip_header_correct_endian(struct usbip_header *pdu, int send);
++void elrepo_usbip_header_correct_endian(struct usbip_header *pdu, int send);
+ 
+ struct usbip_iso_packet_descriptor*
+-usbip_alloc_iso_desc_pdu(struct urb *urb, ssize_t *bufflen);
++elrepo_usbip_alloc_iso_desc_pdu(struct urb *urb, ssize_t *bufflen);
+ 
+ /* some members of urb must be substituted before. */
+-int usbip_recv_iso(struct usbip_device *ud, struct urb *urb);
+-void usbip_pad_iso(struct usbip_device *ud, struct urb *urb);
+-int usbip_recv_xbuff(struct usbip_device *ud, struct urb *urb);
++int elrepo_usbip_recv_iso(struct usbip_device *ud, struct urb *urb);
++void elrepo_usbip_pad_iso(struct usbip_device *ud, struct urb *urb);
++int elrepo_usbip_recv_xbuff(struct usbip_device *ud, struct urb *urb);
+ 
+ /* usbip_event.c */
+ int usbip_init_eh(void);
+ void usbip_finish_eh(void);
+-int usbip_start_eh(struct usbip_device *ud);
+-void usbip_stop_eh(struct usbip_device *ud);
+-void usbip_event_add(struct usbip_device *ud, unsigned long event);
+-int usbip_event_happened(struct usbip_device *ud);
+-int usbip_in_eh(struct task_struct *task);
++int elrepo_usbip_start_eh(struct usbip_device *ud);
++void elrepo_usbip_stop_eh(struct usbip_device *ud);
++void elrepo_usbip_event_add(struct usbip_device *ud, unsigned long event);
++int elrepo_usbip_event_happened(struct usbip_device *ud);
++int elrepo_usbip_in_eh(struct task_struct *task);
+ 
+ static inline int interface_to_busnum(struct usb_interface *interface)
+ {
+diff -Naurp usbip-0.0.orig/usbip_event.c usbip-0.0/usbip_event.c
+--- usbip-0.0.orig/usbip_event.c	2025-04-29 16:09:13.000000000 -0400
++++ usbip-0.0/usbip_event.c	2025-05-20 00:00:41.413474930 -0400
+@@ -97,15 +97,15 @@ static void event_handler(struct work_st
+ 	}
+ }
+ 
+-int usbip_start_eh(struct usbip_device *ud)
++int elrepo_usbip_start_eh(struct usbip_device *ud)
+ {
+ 	init_waitqueue_head(&ud->eh_waitq);
+ 	ud->event = 0;
+ 	return 0;
+ }
+-EXPORT_SYMBOL_GPL(usbip_start_eh);
++EXPORT_SYMBOL_GPL(elrepo_usbip_start_eh);
+ 
+-void usbip_stop_eh(struct usbip_device *ud)
++void elrepo_usbip_stop_eh(struct usbip_device *ud)
+ {
+ 	unsigned long pending = ud->event & ~USBIP_EH_BYE;
+ 
+@@ -118,7 +118,7 @@ void usbip_stop_eh(struct usbip_device *
+ 	wait_event_interruptible(ud->eh_waitq, !(ud->event & ~USBIP_EH_BYE));
+ 	usbip_dbg_eh("usbip_eh has stopped\n");
+ }
+-EXPORT_SYMBOL_GPL(usbip_stop_eh);
++EXPORT_SYMBOL_GPL(elrepo_usbip_stop_eh);
+ 
+ #define WORK_QUEUE_NAME "usbip_event"
+ 
+@@ -141,7 +141,7 @@ void usbip_finish_eh(void)
+ 	usbip_queue = NULL;
+ }
+ 
+-void usbip_event_add(struct usbip_device *ud, unsigned long event)
++void elrepo_usbip_event_add(struct usbip_device *ud, unsigned long event)
+ {
+ 	struct usbip_event *ue;
+ 	unsigned long flags;
+@@ -170,9 +170,9 @@ void usbip_event_add(struct usbip_device
+ out:
+ 	spin_unlock_irqrestore(&event_lock, flags);
+ }
+-EXPORT_SYMBOL_GPL(usbip_event_add);
++EXPORT_SYMBOL_GPL(elrepo_usbip_event_add);
+ 
+-int usbip_event_happened(struct usbip_device *ud)
++int elrepo_usbip_event_happened(struct usbip_device *ud)
+ {
+ 	int happened = 0;
+ 	unsigned long flags;
+@@ -184,13 +184,13 @@ int usbip_event_happened(struct usbip_de
+ 
+ 	return happened;
+ }
+-EXPORT_SYMBOL_GPL(usbip_event_happened);
++EXPORT_SYMBOL_GPL(elrepo_usbip_event_happened);
+ 
+-int usbip_in_eh(struct task_struct *task)
++int elrepo_usbip_in_eh(struct task_struct *task)
+ {
+ 	if (task == worker_context)
+ 		return 1;
+ 
+ 	return 0;
+ }
+-EXPORT_SYMBOL_GPL(usbip_in_eh);
++EXPORT_SYMBOL_GPL(elrepo_usbip_in_eh);
+diff -Naurp usbip-0.0.orig/vhci_hcd.c usbip-0.0/vhci_hcd.c
+--- usbip-0.0.orig/vhci_hcd.c	2025-04-29 16:09:13.000000000 -0400
++++ usbip-0.0/vhci_hcd.c	2025-05-20 00:00:45.274427656 -0400
+@@ -669,7 +669,7 @@ static void vhci_tx_urb(struct urb *urb,
+ 
+ 	priv = kzalloc(sizeof(struct vhci_priv), GFP_ATOMIC);
+ 	if (!priv) {
+-		usbip_event_add(&vdev->ud, VDEV_EVENT_ERROR_MALLOC);
++		elrepo_usbip_event_add(&vdev->ud, VDEV_EVENT_ERROR_MALLOC);
+ 		return;
+ 	}
+ 
+@@ -929,7 +929,7 @@ static int vhci_urb_dequeue(struct usb_h
+ 		if (!unlink) {
+ 			spin_unlock(&vdev->priv_lock);
+ 			spin_unlock_irqrestore(&vhci->lock, flags);
+-			usbip_event_add(&vdev->ud, VDEV_EVENT_ERROR_MALLOC);
++			elrepo_usbip_event_add(&vdev->ud, VDEV_EVENT_ERROR_MALLOC);
+ 			return -ENOMEM;
+ 		}
+ 
+@@ -1120,7 +1120,7 @@ static void vhci_device_init(struct vhci
+ 	vdev->ud.eh_ops.reset = vhci_device_reset;
+ 	vdev->ud.eh_ops.unusable = vhci_device_unusable;
+ 
+-	usbip_start_eh(&vdev->ud);
++	elrepo_usbip_start_eh(&vdev->ud);
+ }
+ 
+ static int hcd_name_to_id(const char *name)
+@@ -1244,8 +1244,8 @@ static void vhci_stop(struct usb_hcd *hc
+ 	for (rhport = 0; rhport < VHCI_HC_PORTS; rhport++) {
+ 		struct vhci_device *vdev = &vhci_hcd->vdev[rhport];
+ 
+-		usbip_event_add(&vdev->ud, VDEV_EVENT_REMOVED);
+-		usbip_stop_eh(&vdev->ud);
++		elrepo_usbip_event_add(&vdev->ud, VDEV_EVENT_REMOVED);
++		elrepo_usbip_stop_eh(&vdev->ud);
+ 	}
+ }
+ 
+diff -Naurp usbip-0.0.orig/vhci_rx.c usbip-0.0/vhci_rx.c
+--- usbip-0.0.orig/vhci_rx.c	2025-04-29 16:09:13.000000000 -0400
++++ usbip-0.0/vhci_rx.c	2025-05-19 23:59:18.199493837 -0400
+@@ -69,31 +69,31 @@ static void vhci_recv_ret_submit(struct
+ 		pr_err("cannot find a urb of seqnum %u max seqnum %d\n",
+ 			pdu->base.seqnum,
+ 			atomic_read(&vhci_hcd->seqnum));
+-		usbip_event_add(ud, VDEV_EVENT_ERROR_TCP);
++		elrepo_usbip_event_add(ud, VDEV_EVENT_ERROR_TCP);
+ 		return;
+ 	}
+ 
+ 	/* unpack the pdu to a urb */
+-	usbip_pack_pdu(pdu, urb, USBIP_RET_SUBMIT, 0);
++	elrepo_usbip_pack_pdu(pdu, urb, USBIP_RET_SUBMIT, 0);
+ 
+ 	/* recv transfer buffer */
+-	if (usbip_recv_xbuff(ud, urb) < 0) {
++	if (elrepo_usbip_recv_xbuff(ud, urb) < 0) {
+ 		urb->status = -EPROTO;
+ 		goto error;
+ 	}
+ 
+ 	/* recv iso_packet_descriptor */
+-	if (usbip_recv_iso(ud, urb) < 0) {
++	if (elrepo_usbip_recv_iso(ud, urb) < 0) {
+ 		urb->status = -EPROTO;
+ 		goto error;
+ 	}
+ 
+ 	/* restore the padding in iso packets */
+-	usbip_pad_iso(ud, urb);
++	elrepo_usbip_pad_iso(ud, urb);
+ 
+ error:
+ 	if (usbip_dbg_flag_vhci_rx)
+-		usbip_dump_urb(urb);
++		elrepo_usbip_dump_urb(urb);
+ 
+ 	if (urb->num_sgs)
+ 		urb->transfer_flags &= ~URB_DMA_MAP_SG;
+@@ -143,7 +143,7 @@ static void vhci_recv_ret_unlink(struct
+ 	struct urb *urb;
+ 	unsigned long flags;
+ 
+-	usbip_dump_header(pdu);
++	elrepo_usbip_dump_header(pdu);
+ 
+ 	unlink = dequeue_pending_unlink(vdev, pdu);
+ 	if (!unlink) {
+@@ -205,7 +205,7 @@ static void vhci_rx_pdu(struct usbip_dev
+ 	memset(&pdu, 0, sizeof(pdu));
+ 
+ 	/* receive a pdu header */
+-	ret = usbip_recv(ud->tcp_socket, &pdu, sizeof(pdu));
++	ret = elrepo_usbip_recv(ud->tcp_socket, &pdu, sizeof(pdu));
+ 	if (ret < 0) {
+ 		if (ret == -ECONNRESET)
+ 			pr_info("connection reset by peer\n");
+@@ -217,25 +217,25 @@ static void vhci_rx_pdu(struct usbip_dev
+ 		} else if (ret != -ERESTARTSYS)
+ 			pr_info("xmit failed %d\n", ret);
+ 
+-		usbip_event_add(ud, VDEV_EVENT_ERROR_TCP);
++		elrepo_usbip_event_add(ud, VDEV_EVENT_ERROR_TCP);
+ 		return;
+ 	}
+ 	if (ret == 0) {
+ 		pr_info("connection closed");
+-		usbip_event_add(ud, VDEV_EVENT_DOWN);
++		elrepo_usbip_event_add(ud, VDEV_EVENT_DOWN);
+ 		return;
+ 	}
+ 	if (ret != sizeof(pdu)) {
+ 		pr_err("received pdu size is %d, should be %d\n", ret,
+ 		       (unsigned int)sizeof(pdu));
+-		usbip_event_add(ud, VDEV_EVENT_ERROR_TCP);
++		elrepo_usbip_event_add(ud, VDEV_EVENT_ERROR_TCP);
+ 		return;
+ 	}
+ 
+-	usbip_header_correct_endian(&pdu, 0);
++	elrepo_usbip_header_correct_endian(&pdu, 0);
+ 
+ 	if (usbip_dbg_flag_vhci_rx)
+-		usbip_dump_header(&pdu);
++		elrepo_usbip_dump_header(&pdu);
+ 
+ 	switch (pdu.base.command) {
+ 	case USBIP_RET_SUBMIT:
+@@ -247,8 +247,8 @@ static void vhci_rx_pdu(struct usbip_dev
+ 	default:
+ 		/* NOT REACHED */
+ 		pr_err("unknown pdu %u\n", pdu.base.command);
+-		usbip_dump_header(&pdu);
+-		usbip_event_add(ud, VDEV_EVENT_ERROR_TCP);
++		elrepo_usbip_dump_header(&pdu);
++		elrepo_usbip_event_add(ud, VDEV_EVENT_ERROR_TCP);
+ 		break;
+ 	}
+ }
+@@ -258,7 +258,7 @@ int vhci_rx_loop(void *data)
+ 	struct usbip_device *ud = data;
+ 
+ 	while (!kthread_should_stop()) {
+-		if (usbip_event_happened(ud))
++		if (elrepo_usbip_event_happened(ud))
+ 			break;
+ 
+ 		usbip_kcov_remote_start(ud);
+diff -Naurp usbip-0.0.orig/vhci_sysfs.c usbip-0.0/vhci_sysfs.c
+--- usbip-0.0.orig/vhci_sysfs.c	2025-04-29 16:09:13.000000000 -0400
++++ usbip-0.0/vhci_sysfs.c	2025-05-19 23:45:04.227950361 -0400
+@@ -206,7 +206,7 @@ static int vhci_port_disconnect(struct v
+ 	spin_unlock(&vdev->ud.lock);
+ 	spin_unlock_irqrestore(&vhci->lock, flags);
+ 
+-	usbip_event_add(&vdev->ud, VDEV_EVENT_DOWN);
++	elrepo_usbip_event_add(&vdev->ud, VDEV_EVENT_DOWN);
+ 
+ 	mutex_unlock(&vdev->ud.sysfs_lock);
+ 
+@@ -514,7 +514,7 @@ int vhci_init_attr_group(void)
+ 	*attrs = &dev_attr_nports.attr;
+ 	*(attrs + 1) = &dev_attr_detach.attr;
+ 	*(attrs + 2) = &dev_attr_attach.attr;
+-	*(attrs + 3) = &dev_attr_usbip_debug.attr;
++	*(attrs + 3) = &elrepo_dev_attr_usbip_debug.attr;
+ 	for (i = 0; i < vhci_num_controllers; i++)
+ 		*(attrs + i + 4) = &((status_attrs + i)->attr.attr);
+ 	vhci_attr_group.attrs = attrs;
+diff -Naurp usbip-0.0.orig/vhci_tx.c usbip-0.0/vhci_tx.c
+--- usbip-0.0.orig/vhci_tx.c	2025-04-29 16:09:13.000000000 -0400
++++ usbip-0.0/vhci_tx.c	2025-05-19 23:54:53.789731427 -0400
+@@ -25,7 +25,7 @@ static void setup_cmd_submit_pdu(struct
+ 		USBIP_DIR_IN : USBIP_DIR_OUT;
+ 	pdup->base.ep	     = usb_pipeendpoint(urb->pipe);
+ 
+-	usbip_pack_pdu(pdup, urb, USBIP_CMD_SUBMIT, 1);
++	elrepo_usbip_pack_pdu(pdup, urb, USBIP_CMD_SUBMIT, 1);
+ 
+ 	if (urb->setup_packet)
+ 		memcpy(pdup->u.cmd_submit.setup, urb->setup_packet, 8);
+@@ -84,7 +84,7 @@ static int vhci_send_cmd_submit(struct v
+ 
+ 		iov = kcalloc(iovnum, sizeof(*iov), GFP_KERNEL);
+ 		if (!iov) {
+-			usbip_event_add(&vdev->ud, SDEV_EVENT_ERROR_MALLOC);
++			elrepo_usbip_event_add(&vdev->ud, SDEV_EVENT_ERROR_MALLOC);
+ 			return -ENOMEM;
+ 		}
+ 
+@@ -93,7 +93,7 @@ static int vhci_send_cmd_submit(struct v
+ 
+ 		/* 1. setup usbip_header */
+ 		setup_cmd_submit_pdu(&pdu_header, urb);
+-		usbip_header_correct_endian(&pdu_header, 1);
++		elrepo_usbip_header_correct_endian(&pdu_header, 1);
+ 		iovnum = 0;
+ 
+ 		iov[iovnum].iov_base = &pdu_header;
+@@ -123,9 +123,9 @@ static int vhci_send_cmd_submit(struct v
+ 		if (usb_pipetype(urb->pipe) == PIPE_ISOCHRONOUS) {
+ 			ssize_t len = 0;
+ 
+-			iso_buffer = usbip_alloc_iso_desc_pdu(urb, &len);
++			iso_buffer = elrepo_usbip_alloc_iso_desc_pdu(urb, &len);
+ 			if (!iso_buffer) {
+-				usbip_event_add(&vdev->ud,
++				elrepo_usbip_event_add(&vdev->ud,
+ 						SDEV_EVENT_ERROR_MALLOC);
+ 				goto err_iso_buffer;
+ 			}
+@@ -141,7 +141,7 @@ static int vhci_send_cmd_submit(struct v
+ 		if (ret != txsize) {
+ 			pr_err("sendmsg failed!, ret=%d for %zd\n", ret,
+ 			       txsize);
+-			usbip_event_add(&vdev->ud, VDEV_EVENT_ERROR_TCP);
++			elrepo_usbip_event_add(&vdev->ud, VDEV_EVENT_ERROR_TCP);
+ 			err = -EPIPE;
+ 			goto err_tx;
+ 		}
+@@ -210,7 +210,7 @@ static int vhci_send_cmd_unlink(struct v
+ 		pdu_header.base.ep	= 0;
+ 		pdu_header.u.cmd_unlink.seqnum = unlink->unlink_seqnum;
+ 
+-		usbip_header_correct_endian(&pdu_header, 1);
++		elrepo_usbip_header_correct_endian(&pdu_header, 1);
+ 
+ 		iov.iov_base = &pdu_header;
+ 		iov.iov_len  = sizeof(pdu_header);
+@@ -220,7 +220,7 @@ static int vhci_send_cmd_unlink(struct v
+ 		if (ret != txsize) {
+ 			pr_err("sendmsg failed!, ret=%d for %zd\n", ret,
+ 			       txsize);
+-			usbip_event_add(&vdev->ud, VDEV_EVENT_ERROR_TCP);
++			elrepo_usbip_event_add(&vdev->ud, VDEV_EVENT_ERROR_TCP);
+ 			return -1;
+ 		}
+ 
+diff -Naurp usbip-0.0.orig/vudc_dev.c usbip-0.0/vudc_dev.c
+--- usbip-0.0.orig/vudc_dev.c	2025-04-29 16:09:13.000000000 -0400
++++ usbip-0.0/vudc_dev.c	2025-05-20 00:00:48.639386455 -0400
+@@ -173,14 +173,14 @@ static int vgadget_pullup(struct usb_gad
+ 		}
+ 
+ 		spin_unlock_irqrestore(&udc->lock, flags);
+-		usbip_start_eh(&udc->ud);
++		elrepo_usbip_start_eh(&udc->ud);
+ 	} else {
+ 		/* Invalidate descriptors */
+ 		udc->desc_cached = 0;
+ 
+ 		spin_unlock_irqrestore(&udc->lock, flags);
+-		usbip_event_add(&udc->ud, VUDC_EVENT_REMOVED);
+-		usbip_stop_eh(&udc->ud); /* Wait for eh completion */
++		elrepo_usbip_event_add(&udc->ud, VUDC_EVENT_REMOVED);
++		elrepo_usbip_stop_eh(&udc->ud); /* Wait for eh completion */
+ 	}
+ 
+ 	return 0;
+diff -Naurp usbip-0.0.orig/vudc_rx.c usbip-0.0/vudc_rx.c
+--- usbip-0.0.orig/vudc_rx.c	2025-04-29 16:09:13.000000000 -0400
++++ usbip-0.0/vudc_rx.c	2025-05-19 23:59:25.764401212 -0400
+@@ -26,7 +26,7 @@ static int alloc_urb_from_cmd(struct urb
+ 	if (!urb)
+ 		goto err;
+ 
+-	usbip_pack_pdu(pdu, urb, USBIP_CMD_SUBMIT, 0);
++	elrepo_usbip_pack_pdu(pdu, urb, USBIP_CMD_SUBMIT, 0);
+ 
+ 	if (urb->transfer_buffer_length > 0) {
+ 		urb->transfer_buffer = kzalloc(urb->transfer_buffer_length,
+@@ -95,7 +95,7 @@ static int v_recv_cmd_submit(struct vudc
+ 
+ 	urb_p = alloc_urbp();
+ 	if (!urb_p) {
+-		usbip_event_add(&udc->ud, VUDC_EVENT_ERROR_MALLOC);
++		elrepo_usbip_event_add(&udc->ud, VUDC_EVENT_ERROR_MALLOC);
+ 		return -ENOMEM;
+ 	}
+ 
+@@ -110,7 +110,7 @@ static int v_recv_cmd_submit(struct vudc
+ 		/* we don't know the type, there may be isoc data! */
+ 		dev_err(&udc->pdev->dev, "request to nonexistent endpoint");
+ 		spin_unlock_irqrestore(&udc->lock, flags);
+-		usbip_event_add(&udc->ud, VUDC_EVENT_ERROR_TCP);
++		elrepo_usbip_event_add(&udc->ud, VUDC_EVENT_ERROR_TCP);
+ 		ret = -EPIPE;
+ 		goto free_urbp;
+ 	}
+@@ -141,7 +141,7 @@ static int v_recv_cmd_submit(struct vudc
+ 
+ 	ret = alloc_urb_from_cmd(&urb_p->urb, pdu, urb_p->ep->type);
+ 	if (ret) {
+-		usbip_event_add(&udc->ud, VUDC_EVENT_ERROR_MALLOC);
++		elrepo_usbip_event_add(&udc->ud, VUDC_EVENT_ERROR_MALLOC);
+ 		ret = -ENOMEM;
+ 		goto free_urbp;
+ 	}
+@@ -166,11 +166,11 @@ static int v_recv_cmd_submit(struct vudc
+ 		urb_p->urb->pipe |= (PIPE_ISOCHRONOUS << 30);
+ 		break;
+ 	}
+-	ret = usbip_recv_xbuff(&udc->ud, urb_p->urb);
++	ret = elrepo_usbip_recv_xbuff(&udc->ud, urb_p->urb);
+ 	if (ret < 0)
+ 		goto free_urbp;
+ 
+-	ret = usbip_recv_iso(&udc->ud, urb_p->urb);
++	ret = elrepo_usbip_recv_iso(&udc->ud, urb_p->urb);
+ 	if (ret < 0)
+ 		goto free_urbp;
+ 
+@@ -193,20 +193,20 @@ static int v_rx_pdu(struct usbip_device
+ 	struct vudc *udc = container_of(ud, struct vudc, ud);
+ 
+ 	memset(&pdu, 0, sizeof(pdu));
+-	ret = usbip_recv(ud->tcp_socket, &pdu, sizeof(pdu));
++	ret = elrepo_usbip_recv(ud->tcp_socket, &pdu, sizeof(pdu));
+ 	if (ret != sizeof(pdu)) {
+-		usbip_event_add(ud, VUDC_EVENT_ERROR_TCP);
++		elrepo_usbip_event_add(ud, VUDC_EVENT_ERROR_TCP);
+ 		if (ret >= 0)
+ 			return -EPIPE;
+ 		return ret;
+ 	}
+-	usbip_header_correct_endian(&pdu, 0);
++	elrepo_usbip_header_correct_endian(&pdu, 0);
+ 
+ 	spin_lock_irq(&ud->lock);
+ 	ret = (ud->status == SDEV_ST_USED);
+ 	spin_unlock_irq(&ud->lock);
+ 	if (!ret) {
+-		usbip_event_add(ud, VUDC_EVENT_ERROR_TCP);
++		elrepo_usbip_event_add(ud, VUDC_EVENT_ERROR_TCP);
+ 		return -EBUSY;
+ 	}
+ 
+@@ -231,7 +231,7 @@ int v_rx_loop(void *data)
+ 	int ret = 0;
+ 
+ 	while (!kthread_should_stop()) {
+-		if (usbip_event_happened(ud))
++		if (elrepo_usbip_event_happened(ud))
+ 			break;
+ 		ret = v_rx_pdu(ud);
+ 		if (ret < 0) {
+diff -Naurp usbip-0.0.orig/vudc_sysfs.c usbip-0.0/vudc_sysfs.c
+--- usbip-0.0.orig/vudc_sysfs.c	2025-04-29 16:09:13.000000000 -0400
++++ usbip-0.0/vudc_sysfs.c	2025-05-19 23:45:18.054781052 -0400
+@@ -208,7 +208,7 @@ static ssize_t usbip_sockfd_store(struct
+ 		}
+ 		spin_unlock(&udc->ud.lock);
+ 
+-		usbip_event_add(&udc->ud, VUDC_EVENT_DOWN);
++		elrepo_usbip_event_add(&udc->ud, VUDC_EVENT_DOWN);
+ 	}
+ 
+ 	spin_unlock_irqrestore(&udc->lock, flags);
+diff -Naurp usbip-0.0.orig/vudc_tx.c usbip-0.0/vudc_tx.c
+--- usbip-0.0.orig/vudc_tx.c	2025-04-29 16:09:13.000000000 -0400
++++ usbip-0.0/vudc_tx.c	2025-05-19 23:55:06.246578895 -0400
+@@ -25,7 +25,7 @@ static inline void setup_base_pdu(struct
+ static void setup_ret_submit_pdu(struct usbip_header *rpdu, struct urbp *urb_p)
+ {
+ 	setup_base_pdu(&rpdu->base, USBIP_RET_SUBMIT, urb_p->seqnum);
+-	usbip_pack_pdu(rpdu, urb_p->urb, USBIP_RET_SUBMIT, 1);
++	elrepo_usbip_pack_pdu(rpdu, urb_p->urb, USBIP_RET_SUBMIT, 1);
+ }
+ 
+ static void setup_ret_unlink_pdu(struct usbip_header *rpdu,
+@@ -51,7 +51,7 @@ static int v_send_ret_unlink(struct vudc
+ 
+ 	/* 1. setup usbip_header */
+ 	setup_ret_unlink_pdu(&pdu_header, unlink);
+-	usbip_header_correct_endian(&pdu_header, 1);
++	elrepo_usbip_header_correct_endian(&pdu_header, 1);
+ 
+ 	iov[0].iov_base = &pdu_header;
+ 	iov[0].iov_len  = sizeof(pdu_header);
+@@ -60,7 +60,7 @@ static int v_send_ret_unlink(struct vudc
+ 	ret = kernel_sendmsg(udc->ud.tcp_socket, &msg, iov,
+ 			     1, txsize);
+ 	if (ret != txsize) {
+-		usbip_event_add(&udc->ud, VUDC_EVENT_ERROR_TCP);
++		elrepo_usbip_event_add(&udc->ud, VUDC_EVENT_ERROR_TCP);
+ 		if (ret >= 0)
+ 			return -EPIPE;
+ 		return ret;
+@@ -99,7 +99,7 @@ static int v_send_ret_submit(struct vudc
+ 
+ 	iov = kcalloc(iovnum, sizeof(*iov), GFP_KERNEL);
+ 	if (!iov) {
+-		usbip_event_add(&udc->ud, VUDC_EVENT_ERROR_MALLOC);
++		elrepo_usbip_event_add(&udc->ud, VUDC_EVENT_ERROR_MALLOC);
+ 		ret = -ENOMEM;
+ 		goto out;
+ 	}
+@@ -109,7 +109,7 @@ static int v_send_ret_submit(struct vudc
+ 	setup_ret_submit_pdu(&pdu_header, urb_p);
+ 	usbip_dbg_stub_tx("setup txdata seqnum: %d\n",
+ 			  pdu_header.base.seqnum);
+-	usbip_header_correct_endian(&pdu_header, 1);
++	elrepo_usbip_header_correct_endian(&pdu_header, 1);
+ 
+ 	iov[iovnum].iov_base = &pdu_header;
+ 	iov[iovnum].iov_len  = sizeof(pdu_header);
+@@ -138,7 +138,7 @@ static int v_send_ret_submit(struct vudc
+ 		}
+ 
+ 		if (txsize != sizeof(pdu_header) + urb->actual_length) {
+-			usbip_event_add(&udc->ud, VUDC_EVENT_ERROR_TCP);
++			elrepo_usbip_event_add(&udc->ud, VUDC_EVENT_ERROR_TCP);
+ 			ret = -EPIPE;
+ 			goto out;
+ 		}
+@@ -149,9 +149,9 @@ static int v_send_ret_submit(struct vudc
+ 	if (urb_p->type == USB_ENDPOINT_XFER_ISOC) {
+ 		ssize_t len = 0;
+ 
+-		iso_buffer = usbip_alloc_iso_desc_pdu(urb, &len);
++		iso_buffer = elrepo_usbip_alloc_iso_desc_pdu(urb, &len);
+ 		if (!iso_buffer) {
+-			usbip_event_add(&udc->ud,
++			elrepo_usbip_event_add(&udc->ud,
+ 					VUDC_EVENT_ERROR_MALLOC);
+ 			ret = -ENOMEM;
+ 			goto out;
+@@ -166,7 +166,7 @@ static int v_send_ret_submit(struct vudc
+ 	ret = kernel_sendmsg(udc->ud.tcp_socket, &msg,
+ 						iov,  iovnum, txsize);
+ 	if (ret != txsize) {
+-		usbip_event_add(&udc->ud, VUDC_EVENT_ERROR_TCP);
++		elrepo_usbip_event_add(&udc->ud, VUDC_EVENT_ERROR_TCP);
+ 		if (ret >= 0)
+ 			ret = -EPIPE;
+ 		goto out;
+@@ -225,7 +225,7 @@ int v_tx_loop(void *data)
+ 	int ret;
+ 
+ 	while (!kthread_should_stop()) {
+-		if (usbip_event_happened(&udc->ud))
++		if (elrepo_usbip_event_happened(&udc->ud))
+ 			break;
+ 		ret = v_send_ret(udc);
+ 		if (ret < 0) {
+@@ -248,13 +248,13 @@ void v_enqueue_ret_unlink(struct vudc *u
+ 
+ 	txi = kzalloc(sizeof(*txi), GFP_ATOMIC);
+ 	if (!txi) {
+-		usbip_event_add(&udc->ud, VDEV_EVENT_ERROR_MALLOC);
++		elrepo_usbip_event_add(&udc->ud, VDEV_EVENT_ERROR_MALLOC);
+ 		return;
+ 	}
+ 	unlink = kzalloc(sizeof(*unlink), GFP_ATOMIC);
+ 	if (!unlink) {
+ 		kfree(txi);
+-		usbip_event_add(&udc->ud, VDEV_EVENT_ERROR_MALLOC);
++		elrepo_usbip_event_add(&udc->ud, VDEV_EVENT_ERROR_MALLOC);
+ 		return;
+ 	}
+ 
+@@ -273,7 +273,7 @@ void v_enqueue_ret_submit(struct vudc *u
+ 
+ 	txi = kzalloc(sizeof(*txi), GFP_ATOMIC);
+ 	if (!txi) {
+-		usbip_event_add(&udc->ud, VDEV_EVENT_ERROR_MALLOC);
++		elrepo_usbip_event_add(&udc->ud, VDEV_EVENT_ERROR_MALLOC);
+ 		return;
+ 	}
+ 

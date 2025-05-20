@@ -18,6 +18,9 @@ URL:		http://www.kernel.org/
 Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
+# Source code patches.
+Patch0:		elrepo-usbip-function-rename-el9_6.patch
+
 %define __spec_install_post \
 		/usr/lib/rpm/check-buildroot \
 		/usr/lib/rpm/redhat/brp-ldconfig \
@@ -74,6 +77,7 @@ echo "override %{kmod_name}-core * weak-updates/%{kmod_name}" > kmod-%{kmod_name
 echo "override %{kmod_name}-host * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 # echo "override %{kmod_name}-vudc * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 echo "override vhci-hcd * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+%patch0 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
