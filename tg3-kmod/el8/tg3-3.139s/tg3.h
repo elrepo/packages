@@ -111,6 +111,10 @@
 #define TG3PCI_SUBDEVICE_ID_ACER_57780_A	0x0601
 #define TG3PCI_SUBDEVICE_ID_ACER_57780_B	0x0612
 #define TG3PCI_SUBDEVICE_ID_LENOVO_5787M	0x3056
+#define TG3PCI_SUBDEVICE_ID_CITADEL_BEVERLYWOOD	0xD346
+#define TG3PCI_SUBDEVICE_ID_CITADEL_BEL_AIR	0xD146
+#define TG3PCI_SUBDEVICE_ID_CHANNEL_2908	0x2908
+#define TG3PCI_SUBDEVICE_ID_CHANNEL_2909	0x2909
 
 /* 0x30 --> 0x64 unused */
 #define TG3PCI_MSI_DATA			0x00000064
@@ -3551,7 +3555,7 @@ struct tg3 {
 	unsigned int			irq_cnt;
 
 	struct ethtool_coalesce		coal;
-	struct ethtool_eee		eee;
+	struct ethtool_keee		eee;
 
 	/* firmware info */
 	const char			*fw_needed;

@@ -1,14 +1,54 @@
                               Release Notes
                         Broadcom tg3 Linux Driver
-                              Version 3.139m
-                                05/09/2024
+                              Version 3.139s
+                                01/10/2025
 
-                          Broadcom Limited
+                              Broadcom Inc.
                          5300 California Avenue,
                             Irvine, CA 92617
 
-			Copyright (C) 2010-2024 Broadcom
+			Copyright (C) 2010-2025 Broadcom
 			   All Rights Reserved
+v3.139s(January 10, 2025)
+   fixes and Enhancements
+   ----------------------
+	1) Problem: (DCSG-15734) Building driver from TAR fails for NX1 adapter on SLES 15.6 OS
+	   Cause  : For make install to work, copy tg3.ko to /usr/lib/`uname -r`/updates folder
+
+v3.139r(December 3, 2024)
+   fixes and Enhancements
+   ----------------------
+	1) Problem: (DCSG-11382) RHEL 9.5 support
+	   Cause  : Add support for RHEL 9.5 OS
+
+v3.139q(November 25, 2024)
+   fixes and Enhancements
+   ----------------------
+	1) Problem: (DCSG01805024) Dmesg log show module name as 'pcieport', instead of 'tg3'
+	   Cause  : Relocation of netdev's logging related functions to a new header file
+v3.139p(September 06, 2024)
+   fixes and Enhancements
+   ----------------------
+	1) Problem: (DCSG01773944) Skip query for management FW when no NCSI present
+	   Cause  : "DASH" management FW is running by default when NCSI not present
+	2) Problem: (DCSG01787580) Include BCM5719 Channel SDID 2908 for Citadel support
+	   Cause  : Nvram write clears the write protect bit before nvram update.
+	3) Problem: (DCSG01773944) Include BCM5719 Channel SDID 2909 for Citadel support
+	   Cause  : Nvram write clears the write protect bit before nvram update.
+
+v3.139o(September 02, 2024)
+   fixes and Enhancements
+   ----------------------
+	1) Problem: (DCSG01787580) support for Bel-Air chips in OOB
+	   Cause  : Skip toggling write_protect bit on Bel-Air chips.
+
+v3.139n(August 12, 2024)
+   fixes and Enhancements
+   ----------------------
+	1) Problem: (DCSG01743362) openEuler 20.03sp4 support
+	   Cause  : Add support for openEuler 20.03sp4 OS.
+	2) Problem: (DCSG01773944) support for Citadel chips in OOB
+	   Cause  : Skip toggling write_protect bit on Citadel chips.
 
 v3.139m(May 09, 2024)
    fixes and Enhancements

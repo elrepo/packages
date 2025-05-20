@@ -13,6 +13,8 @@ ifeq ($(KVER),)
 	KVER=$(shell uname -r)
 endif
 
+KVER_MAJ=$(shell echo $(KVER) | cut -d "." -f1)
+
 BCMPROC=
 ifeq ($(BCMPROC),)
 	BCMPROC=$(shell uname -m)
@@ -68,7 +70,11 @@ ifeq ($(BCMMODDIR),)
 			ifeq ($(shell grep -q "search.*[[:space:]]updates" /etc/depmod.d/* > /dev/null 2>&1 && echo 1),1)
 				BCMMODDIR=/lib/modules/$(KVER)/updates
 			else
-				BCMMODDIR=/lib/modules/$(KVER)/kernel/drivers/net
+				ifeq ($(shell expr $(KVER_MAJ) \>= 3), 1)
+					BCMMODDIR=/lib/modules/$(KVER)/updates
+				else
+					BCMMODDIR=/lib/modules/$(KVER)/kernel/drivers/net
+				endif
 			endif
 		endif
 	endif

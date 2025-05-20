@@ -1,5 +1,5 @@
 %define brcmname tg3
-%define brcmvers 3.139m
+%define brcmvers 3.139s
 %define brcmfmly NetXtreme
 %define brcmwork %{brcmname}-%{brcmvers}
 
@@ -88,6 +88,27 @@ rm -rf $RPM_BUILD_ROOT
 %doc LICENSE README.TXT ChangeLog
 
 %changelog
+*Fri January 10 2025 Sreekanth Reddy <sreekanth.reddy@broadcom.com> 3.139s
+- For make install to work, copy tg3.ko to /usr/lib/kernel_version/updates folder
+
+*Tue December 03 2024 Shravya KN <shravya.k-n@broadcom.com> 3.139r
+- Add support for RHEL 9.5 OS
+
+*Mon November 25 2024 Shravya KN <shravya.k-n@broadcom.com> 3.139q
+- Updated makefile to grep netdev's logging related functions from correct header file.
+
+*Fri September 06 2024 Shravya KN <shravya.k-n@broadcom.com> 3.139p
+- Skip querying for management FW when no NCSI present
+- Include BCM5719 Channel SDID 2908 for Citadel support
+- Include BCM5719 Channel SDID 2909 for Citadel support
+
+*Mon September 02 2024 Sreekanth Reddy <sreekanth.reddy@broadcom.com> 3.139o
+- Support for Bel-Air chips in OOB
+
+*Mon August 12 2024 Sreekanth Reddy <sreekanth.reddy@broadcom.com> 3.139n
+- Add support for openEuler 20.03sp4 OS
+- Support for Citadel chips in OOB
+
 *Thu May 09 2024 Pavan Chebbi <pavan.chebbi@broadcom.com> 3.139m
 - Select CLOCK PLL on 5720 when shutting down with 1G speed
 - Add support for Ubuntu 24.04 LTS

@@ -303,7 +303,7 @@ if grep -q "lp_advertising" $srcdir/include/$UAPI/linux/ethtool.h ; then
 	echo "#define BCM_HAS_LP_ADVERTISING"
 fi
 
-if grep "supported_ring_params" $srcdir/include/linux/ethtool.h | grep u32 | grep -q -v "UEK_KABI_USE" ; then
+if grep -A 2 "get_ringparam" $srcdir/include/linux/ethtool.h | sed '/UEK_KABI_USE/,+2 d' | grep -q -o "struct kernel_ethtool_ringparam"; then
         echo "#define BCM_HAS_RINGPARAMS"
 fi
 
@@ -313,6 +313,10 @@ fi
 
 if grep -q "get_link_ksettings" $srcdir/include/linux/ethtool.h ; then
 	echo "#define BCM_HAS_ETHTOOL_LINK_KSETTINGS"
+fi
+
+if grep -q "struct ethtool_keee" $srcdir/include/linux/ethtool.h ; then
+	echo "#define BCM_HAS_ETHTOOL_KEEE"
 fi
 
 if grep -q "skb_transport_offset" $srcdir/include/linux/skbuff.h ; then
@@ -344,19 +348,20 @@ if grep -q "tcp_optlen" $srcdir/include/linux/tcp.h ; then
 fi
 
 TGT_H=$srcdir/include/linux/netdevice.h
-if grep -q "netdev_err" $TGT_H ; then
+TGT_H1=$srcdir/include/net/net_debug.h
+if grep -q "netdev_err" $TGT_H || grep -q "netdev_err" $TGT_H1 ; then
 	echo "#define BCM_HAS_NETDEV_ERR"
 fi
 
-if grep -q "netdev_warn" $TGT_H ; then
+if grep -q "netdev_warn" $TGT_H || grep -q "netdev_warn" $TGT_H1 ; then
 	echo "#define BCM_HAS_NETDEV_WARN"
 fi
 
-if grep -q "netdev_notice" $TGT_H ; then
+if grep -q "netdev_notice" $TGT_H || grep -q "netdev_notice" $TGT_H1 ; then
 	echo "#define BCM_HAS_NETDEV_NOTICE"
 fi
 
-if grep -q "netdev_info" $TGT_H ; then
+if grep -q "netdev_info" $TGT_H || grep -q "netdev_info" $TGT_H1 ; then
 	echo "#define BCM_HAS_NETDEV_INFO"
 fi
 

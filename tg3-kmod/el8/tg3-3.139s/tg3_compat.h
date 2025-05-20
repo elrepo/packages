@@ -2174,6 +2174,10 @@ struct ethtool_eee {
 };
 #endif
 
+#ifndef BCM_HAS_ETHTOOL_KEEE
+#define ethtool_keee ethtool_eee
+#endif
+
 #ifdef __VMKLNX__
 #ifndef SYSTEM_POWER_OFF
 #define SYSTEM_POWER_OFF (3)

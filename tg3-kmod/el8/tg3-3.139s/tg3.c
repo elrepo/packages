@@ -156,11 +156,11 @@ static inline void _tg3_flag_clear(enum TG3_FLAGS flag, unsigned long *bits)
 #define DRV_MODULE_NAME		"tg3"
 #define TG3_MAJ_NUM			3
 #define TG3_MIN_NUM			139
-#define TG3_REVISION		"m"
+#define TG3_REVISION		"s"
 #define DRV_MODULE_VERSION	\
 	__stringify(TG3_MAJ_NUM) "." __stringify(TG3_MIN_NUM)\
 	TG3_REVISION
-#define DRV_MODULE_RELDATE	"May 09, 2024"
+#define DRV_MODULE_RELDATE	"January 10, 2025"
 #define RESET_KIND_SHUTDOWN	0
 #define RESET_KIND_INIT		1
 #define RESET_KIND_SUSPEND	2
@@ -2556,10 +2556,10 @@ static void tg3_phy_apply_otp(struct tg3 *tp)
 	tg3_phy_toggle_auxctl_smdsp(tp, false);
 }
 
-static void tg3_eee_pull_config(struct tg3 *tp, struct ethtool_eee *eee)
+static void tg3_eee_pull_config(struct tg3 *tp, struct ethtool_keee *eee)
 {
 	u32 val;
-	struct ethtool_eee *dest = &tp->eee;
+	struct ethtool_keee *dest = &tp->eee;
 
 	if (!(tp->phy_flags & TG3_PHYFLG_EEE_CAP))
 		return;
@@ -2580,13 +2580,23 @@ static void tg3_eee_pull_config(struct tg3 *tp, struct ethtool_eee *eee)
 	/* Pull lp advertised settings */
 	if (tg3_phy_cl45_read(tp, MDIO_MMD_AN, MDIO_AN_EEE_LPABLE, &val))
 		return;
+
+#ifdef BCM_HAS_ETHTOOL_KEEE
+	mii_eee_cap1_mod_linkmode_t(dest->lp_advertised, val);
+#else
 	dest->lp_advertised = mmd_eee_adv_to_ethtool_adv_t(val);
+#endif
 
 	/* Pull advertised and eee_enabled settings */
 	if (tg3_phy_cl45_read(tp, MDIO_MMD_AN, MDIO_AN_EEE_ADV, &val))
 		return;
 	dest->eee_enabled = !!val;
+
+#ifdef BCM_HAS_ETHTOOL_KEEE
+	mii_eee_cap1_mod_linkmode_t(dest->lp_advertised, val);
+#else
 	dest->advertised = mmd_eee_adv_to_ethtool_adv_t(val);
+#endif
 
 	/* Pull tx_lpi_enabled */
 	val = tr32(TG3_CPMU_EEE_MODE);
@@ -4655,21 +4665,22 @@ static int tg3_phy_autoneg_cfg(struct tg3 *tp, u32 advertise, u32 flowctrl)
 	if (!err) {
 		u32 err2;
 
-		val = 0;
-		/* Advertise 100-BaseTX EEE ability */
-		if (advertise & ADVERTISED_100baseT_Full)
-			val |= MDIO_AN_EEE_ADV_100TX;
-		/* Advertise 1000-BaseT EEE ability */
-		if (advertise & ADVERTISED_1000baseT_Full)
-			val |= MDIO_AN_EEE_ADV_1000T;
-
 		if (!tp->eee.eee_enabled) {
 			val = 0;
+#ifdef BCM_HAS_ETHTOOL_KEEE
+			linkmode_zero(tp->eee.advertised);
+#else
 			tp->eee.advertised = 0;
+#endif
 		} else {
+			val = ethtool_adv_to_mmd_eee_adv_t(advertise);
+#ifdef BCM_HAS_ETHTOOL_KEEE
+			mii_eee_cap1_mod_linkmode_t(tp->eee.advertised, val);
+#else
 			tp->eee.advertised = advertise &
 					     (ADVERTISED_100baseT_Full |
 					      ADVERTISED_1000baseT_Full);
+#endif
 		}
 
 		err = tg3_phy_cl45_write(tp, MDIO_MMD_AN, MDIO_AN_EEE_ADV, val);
@@ -4932,7 +4943,7 @@ static int tg3_init_5401phy_dsp(struct tg3 *tp)
 
 static bool tg3_phy_eee_config_ok(struct tg3 *tp)
 {
-	struct ethtool_eee eee;
+	struct ethtool_keee eee;
 
 	if (!(tp->phy_flags & TG3_PHYFLG_EEE_CAP))
 		return true;
@@ -4940,13 +4951,21 @@ static bool tg3_phy_eee_config_ok(struct tg3 *tp)
 	tg3_eee_pull_config(tp, &eee);
 
 	if (tp->eee.eee_enabled) {
+#ifdef BCM_HAS_ETHTOOL_KEEE
+		if (!linkmode_equal(tp->eee.advertised, eee.advertised) ||
+#else
 		if (tp->eee.advertised != eee.advertised ||
+#endif
 		    tp->eee.tx_lpi_timer != eee.tx_lpi_timer ||
 		    tp->eee.tx_lpi_enabled != eee.tx_lpi_enabled)
 			return false;
 	} else {
 		/* EEE is disabled but we're advertising */
+#ifdef BCM_HAS_ETHTOOL_KEEE
+		if (!linkmode_empty(eee.advertised))
+#else
 		if (eee.advertised)
+#endif
 			return false;
 	}
 
@@ -15906,7 +15925,7 @@ static u32 tg3_get_link(struct net_device *dev)
 }
 
 #if defined(ETHTOOL_GEEE)
-static int tg3_set_eee(struct net_device *dev, struct ethtool_eee *edata)
+static int tg3_set_eee(struct net_device *dev, struct ethtool_keee *edata)
 {
 	struct tg3 *tp = netdev_priv(dev);
 
@@ -15915,7 +15934,11 @@ static int tg3_set_eee(struct net_device *dev, struct ethtool_eee *edata)
 		return -EOPNOTSUPP;
 	}
 
+#ifdef BCM_HAS_ETHTOOL_KEEE
+	if (!linkmode_equal(edata->advertised, tp->eee.advertised)) {
+#else
 	if (edata->advertised != tp->eee.advertised) {
+#endif
 		netdev_warn(tp->dev,
 			    "Direct manipulation of EEE advertisement is not supported\n");
 		return -EINVAL;
@@ -15943,7 +15966,7 @@ static int tg3_set_eee(struct net_device *dev, struct ethtool_eee *edata)
 	return 0;
 }
 
-static int tg3_get_eee(struct net_device *dev, struct ethtool_eee *edata)
+static int tg3_get_eee(struct net_device *dev, struct ethtool_keee *edata)
 {
 	struct tg3 *tp = netdev_priv(dev);
 
@@ -17241,11 +17264,28 @@ static void __devinit tg3_get_eeprom_hw_cfg(struct tg3 *tp)
 
 		if (nic_cfg & NIC_SRAM_DATA_CFG_EEPROM_WP) {
 			tg3_flag_set(tp, EEPROM_WRITE_PROT);
-			if ((tp->pdev->subsystem_vendor ==
-			     PCI_VENDOR_ID_ARIMA) &&
-			    (tp->pdev->subsystem_device == 0x205a ||
-			     tp->pdev->subsystem_device == 0x2063))
-				tg3_flag_clear(tp, EEPROM_WRITE_PROT);
+			switch (tp->pdev->subsystem_vendor) {
+			case PCI_VENDOR_ID_ARIMA:
+				if (tp->pdev->subsystem_device == 0x205a ||
+				    tp->pdev->subsystem_device == 0x2063)
+					tg3_flag_clear(tp, EEPROM_WRITE_PROT);
+				break;
+			case PCI_VENDOR_ID_BROADCOM:
+				/* No EEPROM write protection for CITADEL devices.*/
+				switch (tp->pdev->subsystem_device) {
+				case TG3PCI_SUBDEVICE_ID_CITADEL_BEVERLYWOOD:
+				case TG3PCI_SUBDEVICE_ID_CITADEL_BEL_AIR:
+				case TG3PCI_SUBDEVICE_ID_CHANNEL_2908:
+				case TG3PCI_SUBDEVICE_ID_CHANNEL_2909:
+					tg3_flag_clear(tp, EEPROM_WRITE_PROT);
+					break;
+				default:
+					break;
+				}
+				break;
+			default:
+				break;
+			}
 		} else {
 			tg3_flag_clear(tp, EEPROM_WRITE_PROT);
 			tg3_flag_set(tp, IS_NIC);
@@ -17548,10 +17588,20 @@ static int __devinit tg3_phy_probe(struct tg3 *tp)
 	      tg3_chip_rev_id(tp) != CHIPREV_ID_57765_A0))) {
 		tp->phy_flags |= TG3_PHYFLG_EEE_CAP;
 
+#ifdef BCM_HAS_ETHTOOL_KEEE
+		linkmode_zero(tp->eee.supported);
+		linkmode_set_bit(ETHTOOL_LINK_MODE_100baseT_Full_BIT,
+				 tp->eee.supported);
+		linkmode_set_bit(ETHTOOL_LINK_MODE_1000baseT_Full_BIT,
+				 tp->eee.supported);
+		linkmode_copy(tp->eee.advertised, tp->eee.supported);
+#else
 		tp->eee.supported = SUPPORTED_100baseT_Full |
 				    SUPPORTED_1000baseT_Full;
 		tp->eee.advertised = ADVERTISED_100baseT_Full |
 				     ADVERTISED_1000baseT_Full;
+#endif
+
 		tp->eee.eee_enabled = !tg3_disable_eee;
 		tp->eee.tx_lpi_enabled = 1;
 		tp->eee.tx_lpi_timer = TG3_CPMU_DBTMR1_LNKIDLE_2047US;
@@ -17899,19 +17949,23 @@ static void __devinit tg3_probe_ncsi(struct tg3 *tp)
 
 static void __devinit tg3_read_dash_ver(struct tg3 *tp)
 {
-	int vlen;
+	char *fwtype = "DASH";
 	u32 apedata;
-	char *fwtype;
+	int vlen;
 
-	apedata = tg3_ape_read32(tp, TG3_APE_FW_VERSION);
-
-	if (tg3_flag(tp, APE_HAS_NCSI))
+	if (tg3_flag(tp, APE_HAS_NCSI)) {
 		fwtype = "NCSI";
-	else if (tp->pdev->device == TG3PCI_DEVICE_TIGON3_5725)
+		goto read_version;
+	} else if (tp->pdev->device == TG3PCI_DEVICE_TIGON3_5725) {
 		fwtype = "SMASH";
-	else
-		fwtype = "DASH";
+	}
 
+	if (tg3_asic_rev(tp) == ASIC_REV_5719 ||
+	    tg3_asic_rev(tp) == ASIC_REV_5720)
+		return;
+
+read_version:
+	apedata = tg3_ape_read32(tp, TG3_APE_FW_VERSION);
 	vlen = strlen(tp->fw_ver);
 
 	snprintf(&tp->fw_ver[vlen], TG3_VER_SIZE - vlen, " %s v%d.%d.%d.%d",
