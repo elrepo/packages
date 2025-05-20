@@ -2,13 +2,13 @@
 %define kmod_name		tg3
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.51.1.el8_10}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	3.139s
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -185,6 +185,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue May 20 2025 Tuan Hoang <tqhoang@elrepo.org> - 3.139s-2
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.51.1.el8_10
+
 * Tue May 20 2025 Tuan Hoang <tqhoang@elrepo.org> - 3.139s-1
 - Update to version 3.139s
 - Rebuilt against RHEL 8.10 GA kernel
