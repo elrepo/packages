@@ -80,7 +80,12 @@ echo "override vhci-hcd * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 %patch0 -p1
 
 %build
-%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
+%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD \
+	CONFIG_USBIP_CORE=m \
+	CONFIG_USBIP_VHCI_HCD=m \
+	CONFIG_USBIP_VHCI_HC_PORTS=8 \
+	CONFIG_USBIP_VHCI_NR_HCS=1 \
+	CONFIG_USBIP_HOST=m \
 
 whitelist="/lib/modules/kabi-current/kabi_stablelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -197,6 +202,7 @@ exit 0
 * Wed May 14 2025 Akemi Yagi <toracat@elrepo.org> - 0.0-9
 - Rebuilt for RHEL 9.6
 - Source updated from RHEL 9.6 GA kernel
+- Add patch to rename functions to fix symbol issues
 
 * Tue Nov 12 2024 Philip J Perry <phil@elrepo.org> - 0.0-8
 - Rebuilt for RHEL 9.5
