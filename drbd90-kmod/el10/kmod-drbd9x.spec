@@ -3,7 +3,7 @@
 %define real_name 		drbd
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-55.11.1.el10_0}
+%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-55.9.1.el10_0}
 
 %{!?dist: %define dist .el10}
 
@@ -193,7 +193,7 @@ exit 0
 
 %changelog
 * Mon May 19 2025 Akemi Yagi <toracat@elrepo.org> - 9.2.13-2.el10_0
-- Rebuilt against the RHEL 10 GA kernel 6.12.0-55.11.1.el10_0
+- Rebuilt against the RHEL 10 GA kernel 6.12.0-55.9.1.el10_0
 
 * Thu Mar 27 2025 Akemi Yagi <toracat@elrepo.org> - 9.2.13-1.el10
 - Version updated to 9.2.13
