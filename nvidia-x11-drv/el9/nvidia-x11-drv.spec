@@ -298,9 +298,9 @@ popd
 %{__ln_s} libnvidia-eglcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-eglcore.so
 %{__ln_s} libnvidia-egl-gbm.so.1.1.2 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-gbm.so.1
 %{__ln_s} libnvidia-egl-gbm.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-gbm.so
-%{__ln_s} libnvidia-egl-xcb.so.1.0.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xcb.so.1
+%{__ln_s} libnvidia-egl-xcb.so.1.0.2 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xcb.so.1
 %{__ln_s} libnvidia-egl-xcb.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xcb.so
-%{__ln_s} libnvidia-egl-xlib.so.1.0.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xlib.so.1
+%{__ln_s} libnvidia-egl-xlib.so.1.0.2 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xlib.so.1
 %{__ln_s} libnvidia-egl-xlib.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xlib.so
 %{__ln_s} libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-encode.so.1
 %{__ln_s} libnvidia-encode.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-encode.so
