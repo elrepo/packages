@@ -22,6 +22,9 @@ Source20:	ELRepo-Makefile-%{kmod_name}
 # Patches
 Patch0:		ELRepo-r8126.patch
 
+# Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
+# https://bugzilla.redhat.com/show_bug.cgi?id=1967291
+
 %define __spec_install_post \
 		/usr/lib/rpm/check-buildroot \
 		/usr/lib/rpm/redhat/brp-ldconfig \
