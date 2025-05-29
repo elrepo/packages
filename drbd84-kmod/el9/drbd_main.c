@@ -471,20 +471,6 @@ void _drbd_thread_stop(struct drbd_thread *thi, int restart, int wait)
 		wait_for_completion(&thi->stop);
 }
 
-int conn_lowest_minor(struct drbd_connection *connection)
-{
-	struct drbd_peer_device *peer_device;
-	int vnr = 0, minor = -1;
-
-	rcu_read_lock();
-	peer_device = idr_get_next(&connection->peer_devices, &vnr);
-	if (peer_device)
-		minor = device_to_minor(peer_device->device);
-	rcu_read_unlock();
-
-	return minor;
-}
-
 #ifdef CONFIG_SMP
 /*
  * drbd_calc_cpu_mask() - Generate CPU masks, spread over all CPUs
@@ -2686,6 +2672,17 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
 	int id;
 	int vnr = adm_ctx->volume;
 	enum drbd_ret_code err = ERR_NOMEM;
+	struct queue_limits lim = {
+		/*
+		 * Setting the max_hw_sectors to an odd value of 8kibyte here.
+		 * This triggers a max_bio_size message upon first attach or
+		 * connect.
+		 */
+		.max_hw_sectors		= DRBD_MAX_BIO_SIZE_SAFE >> 8,
+		.features		= BLK_FEAT_WRITE_CACHE | BLK_FEAT_FUA |
+					  BLK_FEAT_ROTATIONAL |
+					  BLK_FEAT_STABLE_WRITES,
+	};
 
 	device = minor_to_device(minor);
 	if (device)
@@ -2704,9 +2701,11 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
 
 	drbd_init_set_defaults(device);
 
-	disk = blk_alloc_disk(NUMA_NO_NODE);
-	if (!disk)
+	disk = blk_alloc_disk(&lim, NUMA_NO_NODE);
+	if (IS_ERR(disk)) {
+		err = PTR_ERR(disk);
 		goto out_no_disk;
+	}
 
 	device->vdisk = disk;
 	device->rq_queue = disk->queue;
@@ -2720,12 +2719,6 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
 	disk->flags |= GENHD_FL_NO_PART;
 	sprintf(disk->disk_name, "drbd%d", minor);
 	disk->private_data = device;
-
-	blk_queue_flag_set(QUEUE_FLAG_STABLE_WRITES, disk->queue);
-	blk_queue_write_cache(disk->queue, true, true);
-	/* Setting the max_hw_sectors to an odd value of 8kibyte here
-	   This triggers a max_bio_size message upon first attach or connect */
-	blk_queue_max_hw_sectors(disk->queue, DRBD_MAX_BIO_SIZE_SAFE >> 8);
 
 	device->md_io.page = alloc_page(GFP_KERNEL);
 	if (!device->md_io.page)
@@ -3388,10 +3381,12 @@ void drbd_uuid_new_current(struct drbd_device *device) __must_hold(local)
 void drbd_uuid_set_bm(struct drbd_device *device, u64 val) __must_hold(local)
 {
 	unsigned long flags;
-	if (device->ldev->md.uuid[UI_BITMAP] == 0 && val == 0)
-		return;
-
 	spin_lock_irqsave(&device->ldev->md.uuid_lock, flags);
+	if (device->ldev->md.uuid[UI_BITMAP] == 0 && val == 0) {
+		spin_unlock_irqrestore(&device->ldev->md.uuid_lock, flags);
+		return;
+	}
+
 	if (val == 0) {
 		drbd_uuid_move_history(device);
 		device->ldev->md.uuid[UI_HISTORY_START] = device->ldev->md.uuid[UI_BITMAP];
