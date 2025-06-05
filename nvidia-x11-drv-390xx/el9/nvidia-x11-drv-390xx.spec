@@ -366,6 +366,6 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.*
 
 %changelog
-* Thu Jun 06 2024 Tuan Hoang <tqhoang@elrepo.org> - 390.157-1
-- Initial build for EL 9.4
+* Tue May 27 2025 Tuan Hoang <tqhoang@elrepo.org> - 390.157-1
+- Initial build for EL 9.5
 

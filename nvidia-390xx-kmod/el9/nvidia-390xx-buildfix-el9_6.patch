@@ -1,0 +1,81 @@
+diff -Naurp kmod-nvidia-390xx-390.157.el9_5/nvidiapkg/kernel/common/inc/nv-mm.h kmod-nvidia-390xx-390.157.el9_6/nvidiapkg/kernel/common/inc/nv-mm.h
+--- kmod-nvidia-390xx-390.157.el9_5/nvidiapkg/kernel/common/inc/nv-mm.h	2025-05-28 09:20:17.897101298 -0400
++++ kmod-nvidia-390xx-390.157.el9_6/nvidiapkg/kernel/common/inc/nv-mm.h	2025-06-02 12:17:11.063815871 -0400
+@@ -23,6 +23,7 @@
+ #ifndef __NV_MM_H__
+ #define __NV_MM_H__
+ 
++#include <linux/version.h>
+ #include "conftest.h"
+ 
+ #if !defined(NV_VM_FAULT_T_IS_PRESENT)
+@@ -47,7 +48,27 @@ typedef int vm_fault_t;
+  *
+  */
+ 
+-#if defined(NV_GET_USER_PAGES_HAS_TASK_STRUCT)
++// Rel. commit. "mm/gup: remove unused vmas parameter from get_user_pages()" (Lorenzo Stoakes, 14 May 2023)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 5, 0) || (RHEL_MAJOR == 9 && RHEL_MINOR >= 6)
++#include <linux/mm.h>
++
++static inline long NV_GET_USER_PAGES(unsigned long start,
++                                     unsigned long nr_pages,
++                                     int write,
++                                     int force,
++                                     struct page **pages,
++                                     struct vm_area_struct **vmas)
++{
++    unsigned int flags = 0;
++
++    if (write)
++        flags |= FOLL_WRITE;
++    if (force)
++        flags |= FOLL_FORCE;
++
++    return get_user_pages(start, nr_pages, flags, pages);
++}
++#elif defined(NV_GET_USER_PAGES_HAS_TASK_STRUCT)
+     #if defined(NV_GET_USER_PAGES_HAS_WRITE_AND_FORCE_ARGS)
+         #define NV_GET_USER_PAGES(start, nr_pages, write, force, pages, vmas) \
+             get_user_pages(current, current->mm, start, nr_pages, write, force, pages, vmas)
+@@ -130,7 +151,27 @@ typedef int vm_fault_t;
+  *
+  */
+ 
+-#if defined(NV_GET_USER_PAGES_REMOTE_PRESENT)
++// Rel. commit. "mm/gup: remove unused vmas parameter from get_user_pages_remote()" (Lorenzo Stoakes, 14 May 2023)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 5, 0) || (RHEL_MAJOR == 9 && RHEL_MINOR >= 6)
++static inline long NV_GET_USER_PAGES_REMOTE(struct task_struct *tsk,
++                                            struct mm_struct *mm,
++                                            unsigned long start,
++                                            unsigned long nr_pages,
++                                            int write,
++                                            int force,
++                                            struct page **pages,
++                                            struct vm_area_struct **vmas)
++{
++    unsigned int flags = 0;
++
++    if (write)
++        flags |= FOLL_WRITE;
++    if (force)
++        flags |= FOLL_FORCE;
++
++    return get_user_pages_remote(mm, start, nr_pages, flags, pages, NULL);
++}
++#elif defined(NV_GET_USER_PAGES_REMOTE_PRESENT)
+     #if defined(NV_GET_USER_PAGES_REMOTE_HAS_WRITE_AND_FORCE_ARGS)
+         #define NV_GET_USER_PAGES_REMOTE    get_user_pages_remote
+     #else
+diff -Naurp kmod-nvidia-390xx-390.157.el9_5/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c kmod-nvidia-390xx-390.157.el9_6/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c
+--- kmod-nvidia-390xx-390.157.el9_5/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c	2025-05-28 09:20:17.898101285 -0400
++++ kmod-nvidia-390xx-390.157.el9_6/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c	2025-06-03 17:51:52.081997879 -0400
+@@ -167,8 +167,6 @@ static const struct drm_mode_config_func
+     .atomic_state_free  = nv_drm_atomic_state_free,
+     .atomic_check  = nv_drm_atomic_check,
+     .atomic_commit = nv_drm_atomic_commit,
+-
+-    .output_poll_changed = nv_drm_output_poll_changed,
+ };
+ 
+ static void nv_drm_event_callback(const struct NvKmsKapiEvent *event)

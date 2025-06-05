@@ -2,7 +2,7 @@
 %define kmod_name	nvidia-390xx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-427.13.1.el9_4}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.12.1.el9_6}
 
 %{!?dist: %define dist .el9}
 
@@ -15,13 +15,15 @@ License:	GPLv2
 URL:		http://www.nvidia.com/
 
 # Sources
-Source0:  https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
-Source1:  blacklist-nouveau.conf
-Source2:  dracut-nvidia.conf
+Source0:	https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+Source1:	blacklist-nouveau.conf
+Source2:	dracut-nvidia.conf
 
 # Source code patches
-Patch0:		nvidia-390xx-buildfix-el9.patch
-Patch1:		nvidia-390xx-force-drm-modeset.patch
+Patch0:		nvidia-390xx-buildfix-el9_4.patch
+Patch1:		nvidia-390xx-buildfix-el9_5.patch
+Patch2:		nvidia-390xx-buildfix-el9_6.patch
+Patch10:	nvidia-390xx-force-drm-modeset.patch
 
 %if %{?_with_src:0}%{!?_with_src:1}
 NoSource: 0
@@ -87,6 +89,8 @@ echo "override nvidia-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 sh %{SOURCE0} --extract-only --target nvidiapkg
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
+%patch10 -p1
 %{__cp} -a nvidiapkg _kmod_build_
 
 %build
@@ -140,7 +144,7 @@ find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --str
 %{__rm} -rf %{buildroot}
 
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_name} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -229,6 +233,6 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Tue Sep 03 2024 Tuan Hoang <tqhoang@elrepo.org> - 390.157-1
-- Initial build for EL 9.4
+* Tue May 27 2025 Tuan Hoang <tqhoang@elrepo.org> - 390.157-1
+- Initial build for EL 9.6
 
