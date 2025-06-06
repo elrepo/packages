@@ -1,0 +1,249 @@
+diff -Naurp usbip-0.0.orig/stub_main.c usbip-0.0.el9_6/stub_main.c
+--- usbip-0.0.orig/stub_main.c	2025-04-29 16:09:13.000000000 -0400
++++ usbip-0.0.el9_6/stub_main.c	2025-06-05 22:42:47.986863423 -0400
+@@ -363,6 +363,11 @@ static int __init usbip_host_init(void)
+ {
+ 	int ret;
+ 
++	/*
++	 * usbip-core init
++	 */
++	usbip_init_eh();
++
+ 	init_busid_table();
+ 
+ 	stub_priv_cache = KMEM_CACHE(stub_priv, SLAB_HWCACHE_ALIGN);
+@@ -418,6 +423,11 @@ static void __exit usbip_host_exit(void)
+ 	stub_device_rebind();
+ 
+ 	kmem_cache_destroy(stub_priv_cache);
++
++	/*
++	 * usbip-core exit
++	 */
++	usbip_finish_eh();
+ }
+ 
+ module_init(usbip_host_init);
+diff -Naurp usbip-0.0.orig/usbip_common.c usbip-0.0.el9_6/usbip_common.c
+--- usbip-0.0.orig/usbip_common.c	2025-04-29 16:09:13.000000000 -0400
++++ usbip-0.0.el9_6/usbip_common.c	2025-06-05 22:42:25.684879543 -0400
+@@ -25,13 +25,17 @@ unsigned long usbip_debug_flag = 0xfffff
+ #else
+ unsigned long usbip_debug_flag;
+ #endif
++#if 0
+ EXPORT_SYMBOL_GPL(usbip_debug_flag);
++#endif
+ module_param(usbip_debug_flag, ulong, S_IRUGO|S_IWUSR);
+ MODULE_PARM_DESC(usbip_debug_flag, "debug flags (defined in usbip_common.h)");
+ 
+ /* FIXME */
+ struct device_attribute dev_attr_usbip_debug;
++#if 0
+ EXPORT_SYMBOL_GPL(dev_attr_usbip_debug);
++#endif
+ 
+ static ssize_t usbip_debug_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+@@ -254,7 +258,9 @@ void usbip_dump_urb(struct urb *urb)
+ 	dev_dbg(dev, "   interval              :%d\n", urb->interval);
+ 	dev_dbg(dev, "   error_count           :%d\n", urb->error_count);
+ }
++#if 0
+ EXPORT_SYMBOL_GPL(usbip_dump_urb);
++#endif
+ 
+ void usbip_dump_header(struct usbip_header *pdu)
+ {
+@@ -296,7 +302,9 @@ void usbip_dump_header(struct usbip_head
+ 		break;
+ 	}
+ }
++#if 0
+ EXPORT_SYMBOL_GPL(usbip_dump_header);
++#endif
+ 
+ /* Receive data over TCP/IP. */
+ int usbip_recv(struct socket *sock, void *buf, int size)
+@@ -336,7 +344,9 @@ int usbip_recv(struct socket *sock, void
+ err:
+ 	return result;
+ }
++#if 0
+ EXPORT_SYMBOL_GPL(usbip_recv);
++#endif
+ 
+ /* there may be more cases to tweak the flags. */
+ static unsigned int tweak_transfer_flags(unsigned int flags)
+@@ -491,7 +501,9 @@ void usbip_pack_pdu(struct usbip_header
+ 		break;
+ 	}
+ }
++#if 0
+ EXPORT_SYMBOL_GPL(usbip_pack_pdu);
++#endif
+ 
+ static void correct_endian_basic(struct usbip_header_basic *base, int send)
+ {
+@@ -597,7 +609,9 @@ void usbip_header_correct_endian(struct
+ 		break;
+ 	}
+ }
++#if 0
+ EXPORT_SYMBOL_GPL(usbip_header_correct_endian);
++#endif
+ 
+ static void usbip_iso_packet_correct_endian(
+ 		struct usbip_iso_packet_descriptor *iso, int send)
+@@ -654,7 +668,9 @@ usbip_alloc_iso_desc_pdu(struct urb *urb
+ 
+ 	return iso;
+ }
++#if 0
+ EXPORT_SYMBOL_GPL(usbip_alloc_iso_desc_pdu);
++#endif
+ 
+ /* some members of urb must be substituted before. */
+ int usbip_recv_iso(struct usbip_device *ud, struct urb *urb)
+@@ -716,7 +732,9 @@ int usbip_recv_iso(struct usbip_device *
+ 
+ 	return ret;
+ }
++#if 0
+ EXPORT_SYMBOL_GPL(usbip_recv_iso);
++#endif
+ 
+ /*
+  * This functions restores the padding which was removed for optimizing
+@@ -756,7 +774,9 @@ void usbip_pad_iso(struct usbip_device *
+ 			urb->iso_frame_desc[i].actual_length);
+ 	}
+ }
++#if 0
+ EXPORT_SYMBOL_GPL(usbip_pad_iso);
++#endif
+ 
+ /* some members of urb must be substituted before. */
+ int usbip_recv_xbuff(struct usbip_device *ud, struct urb *urb)
+@@ -832,8 +852,11 @@ error:
+ 
+ 	return -EPIPE;
+ }
++#if 0
+ EXPORT_SYMBOL_GPL(usbip_recv_xbuff);
++#endif
+ 
++#if 0
+ static int __init usbip_core_init(void)
+ {
+ 	return usbip_init_eh();
+@@ -851,3 +874,4 @@ module_exit(usbip_core_exit);
+ MODULE_AUTHOR(DRIVER_AUTHOR);
+ MODULE_DESCRIPTION(DRIVER_DESC);
+ MODULE_LICENSE("GPL");
++#endif
+diff -Naurp usbip-0.0.orig/usbip_event.c usbip-0.0.el9_6/usbip_event.c
+--- usbip-0.0.orig/usbip_event.c	2025-04-29 16:09:13.000000000 -0400
++++ usbip-0.0.el9_6/usbip_event.c	2025-06-05 22:41:15.249772204 -0400
+@@ -103,7 +103,9 @@ int usbip_start_eh(struct usbip_device *
+ 	ud->event = 0;
+ 	return 0;
+ }
++#if 0
+ EXPORT_SYMBOL_GPL(usbip_start_eh);
++#endif
+ 
+ void usbip_stop_eh(struct usbip_device *ud)
+ {
+@@ -118,7 +120,9 @@ void usbip_stop_eh(struct usbip_device *
+ 	wait_event_interruptible(ud->eh_waitq, !(ud->event & ~USBIP_EH_BYE));
+ 	usbip_dbg_eh("usbip_eh has stopped\n");
+ }
++#if 0
+ EXPORT_SYMBOL_GPL(usbip_stop_eh);
++#endif
+ 
+ #define WORK_QUEUE_NAME "usbip_event"
+ 
+@@ -170,7 +174,9 @@ void usbip_event_add(struct usbip_device
+ out:
+ 	spin_unlock_irqrestore(&event_lock, flags);
+ }
++#if 0
+ EXPORT_SYMBOL_GPL(usbip_event_add);
++#endif
+ 
+ int usbip_event_happened(struct usbip_device *ud)
+ {
+@@ -184,7 +190,9 @@ int usbip_event_happened(struct usbip_de
+ 
+ 	return happened;
+ }
++#if 0
+ EXPORT_SYMBOL_GPL(usbip_event_happened);
++#endif
+ 
+ int usbip_in_eh(struct task_struct *task)
+ {
+@@ -193,4 +201,6 @@ int usbip_in_eh(struct task_struct *task
+ 
+ 	return 0;
+ }
++#if 0
+ EXPORT_SYMBOL_GPL(usbip_in_eh);
++#endif
+diff -Naurp usbip-0.0.orig/vhci_hcd.c usbip-0.0.el9_6/vhci_hcd.c
+--- usbip-0.0.orig/vhci_hcd.c	2025-04-29 16:09:13.000000000 -0400
++++ usbip-0.0.el9_6/vhci_hcd.c	2025-06-05 22:42:57.491282723 -0400
+@@ -1510,6 +1510,11 @@ static int __init vhci_hcd_init(void)
+ {
+ 	int i, ret;
+ 
++	/*
++	 * usbip-core init
++	 */
++	usbip_init_eh();
++
+ 	if (usb_disabled())
+ 		return -ENODEV;
+ 
+@@ -1556,6 +1561,11 @@ static void __exit vhci_hcd_exit(void)
+ 	del_platform_devices();
+ 	platform_driver_unregister(&vhci_driver);
+ 	kfree(vhcis);
++
++	/*
++	 * usbip-core exit
++	 */
++	usbip_finish_eh();
+ }
+ 
+ module_init(vhci_hcd_init);
+diff -Naurp usbip-0.0.orig/vudc_main.c usbip-0.0.el9_6/vudc_main.c
+--- usbip-0.0.orig/vudc_main.c	2025-04-29 16:09:13.000000000 -0400
++++ usbip-0.0.el9_6/vudc_main.c	2025-06-05 22:43:23.323422344 -0400
+@@ -34,6 +34,11 @@ static int __init vudc_init(void)
+ 	int i;
+ 	struct vudc_device *udc_dev = NULL, *udc_dev2 = NULL;
+ 
++	/*
++	 * usbip-core init
++	 */
++	usbip_init_eh();
++
+ 	if (usb_disabled())
+ 		return -ENODEV;
+ 
+@@ -102,6 +107,11 @@ static void __exit vudc_cleanup(void)
+ 		put_vudc_device(udc_dev);
+ 	}
+ 	platform_driver_unregister(&vudc_driver);
++
++	/*
++	 * usbip-core exit
++	 */
++	usbip_finish_eh();
+ }
+ module_exit(vudc_cleanup);
+ 

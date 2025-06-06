@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	9%{?dist}
+Release:	10%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -17,9 +17,10 @@ URL:		http://www.kernel.org/
 # Sources.
 Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
+Source20:	ELRepo-Makefile-usbip
 
 # Source code patches.
-Patch0:		elrepo-usbip-function-rename-el9_6.patch
+Patch0:		ELRepo-usbip-integrate-core-el9_6.patch
 
 %define __spec_install_post \
 		/usr/lib/rpm/check-buildroot \
@@ -42,7 +43,7 @@ Patch0:		elrepo-usbip-function-rename-el9_6.patch
 %global _use_internal_dependency_generator 0
 %global kernel_source() %{_usrsrc}/kernels/%{kmod_kernel_version}.%{_arch}
 
-BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
+BuildRoot:		%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 ExclusiveArch:		x86_64
 
@@ -55,11 +56,11 @@ BuildRequires:		rpm-build
 BuildRequires:		gcc
 BuildRequires:		make
 
-Provides:			kernel-modules >= %{kmod_kernel_version}.%{_arch}
-Provides:			kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:		kernel-modules >= %{kmod_kernel_version}.%{_arch}
+Provides:		kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
 
-Requires:			kernel >= %{kmod_kernel_version}
-Requires:			kernel-core-uname-r >= %{kmod_kernel_version}
+Requires:		kernel >= %{kmod_kernel_version}
+Requires:		kernel-core-uname-r >= %{kmod_kernel_version}
 
 Requires(post):		%{_sbindir}/depmod
 Requires(postun):	%{_sbindir}/depmod
@@ -73,19 +74,17 @@ of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
 %setup -q -n %{kmod_name}-%{version}
-echo "override %{kmod_name}-core * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+# echo "override %{kmod_name}-core * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 echo "override %{kmod_name}-host * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 # echo "override %{kmod_name}-vudc * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 echo "override vhci-hcd * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+
 %patch0 -p1
+%{__rm} -f Makefile
+%{__cp} -a %{SOURCE20} Makefile
 
 %build
-%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD \
-	CONFIG_USBIP_CORE=m \
-	CONFIG_USBIP_VHCI_HCD=m \
-	CONFIG_USBIP_VHCI_HC_PORTS=8 \
-	CONFIG_USBIP_VHCI_NR_HCS=1 \
-	CONFIG_USBIP_HOST=m \
+%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
 
 whitelist="/lib/modules/kabi-current/kabi_stablelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -98,7 +97,7 @@ sort -u greylist | uniq > greylist.txt
 
 %install
 %{__install} -d %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-%{__install} %{kmod_name}-core.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+# %{__install} %{kmod_name}-core.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} %{kmod_name}-host.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 # %{__install} %{kmod_name}-vudc.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} vhci-hcd.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
@@ -126,7 +125,7 @@ find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --str
 %{__rm} -rf %{buildroot}
 
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_name} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -199,6 +198,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Jun 05 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-10
+- Fix https://github.com/elrepo/packages/issues/258
+- Add Makefile and patch to integrate usbip-core module
+
 * Wed May 14 2025 Akemi Yagi <toracat@elrepo.org> - 0.0-9
 - Rebuilt for RHEL 9.6
 - Source updated from RHEL 9.6 GA kernel
