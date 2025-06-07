@@ -8,8 +8,8 @@
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	9.2.13
-Release:	4%{?dist}
+Version:	9.2.14
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -196,6 +196,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat Jun 07 2025 Akemi Yagi <toracat@elrepo.org> - 9.2.14-1.el9_6
+- verison updated to 9.2.14
+
 * Tue May 13 2025 Akemi Yagi <toracat@elrepo.org> - 9.2.13-4.el9_6
 - Built for RHEL 9.6
 
