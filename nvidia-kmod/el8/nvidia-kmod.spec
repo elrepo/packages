@@ -14,7 +14,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	570.169
+Version:	570.172.08
 Release:	1%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
@@ -161,7 +161,7 @@ done
 %{__rm} -rf %{buildroot}
 
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_basename} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_basename} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -253,6 +253,9 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Fri Jul 18 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.172.08-1
+- Updated to version 570.172.08
+
 * Thu Jun 19 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.169-1
 - Updated to version 570.169
 

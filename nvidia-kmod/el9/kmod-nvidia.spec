@@ -8,13 +8,13 @@
 %define kmod_name	%{kmod_basename}%{?kmod_open}
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.12.1.el9_6}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.26.1.el9_6}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	570.169
-Release:	1%{?dist}
+Version:	570.172.08
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	MIT and Redistributable, no modification permitted
@@ -154,7 +154,7 @@ find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --str
 %{__rm} -rf %{buildroot}
 
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_basename} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_basename} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -246,6 +246,12 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Fri Jul 18 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.172.08-2
+- Built against RHEL 9.6 errata kernel 5.14.0-570.26.1.el9_6
+
+* Fri Jul 18 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.172.08-1
+- Updated to version 570.172.08
+
 * Thu Jun 19 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.169-1
 - Updated to version 570.169
 
