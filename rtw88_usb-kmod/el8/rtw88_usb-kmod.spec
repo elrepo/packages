@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,6 +19,12 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
+Patch0:		rtw88-rtw8821cu-0001-Add-missing-VID-PIDs-for-8811CU-and-8821C.patch
+Patch1:		rtw88-rtw8821cu-0002-Remove-VID-PID-0bda-c82c.patch
+Patch2:		rtw88-rtw8822bu-0001-Add-additional-USB-IDs-for-RTL8812BU.patch
+Patch3:		rtw88-rtw8822bu-0002-Add-support-for-Mercusys-MA30N-and-D-Link.patch
+Patch4:		rtw88-rtw8822bu-0003-VID-PID-for-BUFFALO-WI-U2-866DM.patch
+Patch5:		rtw88-rtw8822cu-0001-fix-typo-rtw8822cu_probe.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -73,7 +79,12 @@ for modules in rtw88_usb rtw88_8723d rtw88_8723du rtw88_8821c rtw88_8821cu rtw88
 done
 
 # Apply patch(es)
-# % patch0 -p1
+%patch0 -p6
+%patch1 -p6
+%patch2 -p6
+%patch3 -p6
+%patch4 -p6
+%patch5 -p6
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD \
@@ -200,6 +211,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat Jul 19 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-2
+- Add upstream patches for additional rtw88_8821cu devices
+- Add upstream patches for additional rtw88_8822bu devices
+- Add upstream patch to fix typo in rtw88_8822cu driver
+
 * Tue Jul 15 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-1
 - Initial build for EL8.10
 - Built from the source for RHEL 8.10 GA kernel

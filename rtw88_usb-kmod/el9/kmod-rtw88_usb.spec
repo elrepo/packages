@@ -8,15 +8,20 @@
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	8%{?dist}
+Release:	9%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
 URL:		http://www.kernel.org/
 
-# Sources.
+# Sources
 Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
+
+# Source code patches
+Patch0:		rtw88-rtw8822bu-0001-Add-additional-USB-IDs-for-RTL8812BU.patch
+Patch1:		rtw88-rtw8822bu-0002-Add-support-for-Mercusys-MA30N-and-D-Link.patch
+Patch2:		rtw88-rtw8822bu-0003-VID-PID-for-BUFFALO-WI-U2-866DM.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -75,14 +80,26 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -q -n %{kmod_name}-%{version}
 cat /dev/null > kmod-%{kmod_name}.conf
-for modules in rtw88_8723du rtw88_8821cu rtw88_8822cu ; do
+for modules in rtw88_8723du rtw88_8821cu rtw88_8822bu rtw88_8822cu ; do
 	echo "override $modules * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 done
 
+# Apply patch(es)
+%patch0 -p6
+%patch1 -p6
+%patch2 -p6
+
 %build
-%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD M=$PWD \
-	CONFIG_RTW88_8723DU=m CONFIG_RTW88_8821CU=m CONFIG_RTW88_8822CU=m \
-	EXTRA_CFLAGS='-DCONFIG_RTW88_8723DU -DCONFIG_RTW88_8821CU -DCONFIG_RTW88_8822CU'
+%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD \
+	CONFIG_RTW88_USB=m \
+	CONFIG_RTW88_8723D=m \
+	CONFIG_RTW88_8723DU=m \
+	CONFIG_RTW88_8821C=m \
+	CONFIG_RTW88_8821CU=m \
+	CONFIG_RTW88_8822B=m \
+	CONFIG_RTW88_8822BU=m \
+	CONFIG_RTW88_8822C=m \
+	CONFIG_RTW88_8822CU=m \
 
 whitelist="/lib/modules/kabi-current/kabi_stablelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -95,7 +112,7 @@ sort -u greylist | uniq > greylist.txt
 
 %install
 %{__install} -d %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-%{__install} *{cu,du}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+%{__install} *{bu,cu,du}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
@@ -120,7 +137,7 @@ find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --str
 %{__rm} -rf %{buildroot}
 
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_name} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -193,6 +210,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat Jul 19 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-9
+- Re-add rtw88_8822bu driver
+- Add upstream patches for additional rtw88_8822bu devices
+
 * Wed May 14 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-8
 - Rebuilt against RHEL 9.6 GA kernel
 - Source code from kernel-5.14.0-570.12.1.el9_6
