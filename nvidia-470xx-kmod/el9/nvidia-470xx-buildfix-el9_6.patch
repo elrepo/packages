@@ -1,0 +1,116 @@
+diff -Naurp kmod-nvidia-470xx-470.256.02.orig/nvidiapkg/kernel/conftest.sh kmod-nvidia-470xx-470.256.02/nvidiapkg/kernel/conftest.sh
+--- kmod-nvidia-470xx-470.256.02.orig/nvidiapkg/kernel/conftest.sh	2025-07-19 10:59:24.141352552 -0400
++++ kmod-nvidia-470xx-470.256.02/nvidiapkg/kernel/conftest.sh	2025-07-19 10:56:11.152665888 -0400
+@@ -4666,6 +4666,24 @@ compile_test() {
+             compile_check_conftest "$CODE" "NV_PCI_CLASS_MULTIMEDIA_HD_AUDIO_PRESENT" "" "generic"
+         ;;
+ 
++        follow_pfn)
++            #
++            # Determine if follow_pfn() is present.
++            #
++            # follow_pfn() was added by commit 3b6748e2dd69
++            # ("mm: introduce follow_pfn()") in v2.6.31-rc1, and removed
++            # by commit 233eb0bf3b94 ("mm: remove follow_pfn")
++            # from linux-next 233eb0bf3b94.
++            #
++            CODE="
++            #include <linux/mm.h>
++            void conftest_follow_pfn(void) {
++                follow_pfn();
++            }"
++
++            compile_check_conftest "$CODE" "NV_FOLLOW_PFN_PRESENT" "" "functions"
++        ;;
++
+         sg_page_iter_page)
+             #
+             # Determine if sg_page_iter_page() is present
+@@ -4814,6 +4832,29 @@ compile_test() {
+             compile_check_conftest "$CODE" "NV_DRM_MODE_CONFIG_HAS_ALLOW_FB_MODIFIERS" "" "types"
+         ;;
+ 
++        drm_output_poll_changed)
++            #
++            # Determine whether drm_mode_config_funcs.output_poll_changed
++            # callback is present
++            #
++            # Removed by commit 446d0f4849b1 ("drm: Remove struct
++            # drm_mode_config_funcs.output_poll_changed") in v6.12. Hotplug
++            # event support is handled through the fbdev emulation interface
++            # going forward.
++            #
++            CODE="
++            #if defined(NV_DRM_DRM_MODE_CONFIG_H_PRESENT)
++            #include <drm/drm_mode_config.h>
++            #else
++            #include <drm/drm_crtc.h>
++            #endif
++            int conftest_drm_output_poll_changed_available(void) {
++                return offsetof(struct drm_mode_config_funcs, output_poll_changed);
++            }"
++
++            compile_check_conftest "$CODE" "NV_DRM_OUTPUT_POLL_CHANGED_PRESENT" "" "types"
++        ;;
++
+         dma_set_coherent_mask)
+             #
+             # Determine if dma_set_coherent_mask is present
+diff -Naurp kmod-nvidia-470xx-470.256.02.orig/nvidiapkg/kernel/nvidia/os-mlock.c kmod-nvidia-470xx-470.256.02/nvidiapkg/kernel/nvidia/os-mlock.c
+--- kmod-nvidia-470xx-470.256.02.orig/nvidiapkg/kernel/nvidia/os-mlock.c	2024-05-02 11:16:35.000000000 -0400
++++ kmod-nvidia-470xx-470.256.02/nvidiapkg/kernel/nvidia/os-mlock.c	2025-07-19 10:53:58.246306272 -0400
+@@ -13,6 +13,13 @@
+ #include "os-interface.h"
+ #include "nv-linux.h"
+ 
++static inline int nv_follow_flavors(struct vm_area_struct *vma,
++                                    unsigned long address,
++                                    unsigned long *pfn)
++{
++    return -1;
++}
++
+ static inline int nv_follow_pfn(struct vm_area_struct *vma,
+                                 unsigned long address,
+                                 unsigned long *pfn)
+@@ -20,7 +27,11 @@ static inline int nv_follow_pfn(struct v
+ #if defined(NV_UNSAFE_FOLLOW_PFN_PRESENT)
+     return unsafe_follow_pfn(vma, address, pfn);
+ #else
++#if defined(NV_FOLLOW_PFN_PRESENT)
+     return follow_pfn(vma, address, pfn);
++#else
++    return nv_follow_flavors(vma, address, pfn);
++#endif
+ #endif
+ }
+ 
+diff -Naurp kmod-nvidia-470xx-470.256.02.orig/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c kmod-nvidia-470xx-470.256.02/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c
+--- kmod-nvidia-470xx-470.256.02.orig/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c	2025-07-19 10:59:24.142352608 -0400
++++ kmod-nvidia-470xx-470.256.02/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c	2025-07-19 10:44:22.356400045 -0400
+@@ -88,6 +88,7 @@ static struct nv_drm_device *dev_list =
+ 
+ #if defined(NV_DRM_ATOMIC_MODESET_AVAILABLE)
+ 
++#if defined(NV_DRM_OUTPUT_POLL_CHANGED_PRESENT)
+ static void nv_drm_output_poll_changed(struct drm_device *dev)
+ {
+     struct drm_connector *connector = NULL;
+@@ -131,6 +132,7 @@ static void nv_drm_output_poll_changed(s
+     nv_drm_connector_list_iter_end(&conn_iter);
+ #endif
+ }
++#endif /* NV_DRM_OUTPUT_POLL_CHANGED_PRESENT */
+ 
+ static struct drm_framebuffer *nv_drm_framebuffer_create(
+     struct drm_device *dev,
+@@ -168,7 +170,9 @@ static const struct drm_mode_config_func
+     .atomic_check  = nv_drm_atomic_check,
+     .atomic_commit = nv_drm_atomic_commit,
+ 
++    #if defined(NV_DRM_OUTPUT_POLL_CHANGED_PRESENT)
+     .output_poll_changed = nv_drm_output_poll_changed,
++    #endif
+ };
+ 
+ static void nv_drm_event_callback(const struct NvKmsKapiEvent *event)
