@@ -237,8 +237,8 @@ exit 0
 
 %changelog
 * Fri Jul 18 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-4
-- Built against RHEL 9.6 errata kernel 5.14.0-570.26.1.el9_6
-- Update patch
+- Rebuilt against RHEL 9.6 errata kernel 5.14.0-570.26.1.el9_6
+- Updated buildfix patch
 
 * Wed May 14 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-3
 - Rebuilt against RHEL 9.6 GA kernel
