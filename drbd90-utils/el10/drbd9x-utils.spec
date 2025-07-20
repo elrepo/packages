@@ -1,8 +1,8 @@
 %define real_name drbd-utils
 
 Name:    drbd9x-utils
-Version: 9.30.0
-Release: 2%{?dist}
+Version: 9.31.0
+Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
 Summary: Management utilities for DRBD
@@ -11,7 +11,6 @@ URL:     http://www.drbd.org/
 Source0:   http://oss.linbit.com/drbd/drbd-utils-%{version}.tar.gz
 
 Patch1: elrepo-selinux-bug695v2.patch
-Patch2: elrepo-drbd-graceful-shutdown.patch
 
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: flex
@@ -72,7 +71,6 @@ It is not required when the init system used is systemd.
 %prep
 %setup -n %{real_name}-%{version}
 %patch 1 -p1
-%patch 2 -p1
 
 %build
 %configure \
@@ -133,6 +131,8 @@ fi
 %doc %{_mandir}/man7/drbd@.service.7.gz
 %doc %{_mandir}/man7/drbd@.target.7.gz
 %doc %{_mandir}/man7/ocf.ra@.service.7.gz
+%doc %{_mandir}/man7/drbd-configured.target.7.gz
+%doc %{_mandir}/man7/drbd-graceful-shutdown.service.7.gz
 
 %config %{_sysconfdir}/bash_completion.d/drbdadm
 %config %{_prefix}/lib/udev/rules.d/65-drbd.rules
@@ -151,6 +151,8 @@ fi
 /usr/lib/drbd/scripts/drbd-service-shim.sh
 /usr/lib/drbd/scripts/drbd-wait-promotable.sh
 /usr/lib/drbd/scripts/ocf.ra.wrapper.sh
+/usr/lib/systemd/system-preset/50-drbd.preset
+/usr/lib/systemd/system/drbd-configured.target
 /usr/lib/systemd/system/drbd-demote-or-escalate@.service
 /usr/lib/systemd/system/drbd-lvchange@.service
 /usr/lib/systemd/system/drbd-promote@.service
@@ -200,14 +202,16 @@ fi
 %{_datadir}/cluster/drbd.metadata
 %{_prefix}/lib/drbd/rhcs_fence
 
-### xen
-%{_sysconfdir}/xen/scripts/block-drbd
-
 %files sysvinit
 %defattr(-,root,root)
 %config %{_initrddir}/drbd
 
 %changelog
+* Thu May 22 2025 Akemi Yagi <toracat@elrepo.org> - 9.31.0-1.el10
+- Version updated to 9.31.0
+- Rebuilt against RHEL 10 GA kernel
+- elrepo-drbd-graceful-shutdown.patch no longer needed
+
 * Thu Mar 20 2025 Akemi Yagi <toracat@elrepo.org> - 9.30.0-2.el10
 - Rebuilt for RHEL 10 beta
 
