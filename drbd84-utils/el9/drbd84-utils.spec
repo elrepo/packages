@@ -1,7 +1,7 @@
 %define real_name drbd-utils
 
 Name:    drbd84-utils
-Version: 9.22.0
+Version: 9.31.0
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
@@ -113,12 +113,14 @@ fi
 %files
 %defattr(-, root, root, 0755)
 %doc ChangeLog COPYING README.md scripts/drbd.conf.example
-%doc %{_mandir}/man5/drbd.conf.5*
-%doc %{_mandir}/man5/drbd.conf-*
 %doc %{_mandir}/man8/drbd*
-%doc %{_mandir}/ja/man5/drbd.conf.5*
+# %%doc %%{_mandir}/ja/man5/drbd.conf.5*
 %doc %{_mandir}/ja/man5/drbd.conf-*
 %doc %{_mandir}/ja/man8/drbd*
+%doc %{_mandir}/man5/drbd.conf-8.4.5.gz
+%doc %{_mandir}/man5/drbd.conf-9.0.5.gz
+%doc %{_mandir}/man7/drbd-configured.target.7.gz
+%doc %{_mandir}/man7/drbd-graceful-shutdown.service.7.gz
 %doc %{_mandir}/man7/ocf_linbit_drbd.7.gz
 %doc %{_mandir}/man7/ocf_linbit_drbd-attr.7.gz
 %doc %{_mandir}/man7/drbd-lvchange@.service.7.gz
@@ -141,15 +143,16 @@ fi
 %config(noreplace) %{_sysconfdir}/drbd.d/global_common.conf
 %config %{_unitdir}/drbd.service
 %dir %{_localstatedir}/lib/drbd/
-%dir /lib/drbd/
-/lib/drbd/drbdadm-83
-/lib/drbd/drbdsetup-83
-/lib/drbd/drbdadm-84
-/lib/drbd/drbdsetup-84
-/lib/drbd/scripts/drbd
-/lib/drbd/scripts/drbd-service-shim.sh
-/lib/drbd/scripts/drbd-wait-promotable.sh
-/lib/drbd/scripts/ocf.ra.wrapper.sh
+## %%dir /lib/drbd/
+/usr/lib/drbd/drbdadm-84
+/usr/lib/drbd/drbdsetup-84
+/usr/lib/drbd/scripts/drbd
+/usr/lib/drbd/scripts/drbd-service-shim.sh
+/usr/lib/drbd/scripts/drbd-wait-promotable.sh
+/usr/lib/drbd/scripts/ocf.ra.wrapper.sh
+/usr/lib/systemd/system-preset/50-drbd.preset
+/usr/lib/systemd/system/drbd-configured.target
+/usr/lib/systemd/system/drbd-graceful-shutdown.service
 /usr/lib/systemd/system/drbd-demote-or-escalate@.service
 /usr/lib/systemd/system/drbd-lvchange@.service
 /usr/lib/systemd/system/drbd-promote@.service
@@ -165,8 +168,9 @@ fi
 %{_sbindir}/drbdmeta
 %{_sbindir}/drbdsetup
 %{_sbindir}/drbdmon
+%{_sbindir}/drbd-events-log-supplier
 
-%dir %{_prefix}/lib/drbd/
+# %%dir %%{_prefix}/lib/drbd/
 %{_prefix}/lib/drbd/notify-out-of-sync.sh
 %{_prefix}/lib/drbd/notify-split-brain.sh
 %{_prefix}/lib/drbd/notify-emergency-reboot.sh
@@ -201,13 +205,19 @@ fi
 %{_prefix}/lib/drbd/rhcs_fence
 
 ### xen
-%{_sysconfdir}/xen/scripts/block-drbd
+## %%{_sysconfdir}/xen/scripts/block-drbd
 
 %files sysvinit
 %defattr(-,root,root)
 %config %{_initrddir}/drbd
 
 %changelog
+* Sun Jul 20 2025 Akemi Yagi <toracat@elrepo.org> - 9.31.0-1
+- Updated to 9.31.0
+
+* Sat May 11 2024 Akemi Yagi <toracat@elrepo.org> - 9.28.0-1
+- Updated to 9.28.0
+
 * Sat Dec 24 2022 Akemi Yagi <toracat@elrepo.org> - 9.22.0-1
 - Updated to 9.22.0
 
