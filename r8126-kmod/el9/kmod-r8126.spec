@@ -7,8 +7,8 @@
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	10.015.00
-Release:	2%{?dist}
+Version:	10.016.00
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -75,11 +75,11 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -q -n %{kmod_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+%{__rm} -f src/Makefile*
+%{__cp} -a %{SOURCE20} src/Makefile
 
 # Apply patch(es)
 %patch0 -p1
-%{__rm} -f src/Makefile*
-%{__cp} -a %{SOURCE20} src/Makefile
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD/src
@@ -120,7 +120,7 @@ find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --str
 %{__rm} -rf %{buildroot}
 
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_name} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -193,6 +193,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Jul 31 2025 Tuan Hoang <tqhoang@elrepo.org> - 10.016.00-1
+- Update to 10.016.00
+- Disable use firmware file
+- Disable fiber support
+
 * Wed May 14 2025 Tuan Hoang <tqhoang@elrepo.org> - 10.015.00-2
 - Rebuilt against RHEL 9.6 GA kernel
 - Update patch for RHEL 9.6 kernel changes
