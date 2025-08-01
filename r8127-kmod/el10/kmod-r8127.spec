@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el10}
 
 Name:		kmod-%{kmod_name}
-Version:	11.014.00
+Version:	11.015.00
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -20,7 +20,7 @@ Source5:	GPL-v2.0.txt
 Source20:	ELRepo-Makefile-%{kmod_name}
 
 # Patches
-Patch0:		ELRepo-r8127.patch
+#Patch0:		ELRepo-r8127.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -75,11 +75,11 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -q -n %{kmod_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
-
-# Apply patch(es)
-%patch -P0 -p1
 %{__rm} -f src/Makefile*
 %{__cp} -a %{SOURCE20} src/Makefile
+
+# Apply patch(es)
+#patch -P0 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD/src
@@ -193,6 +193,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Jul 31 2025 Tuan Hoang <tqhoang@elrepo.org> - 11.015.00-1
+- Update to 11.015.00
+- Disable use firmware file
+- Enable fiber support
+
 * Sat May 24 2025 Tuan Hoang <tqhoang@elrepo.org> - 11.014.00-1
 - Initial build for RHEL 10.0
 - Built against RHEL 10.0 GA kernel

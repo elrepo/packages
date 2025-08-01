@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el10}
 
 Name:		kmod-%{kmod_name}
-Version:	9.015.00
+Version:	9.016.00
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -75,11 +75,11 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -q -n %{kmod_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+%{__rm} -f src/Makefile*
+%{__cp} -a %{SOURCE20} src/Makefile
 
 # Apply patch(es)
 %patch -P0 -p1
-%{__rm} -f src/Makefile*
-%{__cp} -a %{SOURCE20} src/Makefile
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD/src
@@ -193,6 +193,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Jul 31 2025 Tuan Hoang <tqhoang@elrepo.org> - 9.016.00-1
+- Update to 9.016.00
+- Disable use firmware file
+- Disable fiber support
+
 * Sat May 24 2025 Tuan Hoang <tqhoang@elrepo.org> - 9.015.00-1
 - Initial build for RHEL 10.0
 - Built against RHEL 10.0 GA kernel
