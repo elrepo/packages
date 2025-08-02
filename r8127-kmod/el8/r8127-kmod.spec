@@ -2,13 +2,13 @@
 %define kmod_name	r8127
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.50.1.el8_10}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.63.1.el8_10}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	11.014.00
-Release:	2%{?dist}
+Version:	11.015.00
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,7 +19,7 @@ Source0:	%{kmod_name}-%{version}.tar.bz2
 Source5:	GPL-v2.0.txt
 Source20:	ELRepo-Makefile-%{kmod_name}
 
-# Patches
+# Source code patches
 Patch0:		ELRepo-r8127.patch
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
@@ -66,10 +66,12 @@ of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
 %setup -n %{kmod_name}-%{version}
-%patch0 -p1
+echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 %{__rm} -f src/Makefile*
 %{__cp} -a %{SOURCE20} src/Makefile
-echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+
+# Apply patch(es)
+%patch0 -p1
 
 %build
 KSRC=%{_usrsrc}/kernels/%{kmod_kernel_version}.%{_arch}
@@ -111,7 +113,7 @@ done
 %{__rm} -rf %{buildroot}
 
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_name} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -184,6 +186,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Jul 31 2025 Tuan Hoang <tqhoang@elrepo.org> - 11.015.00-1
+- Update to 11.015.00
+- Disable use firmware file
+- Enable fiber support
+
 * Tue Apr 29 2025 Tuan Hoang <tqhoang@elrepo.org> - 11.014.00-2
 - Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.50.1.el8_10
  

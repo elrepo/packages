@@ -1,6 +1,6 @@
-diff -aurp r8125-9.015.00.orig/src/r8125.h r8125-9.015.00/src/r8125.h
---- r8125-9.015.00.orig/src/r8125.h	2025-01-15 14:43:22.000000000 +0000
-+++ r8125-9.015.00/src/r8125.h	2025-03-01 19:56:35.185363584 +0000
+diff -Naurp r8125-9.016.00.orig/src/r8125.h r8125-9.016.00/src/r8125.h
+--- r8125-9.016.00.orig/src/r8125.h	2025-06-03 08:40:49.000000000 +0000
++++ r8125-9.016.00/src/r8125.h	2025-08-02 22:06:42.889310299 +0000
 @@ -175,7 +175,7 @@ static inline void netdev_tx_completed_q
  static inline void netdev_tx_reset_queue(struct netdev_queue *q) {}
  #endif
@@ -19,7 +19,7 @@ diff -aurp r8125-9.015.00.orig/src/r8125.h r8125-9.015.00/src/r8125.h
  #if LINUX_VERSION_CODE < KERNEL_VERSION(4,1,9)
  static inline bool page_is_pfmemalloc(struct page *page)
  {
-@@ -886,7 +886,7 @@ typedef int *napi_budget;
+@@ -895,7 +895,7 @@ typedef int *napi_budget;
  typedef struct napi_struct *napi_ptr;
  typedef int napi_budget;
  
@@ -28,9 +28,9 @@ diff -aurp r8125-9.015.00.orig/src/r8125.h r8125-9.015.00/src/r8125.h
  #define RTL_NAPI_CONFIG(ndev, priv, function, weight)   netif_napi_add_weight(ndev, &priv->napi, function, weight)
  #else
  #define RTL_NAPI_CONFIG(ndev, priv, function, weight)   netif_napi_add(ndev, &priv->napi, function, weight)
-diff -aurp r8125-9.015.00.orig/src/r8125_n.c r8125-9.015.00/src/r8125_n.c
---- r8125-9.015.00.orig/src/r8125_n.c	2025-01-15 14:38:13.000000000 +0000
-+++ r8125-9.015.00/src/r8125_n.c	2025-03-01 19:55:33.548884333 +0000
+diff -Naurp r8125-9.016.00.orig/src/r8125_n.c r8125-9.016.00/src/r8125_n.c
+--- r8125-9.016.00.orig/src/r8125_n.c	2025-06-03 08:40:49.000000000 +0000
++++ r8125-9.016.00/src/r8125_n.c	2025-08-02 22:10:36.640715791 +0000
 @@ -58,7 +58,7 @@
  #include <linux/completion.h>
  
@@ -40,7 +40,7 @@ diff -aurp r8125-9.015.00.orig/src/r8125_n.c r8125-9.015.00/src/r8125_n.c
  #include <linux/pci-aspm.h>
  #endif
  #endif
-@@ -373,7 +373,7 @@ static irqreturn_t rtl8125_interrupt_msi
+@@ -382,7 +382,7 @@ static irqreturn_t rtl8125_interrupt_msi
  static irqreturn_t rtl8125_interrupt_msix(int irq, void *dev_instance);
  #endif
  static void rtl8125_set_rx_mode(struct net_device *dev);
@@ -49,7 +49,7 @@ diff -aurp r8125-9.015.00.orig/src/r8125_n.c r8125-9.015.00/src/r8125_n.c
  static void rtl8125_tx_timeout(struct net_device *dev, unsigned int txqueue);
  #else
  static void rtl8125_tx_timeout(struct net_device *dev);
-@@ -6712,7 +6712,7 @@ rtl8125_set_ring_size(struct rtl8125_pri
+@@ -6748,7 +6748,7 @@ rtl8125_set_ring_size(struct rtl8125_pri
  }
  
  #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
@@ -58,7 +58,7 @@ diff -aurp r8125-9.015.00.orig/src/r8125_n.c r8125-9.015.00/src/r8125_n.c
  static void rtl8125_get_ringparam(struct net_device *dev,
                                    struct ethtool_ringparam *ring,
                                    struct kernel_ethtool_ringparam *kernel_ring,
-@@ -6730,7 +6730,7 @@ static void rtl8125_get_ringparam(struct
+@@ -6766,7 +6766,7 @@ static void rtl8125_get_ringparam(struct
          ring->tx_pending = tp->tx_ring[0].num_tx_desc;
  }
  
@@ -67,7 +67,39 @@ diff -aurp r8125-9.015.00.orig/src/r8125_n.c r8125-9.015.00/src/r8125_n.c
  static int rtl8125_set_ringparam(struct net_device *dev,
                                   struct ethtool_ringparam *ring,
                                   struct kernel_ethtool_ringparam *kernel_ring,
-@@ -16650,7 +16650,7 @@ rtl8125_init_one(struct pci_dev *pdev,
+@@ -16458,6 +16458,7 @@ err_out:
+         goto out;
+ }
+ 
++#ifndef ENABLE_USE_FIRMWARE_FILE
+ static bool
+ rtl8125_test_phy_ocp_v4(struct rtl8125_private *tp)
+ {
+@@ -16607,6 +16608,7 @@ exit:
+ 
+         return restore;
+ }
++#endif
+ 
+ static bool
+ rtl8125_test_phy_ocp(struct rtl8125_private *tp)
+@@ -16619,6 +16621,7 @@ rtl8125_test_phy_ocp(struct rtl8125_priv
+         if (tp->TestPhyOcpReg == FALSE)
+                 goto unlock;
+ 
++#ifndef ENABLE_USE_FIRMWARE_FILE
+         switch (tp->HwSuppEsdVer) {
+         case 4:
+                 reset = rtl8125_test_phy_ocp_v4(tp);
+@@ -16629,6 +16632,7 @@ rtl8125_test_phy_ocp(struct rtl8125_priv
+         default:
+                 goto unlock;
+         }
++#endif
+ 
+ unlock:
+         r8125_spin_unlock(&tp->phy_lock, flags);
+@@ -17485,7 +17489,7 @@ rtl8125_init_one(struct pci_dev *pdev,
                          dev->features |= NETIF_F_TSO6;
                          break;
                  };
@@ -76,7 +108,7 @@ diff -aurp r8125-9.015.00.orig/src/r8125_n.c r8125-9.015.00/src/r8125_n.c
                  netif_set_tso_max_size(dev, LSO_64K);
                  netif_set_tso_max_segs(dev, NIC_MAX_PHYS_BUF_COUNT_LSO2);
  #else //LINUX_VERSION_CODE >= KERNEL_VERSION(5,19,0)
-@@ -18441,7 +18441,7 @@ out_unlock:
+@@ -19352,7 +19356,7 @@ out_unlock:
          rtnl_unlock();
  }
  
@@ -85,3 +117,63 @@ diff -aurp r8125-9.015.00.orig/src/r8125_n.c r8125-9.015.00/src/r8125_n.c
  static void
  rtl8125_tx_timeout(struct net_device *dev, unsigned int txqueue)
  #else
+diff -Naurp r8125-9.016.00.orig/src/r8125_ptp.c r8125-9.016.00/src/r8125_ptp.c
+--- r8125-9.016.00.orig/src/r8125_ptp.c	2025-06-03 08:40:49.000000000 +0000
++++ r8125-9.016.00/src/r8125_ptp.c	2025-08-02 22:19:49.027507491 +0000
+@@ -407,7 +407,7 @@ static int _rtl8125_phy_phc_adjfreq(stru
+         return 0;
+ }
+ 
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,2,0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,2,0) || RHEL_MAJOR == 8
+ static int rtl8125_mac_ptp_adjfine(struct ptp_clock_info *ptp, long scaled_ppm)
+ {
+         s32 ppb = scaled_ppm_to_ppb(scaled_ppm);
+@@ -472,7 +472,7 @@ static int rtl8125_mac_phc_gettime(struc
+ }
+ #endif /* LINUX_VERSION_CODE >= KERNEL_VERSION(5,0,0) */
+ 
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,2,0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,2,0) || RHEL_MAJOR == 8
+ static int rtl8125_phy_ptp_adjfine(struct ptp_clock_info *ptp, long scaled_ppm)
+ {
+         s32 ppb = scaled_ppm_to_ppb(scaled_ppm);
+@@ -691,7 +691,7 @@ static const struct ptp_clock_info rtl81
+         .n_per_out  = 0,
+         .n_pins     = 0,
+         .pps        = 1,
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,2,0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,2,0) || RHEL_MAJOR == 8
+         .adjfine   = rtl8125_mac_ptp_adjfine,
+ #else
+         .adjfreq    = rtl8125_mac_phc_adjfreq,
+@@ -713,7 +713,7 @@ static const struct ptp_clock_info rtl81
+         .n_per_out  = 0,
+         .n_pins     = 0,
+         .pps        = 1,
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,2,0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,2,0) || RHEL_MAJOR == 8
+         .adjfine   = rtl8125_phy_ptp_adjfine,
+ #else
+         .adjfreq    = rtl8125_phy_phc_adjfreq,
+@@ -1403,7 +1403,7 @@ static void rtl8125_rx_phy_ptp_pktstamp(
+         return;
+ }
+ 
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0) && RHEL_MAJOR != 8
+ static struct ptp_header *ptp_parse_header(struct sk_buff *skb, unsigned int type)
+ {
+         u8 *ptr = skb_mac_header(skb);
+diff -Naurp r8125-9.016.00.orig/src/r8125_ptp.h r8125-9.016.00/src/r8125_ptp.h
+--- r8125-9.016.00.orig/src/r8125_ptp.h	2025-06-03 08:40:49.000000000 +0000
++++ r8125-9.016.00/src/r8125_ptp.h	2025-08-02 22:15:58.613015301 +0000
+@@ -48,7 +48,7 @@
+ #define PTP_MSGTYPE_PDELAY_RESP 0x3
+ #endif /* LINUX_VERSION_CODE < KERNEL_VERSION(5,11,0) */
+ 
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0) && RHEL_MAJOR != 8
+ struct clock_identity {
+         u8 id[8];
+ } __packed;
