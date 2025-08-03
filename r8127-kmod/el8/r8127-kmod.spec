@@ -2,13 +2,13 @@
 %define kmod_name	r8127
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.63.1.el8_10}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.64.1.el8_10}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	11.015.00
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -186,10 +186,14 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Jul 31 2025 Tuan Hoang <tqhoang@elrepo.org> - 11.015.00-2
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.64.1.el8_10
+
 * Thu Jul 31 2025 Tuan Hoang <tqhoang@elrepo.org> - 11.015.00-1
 - Update to 11.015.00
 - Disable use firmware file
 - Enable fiber support
+- Built against RHEL 8.10 GA kernel 4.18.0-553.el8_10
 
 * Tue Apr 29 2025 Tuan Hoang <tqhoang@elrepo.org> - 11.014.00-2
 - Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.50.1.el8_10
