@@ -1,6 +1,6 @@
 Name:           hfsplus-tools
 Version:        540.1.linux3
-Release:        17%{?dist}
+Release:        26%{?dist}
 Summary:        Tools to create/check Apple HFS+ filesystems
 
 License:        APSL 2.0
@@ -9,12 +9,14 @@ URL:            http://gentoo-wiki.com/HOWTO_hfsplus
 Source0: http://cavan.codon.org.uk/~mjg59/diskdev_cmds/diskdev_cmds-%{version}.tar.gz
 Patch0: hfsplus-tools-no-blocks.patch
 Patch1: hfsplus-tools-learn-to-stdarg.patch
+Patch2: hfsplus-tools-sysctl.patch
 
 Source100:      http://www.opensource.org/licenses/apsl-2.0.txt
 
 BuildRequires:  gcc
 BuildRequires: openssl-devel 
 BuildRequires: libuuid-devel
+BuildRequires: make
 
 # those tools are outdated, given the rebuilt mkfs/fsck.hfsplus in this
 # package.  However, I don't want to Obsolete that package yet, as some people
@@ -46,6 +48,7 @@ commit.
 %setup -q -n hfsplus-mkfs-%{version} -n diskdev_cmds-%{version}
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 # remove errant execute bits
 find . -type f -name '*.[ch]' -exec chmod -c -x {} +
@@ -90,8 +93,36 @@ ln -s fsck.hfsplus.8 fsck.hfs.8
 
 
 %changelog
-* Mon Nov 18 2019 Akemi Yagi <toracat@elrepo.org> - 540.1.linux3-17.el8.elrepo
+* Sat Aug 02 2025 Akemi Yagi <toracat@elrepo.org> - 540.1.linux3-26
 - Rebuilt for ELRepo el8
+
+* Thu Jan 20 2022 Fedora Release Engineering <releng@fedoraproject.org> - 540.1.linux3-26
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_36_Mass_Rebuild
+
+* Tue Sep 14 2021 Sahana Prasad <sahana@redhat.com> - 540.1.linux3-25
+- Rebuilt with OpenSSL 3.0.0
+
+* Thu Jul 22 2021 Fedora Release Engineering <releng@fedoraproject.org> - 540.1.linux3-24
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_35_Mass_Rebuild
+
+* Tue Jan 26 2021 Fedora Release Engineering <releng@fedoraproject.org> - 540.1.linux3-23
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_34_Mass_Rebuild
+
+* Tue Aug 11 2020 Adam Jackson <ajax@redhat.com> - 540.1.linux3-22
+- <sys/sysctl.h> -> <linux/sysctl.h>
+
+* Sat Aug 01 2020 Fedora Release Engineering <releng@fedoraproject.org> - 540.1.linux3-21
+- Second attempt - Rebuilt for
+  https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
+
+* Tue Jul 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 540.1.linux3-20
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
+
+* Wed Jan 29 2020 Fedora Release Engineering <releng@fedoraproject.org> - 540.1.linux3-19
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
+
+* Thu Jul 25 2019 Fedora Release Engineering <releng@fedoraproject.org> - 540.1.linux3-18
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
 
 * Fri Feb 01 2019 Fedora Release Engineering <releng@fedoraproject.org> - 540.1.linux3-17
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
