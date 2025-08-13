@@ -29,7 +29,7 @@
 #include "nvidia-detect.h"
 
 #define PROGRAM_NAME		"nvidia-detect"
-#define NVIDIA_VERSION		"570.172.08"
+#define NVIDIA_VERSION		"580.76.05"
 
 #ifndef PCI_VENDOR_ID_INTEL
 #define PCI_VENDOR_ID_INTEL	0x8086
@@ -101,7 +101,7 @@
  * ABI_VIDEODRV_VERSION for Xorg is defined in:
  * http://cgit.freedesktop.org/xorg/xserver/tree/hw/xfree86/common/xf86Module.h
  */
-#define XORG_ABI_CURRENT	25	/* 570.xxx.xx; Xorg 21.1 */
+#define XORG_ABI_CURRENT	25	/* 5xx.xxx.xx; Xorg 21.1 */
 #define XORG_ABI_470XX		25	/* 470.256.02; Xorg 21.1 */
 #define XORG_ABI_390XX		25	/* 390.157; Xorg 21.1 */
 #define XORG_ABI_367XX		20	/* 367.57; Xorg 1.18 */
