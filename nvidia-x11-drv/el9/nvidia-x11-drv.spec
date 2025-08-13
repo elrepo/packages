@@ -1,12 +1,16 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# https://download.nvidia.com/XFree86/Linux-x86_64/570.172.08/README/minimumrequirements.html
+# https://download.nvidia.com/XFree86/Linux-x86_64/570.181/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 %define		debug_package	%{nil}
 
+%define		egl_gbm_version		1.1.2
+%define		egl_wayland_version	1.1.20
+%define		egl_x11_version		1.0.3
+
 Name:		nvidia-x11-drv
-Version:	570.172.08
+Version:	580.76.05
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	MIT and Redistributable, no modification permitted
@@ -25,6 +29,7 @@ NoSource: 0
 
 Source1:	alternate-install-present
 Source2:	nvidia-xorg.conf
+Source3:	90-nvidia.preset
 
 # Provides for CUDA
 Provides:	cuda-driver = %{version}
@@ -99,12 +104,16 @@ Requires:	libglvnd-egl%{?_isa} >= 1.0
 Requires:	libglvnd-gles%{?_isa} >= 1.0
 Requires:	libglvnd-glx%{?_isa} >= 1.0
 Requires:	libglvnd-opengl%{?_isa} >= 1.0
-Requires:	egl-wayland%{?_isa}
 Requires:	opencl-filesystem
 Requires:	ocl-icd
 Requires:	vulkan-loader
 
 Conflicts:	egl-gbm%{?_isa}
+Provides:	egl-gbm%{?_isa} = %{egl_gbm_version}
+Conflicts:	egl-wayland%{?_isa}
+Provides:	egl-wayland%{?_isa} = %{egl_wayland_version}
+Conflicts:	egl-x11%{?_isa}
+Provides:	egl-x11%{?_isa} = %{egl_x11_version}
 
 Conflicts:	nvidia-x11-drv-470xx-libs
 Conflicts:	nvidia-x11-drv-390xx-libs
@@ -130,14 +139,9 @@ sh %{SOURCE0} --extract-only --target nvidiapkg
 
 # Lets just take care of all the docs here rather than during install
 pushd nvidiapkg
-%{__mkdir_p} html/samples/systemd/
-%{__mkdir_p} html/samples/systemd/system/
-%{__mkdir_p} html/samples/systemd/system-sleep/
+%{__mkdir_p} html/samples/
 %{__mv} nvidia-persistenced-init.tar.bz2 html/samples/
 %{__mv} supported-gpus/LICENSE supported-gpus/LICENSE.supported-gpus
-%{__mv} systemd/nvidia-sleep.sh html/samples/systemd/
-%{__mv} systemd/system/nvidia-*.service html/samples/systemd/system/
-%{__mv} systemd/system-sleep/nvidia html/samples/systemd/system-sleep/
 popd
 find nvidiapkg/html/ -type f | xargs chmod 0644
 
@@ -172,15 +176,24 @@ pushd nvidiapkg
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/
 %{__install} -p -m 0644 nvidia.icd $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/nvidia.icd
 
-# Install Vulkan, VulkanSC and EGL loaders
-%{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/vulkan/icd.d/
-%{__install} -p -m 0644 nvidia_icd.json $RPM_BUILD_ROOT%{_datadir}/vulkan/icd.d/nvidia_icd.json
+# Install Vulkan and VulkanSC loaders
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/vulkan/implicit_layer.d/
-%{__install} -p -m 0644 nvidia_layers.json $RPM_BUILD_ROOT%{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
+%{__install} -p -m 0644 nvidia_layers.json $RPM_BUILD_ROOT%{_datadir}/vulkan/implicit_layer.d/
+%{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/vulkan/icd.d/
+%{__install} -p -m 0644 nvidia_icd.json $RPM_BUILD_ROOT%{_datadir}/vulkan/icd.d/nvidia_icd.%{_arch}.json
+sed -i -e 's|libGLX_nvidia|%{_libdir}/libGLX_nvidia|g' $RPM_BUILD_ROOT%{_datadir}/vulkan/icd.d/nvidia_icd.%{_arch}.json
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/vulkansc/icd.d/
-%{__install} -p -m 0644 nvidia_icd_vksc.json $RPM_BUILD_ROOT%{_datadir}/vulkansc/icd.d/nvidia_icd.json
+%{__install} -p -m 0644 nvidia_icd_vksc.json $RPM_BUILD_ROOT%{_datadir}/vulkansc/icd.d/nvidia_icd.%{_arch}.json
+sed -i -e 's|libnvidia-vksc-core|%{_libdir}/libnvidia-vksc-core|g' $RPM_BUILD_ROOT%{_datadir}/vulkansc/icd.d/nvidia_icd.%{_arch}.json
+
+# Install EGL loader
+%{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d
+%{__install} -p -m 0644 10_nvidia_wayland.json $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/
+%{__install} -p -m 0644 15_nvidia_gbm.json $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/
+%{__install} -p -m 0644 20_nvidia_xcb.json $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/
+%{__install} -p -m 0644 20_nvidia_xlib.json $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/
-%{__install} -p -m 0644 10_nvidia.json $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
+%{__install} -p -m 0644 10_nvidia.json $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/
 
 # Install container runtime environments file
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/nvidia/files.d/
@@ -209,9 +222,10 @@ pushd 32
 %{__install} -p -m 0755 libnvidia-cfg.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %endif
 %{__install} -p -m 0755 libnvidia-eglcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
-%{__install} -p -m 0755 libnvidia-egl-gbm.so.1.1.2 $RPM_BUILD_ROOT%{_libdir}/
-%{__install} -p -m 0755 libnvidia-egl-xcb.so.1.0.2 $RPM_BUILD_ROOT%{_libdir}/
-%{__install} -p -m 0755 libnvidia-egl-xlib.so.1.0.2 $RPM_BUILD_ROOT%{_libdir}/
+%{__install} -p -m 0755 libnvidia-egl-gbm.so.%{egl_gbm_version} $RPM_BUILD_ROOT%{_libdir}/
+%{__install} -p -m 0755 libnvidia-egl-wayland.so.%{egl_wayland_version} $RPM_BUILD_ROOT%{_libdir}/
+%{__install} -p -m 0755 libnvidia-egl-xcb.so.%{egl_x11_version} $RPM_BUILD_ROOT%{_libdir}/
+%{__install} -p -m 0755 libnvidia-egl-xlib.so.%{egl_x11_version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-fbc.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-glcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
@@ -296,11 +310,13 @@ popd
 %{__ln_s} libnvidia-cfg.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-cfg.so
 %endif
 %{__ln_s} libnvidia-eglcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-eglcore.so
-%{__ln_s} libnvidia-egl-gbm.so.1.1.2 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-gbm.so.1
+%{__ln_s} libnvidia-egl-gbm.so.%{egl_gbm_version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-gbm.so.1
 %{__ln_s} libnvidia-egl-gbm.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-gbm.so
-%{__ln_s} libnvidia-egl-xcb.so.1.0.2 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xcb.so.1
+%{__ln_s} libnvidia-egl-wayland.so.%{egl_wayland_version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so.1
+%{__ln_s} libnvidia-egl-wayland.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so
+%{__ln_s} libnvidia-egl-xcb.so.%{egl_x11_version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xcb.so.1
 %{__ln_s} libnvidia-egl-xcb.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xcb.so
-%{__ln_s} libnvidia-egl-xlib.so.1.0.2 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xlib.so.1
+%{__ln_s} libnvidia-egl-xlib.so.%{egl_x11_version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xlib.so.1
 %{__ln_s} libnvidia-egl-xlib.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xlib.so
 %{__ln_s} libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-encode.so.1
 %{__ln_s} libnvidia-encode.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-encode.so
@@ -405,6 +421,15 @@ desktop-file-install \
   $RPM_BUILD_ROOT%{_unitdir}/nvidia-persistenced.service
 # Set the username for the daemon to root
 %{__sed} -i -e "s/__USER__/root/" $RPM_BUILD_ROOT%{_unitdir}/nvidia-persistenced.service
+
+# Install the suspend/resume/hibernate systemd files
+# See /usr/lib/udev/rules.d/61-gdm.rules
+%{__mkdir_p} $RPM_BUILD_ROOT%{_systemd_util_dir}/system-sleep/
+%{__mkdir_p} $RPM_BUILD_ROOT%{_presetdir}/
+%{__install} -p -m 0755 systemd/nvidia-sleep.sh $RPM_BUILD_ROOT%{_bindir}/
+%{__install} -p -m 0755 systemd/system-sleep/nvidia $RPM_BUILD_ROOT%{_systemd_util_dir}/system-sleep/
+%{__install} -p -m 0644 systemd/system/nvidia-*.service $RPM_BUILD_ROOT%{_unitdir}/
+%{__install} -p -m 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_presetdir}/
 %endif
 
 popd
@@ -441,11 +466,16 @@ if [ "$1" -eq "1" ]; then # new install
     fi
 fi || :
 %systemd_post nvidia-persistenced.service
-/sbin/ldconfig
+%systemd_post nvidia-hibernate.service
+%systemd_post nvidia-powerd.service
+%systemd_post nvidia-resume.service
+%systemd_post nvidia-suspend.service
+%systemd_post nvidia-suspend-then-hibernate.service
+%?ldconfig
 %endif
 
 %post libs
-/sbin/ldconfig
+%?ldconfig
 
 %preun
 %ifarch x86_64
@@ -471,16 +501,26 @@ if [ "$1" -eq "0" ]; then # uninstall
     fi
 fi ||:
 %systemd_preun nvidia-persistenced.service
+%systemd_preun nvidia-hibernate.service
+%systemd_preun nvidia-powerd.service
+%systemd_preun nvidia-resume.service
+%systemd_preun nvidia-suspend.service
+%systemd_preun nvidia-suspend-then-hibernate.service
 %endif
 
 %postun
 %ifarch x86_64
-/sbin/ldconfig
+%?ldconfig
 %systemd_postun_with_restart nvidia-persistenced.service
+%systemd_postun_with_restart nvidia-hibernate.service
+%systemd_postun_with_restart nvidia-powerd.service
+%systemd_postun_with_restart nvidia-resume.service
+%systemd_postun_with_restart nvidia-suspend.service
+%systemd_postun_with_restart nvidia-suspend-then-hibernate.service
 %endif
 
 %postun libs
-/sbin/ldconfig
+%?ldconfig
 
 %files
 %defattr(-,root,root,-)
@@ -492,10 +532,14 @@ fi ||:
 %{_datadir}/pixmaps/nvidia-settings.png
 %{_datadir}/applications/*nvidia-settings.desktop
 %{_datadir}/dbus-1/system.d/nvidia-dbus.conf
+%{_datadir}/egl/egl_external_platform.d/10_nvidia_wayland.json
+%{_datadir}/egl/egl_external_platform.d/15_nvidia_gbm.json
+%{_datadir}/egl/egl_external_platform.d/20_nvidia_xcb.json
+%{_datadir}/egl/egl_external_platform.d/20_nvidia_xlib.json
 %{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
-%{_datadir}/vulkan/icd.d/nvidia_icd.json
 %{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
-%{_datadir}/vulkansc/icd.d/nvidia_icd.json
+%{_datadir}/vulkan/icd.d/nvidia_icd.%{_arch}.json
+%{_datadir}/vulkansc/icd.d/nvidia_icd.%{_arch}.json
 %dir %{_datadir}/nvidia/
 %{_datadir}/nvidia/files.d/sandboxutils-filelist.json
 %{_datadir}/nvidia/nvidia-application-profiles-*
@@ -511,6 +555,7 @@ fi ||:
 %{_bindir}/nvidia-persistenced
 %{_bindir}/nvidia-powerd
 %{_bindir}/nvidia-settings
+%{_bindir}/nvidia-sleep.sh
 %{_bindir}/nvidia-smi
 %{_bindir}/nvidia-xconfig
 %config %{_sysconfdir}/X11/nvidia-xorg.conf
@@ -520,6 +565,13 @@ fi ||:
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 %{_libdir}/xorg/modules/extensions/libglxserver_nvidia.*
 %{_unitdir}/nvidia-persistenced.service
+%{_unitdir}/nvidia-hibernate.service
+%{_unitdir}/nvidia-powerd.service
+%{_unitdir}/nvidia-resume.service
+%{_unitdir}/nvidia-suspend.service
+%{_unitdir}/nvidia-suspend-then-hibernate.service
+%{_presetdir}/*nvidia.preset
+%{_systemd_util_dir}/system-sleep/nvidia
 %endif
 
 %files libs
@@ -534,6 +586,14 @@ fi ||:
 %endif
 
 %changelog
+* Tue Aug 12 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.76.05-1
+- Updated to version 580.76.05
+- Add power management, dynamic boost and persistence services
+- Add provides for egl-gbm, egl-wayland, and egl-x11
+
+* Thu Aug 07 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.181-1
+- Updated to version 570.181
+
 * Fri Jul 18 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.172.08-1
 - Updated to version 570.172.08
 
