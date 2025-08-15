@@ -15,7 +15,7 @@
 
 Name:		nvidia-x11-drv
 Version:	580.76.05
-Release:	1%{?dist}
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	MIT and Redistributable, no modification permitted
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -114,8 +114,9 @@ Requires:	vulkan-loader
 
 Conflicts:	egl-gbm%{?_isa}
 Provides:	egl-gbm%{?_isa} = %{egl_gbm_version}
-Conflicts:	egl-wayland%{?_isa}
-Provides:	egl-wayland%{?_isa} = %{egl_wayland_version}
+Requires:	egl-wayland%{?_isa} >= 1.1.7
+#Conflicts:	egl-wayland%{?_isa}
+#Provides:	egl-wayland%{?_isa} = %{egl_wayland_version}
 Conflicts:	egl-x11%{?_isa}
 Provides:	egl-x11%{?_isa} = %{egl_x11_version}
 
@@ -227,7 +228,7 @@ pushd 32
 %endif
 %{__install} -p -m 0755 libnvidia-eglcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-egl-gbm.so.%{egl_gbm_version} $RPM_BUILD_ROOT%{_libdir}/
-%{__install} -p -m 0755 libnvidia-egl-wayland.so.%{egl_wayland_version} $RPM_BUILD_ROOT%{_libdir}/
+#%{__install} -p -m 0755 libnvidia-egl-wayland.so.%{egl_wayland_version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-egl-xcb.so.%{egl_x11_version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-egl-xlib.so.%{egl_x11_version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
@@ -316,8 +317,8 @@ popd
 %{__ln_s} libnvidia-eglcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-eglcore.so
 %{__ln_s} libnvidia-egl-gbm.so.%{egl_gbm_version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-gbm.so.1
 %{__ln_s} libnvidia-egl-gbm.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-gbm.so
-%{__ln_s} libnvidia-egl-wayland.so.%{egl_wayland_version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so.1
-%{__ln_s} libnvidia-egl-wayland.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so
+#%{__ln_s} libnvidia-egl-wayland.so.%{egl_wayland_version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so.1
+#%{__ln_s} libnvidia-egl-wayland.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so
 %{__ln_s} libnvidia-egl-xcb.so.%{egl_x11_version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xcb.so.1
 %{__ln_s} libnvidia-egl-xcb.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xcb.so
 %{__ln_s} libnvidia-egl-xlib.so.%{egl_x11_version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xlib.so.1
@@ -590,6 +591,9 @@ fi ||:
 %endif
 
 %changelog
+* Fri Aug 15 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.76.05-2
+- Unbundle egl-wayland since some apps are crashing (eg. firefox)
+
 * Tue Aug 12 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.76.05-1
 - Updated to version 580.76.05
 - Add power management, dynamic boost and persistence services
