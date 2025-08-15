@@ -8,16 +8,17 @@
 
 Name:		kmod-%{kmod_name}
 Version:	470.256.02
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
 License:	Proprietary
 URL:		https://www.nvidia.com/
 
 # Sources
-Source0:  https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
-Source1:  blacklist-nouveau.conf
-Source2:  dracut-nvidia.conf
+Source0:	https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+Source1:	blacklist-nouveau.conf
+Source2:	dracut-nvidia.conf
+Source3:	modprobe-nvidia.conf
 
 %if %{?_with_src:0}%{!?_with_src:1}
 NoSource: 0
@@ -76,7 +77,7 @@ Requires(postun):	%{_sbindir}/weak-modules
 Requires:	kernel >= %{kmod_kernel_version}
 
 %description
-This package provides the proprietary NVIDIA OpenGL kernel driver module.
+This package provides the proprietary NVIDIA OpenGL kernel driver modules.
 It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
@@ -126,6 +127,8 @@ popd
 %{__install} -m 0644 %{SOURCE1} %{buildroot}%{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
 %{__install} -d %{buildroot}%{_sysconfdir}/dracut.conf.d/
 %{__install} -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/dracut.conf.d/dracut-nvidia.conf
+%{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d/
+%{__install} -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/modprobe.d/modprobe-nvidia.conf
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
@@ -232,12 +235,16 @@ exit 0
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
 %config /etc/depmod.d/kmod-%{kmod_name}.conf
 %config /etc/dracut.conf.d/dracut-nvidia.conf
+%config(noreplace) %{_sysconfdir}/modprobe.d/modprobe-nvidia.conf
 %config /usr/lib/modprobe.d/blacklist-nouveau.conf
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 %dir /lib/firmware/nvidia/%{version}/
 /lib/firmware/nvidia/%{version}/gsp.bin
 
 %changelog
+* Fri Aug 15 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-2
+- Add modprobe-nvidia.conf
+
 * Wed Jun 05 2024 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-1
 - Updated to version 470.256.02
 - Built against RHEL 8.10 GA kernel

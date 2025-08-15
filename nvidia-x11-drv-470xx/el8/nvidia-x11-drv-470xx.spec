@@ -5,9 +5,13 @@
 %define		max_xorg_ver	1.20.99
 %define		debug_package	%{nil}
 
+%if 0%{?rhel} == 8
+%define _systemd_util_dir %(dirname %{_unitdir})
+%endif
+
 Name:		nvidia-x11-drv-470xx
 Version:	470.256.02
-Release:	1%{?dist}
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -25,6 +29,7 @@ NoSource: 0
 
 Source1:	alternate-install-present
 Source2:	nvidia-xorg.conf
+Source3:	90-nvidia-470xx.preset
 
 # Provides for CUDA
 Provides:	cuda-driver = %{version}
@@ -37,6 +42,8 @@ Provides:	libglxserver_nvidia.so()(64bit)
 # provides desktop-file-install
 BuildRequires:	desktop-file-utils
 BuildRequires:	perl
+# For systemd_ scriptlets
+BuildRequires:	systemd-rpm-macros
 
 Requires:	perl-interpreter
 Requires:	xorg-x11-server-Xorg <= %{max_xorg_ver}
@@ -83,7 +90,7 @@ Conflicts:	xorg-x11-drv-nvidia-470xx
 This package provides the proprietary NVIDIA OpenGL X11 display driver files.
 
 %package libs
-Summary:	Libraries for the Proprietary NVIDIA driver
+Summary:	Libraries for the NVIDIA OpenGL X11 display driver files
 Group:		User Interface/X Hardware Support
 # Fix broken SONAME dependency chain
 Provides:	libnvidia-vulkan-producer.so()(64bit)
@@ -99,10 +106,11 @@ Requires:	libglvnd-egl%{?_isa} >= 1.0
 Requires:	libglvnd-gles%{?_isa} >= 1.0
 Requires:	libglvnd-glx%{?_isa} >= 1.0
 Requires:	libglvnd-opengl%{?_isa} >= 1.0
-Requires:	egl-wayland%{?_isa}
 Requires:	opencl-filesystem
 Requires:	ocl-icd
 Requires:	vulkan-loader
+
+Requires:	egl-wayland%{?_isa} >= 1.1.7
 
 Conflicts:	nvidia-x11-drv-libs
 Conflicts:	nvidia-x11-drv-390xx-libs
@@ -120,7 +128,7 @@ Conflicts:	nvidia-x11-drv-173xx-32bit
 Conflicts:	nvidia-x11-drv-96xx-32bit
 
 %description libs
-This package provides libraries for the Proprietary NVIDIA driver.
+This package provides libraries for the proprietary NVIDIA OpenGL X11 display driver files.
 
 %prep
 %setup -q -c -T
@@ -128,14 +136,9 @@ sh %{SOURCE0} --extract-only --target nvidiapkg
 
 # Lets just take care of all the docs here rather than during install
 pushd nvidiapkg
-%{__mkdir_p} html/samples/systemd/
-%{__mkdir_p} html/samples/systemd/system/
-%{__mkdir_p} html/samples/systemd/system-sleep/
-%{__mv} LICENSE NVIDIA_Changelog pkg-history.txt README.txt html/
+%{__mkdir_p} html/samples/
 %{__mv} nvidia-persistenced-init.tar.bz2 html/samples/
-%{__mv} systemd/nvidia-sleep.sh html/samples/systemd/
-%{__mv} systemd/system/nvidia-*.service html/samples/systemd/system/
-%{__mv} systemd/system-sleep/nvidia html/samples/systemd/system-sleep/
+%{__mv} supported-gpus/LICENSE supported-gpus/LICENSE.supported-gpus
 popd
 find nvidiapkg/html/ -type f | xargs chmod 0644
 
@@ -147,6 +150,7 @@ find nvidiapkg/html/ -type f | xargs chmod 0644
 
 pushd nvidiapkg
 
+%ifarch x86_64
 # Install nvidia tools
 %{__mkdir_p} $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-bug-report.sh $RPM_BUILD_ROOT%{_bindir}/
@@ -163,13 +167,20 @@ pushd nvidiapkg
 # Install OpenCL Vendor file
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/
 %{__install} -p -m 0644 nvidia.icd $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/nvidia.icd
-# Install vulkan and EGL loaders
-%{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/vulkan/icd.d/
-%{__install} -p -m 0644 nvidia_icd.json $RPM_BUILD_ROOT%{_datadir}/vulkan/icd.d/nvidia_icd.json
+
+# Install Vulkan loader
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/vulkan/implicit_layer.d/
-%{__install} -p -m 0644 nvidia_layers.json $RPM_BUILD_ROOT%{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
+%{__install} -p -m 0644 nvidia_layers.json $RPM_BUILD_ROOT%{_datadir}/vulkan/implicit_layer.d/
+%{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/vulkan/icd.d/
+%{__install} -p -m 0644 nvidia_icd.json $RPM_BUILD_ROOT%{_datadir}/vulkan/icd.d/nvidia_icd.%{_arch}.json
+sed -i -e 's|libGLX_nvidia|%{_libdir}/libGLX_nvidia|g' $RPM_BUILD_ROOT%{_datadir}/vulkan/icd.d/nvidia_icd.%{_arch}.json
+
+# Install EGL loader
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/
-%{__install} -p -m 0644 10_nvidia.json $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
+%{__install} -p -m 0644 10_nvidia.json $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/
+%endif
+
+%{__mkdir_p} $RPM_BUILD_ROOT%{_libdir}/gbm/
 
 # Install GL, tls and vdpau libs
 %ifarch i686
@@ -226,48 +237,65 @@ popd
 %endif
 
 # Install X driver and extension 
+%ifarch x86_64
 %{__mkdir_p} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
 %{__mkdir_p} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/
 %{__install} -p -m 0755 nvidia_drv.so $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
 %{__install} -p -m 0755 libglxserver_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/
+%endif
 
 # Create the symlinks
-%{__ln_s} libcuda.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libcuda.so
 %{__ln_s} libcuda.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libcuda.so.1
+%{__ln_s} libcuda.so.1 $RPM_BUILD_ROOT%{_libdir}/libcuda.so
 %{__ln_s} libEGL_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libEGL_nvidia.so.0
+%{__ln_s} libEGL_nvidia.so.0 $RPM_BUILD_ROOT%{_libdir}/libEGL_nvidia.so
 %{__ln_s} libGLESv1_CM_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libGLESv1_CM_nvidia.so.1
+%{__ln_s} libGLESv1_CM_nvidia.so.1 $RPM_BUILD_ROOT%{_libdir}/libGLESv1_CM_nvidia.so
 %{__ln_s} libGLESv2_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libGLESv2_nvidia.so.2
+%{__ln_s} libGLESv2_nvidia.so.2 $RPM_BUILD_ROOT%{_libdir}/libGLESv2_nvidia.so
 %{__ln_s} libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libGLX_nvidia.so.0
+%{__ln_s} libGLX_nvidia.so.0 $RPM_BUILD_ROOT%{_libdir}/libGLX_nvidia.so
 %{__ln_s} libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libGLX_indirect.so.0
-%{__ln_s} libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvcuvid.so
+%{__ln_s} libGLX_indirect.so.0 $RPM_BUILD_ROOT%{_libdir}/libGLX_indirect.so
 %{__ln_s} libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvcuvid.so.1
-%{__ln_s} libnvidia-allocator.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-allocator.so
+%{__ln_s} libnvcuvid.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvcuvid.so
 %{__ln_s} libnvidia-allocator.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-allocator.so.1
+%{__ln_s} libnvidia-allocator.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-allocator.so
+pushd $RPM_BUILD_ROOT%{_libdir}/gbm
+%{__ln_s} ../libnvidia-allocator.so.1 nvidia-drm_gbm.so
+popd
 %ifarch x86_64
 %{__ln_s} libnvidia-cfg.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-cfg.so.1
+%{__ln_s} libnvidia-cfg.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-cfg.so
 %endif
-%{__ln_s} libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-encode.so
+%{__ln_s} libnvidia-eglcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-eglcore.so
 %{__ln_s} libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-encode.so.1
-%{__ln_s} libnvidia-fbc.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-fbc.so
+%{__ln_s} libnvidia-encode.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-encode.so
 %{__ln_s} libnvidia-fbc.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-fbc.so.1
-%{__ln_s} libnvidia-ifr.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ifr.so
+%{__ln_s} libnvidia-fbc.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-fbc.so
 %{__ln_s} libnvidia-ifr.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ifr.so.1
-%{__ln_s} libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ml.so
+%{__ln_s} libnvidia-ifr.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-ifr.so
 %{__ln_s} libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ml.so.1
+%{__ln_s} libnvidia-ml.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-ml.so
 %ifarch x86_64
-%{__ln_s} libnvidia-ngx.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ngx.so
 %{__ln_s} libnvidia-ngx.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ngx.so.1
+%{__ln_s} libnvidia-ngx.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-ngx.so
 %{__ln_s} libnvidia-nvvm.so.4.0.0 $RPM_BUILD_ROOT%{_libdir}/libnvidia-nvvm.so.4
+%{__ln_s} libnvidia-nvvm.so.4 $RPM_BUILD_ROOT%{_libdir}/libnvidia-nvvm.so
 %endif
 %{__ln_s} libnvidia-opencl.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-opencl.so.1
-%{__ln_s} libnvidia-opticalflow.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-opticalflow.so
+%{__ln_s} libnvidia-opencl.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-opencl.so
 %{__ln_s} libnvidia-opticalflow.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-opticalflow.so.1
+%{__ln_s} libnvidia-opticalflow.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-opticalflow.so
 %{__ln_s} libnvidia-ptxjitcompiler.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ptxjitcompiler.so.1
+%{__ln_s} libnvidia-ptxjitcompiler.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-ptxjitcompiler.so
 %ifarch x86_64
 %{__ln_s} libnvidia-vulkan-producer.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-vulkan-producer.so
 %{__ln_s} libnvoptix.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvoptix.so.1
+%{__ln_s} libnvoptix.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvoptix.so
 %endif
 %{__ln_s} libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/vdpau/libvdpau_nvidia.so.1
+%{__ln_s} libvdpau_nvidia.so.1 $RPM_BUILD_ROOT%{_libdir}/vdpau/libvdpau_nvidia.so
 %ifarch x86_64
 %{__ln_s} libglxserver_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/libglxserver_nvidia.so
 %endif
@@ -314,12 +342,29 @@ desktop-file-install \
 %{__mkdir_p} $RPM_BUILD_ROOT%{_prefix}/lib/nvidia/
 %{__install} -p -m 0644 %{SOURCE1} $RPM_BUILD_ROOT%{_prefix}/lib/nvidia/alternate-install-present
 
+# Extract and install nvidia-persistenced systemd script
+%{__tar} xf html/samples/nvidia-persistenced-init.tar.bz2
+%{__mkdir_p} $RPM_BUILD_ROOT%{_unitdir}/
+%{__install} -p -m 0644 nvidia-persistenced-init/systemd/nvidia-persistenced.service.template \
+  $RPM_BUILD_ROOT%{_unitdir}/nvidia-persistenced.service
+# Set the username for the daemon to root
+%{__sed} -i -e "s/__USER__/root/" $RPM_BUILD_ROOT%{_unitdir}/nvidia-persistenced.service
+
+# Install the suspend/resume/hibernate systemd files
+# See /usr/lib/udev/rules.d/61-gdm.rules
+%{__mkdir_p} $RPM_BUILD_ROOT%{_systemd_util_dir}/system-sleep/
+%{__mkdir_p} $RPM_BUILD_ROOT%{_presetdir}/
+%{__install} -p -m 0755 systemd/nvidia-sleep.sh $RPM_BUILD_ROOT%{_bindir}/
+%{__install} -p -m 0755 systemd/system-sleep/nvidia $RPM_BUILD_ROOT%{_systemd_util_dir}/system-sleep/
+%{__install} -p -m 0644 systemd/system/nvidia-*.service $RPM_BUILD_ROOT%{_unitdir}/
+%{__install} -p -m 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_presetdir}/
 popd
 
 %clean
 %{__rm} -rf $RPM_BUILD_ROOT
 
 %post
+%ifarch x86_64
 if [ "$1" -eq "1" ]; then # new install
     # Check if xorg.conf exists, if it does, backup and remove [BugID # 0000127]
     [ -f %{_sysconfdir}/X11/xorg.conf ] && \
@@ -346,13 +391,18 @@ if [ "$1" -eq "1" ]; then # new install
       done
     fi
 fi || :
-
-/sbin/ldconfig
+%systemd_post nvidia-persistenced.service
+%systemd_post nvidia-hibernate.service
+%systemd_post nvidia-resume.service
+%systemd_post nvidia-suspend.service
+%?ldconfig
+%endif
 
 %post libs
-/sbin/ldconfig
+%?ldconfig
 
 %preun
+%ifarch x86_64
 if [ "$1" -eq "0" ]; then # uninstall
     # Backup and remove xorg.conf
     [ -f %{_sysconfdir}/X11/xorg.conf ] && \
@@ -374,22 +424,36 @@ if [ "$1" -eq "0" ]; then # uninstall
       done
     fi
 fi ||:
+%systemd_preun nvidia-persistenced.service
+%systemd_preun nvidia-hibernate.service
+%systemd_preun nvidia-resume.service
+%systemd_preun nvidia-suspend.service
+%endif
 
 %postun
-/sbin/ldconfig
+%ifarch x86_64
+%?ldconfig
+%systemd_postun_with_restart nvidia-persistenced.service
+%systemd_postun_with_restart nvidia-hibernate.service
+%systemd_postun_with_restart nvidia-resume.service
+%systemd_postun_with_restart nvidia-suspend.service
+%endif
 
 %postun libs
-/sbin/ldconfig
+%?ldconfig
 
 %files
 %defattr(-,root,root,-)
-%doc nvidiapkg/html/*
+%ifarch x86_64
+%license nvidiapkg/LICENSE
+%doc nvidiapkg/NVIDIA_Changelog nvidiapkg/pkg-history.txt nvidiapkg/README.txt nvidiapkg/html/
+%doc nvidiapkg/supported-gpus/supported-gpus.json nvidiapkg/supported-gpus/LICENSE.supported-gpus
 %{_mandir}/man1/nvidia*.*
 %{_datadir}/pixmaps/nvidia-settings.png
 %{_datadir}/applications/*nvidia-settings.desktop
 %{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
-%{_datadir}/vulkan/icd.d/nvidia_icd.json
 %{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
+%{_datadir}/vulkan/icd.d/nvidia_icd.%{_arch}.json
 %dir %{_datadir}/nvidia/
 %{_datadir}/nvidia/nvidia-application-profiles-*
 %{_datadir}/X11/xorg.conf.d/nvidia-drm-outputclass.conf
@@ -401,6 +465,7 @@ fi ||:
 %{_bindir}/nvidia-ngx-updater
 %{_bindir}/nvidia-persistenced
 %{_bindir}/nvidia-settings
+%{_bindir}/nvidia-sleep.sh
 %{_bindir}/nvidia-smi
 %{_bindir}/nvidia-xconfig
 %config %{_sysconfdir}/X11/nvidia-xorg.conf
@@ -409,10 +474,19 @@ fi ||:
 %{_prefix}/lib/nvidia/alternate-install*
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 %{_libdir}/xorg/modules/extensions/libglxserver_nvidia.*
+%{_unitdir}/nvidia-persistenced.service
+%{_unitdir}/nvidia-hibernate.service
+%{_unitdir}/nvidia-resume.service
+%{_unitdir}/nvidia-suspend.service
+%{_presetdir}/*nvidia*.preset
+%{_systemd_util_dir}/system-sleep/nvidia
+%endif
 
 %files libs
 %defattr(-,root,root,-)
 %{_libdir}/lib*
+%dir %{_libdir}/gbm/
+%{_libdir}/gbm/nvidia*
 %{_libdir}/vdpau/libvdpau_nvidia.*
 %ifarch x86_64
 %dir %{_libdir}/nvidia/
@@ -420,6 +494,9 @@ fi ||:
 %endif
 
 %changelog
+* Fri Aug 15 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-2
+- Add power management and persistence services
+
 * Wed Jun 05 2024 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-1
 - Updated to version 470.256.02
 

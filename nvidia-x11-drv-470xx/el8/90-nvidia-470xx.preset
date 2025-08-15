@@ -1,0 +1,13 @@
+# Enable NVIDIA power management services (required for Wayland)
+#
+# See:
+# /usr/share/doc/nvidia-x11-drv/html/powermanagement.html
+# /usr/lib/udev/rules.d/61-gdm.rules
+enable nvidia-hibernate.service
+enable nvidia-resume.service
+enable nvidia-suspend.service
+
+# Enable NVIDIA persistence mode
+# See:
+# /usr/share/doc/nvidia-x11-drv/html/nvidia-persistenced.html
+enable nvidia-persistenced.service
