@@ -233,11 +233,11 @@ exit 0
 %files
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config /etc/depmod.d/kmod-%{kmod_name}.conf
-%config /etc/dracut.conf.d/dracut-nvidia.conf
+%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
+%config %{_sysconfdir}/dracut.conf.d/dracut-nvidia.conf
 %config(noreplace) %{_sysconfdir}/modprobe.d/modprobe-nvidia.conf
-%config /usr/lib/modprobe.d/blacklist-nouveau.conf
-%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
+%config %{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
+%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %dir /lib/firmware/nvidia/%{version}/
 /lib/firmware/nvidia/%{version}/gsp.bin
 
