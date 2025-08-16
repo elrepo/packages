@@ -300,6 +300,7 @@ popd
 %{__ln_s} libglxserver_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/libglxserver_nvidia.so
 %endif
 
+%ifarch x86_64
 # Install man pages
 %{__mkdir_p} $RPM_BUILD_ROOT%{_mandir}/man1/
 %{__install} -p -m 0644 nvidia-{cuda-mps-control,modprobe,persistenced,settings,smi,xconfig}.1.gz $RPM_BUILD_ROOT%{_mandir}/man1/
@@ -358,6 +359,8 @@ desktop-file-install \
 %{__install} -p -m 0755 systemd/system-sleep/nvidia $RPM_BUILD_ROOT%{_systemd_util_dir}/system-sleep/
 %{__install} -p -m 0644 systemd/system/nvidia-*.service $RPM_BUILD_ROOT%{_unitdir}/
 %{__install} -p -m 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_presetdir}/
+%endif
+
 popd
 
 %clean
