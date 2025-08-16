@@ -1,0 +1,31 @@
+-----------------------------------------------------------------------------
+
+                    --- CAEN SpA - Software Division ---
+
+-----------------------------------------------------------------------------
+
+    CAEN A5818 Driver
+
+    Install procedure on Linux.
+
+-----------------------------------------------------------------------------
+
+
+Prerequisites
+-------------
+
+- Linux kernel
+  Compilation tested on:
+  - Debian: 10, 11, 12
+  - Ubuntu (including HWE): 16.04, 18.04, 20.04, 22.04, 24.04
+  - RHEL (and derivatives): 7.9, 8.10, 9.5
+  - Fedora: 39, 40, 41
+- dkms
+
+
+Install
+-------
+
+In the extracted folder run
+
+    $ sudo ./install.sh

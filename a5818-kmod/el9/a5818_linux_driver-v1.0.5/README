@@ -1,0 +1,61 @@
+-----------------------------------------------------------------------------
+
+                    --- CAEN SpA - Software Division ---
+
+-----------------------------------------------------------------------------
+
+    CAEN A5818 Driver
+
+    Readme.
+
+-----------------------------------------------------------------------------
+
+
+Copyright notice
+----------------
+
+Copyright (C) 2024 CAEN SpA
+
+The CAEN A5818 Driver is free software; you can redistribute it and/or modify it
+under the terms and conditions of the GNU General Public License,
+version 2, as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+more details.
+
+The full GNU General Public License is included in this distribution in
+the file called "COPYING".
+
+The license applies to the CAEN A5818 Driver source as a whole, though individual
+source files can have a different license which is required to be compatible
+with the GNU General Public Library, version 3. You may find more details
+on the Credits section of this file.
+
+
+Support
+-------
+
+For technical support, go to https://www.caen.it/mycaen/support/ (login and
+MyCAEN+ account required).
+
+If you don't have an account or want to update your old one, find the instructions
+at https://www.caen.it/support-services/getting-started-with-mycaen-portal/.
+
+
+Prerequisites
+-------------
+
+- See INSTALL.
+
+
+Credits
+-------
+
+The CAEN A5818 Driver is made possible by other third part open source software.
+
+Xilinx DMA XDMA drivers
+- Website: https://github.com/Xilinx/dma_ip_drivers/tree/master/XDMA/linux-kernel
+- SPDX-License-Identifier: GPL-2.0
+- Copyright: Copyright 2016-present Xilinx, Inc.
