@@ -2,22 +2,23 @@
 %define kmod_name	nvidia-470xx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.26.1.el9_6}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.32.1.el9_6}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	470.256.02
-Release:	4%{?dist}
+Release:	5.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
 URL:		http://www.nvidia.com/
 
 # Sources
-Source0:  https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
-Source1:  blacklist-nouveau.conf
-Source2:  dracut-nvidia.conf
+Source0:	https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+Source1:	blacklist-nouveau.conf
+Source2:	dracut-nvidia.conf
+Source3:	modprobe-nvidia.conf
 
 # Source code patches
 Patch0:   nvidia-470xx-buildfix-el9_6.patch
@@ -124,6 +125,8 @@ popd
 %{__install} -m 0644 %{SOURCE1} %{buildroot}%{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
 %{__install} -d %{buildroot}%{_sysconfdir}/dracut.conf.d/
 %{__install} -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/dracut.conf.d/dracut-nvidia.conf
+%{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d/
+%{__install} -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/modprobe.d/modprobe-nvidia.conf
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
@@ -228,14 +231,22 @@ exit 0
 %files
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config /etc/depmod.d/kmod-%{kmod_name}.conf
-%config /etc/dracut.conf.d/dracut-nvidia.conf
-%config /usr/lib/modprobe.d/blacklist-nouveau.conf
-%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
+%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
+%config %{_sysconfdir}/dracut.conf.d/dracut-nvidia.conf
+%config(noreplace) %{_sysconfdir}/modprobe.d/modprobe-nvidia.conf
+%config %{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
+%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %dir /lib/firmware/nvidia/%{version}/
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Sat Aug 16 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-5.1
+- Rebuilt against RHEL 9.6 errata kernel 5.14.0-570.26.1.el9_6
+
+* Sat Aug 16 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-5
+- Add modprobe-nvidia.conf
+- Built against RHEL 9.6 GA kernel
+
 * Fri Jul 18 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-4
 - Rebuilt against RHEL 9.6 errata kernel 5.14.0-570.26.1.el9_6
 - Updated buildfix patch
