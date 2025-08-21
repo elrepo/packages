@@ -19,6 +19,7 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
+Patch0:		aacraid-commitc5becf57d-elrepo.patch
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
                             /usr/lib/rpm/redhat/brp-ldconfig \
@@ -67,11 +68,10 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
+%patch0 -p1
 
 %build
-%{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD \
-        CONFIG_SCSI_AACRAID=m \
-        EXTRA_CFLAGS='-DCONFIG_SCSI_AACRAID'
+%{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD
 
 whitelist="/lib/modules/kabi-current/kabi_whitelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -182,9 +182,8 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Fri Mar 28 2025 Tuan Hoang <tqhoang@elrepo.org> - 1.2.1-12
-- Built against RHEL 8.10 errata kernel 4.18.0-553.45.1.el8_10
-- Source code updated from RHEL 8.10 errata kernel 4.18.0-553.45.1.el8_10
+* Thu Mar 27 2025 Tuan Hoang <tqhoang@elrepo.org> - 1.2.1-12
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.45.1.el8_10
 
 * Mon Jun 24 2024 Akemi Yagi <toracat@elrepo.org> - 1.2.1-11.1
 - Applied patch from commit c5becf57dd5659c687d41d623a69f42d63f59eb2
