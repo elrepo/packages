@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -211,6 +211,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Aug 21 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-3
+- Update source from RHEL 8.10 errata kernel-4.18.0-553.69.1.el8_10
+- Fixes CVE-2025-38159
+
 * Sat Jul 19 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-2
 - Add upstream patches for additional rtw88_8821cu devices
 - Add upstream patches for additional rtw88_8822bu devices
