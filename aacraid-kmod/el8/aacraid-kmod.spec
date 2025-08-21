@@ -2,13 +2,13 @@
 %define kmod_name		aacraid
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.45.1.el8_10}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.69.1.el8_10}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	1.2.1
-Release:	12%{?dist}
+Release:	14%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -71,7 +71,9 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 %patch0 -p1
 
 %build
-%{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD
+%{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD \
+	CONFIG_SCSI_AACRAID=m \
+	EXTRA_CFLAGS='-DCONFIG_SCSI_AACRAID'
 
 whitelist="/lib/modules/kabi-current/kabi_whitelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -182,8 +184,19 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Thu Mar 27 2025 Tuan Hoang <tqhoang@elrepo.org> - 1.2.1-12
-- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.45.1.el8_10
+* Thu Aug 21 2025 Tuan Hoang <tqhoang@elrepo.org> - 1.2.1-14
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.69.1.el8_10
+- Revert to source code from RHEL 8.10 GA kernel with patch from release -11.1
+  https://elrepo.org/bugs/view.php?id=1555
+
+* Tue Aug 19 2025 Tuan Hoang <tqhoang@elrepo.org> - 1.2.1-13
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.69.1.el8_10
+- Add patch for bug introduced by kernel 4.18.0-553.10.1.el8_10 [RHEL-23913]
+  https://elrepo.org/bugs/view.php?id=1555
+
+* Fri Mar 28 2025 Tuan Hoang <tqhoang@elrepo.org> - 1.2.1-12
+- Built against RHEL 8.10 errata kernel 4.18.0-553.45.1.el8_10
+- Source code updated from RHEL 8.10 errata kernel 4.18.0-553.45.1.el8_10
 
 * Mon Jun 24 2024 Akemi Yagi <toracat@elrepo.org> - 1.2.1-11.1
 - Applied patch from commit c5becf57dd5659c687d41d623a69f42d63f59eb2
