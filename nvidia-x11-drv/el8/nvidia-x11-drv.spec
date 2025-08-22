@@ -7,31 +7,31 @@
 
 # Default options to bundle EGL libs and ICD files
 %if 0%{?rhel} <= 9
-%bcond_with    egl_gbm
-%bcond_with    egl_wayland
-%bcond_without egl_x11
+%bcond_with	egl_gbm
+%bcond_with	egl_wayland
+%bcond_without	egl_x11
 %else
-%bcond_with    egl_gbm
-%bcond_with    egl_wayland
-%bcond_with    egl_x11
+%bcond_with	egl_gbm
+%bcond_with	egl_wayland
+%bcond_with	egl_x11
 %endif
 
 %if %{with egl_gbm}
-%define                egl_gbm_version         1.1.2
+%define		egl_gbm_version		1.1.2
 %else
-%define                egl_gbm_min_version     1.1.2
+%define		egl_gbm_min_version	1.1.2
 %endif
 
 %if %{with egl_wayland}
-%define                egl_wayland_version     1.1.20
+%define		egl_wayland_version	1.1.20
 %else
-%define                egl_wayland_min_version 1.1.7
+%define		egl_wayland_min_version	1.1.7
 %endif
 
 %if %{with egl_x11}
-%define                egl_x11_version         1.0.3
+%define		egl_x11_version		1.0.3
 %else
-%define                egl_x11_min_version     1.0.0
+%define		egl_x11_min_version	1.0.0
 %endif
 
 %if 0%{?rhel} == 8
@@ -138,24 +138,24 @@ Requires:	ocl-icd
 Requires:	vulkan-loader
 
 %if %{with egl_gbm}
-Conflicts:     egl-gbm%{?_isa}
-Provides:      egl-gbm%{?_isa} = %{egl_gbm_version}
+Conflicts:	egl-gbm%{?_isa}
+Provides:	egl-gbm%{?_isa} = %{egl_gbm_version}
 %else
-Requires:      egl-gbm%{?_isa} >= %{egl_gbm_min_version}
+Requires:	egl-gbm%{?_isa} >= %{egl_gbm_min_version}
 %endif
 
 %if %{with egl_wayland}
-Conflicts:     egl-wayland%{?_isa}
-Provides:      egl-wayland%{?_isa} = %{egl_wayland_version}
+Conflicts:	egl-wayland%{?_isa}
+Provides:	egl-wayland%{?_isa} = %{egl_wayland_version}
 %else
-Requires:      egl-wayland%{?_isa} >= %{egl_wayland_min_version}
+Requires:	egl-wayland%{?_isa} >= %{egl_wayland_min_version}
 %endif
 
 %if %{with egl_x11}
-Conflicts:     egl-x11%{?_isa}
-Provides:      egl-x11%{?_isa} = %{egl_x11_version}
+Conflicts:	egl-x11%{?_isa}
+Provides:	egl-x11%{?_isa} = %{egl_x11_version}
 %else
-Requires:      egl-x11%{?_isa} >= %{egl_x11_min_version}
+Requires:	egl-x11%{?_isa} >= %{egl_x11_min_version}
 %endif
 
 Conflicts:	nvidia-x11-drv-470xx-libs
