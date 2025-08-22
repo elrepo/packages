@@ -8,13 +8,13 @@
 %define kmod_name	%{kmod_basename}%{?kmod_open}
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.32.1.el9_6}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.35.1.el9_6}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	580.76.05
-Release:	2%{?dist}
+Version:	570.181
+Release:	1.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	MIT and Redistributable, no modification permitted
@@ -250,20 +250,13 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
-* Tue Aug 12 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.76.05-2
-- Rebuilt against RHEL 9.6 errata kernel 5.14.0-570.32.1.el9_6
+* Thu Aug 21 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.181-1.1
+- Rebuilt against RHEL 9.6 errata kernel 5.14.0-570.35.1.el9_6
 
-* Tue Aug 12 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.76.05-1
-- Updated to version 580.76.05
-- Built against RHEL 9.6 GA kernel
-- Add modprobe-nvidia.conf
-
-* Thu Aug 07 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.181-2
-- Rebuilt against RHEL 9.6 errata kernel 5.14.0-570.32.1.el9_6
-
-* Thu Aug 07 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.181-1
+* Thu Aug 21 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.181-1
 - Updated to version 570.181
 - Built against RHEL 9.6 GA kernel
+- Add modprobe-nvidia.conf
 
 * Fri Jul 18 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.172.08-2
 - Built against RHEL 9.6 errata kernel 5.14.0-570.26.1.el9_6
