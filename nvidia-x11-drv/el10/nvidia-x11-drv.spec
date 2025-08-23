@@ -5,9 +5,35 @@
 %define		min_xwayland_ver	21.1
 %define		debug_package	%{nil}
 
+# Default options to bundle EGL libs and ICD files
+%if 0%{?rhel} <= 9
+%bcond_with	egl_gbm
+%bcond_with	egl_wayland
+%bcond_without	egl_x11
+%else
+%bcond_with	egl_gbm
+%bcond_with	egl_wayland
+%bcond_with	egl_x11
+%endif
+
+%if %{with egl_gbm}
 %define		egl_gbm_version		1.1.2
+%else
+%define		egl_gbm_min_version	1.1.2
+%endif
+
+%if %{with egl_wayland}
 %define		egl_wayland_version	1.1.20
+%else
+%define		egl_wayland_min_version	1.1.7
+%endif
+
+%if %{with egl_x11}
 %define		egl_x11_version		1.0.3
+%else
+%define		egl_x11_min_version	1.0.0
+%endif
+
 
 Name:		nvidia-x11-drv
 Version:	580.76.05
@@ -108,12 +134,26 @@ Requires:	opencl-filesystem
 Requires:	ocl-icd
 Requires:	vulkan-loader
 
+%if %{with egl_gbm}
 Conflicts:	egl-gbm%{?_isa}
 Provides:	egl-gbm%{?_isa} = %{egl_gbm_version}
+%else
+Requires:	egl-gbm%{?_isa} >= %{egl_gbm_min_version}
+%endif
+
+%if %{with egl_wayland}
 Conflicts:	egl-wayland%{?_isa}
 Provides:	egl-wayland%{?_isa} = %{egl_wayland_version}
+%else
+Requires:	egl-wayland%{?_isa} >= %{egl_wayland_min_version}
+%endif
+
+%if %{with egl_x11}
 Conflicts:	egl-x11%{?_isa}
 Provides:	egl-x11%{?_isa} = %{egl_x11_version}
+%else
+Requires:	egl-x11%{?_isa} >= %{egl_x11_min_version}
+%endif
 
 Conflicts:	nvidia-x11-drv-470xx-libs
 Conflicts:	nvidia-x11-drv-390xx-libs
@@ -187,11 +227,19 @@ sed -i -e 's|libGLX_nvidia|%{_libdir}/libGLX_nvidia|g' $RPM_BUILD_ROOT%{_datadir
 sed -i -e 's|libnvidia-vksc-core|%{_libdir}/libnvidia-vksc-core|g' $RPM_BUILD_ROOT%{_datadir}/vulkansc/icd.d/nvidia_icd.%{_arch}.json
 
 # Install EGL loader
+%if %{with egl_gbm}
+%{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d
+%{__install} -p -m 0644 15_nvidia_gbm.json $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/
+%endif
+%if %{with egl_wayland}
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d
 %{__install} -p -m 0644 10_nvidia_wayland.json $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/
-%{__install} -p -m 0644 15_nvidia_gbm.json $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/
+%endif
+%if %{with egl_x11}
+%{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d
 %{__install} -p -m 0644 20_nvidia_xcb.json $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/
 %{__install} -p -m 0644 20_nvidia_xlib.json $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/
+%endif
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/
 %{__install} -p -m 0644 10_nvidia.json $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/
 
@@ -222,10 +270,16 @@ pushd 32
 %{__install} -p -m 0755 libnvidia-cfg.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %endif
 %{__install} -p -m 0755 libnvidia-eglcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
+%if %{with egl_gbm}
 %{__install} -p -m 0755 libnvidia-egl-gbm.so.%{egl_gbm_version} $RPM_BUILD_ROOT%{_libdir}/
+%endif
+%if %{with egl_wayland}
 %{__install} -p -m 0755 libnvidia-egl-wayland.so.%{egl_wayland_version} $RPM_BUILD_ROOT%{_libdir}/
+%endif
+%if %{with egl_x11}
 %{__install} -p -m 0755 libnvidia-egl-xcb.so.%{egl_x11_version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-egl-xlib.so.%{egl_x11_version} $RPM_BUILD_ROOT%{_libdir}/
+%endif
 %{__install} -p -m 0755 libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-fbc.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-glcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
@@ -310,14 +364,20 @@ popd
 %{__ln_s} libnvidia-cfg.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-cfg.so
 %endif
 %{__ln_s} libnvidia-eglcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-eglcore.so
+%if %{with egl_gbm}
 %{__ln_s} libnvidia-egl-gbm.so.%{egl_gbm_version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-gbm.so.1
 %{__ln_s} libnvidia-egl-gbm.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-gbm.so
+%endif
+%if %{with egl_wayland}
 %{__ln_s} libnvidia-egl-wayland.so.%{egl_wayland_version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so.1
 %{__ln_s} libnvidia-egl-wayland.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so
+%endif
+%if %{with egl_x11}
 %{__ln_s} libnvidia-egl-xcb.so.%{egl_x11_version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xcb.so.1
 %{__ln_s} libnvidia-egl-xcb.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xcb.so
 %{__ln_s} libnvidia-egl-xlib.so.%{egl_x11_version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xlib.so.1
 %{__ln_s} libnvidia-egl-xlib.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xlib.so
+%endif
 %{__ln_s} libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-encode.so.1
 %{__ln_s} libnvidia-encode.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-encode.so
 %{__ln_s} libnvidia-fbc.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-fbc.so.1
@@ -532,10 +592,16 @@ fi ||:
 %{_datadir}/pixmaps/nvidia-settings.png
 %{_datadir}/applications/*nvidia-settings.desktop
 %{_datadir}/dbus-1/system.d/nvidia-dbus.conf
-%{_datadir}/egl/egl_external_platform.d/10_nvidia_wayland.json
+%if %{with egl_gbm}
 %{_datadir}/egl/egl_external_platform.d/15_nvidia_gbm.json
+%endif
+%if %{with egl_wayland}
+%{_datadir}/egl/egl_external_platform.d/10_nvidia_wayland.json
+%endif
+%if %{with egl_x11}
 %{_datadir}/egl/egl_external_platform.d/20_nvidia_xcb.json
 %{_datadir}/egl/egl_external_platform.d/20_nvidia_xlib.json
+%endif
 %{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
 %{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
 %{_datadir}/vulkan/icd.d/nvidia_icd.%{_arch}.json
@@ -586,7 +652,7 @@ fi ||:
 %endif
 
 %changelog
-* Tue Aug 12 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.76.05-1
+* Fri Aug 22 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.76.05-1
 - Updated to version 580.76.05
 - Built against RHEL 10.0 GA kernel
 - Fork for RHEL10
