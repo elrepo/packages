@@ -7,7 +7,7 @@
 
 # Default options to bundle EGL libs and ICD files
 %if 0%{?rhel} <= 9
-%bcond_with	egl_gbm
+%bcond_without	egl_gbm
 %bcond_with	egl_wayland
 %bcond_without	egl_x11
 %else
@@ -655,7 +655,7 @@ fi ||:
 %endif
 
 %changelog
-* Thu Aug 21 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.181-1
+* Mon Aug 25 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.181-1
 - Updated to version 570.181
 - Add power management, dynamic boost and persistence services
 - Add conditional bundling for egl-{gbm,wayland,x11}

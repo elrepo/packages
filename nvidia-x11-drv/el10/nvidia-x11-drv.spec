@@ -7,7 +7,7 @@
 
 # Default options to bundle EGL libs and ICD files
 %if 0%{?rhel} <= 9
-%bcond_with	egl_gbm
+%bcond_without	egl_gbm
 %bcond_with	egl_wayland
 %bcond_without	egl_x11
 %else
@@ -652,7 +652,7 @@ fi ||:
 %endif
 
 %changelog
-* Fri Aug 22 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.76.05-1
+* Mon Aug 25 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.76.05-1
 - Updated to version 580.76.05
 - Built against RHEL 10.0 GA kernel
 - Fork for RHEL10
