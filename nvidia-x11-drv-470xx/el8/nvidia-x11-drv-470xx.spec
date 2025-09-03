@@ -11,7 +11,7 @@
 
 Name:		nvidia-x11-drv-470xx
 Version:	470.256.02
-Release:	2%{?dist}
+Release:	3%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -497,6 +497,9 @@ fi ||:
 %endif
 
 %changelog
+* Wed Sep 03 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-3
+- Bump to release 3 to sync with kmod-nvidia-470xx for RHEL 8.10
+
 * Fri Aug 15 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-2
 - Add power management and persistence services
 

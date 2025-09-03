@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	470.256.02
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
 License:	Proprietary
@@ -150,6 +150,16 @@ done
 %{__rm} -rf %{buildroot}
 
 %post
+# One user requires X11 with IndirectGLX (IGLX)
+# With modeset=1, the X11 session crashes and goes back to GDM
+# Need to check if IndirectGLX is configured and set modeset accordingly
+HAS_INDIRECT_GLX=`grep IndirectGLX %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.d/*.conf 2>/dev/null`
+if [ -n "${HAS_INDIRECT_GLX}" ]; then
+	sed -i 's/^options nvidia_drm modeset=1/#options nvidia_drm modeset=1/g' %{_sysconfdir}/modprobe.d/modprobe-nvidia.conf
+else
+	sed -i 's/#options nvidia_drm modeset=1/options nvidia_drm modeset=1/g' %{_sysconfdir}/modprobe.d/modprobe-nvidia.conf
+fi
+
 modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
@@ -232,6 +242,7 @@ exit 0
 
 %files
 %defattr(644,root,root,755)
+%license nvidiapkg/LICENSE
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
 %config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
 %config %{_sysconfdir}/dracut.conf.d/dracut-nvidia.conf
@@ -242,6 +253,10 @@ exit 0
 /lib/firmware/nvidia/%{version}/gsp.bin
 
 %changelog
+* Wed Sep 03 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-3
+- Add LICENSE file
+- Add workaround to prevent X11 crash with IndirectGLX
+
 * Fri Aug 15 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-2
 - Add modprobe-nvidia.conf
 

@@ -7,7 +7,6 @@
 %define kmod_basename	nvidia
 %define kmod_name	%{kmod_basename}%{?kmod_open}
 
-
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
 %{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
 
@@ -15,7 +14,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	570.181
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
 License:	MIT and Redistributable, no modification permitted
@@ -164,6 +163,16 @@ done
 %{__rm} -rf %{buildroot}
 
 %post
+# One user requires X11 with IndirectGLX (IGLX)
+# With modeset=1, the X11 session crashes and goes back to GDM
+# Need to check if IndirectGLX is configured and set modeset accordingly
+HAS_INDIRECT_GLX=`grep IndirectGLX %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.d/*.conf 2>/dev/null`
+if [ -n "${HAS_INDIRECT_GLX}" ]; then
+	sed -i 's/^options nvidia_drm modeset=1/#options nvidia_drm modeset=1/g' %{_sysconfdir}/modprobe.d/modprobe-nvidia.conf
+else
+	sed -i 's/#options nvidia_drm modeset=1/options nvidia_drm modeset=1/g' %{_sysconfdir}/modprobe.d/modprobe-nvidia.conf
+fi
+
 modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_basename} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
@@ -257,6 +266,9 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Wed Sep 03 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.181-2
+- Add workaround to prevent X11 crash with IndirectGLX
+
 * Thu Aug 21 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.181-1
 - Updated to version 570.181
 - Add modprobe-nvidia.conf

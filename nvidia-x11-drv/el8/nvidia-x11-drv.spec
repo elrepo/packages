@@ -40,7 +40,7 @@
 
 Name:		nvidia-x11-drv
 Version:	570.181
-Release:	1%{?dist}
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	MIT and Redistributable, no modification permitted
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -655,6 +655,9 @@ fi ||:
 %endif
 
 %changelog
+* Wed Sep 03 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.181-2
+- Bump to release 2 to sync with kmod-nvidia for RHEL 8.10
+
 * Mon Aug 25 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.181-1
 - Updated to version 570.181
 - Add power management, dynamic boost and persistence services
