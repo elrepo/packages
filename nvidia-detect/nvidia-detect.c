@@ -29,7 +29,7 @@
 #include "nvidia-detect.h"
 
 #define PROGRAM_NAME		"nvidia-detect"
-#define NVIDIA_VERSION		"580.76.05"
+#define NVIDIA_VERSION		"580.82.07"
 
 #ifndef PCI_VENDOR_ID_INTEL
 #define PCI_VENDOR_ID_INTEL	0x8086
