@@ -2,13 +2,13 @@
 %define kmod_name	nvidia-470xx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.32.1.el9_6}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.37.1.el9_6}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	470.256.02
-Release:	5.1%{?dist}
+Release:	6.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -21,7 +21,7 @@ Source2:	dracut-nvidia.conf
 Source3:	modprobe-nvidia.conf
 
 # Source code patches
-Patch0:   nvidia-470xx-buildfix-el9_6.patch
+Patch0:	nvidia-470xx-buildfix-el9_6.patch
 
 %if %{?_with_src:0}%{!?_with_src:1}
 NoSource: 0
@@ -48,7 +48,7 @@ NoSource: 0
 %global _use_internal_dependency_generator 0
 %global kernel_source() %{_usrsrc}/kernels/%{kmod_kernel_version}.%{_arch}
 
-BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
+BuildRoot:		%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 ExclusiveArch:		x86_64
 
@@ -61,12 +61,12 @@ BuildRequires:		rpm-build
 BuildRequires:		gcc
 BuildRequires:		make
 
-Provides:			kernel-modules >= %{kmod_kernel_version}.%{_arch}
-Provides:			kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:		kernel-modules >= %{kmod_kernel_version}.%{_arch}
+Provides:		kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
 
-Requires:			kernel >= %{kmod_kernel_version}
-Requires:			kernel-core-uname-r >= %{kmod_kernel_version}
-Requires:			nvidia-x11-drv-470xx = %{?epoch:%{epoch}:}%{version}
+Requires:		kernel >= %{kmod_kernel_version}
+Requires:		kernel-core-uname-r >= %{kmod_kernel_version}
+Requires:		nvidia-x11-drv-470xx = %{?epoch:%{epoch}:}%{version}
 
 Requires(post):		%{_sbindir}/depmod
 Requires(postun):	%{_sbindir}/depmod
@@ -148,6 +148,16 @@ find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --str
 %{__rm} -rf %{buildroot}
 
 %post
+# One user requires X11 with IndirectGLX (IGLX)
+# With modeset=1, the X11 session crashes and goes back to GDM
+# Need to check if IndirectGLX is configured and set modeset accordingly
+HAS_INDIRECT_GLX=`grep IndirectGLX %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.d/*.conf 2>/dev/null`
+if [ -n "${HAS_INDIRECT_GLX}" ]; then
+	sed -i 's/^options nvidia_drm modeset=1/#options nvidia_drm modeset=1/g' %{_sysconfdir}/modprobe.d/modprobe-nvidia.conf
+else
+	sed -i 's/#options nvidia_drm modeset=1/options nvidia_drm modeset=1/g' %{_sysconfdir}/modprobe.d/modprobe-nvidia.conf
+fi
+
 modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
@@ -230,6 +240,7 @@ exit 0
 
 %files
 %defattr(644,root,root,755)
+%license nvidiapkg/LICENSE
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
 %config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
 %config %{_sysconfdir}/dracut.conf.d/dracut-nvidia.conf
@@ -240,6 +251,14 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Wed Sep 03 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-6.1
+- Rebuilt against RHEL 9.6 errata kernel 5.14.0-570.37.1.el9_6
+
+* Wed Sep 03 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-6
+- Built against RHEL 9.6 GA kernel
+- Add LICENSE file
+- Add workaround to prevent X11 crash with IndirectGLX
+
 * Sat Aug 16 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-5.1
 - Rebuilt against RHEL 9.6 errata kernel 5.14.0-570.26.1.el9_6
 
