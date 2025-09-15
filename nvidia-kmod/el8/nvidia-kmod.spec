@@ -13,8 +13,8 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	570.181
-Release:	2%{?dist}
+Version:	570.190
+Release:	1%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
 License:	MIT and Redistributable, no modification permitted
@@ -266,6 +266,9 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Thu Sep 11 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.190-1
+- Updated to version 570.190
+
 * Wed Sep 03 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.181-2
 - Add workaround to prevent X11 crash with IndirectGLX
 
