@@ -193,12 +193,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Thu Jul 31 2025 Tuan Hoang <tqhoang@elrepo.org> - 10.016.00-1
+* Wed Sep 17 2025 Tuan Hoang <tqhoang@elrepo.org> - 10.016.00-1
 - Update to 10.016.00
-- Disable use firmware file
 - Disable fiber support
 
 * Sat May 24 2025 Tuan Hoang <tqhoang@elrepo.org> - 10.015.00-1
 - Initial build for RHEL 10.0
 - Built against RHEL 10.0 GA kernel
-

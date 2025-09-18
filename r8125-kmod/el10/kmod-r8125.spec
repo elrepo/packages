@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el10}
 
 Name:		kmod-%{kmod_name}
-Version:	9.016.00
+Version:	9.016.01
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -193,12 +193,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Thu Jul 31 2025 Tuan Hoang <tqhoang@elrepo.org> - 9.016.00-1
-- Update to 9.016.00
-- Disable use firmware file
+* Wed Sep 17 2025 Tuan Hoang <tqhoang@elrepo.org> - 9.016.01-1
+- Update to 9.016.01
 - Disable fiber support
 
 * Sat May 24 2025 Tuan Hoang <tqhoang@elrepo.org> - 9.015.00-1
 - Initial build for RHEL 10.0
 - Built against RHEL 10.0 GA kernel
-
