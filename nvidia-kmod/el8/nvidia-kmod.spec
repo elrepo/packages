@@ -8,13 +8,13 @@
 %define kmod_name	%{kmod_basename}%{?kmod_open}
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.75.1.el8_10}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	570.190
-Release:	1%{?dist}
+Release:	1.1%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
 License:	MIT and Redistributable, no modification permitted
@@ -266,6 +266,9 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Thu Sep 18 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.190-1.1
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
+
 * Thu Sep 11 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.190-1
 - Updated to version 570.190
 
