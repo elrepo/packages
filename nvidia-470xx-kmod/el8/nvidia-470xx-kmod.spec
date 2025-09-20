@@ -2,13 +2,13 @@
 %define kmod_name		nvidia-470xx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.75.1.el8_10}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	470.256.02
-Release:	3%{?dist}
+Release:	3.1%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
 License:	Proprietary
@@ -253,6 +253,9 @@ exit 0
 /lib/firmware/nvidia/%{version}/gsp.bin
 
 %changelog
+* Fri Sep 19 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-3.1
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
+
 * Wed Sep 03 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-3
 - Add LICENSE file
 - Add workaround to prevent X11 crash with IndirectGLX

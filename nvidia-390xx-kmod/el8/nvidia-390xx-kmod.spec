@@ -2,22 +2,22 @@
 %define kmod_name		nvidia-390xx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.75.1.el8_10}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	390.157
-Release:	6%{?dist}
+Release:	6.1%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
 License:	Proprietary
 URL:		https://www.nvidia.com/
 
 # Sources
-Source0:  https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
-Source1:  blacklist-nouveau.conf
-Source2:  dracut-nvidia.conf
+Source0:	https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+Source1:	blacklist-nouveau.conf
+Source2:	dracut-nvidia.conf
 
 # Source code patches
 Patch0:		nvidia-390xx-buildfix-el8_9.patch
@@ -233,6 +233,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri Sep 19 2025 Tuan Hoang <tqhoang@elrepo.org> - 390.157-6.1
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
+
 * Fri May 24 2024 Tuan Hoang <tqhoang@elrepo.org> - 390.157-6
 - Rebuilt against RHEL 8.10 GA kernel 4.18.0-553.el8_10
 
