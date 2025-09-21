@@ -193,9 +193,8 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Thu Jul 31 2025 Tuan Hoang <tqhoang@elrepo.org> - 11.015.00-1
+* Wed Sep 17 2025 Tuan Hoang <tqhoang@elrepo.org> - 11.015.00-1
 - Update to 11.015.00
-- Disable use firmware file
 - Enable fiber support
 
 * Wed May 14 2025 Tuan Hoang <tqhoang@elrepo.org> - 11.014.00-2

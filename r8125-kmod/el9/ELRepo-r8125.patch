@@ -1,6 +1,6 @@
-diff -Naurp r8125-9.016.00.orig/src/r8125.h r8125-9.016.00/src/r8125.h
---- r8125-9.016.00.orig/src/r8125.h	2025-06-03 04:40:49.000000000 -0400
-+++ r8125-9.016.00/src/r8125.h	2025-07-31 16:37:26.366609653 -0400
+diff -Naurp r8125-9.016.01.orig/src/r8125.h r8125-9.016.01/src/r8125.h
+--- r8125-9.016.01.orig/src/r8125.h	2025-07-28 10:08:00.000000000 -0400
++++ r8125-9.016.01/src/r8125.h	2025-09-21 11:17:14.649296147 -0400
 @@ -37,6 +37,7 @@
  
  //#include <linux/pci.h>
@@ -55,10 +55,10 @@ diff -Naurp r8125-9.016.00.orig/src/r8125.h r8125-9.016.00/src/r8125.h
  #define RTL_NAPI_CONFIG(ndev, priv, function, weight)   netif_napi_add_weight(ndev, &priv->napi, function, weight)
  #else
  #define RTL_NAPI_CONFIG(ndev, priv, function, weight)   netif_napi_add(ndev, &priv->napi, function, weight)
-diff -Naurp r8125-9.016.00.orig/src/r8125_n.c r8125-9.016.00/src/r8125_n.c
---- r8125-9.016.00.orig/src/r8125_n.c	2025-06-03 04:40:49.000000000 -0400
-+++ r8125-9.016.00/src/r8125_n.c	2025-07-31 16:36:48.207858676 -0400
-@@ -2968,7 +2968,7 @@ static void rtl8125_proc_module_init(voi
+diff -Naurp r8125-9.016.01.orig/src/r8125_n.c r8125-9.016.01/src/r8125_n.c
+--- r8125-9.016.01.orig/src/r8125_n.c	2025-07-28 10:08:00.000000000 -0400
++++ r8125-9.016.01/src/r8125_n.c	2025-09-21 11:17:14.661296719 -0400
+@@ -2973,7 +2973,7 @@ static void rtl8125_proc_module_init(voi
  static int rtl8125_proc_open(struct inode *inode, struct file *file)
  {
          struct net_device *dev = proc_get_parent_data(inode);
@@ -67,7 +67,7 @@ diff -Naurp r8125-9.016.00.orig/src/r8125_n.c r8125-9.016.00/src/r8125_n.c
          int (*show)(struct seq_file *, void *) = pde_data(inode);
  #else
          int (*show)(struct seq_file *, void *) = PDE_DATA(inode);
-@@ -6748,7 +6748,7 @@ rtl8125_set_ring_size(struct rtl8125_pri
+@@ -6755,7 +6755,7 @@ rtl8125_set_ring_size(struct rtl8125_pri
  }
  
  #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
@@ -76,7 +76,7 @@ diff -Naurp r8125-9.016.00.orig/src/r8125_n.c r8125-9.016.00/src/r8125_n.c
  static void rtl8125_get_ringparam(struct net_device *dev,
                                    struct ethtool_ringparam *ring,
                                    struct kernel_ethtool_ringparam *kernel_ring,
-@@ -6766,7 +6766,7 @@ static void rtl8125_get_ringparam(struct
+@@ -6773,7 +6773,7 @@ static void rtl8125_get_ringparam(struct
          ring->tx_pending = tp->tx_ring[0].num_tx_desc;
  }
  
@@ -85,7 +85,7 @@ diff -Naurp r8125-9.016.00.orig/src/r8125_n.c r8125-9.016.00/src/r8125_n.c
  static int rtl8125_set_ringparam(struct net_device *dev,
                                   struct ethtool_ringparam *ring,
                                   struct kernel_ethtool_ringparam *kernel_ring,
-@@ -7208,7 +7208,7 @@ rtl8125_device_lpi_t_to_ethtool_lpi_t(st
+@@ -7218,7 +7218,7 @@ rtl8125_device_lpi_t_to_ethtool_lpi_t(st
          return to_us;
  }
  
@@ -94,7 +94,7 @@ diff -Naurp r8125-9.016.00.orig/src/r8125_n.c r8125-9.016.00/src/r8125_n.c
  static void
  rtl8125_adv_to_linkmode(unsigned long *mode, u64 adv)
  {
-@@ -15288,7 +15288,7 @@ rtl8125_init_software_variable(struct ne
+@@ -15295,7 +15295,7 @@ rtl8125_init_software_variable(struct ne
                  struct ethtool_keee *eee = &tp->eee;
  
                  eee->eee_enabled = eee_enable;
@@ -103,7 +103,7 @@ diff -Naurp r8125-9.016.00.orig/src/r8125_n.c r8125-9.016.00/src/r8125_n.c
                  eee->supported  = SUPPORTED_100baseT_Full |
                                    SUPPORTED_1000baseT_Full;
                  eee->advertised = mmd_eee_adv_to_ethtool_adv_t(MDIO_EEE_1000T | MDIO_EEE_100TX);
-@@ -16458,6 +16458,7 @@ err_out:
+@@ -16465,6 +16465,7 @@ err_out:
          goto out;
  }
  
@@ -111,7 +111,7 @@ diff -Naurp r8125-9.016.00.orig/src/r8125_n.c r8125-9.016.00/src/r8125_n.c
  static bool
  rtl8125_test_phy_ocp_v4(struct rtl8125_private *tp)
  {
-@@ -16607,6 +16608,7 @@ exit:
+@@ -16614,6 +16615,7 @@ exit:
  
          return restore;
  }
@@ -119,7 +119,7 @@ diff -Naurp r8125-9.016.00.orig/src/r8125_n.c r8125-9.016.00/src/r8125_n.c
  
  static bool
  rtl8125_test_phy_ocp(struct rtl8125_private *tp)
-@@ -16619,6 +16621,7 @@ rtl8125_test_phy_ocp(struct rtl8125_priv
+@@ -16626,6 +16628,7 @@ rtl8125_test_phy_ocp(struct rtl8125_priv
          if (tp->TestPhyOcpReg == FALSE)
                  goto unlock;
  
@@ -127,7 +127,7 @@ diff -Naurp r8125-9.016.00.orig/src/r8125_n.c r8125-9.016.00/src/r8125_n.c
          switch (tp->HwSuppEsdVer) {
          case 4:
                  reset = rtl8125_test_phy_ocp_v4(tp);
-@@ -16629,6 +16632,7 @@ rtl8125_test_phy_ocp(struct rtl8125_priv
+@@ -16636,6 +16639,7 @@ rtl8125_test_phy_ocp(struct rtl8125_priv
          default:
                  goto unlock;
          }
@@ -135,7 +135,7 @@ diff -Naurp r8125-9.016.00.orig/src/r8125_n.c r8125-9.016.00/src/r8125_n.c
  
  unlock:
          r8125_spin_unlock(&tp->phy_lock, flags);
-@@ -17485,7 +17489,7 @@ rtl8125_init_one(struct pci_dev *pdev,
+@@ -17494,7 +17498,7 @@ rtl8125_init_one(struct pci_dev *pdev,
                          dev->features |= NETIF_F_TSO6;
                          break;
                  };
@@ -144,9 +144,9 @@ diff -Naurp r8125-9.016.00.orig/src/r8125_n.c r8125-9.016.00/src/r8125_n.c
                  netif_set_tso_max_size(dev, LSO_64K);
                  netif_set_tso_max_segs(dev, NIC_MAX_PHYS_BUF_COUNT_LSO2);
  #else //LINUX_VERSION_CODE >= KERNEL_VERSION(5,19,0)
-diff -Naurp r8125-9.016.00.orig/src/r8125_ptp.c r8125-9.016.00/src/r8125_ptp.c
---- r8125-9.016.00.orig/src/r8125_ptp.c	2025-06-03 04:40:49.000000000 -0400
-+++ r8125-9.016.00/src/r8125_ptp.c	2025-07-31 16:37:26.369609791 -0400
+diff -Naurp r8125-9.016.01.orig/src/r8125_ptp.c r8125-9.016.01/src/r8125_ptp.c
+--- r8125-9.016.01.orig/src/r8125_ptp.c	2025-07-28 10:08:00.000000000 -0400
++++ r8125-9.016.01/src/r8125_ptp.c	2025-09-21 11:17:14.662296767 -0400
 @@ -407,7 +407,7 @@ static int _rtl8125_phy_phc_adjfreq(stru
          return 0;
  }
@@ -192,9 +192,9 @@ diff -Naurp r8125-9.016.00.orig/src/r8125_ptp.c r8125-9.016.00/src/r8125_ptp.c
          .adjfine   = rtl8125_phy_ptp_adjfine,
  #else
          .adjfreq    = rtl8125_phy_phc_adjfreq,
-diff -Naurp r8125-9.016.00.orig/src/r8125_ptp.h r8125-9.016.00/src/r8125_ptp.h
---- r8125-9.016.00.orig/src/r8125_ptp.h	2025-06-03 04:40:49.000000000 -0400
-+++ r8125-9.016.00/src/r8125_ptp.h	2025-07-31 16:37:26.370609837 -0400
+diff -Naurp r8125-9.016.01.orig/src/r8125_ptp.h r8125-9.016.01/src/r8125_ptp.h
+--- r8125-9.016.01.orig/src/r8125_ptp.h	2025-07-28 10:08:00.000000000 -0400
++++ r8125-9.016.01/src/r8125_ptp.h	2025-09-21 11:17:14.662296767 -0400
 @@ -134,7 +134,7 @@ enum PTP_TRX_TS_STA_REG {
  struct rtl8125_private;
  struct RxDescV3;
@@ -204,9 +204,9 @@ diff -Naurp r8125-9.016.00.orig/src/r8125_ptp.h r8125-9.016.00/src/r8125_ptp.h
  int rtl8125_get_ts_info(struct net_device *netdev,
                          struct ethtool_ts_info *info);
  #else
-diff -Naurp r8125-9.016.00.orig/src/r8125_rss.c r8125-9.016.00/src/r8125_rss.c
---- r8125-9.016.00.orig/src/r8125_rss.c	2025-06-03 04:40:49.000000000 -0400
-+++ r8125-9.016.00/src/r8125_rss.c	2025-07-31 16:37:26.370609837 -0400
+diff -Naurp r8125-9.016.01.orig/src/r8125_rss.c r8125-9.016.01/src/r8125_rss.c
+--- r8125-9.016.01.orig/src/r8125_rss.c	2025-07-28 10:08:00.000000000 -0400
++++ r8125-9.016.01/src/r8125_rss.c	2025-09-21 11:17:14.662296767 -0400
 @@ -354,7 +354,7 @@ static void rtl8125_store_rss_key(struct
                  RTL_W32(tp, rss_key_reg + i, *rss_key++);
  }
@@ -216,9 +216,9 @@ diff -Naurp r8125-9.016.00.orig/src/r8125_rss.c r8125-9.016.00/src/r8125_rss.c
  int rtl8125_get_rxfh(struct net_device *dev, struct ethtool_rxfh_param *rxfh)
  {
          struct rtl8125_private *tp = netdev_priv(dev);
-diff -Naurp r8125-9.016.00.orig/src/r8125_rss.h r8125-9.016.00/src/r8125_rss.h
---- r8125-9.016.00.orig/src/r8125_rss.h	2025-06-03 04:40:49.000000000 -0400
-+++ r8125-9.016.00/src/r8125_rss.h	2025-07-31 16:37:26.370609837 -0400
+diff -Naurp r8125-9.016.01.orig/src/r8125_rss.h r8125-9.016.01/src/r8125_rss.h
+--- r8125-9.016.01.orig/src/r8125_rss.h	2025-07-28 10:08:00.000000000 -0400
++++ r8125-9.016.01/src/r8125_rss.h	2025-09-21 11:17:14.662296767 -0400
 @@ -54,7 +54,7 @@ int rtl8125_get_rxnfc(struct net_device
  int rtl8125_set_rxnfc(struct net_device *dev, struct ethtool_rxnfc *cmd);
  u32 rtl8125_get_rxfh_key_size(struct net_device *netdev);
