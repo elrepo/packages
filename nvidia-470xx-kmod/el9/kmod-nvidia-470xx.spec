@@ -2,13 +2,13 @@
 %define kmod_name	nvidia-470xx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.37.1.el9_6}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.42.2.el9_6}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	470.256.02
-Release:	6.1%{?dist}
+Release:	6.2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -251,6 +251,9 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Mon Sep 22 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-6.2
+- Rebuilt against RHEL 9.6 errata kernel 5.14.0-570.42.2.el9_6
+
 * Wed Sep 03 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-6.1
 - Rebuilt against RHEL 9.6 errata kernel 5.14.0-570.37.1.el9_6
 
