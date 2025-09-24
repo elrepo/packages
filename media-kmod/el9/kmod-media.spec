@@ -2,13 +2,13 @@
 %define kmod_name	media
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.12.1.el9_6}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.42.2.el9_6}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -78,7 +78,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 %setup -q -n %{kmod_name}-%{version}
 # List of multimedia modules
 # Keep in sync with make command args
-%define media_modules "tveeprom dvb-core zl10353 xc2028 em28xx em28xx-alsa em28xx-dvb"
+%define media_modules "dvb-core zl10353 xc2028 em28xx em28xx-alsa em28xx-dvb"
 cat /dev/null > kmod-%{kmod_name}.conf
 for modules in `echo -n %{media_modules}`
 do
@@ -103,7 +103,6 @@ done
 # The EXTRA_CFLAGS is required for any drivers that use IS_REACHABLE macro
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD \
 	CONFIG_MEDIA_DIGITAL_TV_SUPPORT=y \
-	CONFIG_VIDEO_TVEEPROM=m \
 	CONFIG_DVB_CORE=m \
 	CONFIG_DVB_ZL10353=m \
 	CONFIG_MEDIA_TUNER=m \
@@ -227,6 +226,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Sep 23 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-2
+- Rebase source from RHEL 9.6 errata kernel 5.14.0-570.42.2.el9_6
+- Rebuilt against RHEL 9.6 errata kernel 5.14.0-570.42.2.el9_6
+- Removed tveeprom module since it is now in RHEL
+
 * Tue Sep 23 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-1
 - Initial build for RHEL 9
   https://elrepo.org/bugs/view.php?id=1553
