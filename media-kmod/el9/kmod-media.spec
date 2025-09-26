@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -78,7 +78,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 %setup -q -n %{kmod_name}-%{version}
 # List of multimedia modules
 # Keep in sync with make command args
-%define media_modules "dvb-core zl10353 xc2028 em28xx em28xx-alsa em28xx-dvb"
+%define media_modules "dvb-core lgdt330x lgdt3305 lgdt3306a zl10353 xc2028 em28xx em28xx-alsa em28xx-dvb"
 cat /dev/null > kmod-%{kmod_name}.conf
 for modules in `echo -n %{media_modules}`
 do
@@ -89,14 +89,15 @@ done
 # since local headers are not in kernel-devel
 for MAKEFILE in */Makefile
 do
-	sed -i -e 's|-I.*$(srctree)\/drivers\/media\/dvb-frontends|-I $(src)/../dvb-frontends|' $MAKEFILE
-	sed -i -e 's|-I.*$(srctree)\/drivers\/media\/tuners|-I $(src)/../tuners|' $MAKEFILE
+	sed -i -e 's|-I.*$(srctree)\/drivers\/media|-I $(src)/..|' $MAKEFILE
 done
-for MAKEFILE in `find . -name "Makefile"`
+for MAKEFILE in */*/Makefile
 do
-	sed -i -e 's|-I.*$(srctree)\/drivers\/media\/dvb-frontends|-I $(src)/../../dvb-frontends|' $MAKEFILE
-	sed -i -e 's|-I.*$(srctree)\/drivers\/media\/tuners|-I $(src)/../../tuners|' $MAKEFILE
-	sed -i -e 's|-I.*$(srctree)\/drivers\/media\/usb\/gspca|-I $(src)/../../gspca|' $MAKEFILE
+	sed -i -e 's|-I.*$(srctree)\/drivers\/media|-I $(src)/../..|' $MAKEFILE
+done
+for MAKEFILE in */*/*/Makefile
+do
+	sed -i -e 's|-I.*$(srctree)\/drivers\/media|-I $(src)/../../..|' $MAKEFILE
 done
 
 %build
@@ -104,13 +105,16 @@ done
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD \
 	CONFIG_MEDIA_DIGITAL_TV_SUPPORT=y \
 	CONFIG_DVB_CORE=m \
+	CONFIG_DVB_LGDT330X=m \
+	CONFIG_DVB_LGDT3305=m \
+	CONFIG_DVB_LGDT3306A=m \
 	CONFIG_DVB_ZL10353=m \
 	CONFIG_MEDIA_TUNER=m \
 	CONFIG_MEDIA_TUNER_XC2028=m \
 	CONFIG_VIDEO_EM28XX=m \
 	CONFIG_VIDEO_EM28XX_ALSA=m \
 	CONFIG_VIDEO_EM28XX_DVB=m \
-	EXTRA_CFLAGS='-DCONFIG_DVB_ZL10353 -DCONFIG_MEDIA_TUNER_XC2028'
+	EXTRA_CFLAGS='-DCONFIG_DVB_LGDT330X -DCONFIG_DVB_LGDT3305 -DCONFIG_DVB_LGDT3306A -DCONFIG_DVB_ZL10353 -DCONFIG_MEDIA_TUNER_XC2028'
 
 whitelist="/lib/modules/kabi-current/kabi_stablelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -226,6 +230,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri Sep 26 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-3
+- Improve makefile modifications
+- Add support for DVB frontends LGDT330X/LGDT3305/LGDT3306A
+
 * Tue Sep 23 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-2
 - Rebase source from RHEL 9.6 errata kernel 5.14.0-570.42.2.el9_6
 - Rebuilt against RHEL 9.6 errata kernel 5.14.0-570.42.2.el9_6
