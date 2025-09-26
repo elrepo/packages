@@ -76,9 +76,11 @@ of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
 %setup -q -n %{kmod_name}-%{version}
+
 # List of multimedia modules
 # Keep in sync with make command args
-%define media_modules "dvb-core lgdt330x lgdt3305 lgdt3306a zl10353 xc2028 em28xx em28xx-alsa em28xx-dvb"
+%define media_modules "dvb-core lgdt330x zl10353 tvp5150 xc2028 rc-core rc-pinnacle-pctv-hd em28xx em28xx-alsa em28xx-dvb em28xx-rc em28xx-v4l v4l2-fwnode v4l2-async"
+
 cat /dev/null > kmod-%{kmod_name}.conf
 for modules in `echo -n %{media_modules}`
 do
@@ -101,20 +103,26 @@ do
 done
 
 %build
-# The EXTRA_CFLAGS is required for any drivers that use IS_REACHABLE macro
+# The EXTRA_CFLAGS is required for any drivers that use ifdef or IS_REACHABLE macros
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD \
 	CONFIG_MEDIA_DIGITAL_TV_SUPPORT=y \
 	CONFIG_DVB_CORE=m \
 	CONFIG_DVB_LGDT330X=m \
-	CONFIG_DVB_LGDT3305=m \
-	CONFIG_DVB_LGDT3306A=m \
 	CONFIG_DVB_ZL10353=m \
+	CONFIG_VIDEO_TVP5150=m \
 	CONFIG_MEDIA_TUNER=m \
 	CONFIG_MEDIA_TUNER_XC2028=m \
+	CONFIG_RC_CORE=m \
+	CONFIG_RC_MAP=m \
+	CONFIG_MEDIA_CEC_RC=y \
 	CONFIG_VIDEO_EM28XX=m \
 	CONFIG_VIDEO_EM28XX_ALSA=m \
 	CONFIG_VIDEO_EM28XX_DVB=m \
-	EXTRA_CFLAGS='-DCONFIG_DVB_LGDT330X -DCONFIG_DVB_LGDT3305 -DCONFIG_DVB_LGDT3306A -DCONFIG_DVB_ZL10353 -DCONFIG_MEDIA_TUNER_XC2028'
+	CONFIG_VIDEO_EM28XX_RC=m \
+	CONFIG_VIDEO_EM28XX_V4L2=m \
+	CONFIG_V4L2_FWNODE=m \
+	CONFIG_V4L2_ASYNC=m \
+	EXTRA_CFLAGS='-DCONFIG_DVB_LGDT330X -DCONFIG_DVB_ZL10353 -DCONFIG_VIDEO_TVP5150 -DCONFIG_MEDIA_TUNER_XC2028 -DCONFIG_RC_CORE -DCONFIG_RC_MAP -DCONFIG_MEDIA_CEC_RC'
 
 whitelist="/lib/modules/kabi-current/kabi_stablelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -232,7 +240,7 @@ exit 0
 %changelog
 * Fri Sep 26 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-3
 - Improve makefile modifications
-- Add support for DVB frontends LGDT330X/LGDT3305/LGDT3306A
+- Properly support 2304:0227 Pinnacle Systems, Inc. PCTV for Mac, HD Stick
 
 * Tue Sep 23 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-2
 - Rebase source from RHEL 9.6 errata kernel 5.14.0-570.42.2.el9_6
