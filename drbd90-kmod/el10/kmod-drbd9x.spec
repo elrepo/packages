@@ -8,7 +8,7 @@
 %{!?dist: %define dist .el10}
 
 Name:		kmod-%{kmod_name}
-Version:	9.2.14
+Version:	9.2.15
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -192,6 +192,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat Sep 27 2025 Akemi Yagi <toracat@elrepo.org> - 9.2.15-1.el10_0
+- version updated to 9.2.15
+
 * Sat Jun 07 2025 Akemi Yagi <toracat@elrepo.org> - 9.2.14-1.el10_0
 - version updated to 9.2.14
 
