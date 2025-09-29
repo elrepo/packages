@@ -1,7 +1,7 @@
 %define real_name drbd-utils
 
 Name:    drbd9x-utils
-Version: 9.31.0
+Version: 9.32.0
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
@@ -53,7 +53,7 @@ Think of it as networked raid 1. It is a building block for
 setting up high availability (HA) clusters.
 
 This packages includes the DRBD administration tools and integration
-scripts for heartbeat, pacemaker, rgmanager and xen.
+scripts for pacemaker, rgmanager and xen.
 
 %description sysvinit
 DRBD mirrors a block device over the network to another machine.
@@ -78,14 +78,11 @@ It is not required when the init system used is systemd.
     --with-initdir="%{_initrddir}" \
     --with-rgmanager \
     --with-initscripttype=both
-WITH_HEARTBEAT=yes %{__make} %{?_smp_mflags}
+ %{__make} %{?_smp_mflags}
 
 %install
 %{__rm} -rf %{buildroot}
-WITH_HEARTBEAT=yes %{__make} install DESTDIR="%{buildroot}"
-pushd scripts
-WITH_HEARTBEAT=yes %{__make} install-heartbeat DESTDIR="%{buildroot}"
-popd
+%{__make} install DESTDIR="%{buildroot}"
 
 
 %clean
@@ -130,11 +127,9 @@ fi
 %doc %{_mandir}/man7/drbd.service.7.gz
 %doc %{_mandir}/man7/drbd@.service.7.gz
 %doc %{_mandir}/man7/drbd@.target.7.gz
-%doc %{_mandir}/man7/ocf.ra@.service.7.gz
 %doc %{_mandir}/man7/drbd-configured.target.7.gz
 %doc %{_mandir}/man7/drbd-graceful-shutdown.service.7.gz
 
-%config %{_sysconfdir}/bash_completion.d/drbdadm
 %config %{_prefix}/lib/udev/rules.d/65-drbd.rules
 %config(noreplace) %{_sysconfdir}/drbd.conf
 %config(noreplace) %{_sysconfdir}/multipath/conf.d/drbd.conf
@@ -150,7 +145,6 @@ fi
 /usr/lib/drbd/scripts/drbd
 /usr/lib/drbd/scripts/drbd-service-shim.sh
 /usr/lib/drbd/scripts/drbd-wait-promotable.sh
-/usr/lib/drbd/scripts/ocf.ra.wrapper.sh
 /usr/lib/systemd/system-preset/50-drbd.preset
 /usr/lib/systemd/system/drbd-configured.target
 /usr/lib/systemd/system/drbd-demote-or-escalate@.service
@@ -161,7 +155,6 @@ fi
 /usr/lib/systemd/system/drbd-wait-promotable@.service
 /usr/lib/systemd/system/drbd@.service
 /usr/lib/systemd/system/drbd@.target
-/usr/lib/systemd/system/ocf.ra@.service
 /usr/lib/systemd/system/drbd-graceful-shutdown.service
 %{_sbindir}/drbdadm
 %{_sbindir}/drbdmeta
@@ -185,9 +178,6 @@ fi
 %{_prefix}/lib/tmpfiles.d/drbd.conf
 %{_prefix}/lib/ocf/resource.d/linbit/drbd-attr
 
-### heartbeat
-%{_sysconfdir}/ha.d/resource.d/drbddisk
-%{_sysconfdir}/ha.d/resource.d/drbdupper
 
 ### pacemaker
 %{_prefix}/lib/drbd/crm-fence-peer.sh
@@ -197,19 +187,20 @@ fi
 %{_prefix}/lib/drbd/crm-unfence-peer.9.sh
 %{_prefix}/lib/ocf/resource.d/linbit/drbd.shellfuncs.sh
 
-### rgmanager / rhcs
-%{_datadir}/cluster/drbd.sh
-%{_datadir}/cluster/drbd.metadata
-%{_prefix}/lib/drbd/rhcs_fence
+/usr/share/bash-completion/completions/drbdadm
 
 %files sysvinit
 %defattr(-,root,root)
 %config %{_initrddir}/drbd
 
 %changelog
+* Sat Sep 27 2025 Akemi Yagi <toracat@elrepo.org> - 9.32.0-1.el10
+- Version updated to 9.32.0
+- heartbeat removed
+
 * Thu May 22 2025 Akemi Yagi <toracat@elrepo.org> - 9.31.0-1.el10
 - Version updated to 9.31.0
-- Rebuilt against RHEL 10 GA kernel
+- Rebuilt against RHEL 10 GA
 - elrepo-drbd-graceful-shutdown.patch no longer needed
 
 * Thu Mar 20 2025 Akemi Yagi <toracat@elrepo.org> - 9.30.0-2.el10
