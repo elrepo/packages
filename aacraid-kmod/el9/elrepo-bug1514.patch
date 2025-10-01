@@ -1,0 +1,124 @@
+diff -Naurp aacraid-1.2.1.orig/commctrl.c aacraid-1.2.1/commctrl.c
+--- aacraid-1.2.1.orig/commctrl.c	2025-04-04 09:12:14.000000000 -0400
++++ aacraid-1.2.1/commctrl.c	2025-09-30 13:14:32.823761475 -0400
+@@ -495,6 +495,8 @@ static int aac_send_raw_srb(struct aac_d
+ 	u32 sg_count[HBA_MAX_SG_EMBEDDED];
+ 	u32 sg_indx = 0;
+ 	u32 byte_count = 0;
++	bool dma_mapped[HBA_MAX_SG_EMBEDDED] = {false};
++	dma_addr_t dma_addrs[HBA_MAX_SG_EMBEDDED];
+ 	u32 actual_fibsize64, actual_fibsize = 0;
+ 	int i;
+ 	int is_native_device;
+@@ -690,6 +692,17 @@ static int aac_send_raw_srb(struct aac_d
+ 			}
+ 			addr = dma_map_single(&dev->pdev->dev, p, sg_count[i],
+ 					      data_dir);
++
++			if (dma_mapping_error(&dev->pdev->dev, addr)) {
++				pr_err("aacraid: dma_mapping_error i=%d len=%u\n", i, sg_count[i]);
++				rcode = -ENOMEM;
++				goto cleanup;
++			}
++
++			dma_addrs[i] = (dma_addr_t)addr;
++			dma_mapped[i] = true;
++			pr_debug("aacraid: dma_map_single i=%d len=%u addr=%p\n", i, sg_count[i], &dma_addrs[i]);
++
+ 			hbacmd->sge[i].addr_hi = cpu_to_le32((u32)(addr>>32));
+ 			hbacmd->sge[i].addr_lo = cpu_to_le32(
+ 						(u32)(addr & 0xffffffff));
+@@ -753,6 +766,16 @@ static int aac_send_raw_srb(struct aac_d
+ 				addr = dma_map_single(&dev->pdev->dev, p,
+ 						      sg_count[i], data_dir);
+ 
++				if (dma_mapping_error(&dev->pdev->dev, addr)) {
++					pr_err("aacraid: dma_mapping_error i=%d len=%u\n", i, sg_count[i]);
++					rcode = -ENOMEM;
++					goto cleanup;
++				}
++
++				dma_addrs[i] = (dma_addr_t)addr;
++				dma_mapped[i] = true;
++				pr_debug("aacraid: dma_map_single i=%d len=%u addr=%p\n", i, sg_count[i], &dma_addrs[i]);
++
+ 				psg->sg[i].addr[0] = cpu_to_le32(addr & 0xffffffff);
+ 				psg->sg[i].addr[1] = cpu_to_le32(addr>>32);
+ 				byte_count += sg_count[i];
+@@ -809,6 +832,16 @@ static int aac_send_raw_srb(struct aac_d
+ 				addr = dma_map_single(&dev->pdev->dev, p,
+ 						      sg_count[i], data_dir);
+ 
++				if (dma_mapping_error(&dev->pdev->dev, addr)) {
++					pr_err("aacraid: dma_mapping_error i=%d len=%u\n", i, sg_count[i]);
++					rcode = -ENOMEM;
++					goto cleanup;
++				}
++
++				dma_addrs[i] = (dma_addr_t)addr;
++				dma_mapped[i] = true;
++				pr_debug("aacraid: dma_map_single i=%d len=%u addr=%p\n", i, sg_count[i], &dma_addrs[i]);
++
+ 				psg->sg[i].addr[0] = cpu_to_le32(addr & 0xffffffff);
+ 				psg->sg[i].addr[1] = cpu_to_le32(addr>>32);
+ 				byte_count += sg_count[i];
+@@ -866,6 +899,16 @@ static int aac_send_raw_srb(struct aac_d
+ 						      usg->sg[i].count,
+ 						      data_dir);
+ 
++				if (dma_mapping_error(&dev->pdev->dev, addr)) {
++					pr_err("aacraid: dma_mapping_error i=%d len=%u\n", i, sg_count[i]);
++					rcode = -ENOMEM;
++					goto cleanup;
++				}
++
++				dma_addrs[i] = (dma_addr_t)addr;
++				dma_mapped[i] = true;
++				pr_debug("aacraid: dma_map_single i=%d len=%u addr=%p\n", i, sg_count[i], &dma_addrs[i]);
++
+ 				psg->sg[i].addr = cpu_to_le32(addr & 0xffffffff);
+ 				byte_count += usg->sg[i].count;
+ 				psg->sg[i].count = cpu_to_le32(sg_count[i]);
+@@ -906,6 +949,16 @@ static int aac_send_raw_srb(struct aac_d
+ 				addr = dma_map_single(&dev->pdev->dev, p,
+ 						      sg_count[i], data_dir);
+ 
++				if (dma_mapping_error(&dev->pdev->dev, addr)) {
++					pr_err("aacraid: dma_mapping_error i=%d len=%u\n", i, sg_count[i]);
++					rcode = -ENOMEM;
++					goto cleanup;
++				}
++
++				dma_addrs[i] = (dma_addr_t)addr;
++				dma_mapped[i] = true;
++				pr_debug("aacraid: dma_map_single i=%d len=%u addr=%p\n", i, sg_count[i], &dma_addrs[i]);
++
+ 				psg->sg[i].addr = cpu_to_le32(addr);
+ 				byte_count += sg_count[i];
+ 				psg->sg[i].count = cpu_to_le32(sg_count[i]);
+@@ -936,7 +989,6 @@ static int aac_send_raw_srb(struct aac_d
+ 				dprintk((KERN_DEBUG"aacraid: Could not copy sg data to user\n"));
+ 				rcode = -EFAULT;
+ 				goto cleanup;
+-
+ 			}
+ 		}
+ 	}
+@@ -984,6 +1036,17 @@ static int aac_send_raw_srb(struct aac_d
+ 	}
+ 
+ cleanup:
++	/* Always unmap any DMA mappings we created, even on -ERESTARTSYS */
++	for (i = 0; i <= sg_indx; i++) {
++		if (dma_mapped[i]) {
++			dma_unmap_single(&dev->pdev->dev,
++					 dma_addrs[i],
++					 sg_count[i],
++					 data_dir);
++			pr_debug("aacraid: dma_unmap_single i=%d len=%u addr=%p\n", i, sg_count[i], &dma_addrs[i]);
++		}
++	}
++
+ 	kfree(user_srbcmd);
+ 	if (rcode != -ERESTARTSYS) {
+ 		for (i = 0; i <= sg_indx; i++)

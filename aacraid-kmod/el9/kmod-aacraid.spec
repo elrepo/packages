@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	1.2.1
-Release:	10%{?dist}
+Release:	11%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,7 +19,9 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-#Patch0:		
+Patch0:		0001-scsi-Constify-struct-pci_error_handlers.patch
+Patch1:		0002-scsi-aacraid-Stop-using-PCI_IRQ_AFFINITY.patch
+Patch1514:	elrepo-bug1514.patch
 
 %define __spec_install_post \
 		/usr/lib/rpm/check-buildroot \
@@ -76,7 +78,9 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
-#patch0 -p0
+%patch0 -p4
+%patch1 -p4
+%patch1514 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD \
@@ -192,6 +196,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Sep 30 2025 Tuan Hoang <tqhoang@elrepo.org> - 1.2.1-11
+- Add upstream patches for improved security and fix IRQ hangs
+- Add patch to fix DMA mapping resource leak
+  https://elrepo.org/bugs/view.php?id=1514
+
 * Wed May 14 2025 Tuan Hoang <tqhoang@elrepo.org> - 1.2.1-10
 - Rebuilt against RHEL 9.6 GA kernel
 - Source code from kernel-5.14.0-570.12.1.el9_6
