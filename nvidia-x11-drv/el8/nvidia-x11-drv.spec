@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# https://download.nvidia.com/XFree86/Linux-x86_64/570.190/README/minimumrequirements.html
+# https://download.nvidia.com/XFree86/Linux-x86_64/570.195.03/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 %define		debug_package	%{nil}
@@ -39,7 +39,7 @@
 %endif
 
 Name:		nvidia-x11-drv
-Version:	570.190
+Version:	570.195.03
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	MIT and Redistributable, no modification permitted
@@ -655,6 +655,9 @@ fi ||:
 %endif
 
 %changelog
+* Thu Oct 02 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.195.03-1
+- Updated to version 570.195.03
+
 * Thu Sep 11 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.190-1
 - Updated to version 570.190
 
