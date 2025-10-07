@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -67,7 +67,10 @@ Requires(postun):	%{_sbindir}/depmod
 Requires(post):		%{_sbindir}/weak-modules
 Requires(postun):	%{_sbindir}/weak-modules
 
-Requires:		xc3028-firmware
+Recommends:		xc3028-firmware
+
+Obsoletes:		kmod-hdpvr <= 0.2.1
+Provides:		kmod-hdpvr  = 0.2.1-99%{?dist}
 
 %description
 This package provides the %{kmod_name} kernel module(s).
@@ -78,8 +81,8 @@ of the same variant of the Linux kernel and not on any one specific build.
 %setup -q -n %{kmod_name}-%{version}
 
 # List of multimedia modules
-# Keep in sync with make command args
-%define media_modules "dvb-core lgdt330x zl10353 tvp5150 xc2028 rc-core rc-pinnacle-pctv-hd em28xx em28xx-alsa em28xx-dvb em28xx-rc em28xx-v4l v4l2-fwnode v4l2-async"
+# Keep in sync with make command args below
+%define media_modules "dvb-core lgdt330x zl10353 tvp5150 xc2028 rc-core rc-pinnacle-pctv-hd em28xx em28xx-alsa em28xx-dvb em28xx-rc em28xx-v4l hdpvr v4l2-fwnode v4l2-async"
 
 cat /dev/null > kmod-%{kmod_name}.conf
 for modules in `echo -n %{media_modules}`
@@ -120,6 +123,7 @@ done
 	CONFIG_VIDEO_EM28XX_DVB=m \
 	CONFIG_VIDEO_EM28XX_RC=m \
 	CONFIG_VIDEO_EM28XX_V4L2=m \
+	CONFIG_VIDEO_HDPVR=m \
 	CONFIG_V4L2_FWNODE=m \
 	CONFIG_V4L2_ASYNC=m \
 	EXTRA_CFLAGS='-DCONFIG_DVB_LGDT330X -DCONFIG_DVB_ZL10353 -DCONFIG_VIDEO_TVP5150 -DCONFIG_MEDIA_TUNER_XC2028 -DCONFIG_RC_CORE -DCONFIG_RC_MAP -DCONFIG_MEDIA_CEC_RC'
@@ -238,6 +242,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Oct 07 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-4
+- Add support for module hdpvr
+- Add provides/obsoletes for module hdpvr
+- Change xc3028-firmware package from required to recommends
+
 * Fri Sep 26 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-3
 - Improve makefile modifications
 - Properly support 2304:0227 Pinnacle Systems, Inc. PCTV for Mac, HD Stick
