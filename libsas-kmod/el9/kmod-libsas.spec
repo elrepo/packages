@@ -195,6 +195,5 @@ exit 0
 - Workaround anaconda bug where driver disk installs have missing symbols for libsas
   [https://elrepo.org/bugs/view.php?id=1458]
   [https://elrepo.org/bugs/view.php?id=1461]
-  [https://elrepo.org/bugs/view.php?id=1468]
 - Source code from RHEL 9.6 GA kernel
 - Built against RHEL 9.6 GA kernel-5.14.0-570.12.1.el9_6
