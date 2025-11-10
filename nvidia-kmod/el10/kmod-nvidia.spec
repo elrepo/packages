@@ -13,7 +13,7 @@
 %{!?dist: %define dist .el10}
 
 Name:		kmod-%{kmod_name}
-Version:	580.95.05
+Version:	580.105.08
 Release:	1.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -247,6 +247,13 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Fri Nov 07 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.105.08-1.1
+- Rebuilt against RHEL 10.0 errata kernel 6.12.0-55.32.1.el10_0
+
+* Fri Nov 07 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.105.08-1
+- Updated to version 580.105.08
+- Built against RHEL 10.0 GA kernel
+
 * Sat Oct 04 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.95.05-1.1
 - Rebuilt against RHEL 10.0 errata kernel 6.12.0-55.32.1.el10_0
 

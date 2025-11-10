@@ -13,7 +13,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	570.195.03
+Version:	580.105.08
 Release:	1.1%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
@@ -266,6 +266,20 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Fri Nov 07 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.105.08-1.1
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
+
+* Fri Nov 07 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.105.08-1
+- Updated to version 580.105.08
+- Built against RHEL 8.10 GA kernel
+
+* Thu Oct 02 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.95.05-1.1
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
+
+* Thu Oct 02 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.95.05-1
+- Updated to version 580.95.05
+- Built against RHEL 8.10 GA kernel
+
 * Thu Oct 02 2025 Tuan Hoang <tqhoang@elrepo.org> - 570.195.03-1.1
 - Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
 
