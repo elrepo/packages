@@ -652,7 +652,7 @@ fi ||:
 %endif
 
 %changelog
-* Fri Nov 07 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.105.08-1
+* Tue Nov 11 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.105.08-1
 - Updated to version 580.105.08
 
 * Sat Oct 04 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.95.05-1
