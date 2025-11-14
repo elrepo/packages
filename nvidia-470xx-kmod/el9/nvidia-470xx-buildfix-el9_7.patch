@@ -1,0 +1,48 @@
+diff -Naurp kmod-nvidia-470xx-470.256.02.el9_6/nvidiapkg/kernel/nvidia-drm/nvidia-drm-connector.c kmod-nvidia-470xx-470.256.02.el9_7/nvidiapkg/kernel/nvidia-drm/nvidia-drm-connector.c
+--- kmod-nvidia-470xx-470.256.02.el9_6/nvidiapkg/kernel/nvidia-drm/nvidia-drm-connector.c	2024-05-02 10:50:00.000000000 -0400
++++ kmod-nvidia-470xx-470.256.02.el9_7/nvidiapkg/kernel/nvidia-drm/nvidia-drm-connector.c	2025-11-14 10:08:41.277029797 -0500
+@@ -44,6 +44,8 @@
+ #include <drm/drm_atomic_helper.h>
+ #include <drm/drm_edid.h>
+ 
++#include <linux/version.h>
++
+ static void nv_drm_connector_destroy(struct drm_connector *connector)
+ {
+     struct nv_drm_connector *nv_connector = to_nv_connector(connector);
+@@ -302,8 +304,13 @@ static int nv_drm_connector_get_modes(st
+     return count;
+ }
+ 
++#if (RHEL_MAJOR == 9 && RHEL_MINOR >= 7)
++static int nv_drm_connector_mode_valid(struct drm_connector    *connector,
++                                       const struct drm_display_mode *mode)
++#else
+ static int nv_drm_connector_mode_valid(struct drm_connector    *connector,
+                                        struct drm_display_mode *mode)
++#endif
+ {
+     struct drm_device *dev = connector->dev;
+     struct nv_drm_device *nv_dev = to_nv_device(dev);
+diff -Naurp kmod-nvidia-470xx-470.256.02.el9_6/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c kmod-nvidia-470xx-470.256.02.el9_7/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c
+--- kmod-nvidia-470xx-470.256.02.el9_6/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c	2025-11-14 10:07:47.451570728 -0500
++++ kmod-nvidia-470xx-470.256.02.el9_7/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c	2025-11-14 10:08:41.277029797 -0500
+@@ -61,6 +61,7 @@
+ #endif
+ 
+ #include <linux/pci.h>
++#include <linux/version.h>
+ 
+ /*
+  * Commit fcd70cd36b9b ("drm: Split out drm_probe_helper.h")
+@@ -872,7 +873,10 @@ static struct drm_driver nv_drm_driver =
+     .name                   = "nvidia-drm",
+ 
+     .desc                   = "NVIDIA DRM driver",
++
++#if (RHEL_MAJOR == 9 && RHEL_MINOR < 7)
+     .date                   = "20160202",
++#endif
+ 
+ #if defined(NV_DRM_DRIVER_HAS_DEVICE_LIST)
+     .device_list            = LIST_HEAD_INIT(nv_drm_driver.device_list),
