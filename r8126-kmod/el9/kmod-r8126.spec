@@ -2,7 +2,7 @@
 %define kmod_name	r8126
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.12.1.el9_6}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-611.5.1.el9_7}
 
 %{!?dist: %define dist .el9}
 
@@ -16,11 +16,16 @@ URL:		http://www.kernel.org/
 
 # Sources.
 Source0:	%{kmod_name}-%{version}.tar.bz2
+Source1:	ELRepo-Makefile-%{kmod_name}
+Source2:	blacklist-r8169.conf
+Source3:	modprobe-%{kmod_name}.conf
 Source5:	GPL-v2.0.txt
-Source20:	ELRepo-Makefile-%{kmod_name}
 
 # Patches
 Patch0:		ELRepo-r8126.patch
+
+# Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
+# https://bugzilla.redhat.com/show_bug.cgi?id=1967291
 
 %define __spec_install_post \
 		/usr/lib/rpm/check-buildroot \
@@ -76,7 +81,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 %setup -q -n %{kmod_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 %{__rm} -f src/Makefile*
-%{__cp} -a %{SOURCE20} src/Makefile
+%{__cp} -a %{SOURCE1} src/Makefile
 
 # Apply patch(es)
 %patch0 -p1
@@ -98,6 +103,10 @@ sort -u greylist | uniq > greylist.txt
 %{__install} src/%{kmod_name}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
+%{__install} -d %{buildroot}%{_prefix}/lib/modprobe.d/
+%{__install} -m 0644 %{SOURCE2} %{buildroot}%{_prefix}/lib/modprobe.d/
+%{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d/
+%{__install} -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/modprobe.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
@@ -189,13 +198,18 @@ exit 0
 %files
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config /etc/depmod.d/kmod-%{kmod_name}.conf
-%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
+%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
+%config(noreplace) %{_sysconfdir}/modprobe.d/modprobe-%{kmod_name}.conf
+%config(noreplace) %{_prefix}/lib/modprobe.d/blacklist*.conf
+%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Wed Sep 17 2025 Tuan Hoang <tqhoang@elrepo.org> - 10.016.00-1
+* Tue Nov 11 2025 Tuan Hoang <tqhoang@elrepo.org> - 10.016.00-1
 - Update to 10.016.00
 - Disable fiber support
+- Add blacklist-r8169.conf
+- Add modprobe-r8125.conf
+- Built against RHEL 9.7 GA kernel
 
 * Wed May 14 2025 Tuan Hoang <tqhoang@elrepo.org> - 10.015.00-2
 - Rebuilt against RHEL 9.6 GA kernel

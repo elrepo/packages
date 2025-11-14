@@ -1,5 +1,5 @@
 # Define the kmod package name here.
-%define kmod_name	r8126
+%define kmod_name	r8168
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
 %{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-124.8.1.el10_1}
@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el10}
 
 Name:		kmod-%{kmod_name}
-Version:	10.016.00
+Version:	8.055.00
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -22,7 +22,7 @@ Source3:	modprobe-%{kmod_name}.conf
 Source5:	GPL-v2.0.txt
 
 # Patches
-#Patch0:		ELRepo-r8126.patch
+#Patch0:		ELRepo-r8168.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -201,13 +201,7 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Tue Nov 11 2025 Tuan Hoang <tqhoang@elrepo.org> - 10.016.00-1
-- Update to 10.016.00
-- Disable fiber support
-- Add blacklist-r8169.conf
-- Add modprobe-r8125.conf
+* Thu Nov 13 2025 Tuan Hoang <tqhoang@elrepo.org> - 8.055.00-1
+- Initial build for RHEL 10.1
 - Built against RHEL 10.1 GA kernel
 
-* Sat May 24 2025 Tuan Hoang <tqhoang@elrepo.org> - 10.015.00-1
-- Initial build for RHEL 10.0
-- Built against RHEL 10.0 GA kernel

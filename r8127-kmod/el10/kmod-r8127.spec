@@ -2,7 +2,7 @@
 %define kmod_name	r8127
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-55.9.1.el10_0}
+%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-124.8.1.el10_1}
 
 %{!?dist: %define dist .el10}
 
@@ -16,8 +16,10 @@ URL:		http://www.kernel.org/
 
 # Sources.
 Source0:	%{kmod_name}-%{version}.tar.bz2
+Source1:	ELRepo-Makefile-%{kmod_name}
+Source2:	blacklist-r8169.conf
+Source3:	modprobe-%{kmod_name}.conf
 Source5:	GPL-v2.0.txt
-Source20:	ELRepo-Makefile-%{kmod_name}
 
 # Patches
 #Patch0:		ELRepo-r8127.patch
@@ -76,7 +78,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 %setup -q -n %{kmod_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 %{__rm} -f src/Makefile*
-%{__cp} -a %{SOURCE20} src/Makefile
+%{__cp} -a %{SOURCE1} src/Makefile
 
 # Apply patch(es)
 #patch -P0 -p1
@@ -98,6 +100,10 @@ sort -u greylist | uniq > greylist.txt
 %{__install} src/%{kmod_name}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
+%{__install} -d %{buildroot}%{_prefix}/lib/modprobe.d/
+%{__install} -m 0644 %{SOURCE2} %{buildroot}%{_prefix}/lib/modprobe.d/
+%{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d/
+%{__install} -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/modprobe.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
@@ -189,13 +195,18 @@ exit 0
 %files
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config /etc/depmod.d/kmod-%{kmod_name}.conf
-%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
+%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
+%config(noreplace) %{_sysconfdir}/modprobe.d/modprobe-%{kmod_name}.conf
+%config(noreplace) %{_prefix}/lib/modprobe.d/blacklist*.conf
+%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Wed Sep 17 2025 Tuan Hoang <tqhoang@elrepo.org> - 11.015.00-1
+* Tue Nov 11 2025 Tuan Hoang <tqhoang@elrepo.org> - 11.015.00-1
 - Update to 11.015.00
 - Enable fiber support
+- Add blacklist-r8169.conf
+- Add modprobe-r8125.conf
+- Built against RHEL 10.1 GA kernel
 
 * Sat May 24 2025 Tuan Hoang <tqhoang@elrepo.org> - 11.014.00-1
 - Initial build for RHEL 10.0
