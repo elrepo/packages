@@ -2,13 +2,13 @@
 %define kmod_name	isci
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-55.9.1.el10_0}
+%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-124.8.1.el10_1}
 
 %{!?dist: %define dist .el10}
 
 Name:		kmod-%{kmod_name}
 Version:	1.2.0
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -187,11 +187,15 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri Nov 14 2025 Tuan Hoang <tqhoang@elrepo.org> - 1.2.0-3
+- Source code unchanged in RHEL 10.1 GA kernel
+- Built against RHEL 10.1 GA kernel-6.12.0-124.8.1.el10_1
+
 * Tue Aug 26 2025 Tuan Hoang <tqhoang@elrepo.org> - 1.2.0-2
 - Add upstream patch 0001-scsi-isci-Fix-dma_unmap_sg-nents-value.patch
 - Fix hard-coded arch in post section
 
 * Sun Aug 24 2025 Akemi Yagi <toracat@elrepo.org> - 1.2.0-1
 - Initial build for RHEL 10
-- Built against RHEL 9.6 GA kernel
-- Source code from RHEL 9.6 GA kernel 6.12.0-55.9.1.el10_0
+- Built against RHEL 10.0 GA kernel
+- Source code from RHEL 10.0 GA kernel 6.12.0-55.9.1.el10_0
