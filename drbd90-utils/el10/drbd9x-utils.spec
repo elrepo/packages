@@ -1,14 +1,14 @@
 %define real_name drbd-utils
 
 Name:    drbd9x-utils
-Version: 9.32.0
+Version: 9.33.0
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
 Summary: Management utilities for DRBD
 URL:     http://www.drbd.org/
 
-Source0:   http://oss.linbit.com/drbd/drbd-utils-%{version}.tar.gz
+Source0:  https://pkg.linbit.com//downloads/drbd/utils/drbd-utils-%{version}.tar.gz
 
 Patch1: elrepo-selinux-bug695v2.patch
 
@@ -20,6 +20,8 @@ BuildRequires: docbook-style-xsl
 BuildRequires: po4a
 # as of 9.26.0
 BuildRequires: keyutils-libs-devel
+# as of 9.32.0
+BuildRequires: openssl-devel
 
 Requires: udev
 Requires(post):   systemd-units
@@ -145,6 +147,7 @@ fi
 /usr/lib/drbd/scripts/drbd
 /usr/lib/drbd/scripts/drbd-service-shim.sh
 /usr/lib/drbd/scripts/drbd-wait-promotable.sh
+/usr/lib/drbd/tnf-drbd-fence.py
 /usr/lib/systemd/system-preset/50-drbd.preset
 /usr/lib/systemd/system/drbd-configured.target
 /usr/lib/systemd/system/drbd-demote-or-escalate@.service
@@ -194,6 +197,12 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Fri Nov 14 2025 Akemi Yagi <toracat@elrepo.org> - 9.33.0-1.el10
+- Version updated to 9.33.0
+
+* Fri Nov 14 2025 Akemi Yagi <toracat@elrepo.org> - 9.32.0-2.el10
+- Rebuilt for RHEL 10.1
+
 * Sat Sep 27 2025 Akemi Yagi <toracat@elrepo.org> - 9.32.0-1.el10
 - Version updated to 9.32.0
 - heartbeat removed
