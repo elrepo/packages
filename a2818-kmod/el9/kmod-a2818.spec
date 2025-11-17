@@ -2,13 +2,13 @@
 %define kmod_name	a2818
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.12.1.el9_6}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-611.5.1.el9_7}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	1.26
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	CAEN_License
@@ -196,6 +196,9 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Nov 17 2025 Akemi Yagi <toracat@elrepo.org> - 1.26-4
+- Rebuilt against RHEL 9.7 GA kernel 5.14.0-611.5.1.el9_7
+
 * Tue May 13 2025 Akemi Yagi <toracat@elrepo.org> - 1.26-3
 - Rebuilt against RHEL 9.6 GA kernel 5.14.0-570.12.1.el9_6
 
