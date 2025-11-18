@@ -1,15 +1,16 @@
---- qla_os.c.dist	2024-05-01 04:10:46.925540674 -0700
-+++ qla_os.c	2024-05-01 04:12:48.025559539 -0700
-@@ -8121,7 +8121,7 @@ static const struct pci_error_handlers q
+diff -Naurp qla2xxx-10.02.09.400.orig/qla_os.c qla2xxx-10.02.09.400/qla_os.c
+--- qla2xxx-10.02.09.400.orig/qla_os.c	2025-10-17 12:43:50.000000000 -0400
++++ qla2xxx-10.02.09.400/qla_os.c	2025-11-17 20:41:19.315305180 -0500
+@@ -8117,7 +8117,7 @@ static const struct pci_error_handlers q
  };
  
- static struct pci_device_id qla2xxx_pci_tbl[] = {
+ static const struct pci_device_id qla2xxx_pci_tbl[] = {
 -#ifndef CONFIG_RHEL_DIFFERENCES
 +#ifndef CONFIG_ELREPO_DIFFERENCES
  	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP2100) },
  	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP2200) },
  	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP2300) },
-@@ -8137,12 +8137,12 @@ static struct pci_device_id qla2xxx_pci_
+@@ -8133,12 +8133,12 @@ static const struct pci_device_id qla2xx
  #endif
  	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP2532) },
  	{ PCI_DEVICE(PCI_VENDOR_ID_QLOGIC, PCI_DEVICE_ID_QLOGIC_ISP2031) },

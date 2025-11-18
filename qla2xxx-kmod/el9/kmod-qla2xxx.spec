@@ -2,12 +2,12 @@
 %define kmod_name	qla2xxx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.12.1.el9_6}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-611.5.1.el9_7}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	10.02.09.300
+Version:	10.02.09.400
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -19,7 +19,7 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0:		elrepo-%{kmod_name}-rhel_differences.el9_4.patch
+Patch0:		elrepo-%{kmod_name}-rhel_differences.el9_7.patch
 
 %define __spec_install_post \
 		/usr/lib/rpm/check-buildroot \
@@ -76,7 +76,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
-%patch0 -p0
+%patch0 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD \
@@ -119,7 +119,7 @@ find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --str
 %{__rm} -rf %{buildroot}
 
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_name} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -192,6 +192,12 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Nov 17 2025 Tuan Hoang <tqhoang@elrepo.org> - 10.02.09.400-1
+- Rebuilt against RHEL 9.7 GA kernel
+- Source code updated from 9.7 GA kernel
+- Fix hard-coded arch in post section
+- Update rhel_differences patch for 9.7
+
 * Wed May 14 2025 Tuan Hoang <tqhoang@elrepo.org> - 10.02.09.300-1
 - Rebuilt against RHEL 9.6 GA kernel
 - Source code from kernel-5.14.0-570.12.1.el9_6

@@ -2,13 +2,13 @@
 %define kmod_name	libsas
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.12.1.el9_6}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-611.5.1.el9_7}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -191,6 +191,10 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Nov 17 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-2
+- Rebuilt against RHEL 9.7 GA kernel
+- Source code unchanged in 9.7 GA kernel
+
 * Sun Oct 12 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-1
 - Workaround anaconda bug where driver disk installs have missing symbols for libsas
   [https://elrepo.org/bugs/view.php?id=1458]

@@ -2,13 +2,13 @@
 %define kmod_name	mptsas
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.12.1.el9_6}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-611.5.1.el9_7}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	3.04.20
-Release:	10%{?dist}
+Release:	11%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -141,7 +141,7 @@ find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --str
 %{__rm} -rf %{buildroot}
 
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_name} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -214,6 +214,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Nov 17 2025 Tuan Hoang <tqhoang@elrepo.org> - 3.04.20-11
+- Rebuilt against RHEL 9.7 GA kernel
+- Source code unchanged in 9.7 GA kernel
+- Fix hard-coded arch in post section
+
 * Wed May 14 2025 Tuan Hoang <tqhoang@elrepo.org> - 3.04.20-10
 - Rebuilt against RHEL 9.6 GA kernel
 - Source code from kernel-5.14.0-570.12.1.el9_6
