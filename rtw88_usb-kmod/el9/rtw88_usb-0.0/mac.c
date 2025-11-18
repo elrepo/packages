@@ -227,8 +227,8 @@ static int rtw_sub_pwr_seq_parser(struct rtw_dev *rtwdev, u8 intf_mask,
 	return 0;
 }
 
-static int rtw_pwr_seq_parser(struct rtw_dev *rtwdev,
-			      const struct rtw_pwr_seq_cmd **cmd_seq)
+int rtw_pwr_seq_parser(struct rtw_dev *rtwdev,
+		       const struct rtw_pwr_seq_cmd * const *cmd_seq)
 {
 	u8 cut_mask;
 	u8 intf_mask;
@@ -267,11 +267,12 @@ static int rtw_pwr_seq_parser(struct rtw_dev *rtwdev,
 
 	return 0;
 }
+EXPORT_SYMBOL(rtw_pwr_seq_parser);
 
 static int rtw_mac_power_switch(struct rtw_dev *rtwdev, bool pwr_on)
 {
 	const struct rtw_chip_info *chip = rtwdev->chip;
-	const struct rtw_pwr_seq_cmd **pwr_seq;
+	const struct rtw_pwr_seq_cmd * const *pwr_seq;
 	u32 imr = 0;
 	u8 rpwm;
 	bool cur_pwr;
@@ -290,6 +291,7 @@ static int rtw_mac_power_switch(struct rtw_dev *rtwdev, bool pwr_on)
 	if (rtw_read8(rtwdev, REG_CR) == 0xea)
 		cur_pwr = false;
 	else if (rtw_hci_type(rtwdev) == RTW_HCI_TYPE_USB &&
+		 chip->id != RTW_CHIP_TYPE_8814A &&
 		 (rtw_read8(rtwdev, REG_SYS_STATUS1 + 1) & BIT(0)))
 		cur_pwr = false;
 	else
@@ -783,7 +785,8 @@ static int __rtw_download_firmware(struct rtw_dev *rtwdev,
 	if (!check_firmware_size(data, size))
 		return -EINVAL;
 
-	if (!ltecoex_read_reg(rtwdev, 0x38, &ltecoex_bckp))
+	if (rtwdev->chip->ltecoex_addr &&
+	    !ltecoex_read_reg(rtwdev, 0x38, &ltecoex_bckp))
 		return -EBUSY;
 
 	wlan_cpu_enable(rtwdev, false);
@@ -801,7 +804,8 @@ static int __rtw_download_firmware(struct rtw_dev *rtwdev,
 
 	wlan_cpu_enable(rtwdev, true);
 
-	if (!ltecoex_reg_write(rtwdev, 0x38, ltecoex_bckp)) {
+	if (rtwdev->chip->ltecoex_addr &&
+	    !ltecoex_reg_write(rtwdev, 0x38, ltecoex_bckp)) {
 		ret = -EBUSY;
 		goto dlfw_fail;
 	}
@@ -994,6 +998,7 @@ int rtw_download_firmware(struct rtw_dev *rtwdev, struct rtw_fw_state *fw)
 
 	return 0;
 }
+EXPORT_SYMBOL(rtw_download_firmware);
 
 static u32 get_priority_queues(struct rtw_dev *rtwdev, u32 queues)
 {
@@ -1127,7 +1132,7 @@ static int txdma_queue_mapping(struct rtw_dev *rtwdev)
 	return 0;
 }
 
-static int set_trx_fifo_info(struct rtw_dev *rtwdev)
+int rtw_set_trx_fifo_info(struct rtw_dev *rtwdev)
 {
 	const struct rtw_chip_info *chip = rtwdev->chip;
 	struct rtw_fifo_conf *fifo = &rtwdev->fifo;
@@ -1136,7 +1141,7 @@ static int set_trx_fifo_info(struct rtw_dev *rtwdev)
 
 	/* config rsvd page num */
 	fifo->rsvd_drv_pg_num = chip->rsvd_drv_pg_num;
-	fifo->txff_pg_num = chip->txff_size >> 7;
+	fifo->txff_pg_num = chip->txff_size / chip->page_size;
 	if (rtw_chip_wcpu_11n(rtwdev))
 		fifo->rsvd_pg_num = fifo->rsvd_drv_pg_num;
 	else
@@ -1179,6 +1184,7 @@ static int set_trx_fifo_info(struct rtw_dev *rtwdev)
 
 	return 0;
 }
+EXPORT_SYMBOL(rtw_set_trx_fifo_info);
 
 static int __priority_queue_cfg(struct rtw_dev *rtwdev,
 				const struct rtw_page_table *pg_tbl,
@@ -1256,7 +1262,7 @@ static int priority_queue_cfg(struct rtw_dev *rtwdev)
 	u16 pubq_num;
 	int ret;
 
-	ret = set_trx_fifo_info(rtwdev);
+	ret = rtw_set_trx_fifo_info(rtwdev);
 	if (ret)
 		return ret;
 

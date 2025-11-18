@@ -2,20 +2,21 @@
 %define kmod_name	media
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.42.2.el9_6}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-611.5.1.el9_7}
+
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	4%{?dist}
+Release:	5%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
 URL:		http://www.kernel.org/
 
 # Sources.
-Source0:	%{kmod_name}-%{version}.tar.gz
+Source0:	drivers-%{kmod_name}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
@@ -71,6 +72,8 @@ Recommends:		xc3028-firmware
 
 Obsoletes:		kmod-hdpvr <= 0.2.1
 Provides:		kmod-hdpvr  = 0.2.1-99%{?dist}
+Obsoletes:		kmod-si2157 <= 0.0
+Provides:		kmod-si2157  = 0.0-99%{?dist}
 
 %description
 This package provides the %{kmod_name} kernel module(s).
@@ -78,11 +81,11 @@ It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
-%setup -q -n %{kmod_name}-%{version}
+%setup -q -n drivers-%{kmod_name}
 
 # List of multimedia modules
 # Keep in sync with make command args below
-%define media_modules "dvb-core lgdt330x zl10353 tvp5150 xc2028 rc-core rc-pinnacle-pctv-hd em28xx em28xx-alsa em28xx-dvb em28xx-rc em28xx-v4l hdpvr v4l2-fwnode v4l2-async"
+%define media_modules "dvb-core lgdt330x zl10353 tvp5150 si2157 xc2028 rc-core rc-pinnacle-pctv-hd em28xx em28xx-alsa em28xx-dvb em28xx-rc em28xx-v4l hdpvr v4l2-fwnode v4l2-async"
 
 cat /dev/null > kmod-%{kmod_name}.conf
 for modules in `echo -n %{media_modules}`
@@ -114,6 +117,7 @@ done
 	CONFIG_DVB_ZL10353=m \
 	CONFIG_VIDEO_TVP5150=m \
 	CONFIG_MEDIA_TUNER=m \
+	CONFIG_MEDIA_TUNER_SI2157=m \
 	CONFIG_MEDIA_TUNER_XC2028=m \
 	CONFIG_RC_CORE=m \
 	CONFIG_RC_MAP=m \
@@ -238,10 +242,17 @@ exit 0
 %files
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config /etc/depmod.d/kmod-%{kmod_name}.conf
-%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
+%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
+%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Nov 17 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-5
+- Rebuilt against RHEL 9.7 GA kernel
+- Source code updated from 9.7 GA kernel
+- Change source tarball name
+- Add support for module si2157
+- Add provides/obsoletes for module si2157
+
 * Tue Oct 07 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-4
 - Add support for module hdpvr
 - Add provides/obsoletes for module hdpvr
