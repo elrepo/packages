@@ -2,7 +2,7 @@
 %define kmod_name	r8125
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.74.1.el8_10}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.75.1.el8_10}
 
 %{!?dist: %define dist .el8}
 
@@ -12,15 +12,20 @@ Release:	1.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
-URL:		http://www.kernel.org/
+URL:		https://www.realtek.com/
 
 # Sources
 Source0:	%{kmod_name}-%{version}.tar.bz2
+Source1:	ELRepo-Makefile-%{kmod_name}
+Source2:	blacklist-r8169.conf
+Source3:	modprobe-%{kmod_name}.conf
 Source5:	GPL-v2.0.txt
-Source20:	ELRepo-Makefile-%{kmod_name}
 
 # Source code patches
 Patch0:		ELRepo-r8125.patch
+
+# Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
+# https://bugzilla.redhat.com/show_bug.cgi?id=1967291
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
                             /usr/lib/rpm/redhat/brp-ldconfig \
@@ -65,17 +70,16 @@ It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
-%setup -n %{kmod_name}-%{version}
+%setup -q -n %{kmod_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 %{__rm} -f src/Makefile*
-%{__cp} -a %{SOURCE20} src/Makefile
+%{__cp} -a %{SOURCE1} src/Makefile
 
 # Apply patch(es)
 %patch0 -p1
 
 %build
-KSRC=%{_usrsrc}/kernels/%{kmod_kernel_version}.%{_arch}
-%{__make} -C "${KSRC}" %{?_smp_mflags} modules M=$PWD/src
+%{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD/src
 
 whitelist="/lib/modules/kabi-current/kabi_whitelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -91,9 +95,14 @@ sort -u greylist | uniq > greylist.txt
 %{__install} src/%{kmod_name}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
+%{__install} -d %{buildroot}%{_prefix}/lib/modprobe.d/
+%{__install} -m 0644 %{SOURCE2} %{buildroot}%{_prefix}/lib/modprobe.d/
+%{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d/
+%{__install} -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/modprobe.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
+%{__install} -m 0644 README %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 # strip the modules(s)
 find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --strip-debug
@@ -182,16 +191,21 @@ exit 0
 %files
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config /etc/depmod.d/kmod-%{kmod_name}.conf
-%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
+%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
+%config(noreplace) %{_sysconfdir}/modprobe.d/modprobe-%{kmod_name}.conf
+%config(noreplace) %{_prefix}/lib/modprobe.d/blacklist*.conf
+%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Wed Sep 17 2025 Tuan Hoang <tqhoang@elrepo.org> - 9.016.01-1.1
-- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.74.1.el8_10
+* Wed Nov 19 2025 Tuan Hoang <tqhoang@elrepo.org> - 9.016.01-1.1
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
 
-* Wed Sep 17 2025 Tuan Hoang <tqhoang@elrepo.org> - 9.016.01-1
+* Wed Nov 19 2025 Tuan Hoang <tqhoang@elrepo.org> - 9.016.01-1
 - Update to 9.016.01
 - Disable fiber support
+- Add blacklist-r8169.conf
+- Add modprobe-r8125.conf
+- Add README to docs
 - Built against RHEL 8.10 GA kernel 4.18.0-553.el8_10
 
 * Wed Mar 26 2025 Tuan Hoang <tqhoang@elrepo.org> - 9.015.00-2

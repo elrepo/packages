@@ -1,5 +1,5 @@
 # Define the kmod package name here.
-%define kmod_name		r8168
+%define kmod_name	r8168
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
 %{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
@@ -8,21 +8,24 @@
 
 Name:		kmod-%{kmod_name}
 Version:	8.055.00
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
-URL:		http://www.realtek.com/en
+URL:		https://www.realtek.com/
 
 # Sources
 Source0:	%{kmod_name}-%{version}.tar.bz2
+Source1:	ELRepo-Makefile-%{kmod_name}
+Source2:	blacklist-r8169.conf
+Source3:	modprobe-%{kmod_name}.conf
 Source5:	GPL-v2.0.txt
-Source10:	blacklist-r8169.conf
-Source20:	ELRepo-Makefile-%{kmod_name}
 
+# Source code patches
+Patch0:		ELRepo-r8168.patch
 
-# Patches
-Patch0: ELRepo-r8168.patch
+# Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
+# https://bugzilla.redhat.com/show_bug.cgi?id=1967291
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
                             /usr/lib/rpm/redhat/brp-ldconfig \
@@ -68,10 +71,12 @@ of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
 %setup -q -n %{kmod_name}-%{version}
-%patch0 -p1
-%{__rm} -f src/Makefile*
-%{__cp} -a %{SOURCE20} src/Makefile
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+%{__rm} -f src/Makefile*
+%{__cp} -a %{SOURCE1} src/Makefile
+
+# Apply patch(es)
+%patch0 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD/src
@@ -91,11 +96,13 @@ sort -u greylist | uniq > greylist.txt
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_prefix}/lib/modprobe.d/
-%{__install} -m 0644 %{SOURCE10} %{buildroot}%{_prefix}/lib/modprobe.d/
+%{__install} -m 0644 %{SOURCE2} %{buildroot}%{_prefix}/lib/modprobe.d/
+%{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d/
+%{__install} -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/modprobe.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
-%{__install} README %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
+%{__install} -m 0644 README %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 # strip the modules(s)
 find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --strip-debug
@@ -115,7 +122,7 @@ done
 %{__rm} -rf %{buildroot}
 
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_name} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -184,13 +191,19 @@ exit 0
 %files
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config /etc/depmod.d/kmod-%{kmod_name}.conf
-%config /usr/lib/modprobe.d/blacklist-r8169.conf
-%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
+%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
+%config(noreplace) %{_sysconfdir}/modprobe.d/modprobe-%{kmod_name}.conf
+%config(noreplace) %{_prefix}/lib/modprobe.d/blacklist*.conf
+%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Nov 19 2025 Tuan Hoang <tqhoang@elrepo.org> - 8.055.00-2
+- Fix hard-coded arch in post section
+- Change blacklist-r8169.conf to config(noreplace)
+- Add modprobe-r8168.conf
+
 * Sat Mar 01 2025 Tuan Hoang <tqhoang@elrepo.org> - 8.055.00-1
-- Update to version 8.054.00
+- Update to version 8.055.00
 - Add blacklist file to source
 
 * Mon Oct 28 2024 Tuan Hoang <tqhoang@elrepo.org> - 8.054.00-1
