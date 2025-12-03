@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	9.016.01
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -100,8 +100,8 @@ sort -u greylist | uniq > greylist.txt
 %{__install} src/%{kmod_name}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
-%{__install} -d %{buildroot}%{_prefix}/lib/modprobe.d/
-%{__install} -m 0644 %{SOURCE2} %{buildroot}%{_prefix}/lib/modprobe.d/
+#{__install} -d %{buildroot}%{_prefix}/lib/modprobe.d/
+#{__install} -m 0644 %{SOURCE2} %{buildroot}%{_prefix}/lib/modprobe.d/
 %{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d/
 %{__install} -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/modprobe.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
@@ -197,10 +197,14 @@ exit 0
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
 %config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
 %config(noreplace) %{_sysconfdir}/modprobe.d/modprobe-%{kmod_name}.conf
-%config(noreplace) %{_prefix}/lib/modprobe.d/blacklist*.conf
+#config(noreplace) #{_prefix}/lib/modprobe.d/blacklist*.conf
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Dec 02 2025 Tuan Hoang <tqhoang@elrepo.org> - 9.016.01-2
+- Remove blacklist-r8169.conf
+  [https://elrepo.org/bugs/view.php?id=1572]
+
 * Tue Nov 11 2025 Tuan Hoang <tqhoang@elrepo.org> - 9.016.01-1
 - Update to 9.016.01
 - Disable fiber support
