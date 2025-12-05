@@ -1,7 +1,7 @@
 %define real_name drbd-utils
 
 Name:    drbd84-utils
-Version: 9.28.0
+Version: 9.33.0
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
@@ -53,7 +53,7 @@ Think of it as networked raid 1. It is a building block for
 setting up high availability (HA) clusters.
 
 This packages includes the DRBD administration tools and integration
-scripts for heartbeat, pacemaker, rgmanager and xen.
+scripts for pacemaker, rgmanager and xen.
 
 %description sysvinit
 DRBD mirrors a block device over the network to another machine.
@@ -78,14 +78,11 @@ It is not required when the init system used is systemd.
     --with-rgmanager \
     --with-initscripttype=both \
     --without-83support
-WITH_HEARTBEAT=yes %{__make} %{?_smp_mflags}
+%{__make} %{?_smp_mflags}
 
 %install
 %{__rm} -rf %{buildroot}
-WITH_HEARTBEAT=yes %{__make} install DESTDIR="%{buildroot}"
-pushd scripts
-WITH_HEARTBEAT=yes %{__make} install-heartbeat DESTDIR="%{buildroot}"
-popd
+%{__make} install DESTDIR="%{buildroot}"
 
 
 %clean
@@ -116,10 +113,8 @@ fi
 %files
 %defattr(-, root, root, 0755)
 %doc ChangeLog COPYING README.md scripts/drbd.conf.example
-%doc %{_mandir}/man5/drbd.conf.5*
 %doc %{_mandir}/man5/drbd.conf-*
 %doc %{_mandir}/man8/drbd*
-%doc %{_mandir}/ja/man5/drbd.conf.5*
 %doc %{_mandir}/ja/man5/drbd.conf-*
 %doc %{_mandir}/ja/man8/drbd*
 %doc %{_mandir}/man7/ocf_linbit_drbd.7.gz
@@ -132,8 +127,9 @@ fi
 %doc %{_mandir}/man7/drbd.service.7.gz
 %doc %{_mandir}/man7/drbd@.service.7.gz
 %doc %{_mandir}/man7/drbd@.target.7.gz
-%doc %{_mandir}/man7/ocf.ra@.service.7.gz
-%config %{_sysconfdir}/bash_completion.d/drbdadm
+%doc %{_mandir}/man7/drbd-configured.target.7.gz
+%doc %{_mandir}/man7/drbd-graceful-shutdown.service.7.gz
+/usr/share/bash-completion/completions/drbdadm
 %config %{_prefix}/lib/udev/rules.d/65-drbd.rules
 %config(noreplace) %{_sysconfdir}/drbd.conf
 # ay
@@ -143,13 +139,7 @@ fi
 %config(noreplace) %{_sysconfdir}/drbd.d/global_common.conf
 %config %{_unitdir}/drbd.service
 %dir %{_localstatedir}/lib/drbd/
-%dir /lib/drbd/
-/lib/drbd/drbdadm-84
-/lib/drbd/drbdsetup-84
-/lib/drbd/scripts/drbd
-/lib/drbd/scripts/drbd-service-shim.sh
-/lib/drbd/scripts/drbd-wait-promotable.sh
-/lib/drbd/scripts/ocf.ra.wrapper.sh
+/usr/lib/drbd/tnf-drbd-fence.py
 /usr/lib/systemd/system/drbd-demote-or-escalate@.service
 /usr/lib/systemd/system/drbd-lvchange@.service
 /usr/lib/systemd/system/drbd-promote@.service
@@ -158,12 +148,12 @@ fi
 /usr/lib/systemd/system/drbd-wait-promotable@.service
 /usr/lib/systemd/system/drbd@.service
 /usr/lib/systemd/system/drbd@.target
-/usr/lib/systemd/system/ocf.ra@.service
 /usr/lib/systemd/system/drbd-graceful-shutdown.service
 %{_sbindir}/drbdadm
 %{_sbindir}/drbdmeta
 %{_sbindir}/drbdsetup
 %{_sbindir}/drbdmon
+%{_sbindir}/drbd-events-log-supplier
 %dir %{_prefix}/lib/drbd/
 %{_prefix}/lib/drbd/notify-out-of-sync.sh
 %{_prefix}/lib/drbd/notify-split-brain.sh
@@ -179,10 +169,13 @@ fi
 %{_prefix}/lib/drbd/stonith_admin-fence-peer.sh
 %{_prefix}/lib/drbd/unsnapshot-resync-target-lvm.sh
 %{_prefix}/lib/tmpfiles.d/drbd.conf
-
-### heartbeat
-%{_sysconfdir}/ha.d/resource.d/drbddisk
-%{_sysconfdir}/ha.d/resource.d/drbdupper
+%{_prefix}/lib/drbd/drbdadm-84
+%{_prefix}/lib/drbd/drbdsetup-84
+%{_prefix}/lib/drbd/scripts/drbd
+%{_prefix}/lib/drbd/scripts/drbd-service-shim.sh
+%{_prefix}/lib/drbd/scripts/drbd-wait-promotable.sh
+%{_prefix}/lib/systemd/system-preset/50-drbd.preset
+%{_prefix}/lib/systemd/system/drbd-configured.target
 
 ### pacemaker
 %{_prefix}/lib/drbd/crm-fence-peer.sh
@@ -193,19 +186,14 @@ fi
 %{_prefix}/lib/drbd/crm-unfence-peer.9.sh
 %{_prefix}/lib/ocf/resource.d/linbit/drbd.shellfuncs.sh
 
-### rgmanager / rhcs
-%{_datadir}/cluster/drbd.sh
-%{_datadir}/cluster/drbd.metadata
-%{_prefix}/lib/drbd/rhcs_fence
-
-### xen
-%{_sysconfdir}/xen/scripts/block-drbd
-
 %files sysvinit
 %defattr(-,root,root)
 %config %{_initrddir}/drbd
 
 %changelog
+* Thu Dec 04 2025 Akemi Yagi <toracat@elrepo.org> - 9.33.0-1
+- version updated to 9.33.0
+
 * Sat May 11 2024 Akemi Yagi <toracat@elrepo.org> - 9.28.0-1
 - Updated to 9.28.0
 
