@@ -10,11 +10,13 @@
 Name:		kmod-%{kmod_name}
 Version:	8.4.11
 %define 	original_release 1
-Release:	%{original_release}.2%{?dist}
+Release:	%{original_release}.3%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
 URL:		http://www.kernel.org/
+
+Conflicts:	kmod-drbd9x
 
 # Sources
 Source0:	%{real_name}-%{version}-%{original_release}.tar.gz
@@ -121,7 +123,7 @@ find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --str
 %{__rm} -rf %{buildroot}
 
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_name} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -134,7 +136,7 @@ exit 0
 # calling initramfs regeneration separately
 if [ -f "%{kver_state_file}" ]; then
 	kver_base="%{kmod_kernel_version}"
-	kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
+	kvers=$(ls -d "/lib/modules/${kver_base%%%%-*}"*)
 
 	for k_dir in $kvers; do
 		k="${k_dir#/lib/modules/}"
@@ -144,7 +146,7 @@ if [ -f "%{kver_state_file}" ]; then
 
 		# The same check as in weak-modules: we assume that the kernel present
 		# if the symvers file exists.
-		if [ -e "/$k_dir/symvers.gz" ]; then
+		if [ -e "/$k_dir/symvers.xz" ]; then
 			/usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
 			cmp -s "$tmp_initramfs" "$dst_initramfs"
 			if [ "$?" = 1 ]; then
@@ -190,10 +192,18 @@ exit 0
 %files
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config /etc/depmod.d/kmod-%{kmod_name}.conf
-%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
+%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
+%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Dec 09 2025 Tuan Hoang <tqhoang@elrepo.org> - 8.4.11-1.3.el10_1
+- Fix posttrans bugs
+  - Fix broken kvers (suffix removal requires four percent symbols)
+  - Improve kvers usage (suffix changed from dot to hyphen)
+  - Fix incorrect symvers filename
+- Fix hard-coded arch in post section
+- Add conflicts with drbd9x
+
 * Sun Nov 16 2025 Akemi Yagi <toracat@elrepo.org> - 8.4.11-1.2.el10_1
 - Rebuilt against RHEL 10.1 GA kernel 6.12.0-124.8.1.el10_1
 
