@@ -81,7 +81,7 @@ echo "override %{kmod_name}-host * weak-updates/%{kmod_name}" >> kmod-%{kmod_nam
 # echo "override %{kmod_name}-vudc * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 echo "override vhci-hcd * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 
-%patch 0 -p1
+%patch -P0 -p1
 %{__rm} -f Makefile
 %{__cp} -a %{SOURCE20} Makefile
 
@@ -200,7 +200,7 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Sat Dec 06 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-3
+* Wed Dec 10 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-3
 - Fix posttrans bugs
   - Fix broken kvers (suffix removal requires four percent symbols)
   - Improve kvers usage (suffix changed from dot to hyphen)
