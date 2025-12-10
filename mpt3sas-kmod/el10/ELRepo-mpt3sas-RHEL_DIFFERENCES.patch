@@ -1,0 +1,31 @@
+diff -Naurp mpt3sas-52.100.00.00.orig/mpt3sas_scsih.c mpt3sas-52.100.00.00/mpt3sas_scsih.c
+--- mpt3sas-52.100.00.00.orig/mpt3sas_scsih.c	2025-10-17 09:34:39.000000000 -0400
++++ mpt3sas-52.100.00.00/mpt3sas_scsih.c	2025-12-10 00:28:10.389734901 -0500
+@@ -12565,7 +12565,6 @@ scsih_pci_mmio_enabled(struct pci_dev *p
+  * The pci device ids are defined in mpi/mpi2_cnfg.h.
+  */
+ static const struct pci_device_id mpt3sas_pci_table[] = {
+-#ifndef CONFIG_RHEL_DIFFERENCES
+ 	/* Spitfire ~ 2004 */
+ 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2004,
+ 		PCI_ANY_ID, PCI_ANY_ID },
+@@ -12584,7 +12583,6 @@ static const struct pci_device_id mpt3sa
+ 		PCI_ANY_ID, PCI_ANY_ID },
+ 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2116_2,
+ 		PCI_ANY_ID, PCI_ANY_ID },
+-#endif
+ 	/* Thunderbolt ~ 2208 */
+ 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2208_1,
+ 		PCI_ANY_ID, PCI_ANY_ID },
+@@ -12609,11 +12607,9 @@ static const struct pci_device_id mpt3sa
+ 		PCI_ANY_ID, PCI_ANY_ID },
+ 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SWITCH_MPI_EP_1,
+ 		PCI_ANY_ID, PCI_ANY_ID },
+-#ifndef CONFIG_RHEL_DIFFERENCES
+ 	/* SSS6200 */
+ 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SSS6200,
+ 		PCI_ANY_ID, PCI_ANY_ID },
+-#endif
+ 	/* Fury ~ 3004 and 3008 */
+ 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI25_MFGPAGE_DEVID_SAS3004,
+ 		PCI_ANY_ID, PCI_ANY_ID },
