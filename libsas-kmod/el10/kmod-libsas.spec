@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -135,7 +135,7 @@ exit 0
 # calling initramfs regeneration separately
 if [ -f "%{kver_state_file}" ]; then
         kver_base="%{kmod_kernel_version}"
-        kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
+        kvers=$(ls -d "/lib/modules/${kver_base%%%%-*}"*)
 
         for k_dir in $kvers; do
                 k="${k_dir#/lib/modules/}"
@@ -145,7 +145,7 @@ if [ -f "%{kver_state_file}" ]; then
 
                 # The same check as in weak-modules: we assume that the kernel present
                 # if the symvers file exists.
-                if [ -e "/$k_dir/symvers.gz" ]; then
+                if [ -e "/$k_dir/symvers.xz" ]; then
                         /usr/bin/dracut -f "$tmp_initramfs" "$k" || exit 1
                         cmp -s "$tmp_initramfs" "$dst_initramfs"
                         if [ "$?" = 1 ]; then
@@ -191,10 +191,16 @@ exit 0
 %files
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config /etc/depmod.d/kmod-%{kmod_name}.conf
-%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
+%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
+%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat Dec 06 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-3
+- Fix posttrans bugs
+  - Fix broken kvers (suffix removal requires four percent symbols)
+  - Improve kvers usage (suffix changed from dot to hyphen)
+  - Fix incorrect symvers filename
+
 * Fri Nov 14 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-2
 - Source code from RHEL 10.1 GA kernel
 - Built against RHEL 10.1 GA kernel-6.12.0-124.8.1.el10_1
