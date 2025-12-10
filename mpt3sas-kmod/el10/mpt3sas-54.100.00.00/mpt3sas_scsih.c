@@ -195,6 +195,14 @@ struct sense_info {
 #define MPT3SAS_PORT_ENABLE_COMPLETE (0xFFFD)
 #define MPT3SAS_ABRT_TASK_SET (0xFFFE)
 #define MPT3SAS_REMOVE_UNRESPONDING_DEVICES (0xFFFF)
+
+/*
+ * SAS Log info code for a NCQ collateral abort after an NCQ error:
+ * IOC_LOGINFO_PREFIX_PL | PL_LOGINFO_CODE_SATA_NCQ_FAIL_ALL_CMDS_AFTR_ERR
+ * See: drivers/message/fusion/lsi/mpi_log_sas.h
+ */
+#define IOC_LOGINFO_SATA_NCQ_FAIL_AFTER_ERR	0x31080000
+
 /**
  * struct fw_event_work - firmware event struct
  * @list: link list framework
@@ -2746,7 +2754,7 @@ scsih_sdev_configure(struct scsi_device *sdev, struct queue_limits *lim)
 /**
  * scsih_bios_param - fetch head, sector, cylinder info for a disk
  * @sdev: scsi device struct
- * @bdev: pointer to block device context
+ * @unused: pointer to gendisk
  * @capacity: device size (in 512 byte sectors)
  * @params: three element array to place output:
  *              params[0] number of heads (max 255)
@@ -2754,7 +2762,7 @@ scsih_sdev_configure(struct scsi_device *sdev, struct queue_limits *lim)
  *              params[2] number of cylinders
  */
 static int
-scsih_bios_param(struct scsi_device *sdev, struct block_device *bdev,
+scsih_bios_param(struct scsi_device *sdev, struct gendisk *unused,
 	sector_t capacity, int params[])
 {
 	int		heads;
@@ -5813,6 +5821,17 @@ _scsih_io_done(struct MPT3SAS_ADAPTER *ioc, u16 smid, u8 msix_index, u32 reply)
 		if (sas_device_priv_data->block) {
 			scmd->result = DID_TRANSPORT_DISRUPTED << 16;
 			goto out;
+		}
+		if (log_info == IOC_LOGINFO_SATA_NCQ_FAIL_AFTER_ERR) {
+			/*
+			 * This is a ATA NCQ command aborted due to another NCQ
+			 * command failure. We must retry this command
+			 * immediately but without incrementing its retry
+			 * counter.
+			 */
+			WARN_ON_ONCE(xfer_cnt != 0);
+			scmd->result = DID_IMM_RETRY << 16;
+			break;
 		}
 		if (log_info == 0x31110630) {
 			if (scmd->retries > 2) {
@@ -12565,7 +12584,6 @@ scsih_pci_mmio_enabled(struct pci_dev *pdev)
  * The pci device ids are defined in mpi/mpi2_cnfg.h.
  */
 static const struct pci_device_id mpt3sas_pci_table[] = {
-#ifndef CONFIG_RHEL_DIFFERENCES
 	/* Spitfire ~ 2004 */
 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2004,
 		PCI_ANY_ID, PCI_ANY_ID },
@@ -12584,7 +12602,6 @@ static const struct pci_device_id mpt3sas_pci_table[] = {
 		PCI_ANY_ID, PCI_ANY_ID },
 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2116_2,
 		PCI_ANY_ID, PCI_ANY_ID },
-#endif
 	/* Thunderbolt ~ 2208 */
 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2208_1,
 		PCI_ANY_ID, PCI_ANY_ID },
@@ -12609,11 +12626,9 @@ static const struct pci_device_id mpt3sas_pci_table[] = {
 		PCI_ANY_ID, PCI_ANY_ID },
 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SWITCH_MPI_EP_1,
 		PCI_ANY_ID, PCI_ANY_ID },
-#ifndef CONFIG_RHEL_DIFFERENCES
 	/* SSS6200 */
 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SSS6200,
 		PCI_ANY_ID, PCI_ANY_ID },
-#endif
 	/* Fury ~ 3004 and 3008 */
 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI25_MFGPAGE_DEVID_SAS3004,
 		PCI_ANY_ID, PCI_ANY_ID },

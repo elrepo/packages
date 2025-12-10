@@ -1,0 +1,42 @@
+From 3eb50369c09efb0f668a7f568a7e6f7cf4194cde Mon Sep 17 00:00:00 2001
+From: Al Viro <viro@zeniv.linux.org.uk>
+Date: Tue, 21 May 2024 23:22:01 -0400
+Subject: [PATCH] scsi: switch ->bios_param() to passing gendisk
+
+Instances are passed struct block_device *bdev argument; the only thing
+it is used for (if it's used in the first place) is bdev->bd_disk.
+Might as well pass that in the first place...
+
+Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+---
+ drivers/scsi/mpt3sas/mpt3sas_scsih.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+index 967af259118e..7092d0debef3 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+@@ -2754,7 +2754,7 @@ scsih_sdev_configure(struct scsi_device *sdev, struct queue_limits *lim)
+ /**
+  * scsih_bios_param - fetch head, sector, cylinder info for a disk
+  * @sdev: scsi device struct
+- * @bdev: pointer to block device context
++ * @unused: pointer to gendisk
+  * @capacity: device size (in 512 byte sectors)
+  * @params: three element array to place output:
+  *              params[0] number of heads (max 255)
+@@ -2762,7 +2762,7 @@ scsih_sdev_configure(struct scsi_device *sdev, struct queue_limits *lim)
+  *              params[2] number of cylinders
+  */
+ static int
+-scsih_bios_param(struct scsi_device *sdev, struct block_device *bdev,
++scsih_bios_param(struct scsi_device *sdev, struct gendisk *unused,
+ 	sector_t capacity, int params[])
+ {
+ 	int		heads;
+-- 
+2.47.3
+

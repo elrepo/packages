@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el10}
 
 Name:		kmod-%{kmod_name}
-Version:	52.100.00.00
+Version:	54.100.00.00
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -19,7 +19,7 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches.
-Patch0:		ELRepo-mpt3sas-RHEL_DIFFERENCES.patch
+Patch0:		0001-scsi-switch-bios_param-to-passing-gendisk.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -76,7 +76,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
-%patch -P0 -p1
+%patch -P0 -p4 -R
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD \
@@ -199,6 +199,11 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Dec 10 2025 Tuan Hoang <tqhoang@elrepo.org> - 54.100.00.00-1
+- Update to 54.100.00.00 (bug fixes and adds 22.5 Gbps SAS link rate)
+- Source code from kernel 6.18
+- Add reversed patch for backport to RHEL 10.1
+
 * Wed Dec 10 2025 Tuan Hoang <tqhoang@elrepo.org> - 52.100.00.00-1
 - Initial build for RHEL 10.1
 - Source code from RHEL 10.1 GA kernel 6.12.0-124.8.1.el10_1
