@@ -13,7 +13,7 @@
 %{!?dist: %define dist .el10}
 
 Name:		kmod-%{kmod_name}
-Version:	580.105.08
+Version:	580.119.02
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -141,7 +141,7 @@ find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --str
 
 # Sign the modules(s)
 %if %{?_with_modsign:1}%{!?_with_modsign:0}
-#	If the module signing keys are not defined, define them here.
+	# If the module signing keys are not defined, define them here.
 	%{!?privkey: %define privkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.priv}
 	%{!?pubkey: %define pubkey %{_sysconfdir}/pki/SECURE-BOOT-KEY.der}
 	for module in $(find %{buildroot} -type f -name \*.ko);
@@ -167,7 +167,7 @@ exit 0
 # calling initramfs regeneration separately
 if [ -f "%{kver_state_file}" ]; then
 #        kver_base="%{kmod_kernel_version}"
-#        kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
+#        kvers=$(ls -d "/lib/modules/${kver_base%%%%-*}"*)
 #
 #        for k_dir in $kvers; do
 #                k="${k_dir#/lib/modules/}"
@@ -247,6 +247,10 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Fri Dec 12 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.119.02-1
+- Updated to version 580.119.02
+- Built against RHEL 10.1 GA kernel
+
 * Tue Nov 11 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.105.08-1
 - Updated to version 580.105.08
 - Built against RHEL 10.1 GA kernel
