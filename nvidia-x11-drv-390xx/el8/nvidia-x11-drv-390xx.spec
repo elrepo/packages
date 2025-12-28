@@ -7,7 +7,7 @@
 
 Name:		nvidia-x11-drv-390xx
 Version:	390.157
-Release:	6%{?dist}
+Release:	7%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -25,6 +25,7 @@ NoSource: 0
 
 Source1:	alternate-install-present
 Source2:	nvidia-xorg.conf
+Source3:	90-nvidia-390xx.preset
 
 # Provides for CUDA
 Provides:	cuda-driver = %{version}
@@ -34,6 +35,8 @@ Provides:	nvidia-drivers = %{version}
 # provides desktop-file-install
 BuildRequires:	desktop-file-utils
 BuildRequires:	perl
+# For systemd_ scriptlets
+BuildRequires:	systemd-rpm-macros
 
 Requires:	perl-interpreter
 Requires:	xorg-x11-server-Xorg <= %{max_xorg_ver}
@@ -79,9 +82,13 @@ Conflicts:	xorg-x11-drv-nvidia-470xx
 This package provides the proprietary NVIDIA OpenGL X11 display driver files.
 
 %package libs
-Summary:	Libraries for the Proprietary NVIDIA driver
+Summary:	Libraries for the NVIDIA OpenGL X11 display driver files
 Group:		User Interface/X Hardware Support
-Requires:	%{name} = %{?epoch:%{epoch}:}%{version}-%{release}
+## Remove requires for nvidia-x11-drv to allow installation of
+## nvidia-x11-drv-libs on headless systems. See bug 
+## https://elrepo.org/bugs/view.php?id=926
+## Requires:	%%{name} = %%{?epoch:%%{epoch}:}%%{version}-%%{release}
+Requires:	xorg-x11-server-Xorg <= %{max_xorg_ver}
 Requires(post):	/sbin/ldconfig
 Requires:	libvdpau%{?_isa} >= 1.0
 Requires:	libglvnd%{?_isa} >= 1.0
@@ -89,10 +96,11 @@ Requires:	libglvnd-egl%{?_isa} >= 1.0
 Requires:	libglvnd-gles%{?_isa} >= 1.0
 Requires:	libglvnd-glx%{?_isa} >= 1.0
 Requires:	libglvnd-opengl%{?_isa} >= 1.0
-Requires:	egl-wayland%{?_isa}
 Requires:	opencl-filesystem
 Requires:	ocl-icd
 Requires:	vulkan-loader
+
+Requires:	egl-wayland%{?_isa} >= 1.1.7
 
 Conflicts:	nvidia-x11-drv-libs
 Conflicts:	nvidia-x11-drv-470xx-libs
@@ -110,7 +118,7 @@ Conflicts:	nvidia-x11-drv-173xx-32bit
 Conflicts:	nvidia-x11-drv-96xx-32bit
 
 %description libs
-This package provides libraries for the Proprietary NVIDIA driver.
+This package provides libraries for the proprietary NVIDIA OpenGL X11 display driver files.
 
 %prep
 %setup -q -c -T
@@ -118,8 +126,8 @@ sh %{SOURCE0} --extract-only --target nvidiapkg
 
 # Lets just take care of all the docs here rather than during install
 pushd nvidiapkg
-%{__mv} LICENSE NVIDIA_Changelog pkg-history.txt README.txt html/
-%{__mv} nvidia-persistenced-init.tar.bz2 html/
+%{__mkdir_p} html/samples/
+%{__mv} nvidia-persistenced-init.tar.bz2 html/samples/
 popd
 find nvidiapkg/html/ -type f | xargs chmod 0644
 
@@ -131,6 +139,7 @@ find nvidiapkg/html/ -type f | xargs chmod 0644
 
 pushd nvidiapkg
 
+%ifarch x86_64
 # Install nvidia tools
 %{__mkdir_p} $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 nvidia-bug-report.sh $RPM_BUILD_ROOT%{_bindir}/
@@ -146,13 +155,17 @@ pushd nvidiapkg
 # Install OpenCL Vendor file
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/
 %{__install} -p -m 0644 nvidia.icd $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/nvidia.icd
+# Install Vulkan loader
+%{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/vulkan/icd.d/
 # Set lib in vulkan icd template
 %{__perl} -pi -e 's|__NV_VK_ICD__|libGLX_nvidia.so.0|' nvidia_icd.json.template
-# Install vulkan and EGL loaders
-%{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/vulkan/icd.d/
-%{__install} -p -m 0644 nvidia_icd.json.template $RPM_BUILD_ROOT%{_datadir}/vulkan/icd.d/nvidia_icd.json
+%{__install} -p -m 0644 nvidia_icd.json.template $RPM_BUILD_ROOT%{_datadir}/vulkan/icd.d/nvidia_icd.%{_arch}.json
+# Install EGL loader
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/
-%{__install} -p -m 0644 10_nvidia.json $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
+%{__install} -p -m 0644 10_nvidia.json $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/
+%{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d
+%{__install} -p -m 0644 10_nvidia_wayland.json $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/
+%endif
 
 # Install GL, tls and vdpau libs
 %ifarch i686
@@ -189,40 +202,53 @@ pushd 32
 popd
 %endif
 
+%ifarch x86_64
 # Install X driver and extension 
 %{__mkdir_p} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
-%{__mkdir_p} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/
+%{__mkdir_p} $RPM_BUILD_ROOT%{_libdir}/nvidia/xorg/
 %{__install} -p -m 0755 nvidia_drv.so $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
-%{__install} -p -m 0755 libglx.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/
+%{__install} -p -m 0755 libglx.so.%{version} $RPM_BUILD_ROOT%{_libdir}/nvidia/xorg/
+%endif
 
 # Create the symlinks
-%{__ln_s} libcuda.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libcuda.so
 %{__ln_s} libcuda.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libcuda.so.1
+%{__ln_s} libcuda.so.1 $RPM_BUILD_ROOT%{_libdir}/libcuda.so
 %{__ln_s} libEGL_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libEGL_nvidia.so.0
+%{__ln_s} libEGL_nvidia.so.0 $RPM_BUILD_ROOT%{_libdir}/libEGL_nvidia.so
 %{__ln_s} libGLESv1_CM_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libGLESv1_CM_nvidia.so.1
+%{__ln_s} libGLESv1_CM_nvidia.so.1 $RPM_BUILD_ROOT%{_libdir}/libGLESv1_CM_nvidia.so
 %{__ln_s} libGLESv2_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libGLESv2_nvidia.so.2
+%{__ln_s} libGLESv2_nvidia.so.2 $RPM_BUILD_ROOT%{_libdir}/libGLESv2_nvidia.so
 %{__ln_s} libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libGLX_nvidia.so.0
+%{__ln_s} libGLX_nvidia.so.0 $RPM_BUILD_ROOT%{_libdir}/libGLX_nvidia.so
 %{__ln_s} libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libGLX_indirect.so.0
-%{__ln_s} libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvcuvid.so
+%{__ln_s} libGLX_indirect.so.0 $RPM_BUILD_ROOT%{_libdir}/libGLX_indirect.so
 %{__ln_s} libnvcuvid.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvcuvid.so.1
+%{__ln_s} libnvcuvid.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvcuvid.so
 %ifarch x86_64
 %{__ln_s} libnvidia-cfg.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-cfg.so.1
+%{__ln_s} libnvidia-cfg.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-cfg.so
 %endif
-%{__ln_s} libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-encode.so
+%{__ln_s} libnvidia-eglcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-eglcore.so
 %{__ln_s} libnvidia-encode.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-encode.so.1
-%{__ln_s} libnvidia-fbc.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-fbc.so
+%{__ln_s} libnvidia-encode.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-encode.so
 %{__ln_s} libnvidia-fbc.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-fbc.so.1
-%{__ln_s} libnvidia-ifr.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ifr.so
+%{__ln_s} libnvidia-fbc.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-fbc.so
 %{__ln_s} libnvidia-ifr.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ifr.so.1
-%{__ln_s} libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ml.so
+%{__ln_s} libnvidia-ifr.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-ifr.so
 %{__ln_s} libnvidia-ml.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ml.so.1
+%{__ln_s} libnvidia-ml.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-ml.so
 %{__ln_s} libnvidia-opencl.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-opencl.so.1
+%{__ln_s} libnvidia-opencl.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-opencl.so
 %{__ln_s} libnvidia-ptxjitcompiler.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-ptxjitcompiler.so.1
+%{__ln_s} libnvidia-ptxjitcompiler.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-ptxjitcompiler.so
 %{__ln_s} libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/vdpau/libvdpau_nvidia.so.1
+%{__ln_s} libvdpau_nvidia.so.1 $RPM_BUILD_ROOT%{_libdir}/vdpau/libvdpau_nvidia.so
 %ifarch x86_64
-%{__ln_s} libglx.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/libglx.so
+%{__ln_s} libglx.so.%{version} $RPM_BUILD_ROOT%{_libdir}/nvidia/xorg/libglx.so
 %endif
 
+%ifarch x86_64
 # Install man pages
 %{__mkdir_p} $RPM_BUILD_ROOT%{_mandir}/man1/
 %{__install} -p -m 0644 nvidia-{cuda-mps-control,modprobe,persistenced,settings,smi,xconfig}.1.gz $RPM_BUILD_ROOT%{_mandir}/man1/
@@ -265,12 +291,26 @@ desktop-file-install \
 %{__mkdir_p} $RPM_BUILD_ROOT%{_prefix}/lib/nvidia/
 %{__install} -p -m 0644 %{SOURCE1} $RPM_BUILD_ROOT%{_prefix}/lib/nvidia/alternate-install-present
 
+# Extract and install nvidia-persistenced systemd script
+%{__tar} xf html/samples/nvidia-persistenced-init.tar.bz2
+%{__mkdir_p} $RPM_BUILD_ROOT%{_unitdir}/
+%{__install} -p -m 0644 nvidia-persistenced-init/systemd/nvidia-persistenced.service.template \
+  $RPM_BUILD_ROOT%{_unitdir}/nvidia-persistenced.service
+# Set the username for the daemon to root
+%{__sed} -i -e "s/__USER__/root/" $RPM_BUILD_ROOT%{_unitdir}/nvidia-persistenced.service
+
+# Install the systemd preset file
+%{__mkdir_p} $RPM_BUILD_ROOT%{_presetdir}/
+%{__install} -p -m 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_presetdir}/
+%endif
+
 popd
 
 %clean
 %{__rm} -rf $RPM_BUILD_ROOT
 
 %post
+%ifarch x86_64
 if [ "$1" -eq "1" ]; then # new install
     # Check if xorg.conf exists, if it does, backup and remove [BugID # 0000127]
     [ -f %{_sysconfdir}/X11/xorg.conf ] && \
@@ -297,13 +337,15 @@ if [ "$1" -eq "1" ]; then # new install
       done
     fi
 fi || :
-
-/sbin/ldconfig
+%systemd_post nvidia-persistenced.service
+%?ldconfig
+%endif
 
 %post libs
-/sbin/ldconfig
+%?ldconfig
 
 %preun
+%ifarch x86_64
 if [ "$1" -eq "0" ]; then # uninstall
     # Backup and remove xorg.conf
     [ -f %{_sysconfdir}/X11/xorg.conf ] && \
@@ -325,22 +367,30 @@ if [ "$1" -eq "0" ]; then # uninstall
       done
     fi
 fi ||:
+%systemd_preun nvidia-persistenced.service
+%endif
 
 %postun
-/sbin/ldconfig
+%ifarch x86_64
+%?ldconfig
+%systemd_postun_with_restart nvidia-persistenced.service
+%endif
 
 %postun libs
-/sbin/ldconfig
+%?ldconfig
 
 %files
 %defattr(-,root,root,-)
-%doc nvidiapkg/html/*
+%ifarch x86_64
+%license nvidiapkg/LICENSE
+%doc nvidiapkg/NVIDIA_Changelog nvidiapkg/pkg-history.txt nvidiapkg/README.txt nvidiapkg/html/
 %{_mandir}/man1/nvidia*.*
 %{_datadir}/pixmaps/nvidia-settings.png
 %{_datadir}/applications/*nvidia-settings.desktop
 %{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
-%{_datadir}/vulkan/icd.d/nvidia_icd.json
-%dir %{_datadir}/nvidia
+%{_datadir}/egl/egl_external_platform.d/10_nvidia_wayland.json
+%{_datadir}/vulkan/icd.d/nvidia_icd.%{_arch}.json
+%dir %{_datadir}/nvidia/
 %{_datadir}/nvidia/nvidia-application-profiles-*
 %{_datadir}/X11/xorg.conf.d/nvidia-drm-outputclass.conf
 %{_bindir}/nvidia-bug-report.sh
@@ -357,8 +407,11 @@ fi ||:
 %dir %{_prefix}/lib/nvidia/
 %{_prefix}/lib/nvidia/alternate-install*
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
-%dir %{_libdir}/xorg/modules/extensions/nvidia
-%{_libdir}/xorg/modules/extensions/nvidia/libglx.*
+%dir %{_libdir}/nvidia/xorg/
+%{_libdir}/nvidia/xorg/libglx.*
+%{_unitdir}/nvidia-persistenced.service
+%{_presetdir}/*nvidia*.preset
+%endif
 
 %files libs
 %defattr(-,root,root,-)
@@ -366,6 +419,13 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Sat Dec 27 2025 Tuan Hoang <tqhoang@elrepo.org> - 390.157-7
+- Update spec with changes similar to other legacy drivers
+- Add nvidia-persistenced service
+- Add missing EGL config file 10_nvidia_wayland.json
+- Move location of libglx extensions and customize ModulePath
+  [https://elrepo.org/bugs/view.php?id=1578]
+
 * Fri May 24 2024 Tuan Hoang <tqhoang@elrepo.org> - 390.157-6
 - Rebuilt against RHEL 8.10
 
