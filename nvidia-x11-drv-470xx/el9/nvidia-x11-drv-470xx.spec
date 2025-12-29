@@ -7,7 +7,7 @@
 
 Name:		nvidia-x11-drv-470xx
 Version:	470.256.02
-Release:	7%{?dist}
+Release:	8%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -174,6 +174,8 @@ sed -i -e 's|libGLX_nvidia|%{_libdir}/libGLX_nvidia|g' $RPM_BUILD_ROOT%{_datadir
 # Install EGL loader
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/
 %{__install} -p -m 0644 10_nvidia.json $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/
+%{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d
+%{__install} -p -m 0644 10_nvidia_wayland.json $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/
 %endif
 
 %{__mkdir_p} $RPM_BUILD_ROOT%{_libdir}/gbm/
@@ -232,8 +234,8 @@ pushd 32
 popd
 %endif
 
-# Install X driver and extension 
 %ifarch x86_64
+# Install X driver and extension 
 %{__mkdir_p} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
 %{__mkdir_p} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/
 %{__install} -p -m 0755 nvidia_drv.so $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
@@ -406,7 +408,7 @@ if [ "$1" -eq "0" ]; then # uninstall
     # Backup and remove xorg.conf
     [ -f %{_sysconfdir}/X11/xorg.conf ] && \
       mv %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/post-nvidia.xorg.conf.elreposave &>/dev/null
-    # Clear grub option to disable nouveau for all RHEL7 kernels
+    # Clear grub option to disable nouveau for all RHEL kernels
     if [ -f %{_sysconfdir}/default/grub ]; then
       %{__perl} -pi -e 's|(GRUB_CMDLINE_LINUX=.*) nouveau\.modeset=0|$1|g' %{_sysconfdir}/default/grub
       %{__perl} -pi -e 's|(GRUB_CMDLINE_LINUX=.*) rd\.driver\.blacklist=nouveau|$1|g' %{_sysconfdir}/default/grub
@@ -451,6 +453,7 @@ fi ||:
 %{_datadir}/pixmaps/nvidia-settings.png
 %{_datadir}/applications/*nvidia-settings.desktop
 %{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
+%{_datadir}/egl/egl_external_platform.d/10_nvidia_wayland.json
 %{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
 %{_datadir}/vulkan/icd.d/nvidia_icd.%{_arch}.json
 %dir %{_datadir}/nvidia/
@@ -493,6 +496,10 @@ fi ||:
 %endif
 
 %changelog
+* Sat Dec 27 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-8
+- Update spec with changes similar to other legacy drivers
+- Add missing EGL config file 10_nvidia_wayland.json
+
 * Fri Nov 14 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-7
 - Bump to release 7 to sync with kmod-nvidia-470xx for RHEL 9.7
 

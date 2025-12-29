@@ -1,5 +1,6 @@
 # Define the kmod package name here.
-%define kmod_name		nvidia-470xx
+%define kmod_basename	nvidia
+%define kmod_name	%{kmod_basename}-470xx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
 %{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.75.1.el8_10}
@@ -8,7 +9,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	470.256.02
-Release:	3.1%{?dist}
+Release:	4.1%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
 License:	Proprietary
@@ -69,7 +70,7 @@ BuildRequires:	gcc = 8.5.0
 %endif
 
 Provides:	kernel-modules >= %{kmod_kernel_version}.%{_arch}
-Provides:	kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:	kmod-%{kmod_basename} = %{?epoch:%{epoch}:}%{version}-%{release}
 
 Requires:	nvidia-x11-drv-470xx = %{?epoch:%{epoch}:}%{version}
 Requires(post):	%{_sbindir}/weak-modules
@@ -83,11 +84,11 @@ of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
 %setup -q -c -T
-echo "override nvidia * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
-echo "override nvidia-drm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
-echo "override nvidia-modeset * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
-echo "override nvidia-peermem * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
-echo "override nvidia-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+echo "override %{kmod_basename} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "override %{kmod_basename}-drm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+echo "override %{kmod_basename}-modeset * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+echo "override %{kmod_basename}-peermem * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+echo "override %{kmod_basename}-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 sh %{SOURCE0} --extract-only --target nvidiapkg
 %{__cp} -a nvidiapkg _kmod_build_
 
@@ -110,11 +111,11 @@ sort -u greylist | uniq > greylist.txt
 %install
 %{__install} -d %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 pushd _kmod_build_/kernel
-%{__install} nvidia.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-%{__install} nvidia-drm.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-%{__install} nvidia-modeset.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-%{__install} nvidia-peermem.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-%{__install} nvidia-uvm.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+%{__install} %{kmod_basename}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+%{__install} %{kmod_basename}-drm.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+%{__install} %{kmod_basename}-modeset.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+%{__install} %{kmod_basename}-peermem.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+%{__install} %{kmod_basename}-uvm.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 popd
 pushd _kmod_build_
 # Install GPU System Processor (GSP) firmware
@@ -124,11 +125,11 @@ popd
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_prefix}/lib/modprobe.d/
-%{__install} -m 0644 %{SOURCE1} %{buildroot}%{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
+%{__install} -m 0644 %{SOURCE1} %{buildroot}%{_prefix}/lib/modprobe.d/
 %{__install} -d %{buildroot}%{_sysconfdir}/dracut.conf.d/
-%{__install} -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/dracut.conf.d/dracut-nvidia.conf
+%{__install} -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/dracut.conf.d/
 %{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d/
-%{__install} -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/modprobe.d/modprobe-nvidia.conf
+%{__install} -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/modprobe.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
@@ -173,7 +174,7 @@ exit 0
 # calling initramfs regeneration separately
 if [ -f "%{kver_state_file}" ]; then
 #	kver_base="%{kmod_kernel_version}"
-#	kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
+#	kvers=$(ls -d "/lib/modules/${kver_base%%%%-*}"*)
 #
 #	for k_dir in $kvers; do
 #		k="${k_dir#/lib/modules/}"
@@ -253,6 +254,12 @@ exit 0
 /lib/firmware/nvidia/%{version}/gsp.bin
 
 %changelog
+* Sat Dec 27 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-4.1
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
+
+* Sat Dec 27 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-4
+- Update spec with changes similar to other legacy drivers
+
 * Fri Sep 19 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-3.1
 - Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
 
