@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	1.00
-Release:	4%{?dist}
+Release:	5%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -132,7 +132,7 @@ exit 0
 # calling initramfs regeneration separately
 if [ -f "%{kver_state_file}" ]; then
         kver_base="%{kmod_kernel_version}"
-        kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
+        kvers=$(ls -d "/lib/modules/${kver_base%%%%-*}"*)
 
         for k_dir in $kvers; do
                 k="${k_dir#/lib/modules/}"
@@ -188,10 +188,14 @@ exit 0
 %files
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config /etc/depmod.d/kmod-%{kmod_name}.conf
-%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
+%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
+%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri Jan 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.00-5
+- Fix problems in posttrans section
+- Fix macro usage in files section
+
 * Mon Nov 17 2025 Tuan Hoang <tqhoang@elrepo.org> - 1.00-4
 - Rebuilt against RHEL 9.7 GA kernel
 - Source code unchanged in 9.7 GA kernel
