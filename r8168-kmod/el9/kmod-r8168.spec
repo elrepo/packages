@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	8.055.00
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -142,7 +142,7 @@ exit 0
 # calling initramfs regeneration separately
 if [ -f "%{kver_state_file}" ]; then
         kver_base="%{kmod_kernel_version}"
-        kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
+        kvers=$(ls -d "/lib/modules/${kver_base%%%%-*}"*)
 
         for k_dir in $kvers; do
                 k="${k_dir#/lib/modules/}"
@@ -204,6 +204,9 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri Jan 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 8.055.00-4
+- Fix problems in posttrans section
+
 * Thu Nov 13 2025 Tuan Hoang <tqhoang@elrepo.org> - 8.055.00-3
 - Fix hard-coded arch in post section
 - Change blacklist-r8169.conf to config(noreplace)
