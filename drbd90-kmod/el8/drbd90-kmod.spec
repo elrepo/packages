@@ -3,12 +3,12 @@
 %define real_name 		drbd
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.46.1.el8_10}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	9.2.14
+Version:	9.1.23
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -189,22 +189,11 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Sat Jun 07 2025 Akemi Yagi <toracat@elrepo.org> - 9.2.14-1.el8_10
-- Version updated to 9.2.14
-- Rebuilt against kernel-4.18.0-553.46.1.el8_10
+* Mon Nov 18 2024 Akemi Yagi <toracat@elrepo.org> - 9.1.23-1.el8_10
+- Version updated to 9.1.23
 
-* Thu Mar 27 2025 Akemi Yagi <toracat@elrepo.org> - 9.2.13-1.el8_10
-- Version updated to 9.2.13
-- Rebuilt against kernel-4.18.0-553.46.1.el8_10
-
-* Tue Nov 19 2024 Akemi Yagi <toracat@elrepo.org> - 9.2.12-2.el8_10
-- Rebuilt against kernel-4.18.0-553.27.1.el8_10
-
-* Mon Nov 18 2024 Akemi Yagi <toracat@elrepo.org> - 9.2.12.el8_10
-- Version updated to 9.2.12
-
-* Mon Aug 12 2024 Akemi Yagi <toracat@elrepo.org> - 9.2.11.el8_10
-- Version updated to 9.2.11
+* Mon Aug 12 2024 Akemi Yagi <toracat@elrepo.org> - 9.1.22-1.el8_10
+- Version updated to 9.1.22
 
 * Sat Jun 08 2024 Akemi Yagi <toracat@elrepo.org> - 9.1.21-1.el8_10
 - Version updated to 9.1.21
