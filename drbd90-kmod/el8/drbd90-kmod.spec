@@ -1,6 +1,6 @@
 # Define the kmod package name here.
-%define kmod_name		drbd90
-%define real_name 		drbd
+%define kmod_name	drbd90
+%define real_name 	drbd
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
 %{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
@@ -8,12 +8,14 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	9.1.23
+Version:	9.3.0
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
 URL:		http://www.drbd.org/
+
+Conflicts:	kmod-drbd84
 
 # Sources
 Source0:	drbd-%{version}.tar.gz
@@ -75,7 +77,10 @@ of the same variant of the Linux kernel and not on any one specific build.
 %setup -n %{real_name}-%{version}
 # %patch0 -p1
 echo "override drbd * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "override drbd_transport_lb-tcp * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+echo "override drbd_transport_rdma * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 echo "override drbd_transport_tcp * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+echo "override handshake * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 
 %build
 %{__make} %{?_smp_mflags} module KDIR=%{kernel_source}  KVER=%{kversion}
@@ -92,6 +97,7 @@ sort -u greylist | uniq > greylist.txt
 %install
 %{__install} -d %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} drbd/build-current/*.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+%{__install} drbd/build-current/drbd-kernel-compat/handshake/*.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
@@ -116,7 +122,7 @@ done
 %{__rm} -rf %{buildroot}
 
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_name} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -129,7 +135,7 @@ exit 0
 # calling initramfs regeneration separately
 if [ -f "%{kver_state_file}" ]; then
 	kver_base="%{kmod_kernel_version}"
-	kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
+	kvers=$(ls -d "/lib/modules/${kver_base%%%%-*}"*)
 
 	for k_dir in $kvers; do
 		k="${k_dir#/lib/modules/}"
@@ -185,10 +191,21 @@ exit 0
 %files
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config /etc/depmod.d/kmod-%{kmod_name}.conf
-%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
+%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
+%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Jan 08 2026 Tuan Hoang <tqhoang@elrepo.org> - 9.3.0-1.el8_10
+- Version updated to 9.3.0
+- Add required drbd-kernel-compat/handshake/handshake.ko
+- Add 'override drbd_transport_lb-tcp' to kmod-drbd9x.conf
+- Add 'override drbd_transport_rdma' to kmod-drbd9x.conf
+- Add 'override handshake' to kmod-drbd9x.conf
+- Add conflicts with drbd84
+- Fix problems in posttrans section
+- Fix macro usage in files section
+- Fix hard-coded arch in post section
+
 * Mon Nov 18 2024 Akemi Yagi <toracat@elrepo.org> - 9.1.23-1.el8_10
 - Version updated to 9.1.23
 
