@@ -15,6 +15,8 @@ Group:		System Environment/Kernel
 License:	GPLv2
 URL:		http://www.drbd.org/
 
+Conflicts:	kmod-drbd84
+
 # Sources
 Source0:	%{real_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
@@ -82,6 +84,8 @@ of the same variant of the Linux kernel and not on any one specific build.
 %setup -n %{real_name}-%{version}
 
 echo "override %{real_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "override drbd_transport_lb-tcp * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+echo "override drbd_transport_rdma * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 echo "override drbd_transport_tcp * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 
 %build
@@ -196,8 +200,11 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Fri Jan 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 9.3.0-1.el9_7
-- version updated to 9.3.0
+* Thu Jan 08 2026 Tuan Hoang <tqhoang@elrepo.org> - 9.3.0-1.el9_7
+- Version updated to 9.3.0
+- Add 'override drbd_transport_lb-tcp' to kmod-drbd9x.conf
+- Add 'override drbd_transport_rdma' to kmod-drbd9x.conf
+- Add conflicts with drbd84
 - Fix problems in posttrans section
 - Fix macro usage in files section
 - Fix hard-coded arch in post section

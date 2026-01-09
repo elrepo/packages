@@ -80,6 +80,8 @@ of the same variant of the Linux kernel and not on any one specific build.
 %setup -n %{real_name}-%{version}
 
 echo "override %{real_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "override drbd_transport_lb-tcp * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+echo "override drbd_transport_rdma * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 echo "override drbd_transport_tcp * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 
 %build
@@ -194,14 +196,16 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Tue Dec 09 2025 Tuan Hoang <tqhoang@elrepo.org> - 9.3.0-1.el10_1
+* Thu Jan 08 2026 Tuan Hoang <tqhoang@elrepo.org> - 9.3.0-1.el10_1
 - Version updated to 9.3.0
+- Add 'override drbd_transport_lb-tcp' to kmod-drbd9x.conf
+- Add 'override drbd_transport_rdma' to kmod-drbd9x.conf
+- Add conflicts with drbd84
 - Fix posttrans bugs
   - Fix broken kvers (suffix removal requires four percent symbols)
   - Improve kvers usage (suffix changed from dot to hyphen)
   - Fix incorrect symvers filename
 - Fix hard-coded arch in post section
-- Add conflicts with drbd84
 
 * Sun Nov 30 2025 Akemi Yagi <toracat@elrepo.org> - 9.2.16-1.el10_1
 - version updated to 9.2.16
