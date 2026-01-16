@@ -1,6 +1,6 @@
 # Define the Min Xwayland version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# https://download.nvidia.com/XFree86/Linux-x86_64/580.119.02/README/minimumrequirements.html
+# https://download.nvidia.com/XFree86/Linux-x86_64/580.126.09/README/minimumrequirements.html
 
 %define		min_xwayland_ver	21.1
 %define		debug_package	%{nil}
@@ -17,7 +17,7 @@
 %endif
 
 %if %{with egl_gbm}
-%define		egl_gbm_version		1.1.2
+%define		egl_gbm_version		1.1.3
 %else
 %define		egl_gbm_min_version	1.1.2
 %endif
@@ -36,7 +36,7 @@
 
 
 Name:		nvidia-x11-drv
-Version:	580.119.02
+Version:	580.126.09
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	MIT and Redistributable, no modification permitted
@@ -652,6 +652,9 @@ fi ||:
 %endif
 
 %changelog
+* Thu Jan 15 2026 Tuan Hoang <tqhoang@elrepo.org> - 580.126.09-1
+- Updated to version 580.126.09
+
 * Fri Dec 12 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.119.02-1
 - Updated to version 580.119.02
 

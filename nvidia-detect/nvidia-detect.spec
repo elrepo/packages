@@ -1,5 +1,5 @@
 Name:    nvidia-detect
-Version: 580.119.02
+Version: 580.126.09
 Release: 1%{?dist}
 Group:   Applications/System
 License: GPLv2
@@ -36,6 +36,9 @@ A utility to detect NVIDIA graphics cards.
 %{_bindir}/nvidia-detect
 
 %changelog
+* Thu Jan 15 2026 Tuan Hoang <tqhoang@elrepo.org> - 580.126.09-1
+- Add support for detection of devices added to 580.126.09 driver release
+
 * Fri Dec 12 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.119.02-1
 - Add support for detection of devices added to 580.119.02 driver release
 
