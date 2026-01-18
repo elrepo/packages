@@ -1,0 +1,31 @@
+diff -Naurp megaraid_sas-07.734.00.00/megaraid_sas_base.c megaraid_sas-07.734.00.00.elrepo/megaraid_sas_base.c
+--- megaraid_sas-07.734.00.00/megaraid_sas_base.c	2025-10-17 09:34:39.000000000 -0400
++++ megaraid_sas-07.734.00.00.elrepo/megaraid_sas_base.c	2026-01-18 18:12:54.839716040 -0500
+@@ -148,7 +148,6 @@ megasas_set_ld_removed_by_fw(struct mega
+  */
+ static const struct pci_device_id megasas_pci_table[] = {
+ 
+-#ifndef CONFIG_RHEL_DIFFERENCES
+ 	{PCI_DEVICE(PCI_VENDOR_ID_LSI_LOGIC, PCI_DEVICE_ID_LSI_SAS1064R)},
+ 	/* xscale IOP */
+ 	{PCI_DEVICE(PCI_VENDOR_ID_LSI_LOGIC, PCI_DEVICE_ID_LSI_SAS1078R)},
+@@ -157,19 +156,16 @@ static const struct pci_device_id megasa
+ 	/* ppc IOP */
+ 	{PCI_DEVICE(PCI_VENDOR_ID_LSI_LOGIC, PCI_DEVICE_ID_LSI_SAS1078GEN2)},
+ 	/* gen2*/
+-#endif
+ 	{PCI_DEVICE(PCI_VENDOR_ID_LSI_LOGIC, PCI_DEVICE_ID_LSI_SAS0079GEN2)},
+ 	/* gen2*/
+ 	{PCI_DEVICE(PCI_VENDOR_ID_LSI_LOGIC, PCI_DEVICE_ID_LSI_SAS0073SKINNY)},
+ 	/* skinny*/
+ 	{PCI_DEVICE(PCI_VENDOR_ID_LSI_LOGIC, PCI_DEVICE_ID_LSI_SAS0071SKINNY)},
+ 	/* skinny*/
+-#ifndef CONFIG_RHEL_DIFFERENCES
+ 	{PCI_DEVICE(PCI_VENDOR_ID_LSI_LOGIC, PCI_DEVICE_ID_LSI_VERDE_ZCR)},
+ 	/* xscale IOP, vega */
+ 	{PCI_DEVICE(PCI_VENDOR_ID_DELL, PCI_DEVICE_ID_DELL_PERC5)},
+ 	/* xscale IOP */
+-#endif
+ 	{PCI_DEVICE(PCI_VENDOR_ID_LSI_LOGIC, PCI_DEVICE_ID_LSI_FUSION)},
+ 	/* Fusion */
+ 	{PCI_DEVICE(PCI_VENDOR_ID_LSI_LOGIC, PCI_DEVICE_ID_LSI_PLASMA)},
