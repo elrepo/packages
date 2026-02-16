@@ -1,0 +1,1216 @@
+diff -Naurp kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/nvidia-uvm-sources.Kbuild kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/nvidia-uvm-sources.Kbuild
+--- kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/nvidia-uvm-sources.Kbuild	2019-12-17 09:06:50.000000000 -0500
++++ kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/nvidia-uvm-sources.Kbuild	2026-02-14 09:59:07.768547092 -0500
+@@ -33,6 +33,7 @@ NVIDIA_UVM_SOURCES += nvidia-uvm/uvm8_rm
+ NVIDIA_UVM_SOURCES += nvidia-uvm/uvm8_channel.c
+ NVIDIA_UVM_SOURCES += nvidia-uvm/uvm8_lock.c
+ NVIDIA_UVM_SOURCES += nvidia-uvm/uvm8_hal.c
++NVIDIA_UVM_SOURCES += nvidia-uvm/uvm8_rb_tree.c
+ NVIDIA_UVM_SOURCES += nvidia-uvm/uvm8_range_tree.c
+ NVIDIA_UVM_SOURCES += nvidia-uvm/uvm8_range_allocator.c
+ NVIDIA_UVM_SOURCES += nvidia-uvm/uvm8_va_range.c
+@@ -94,3 +95,4 @@ NVIDIA_UVM_SOURCES += nvidia-uvm/uvm8_mm
+ NVIDIA_UVM_SOURCES += nvidia-uvm/uvm8_peer_identity_mappings_test.c
+ NVIDIA_UVM_SOURCES += nvidia-uvm/uvm8_va_block_test.c
+ NVIDIA_UVM_SOURCES += nvidia-uvm/uvm8_range_group_tree_test.c
++NVIDIA_UVM_SOURCES += nvidia-uvm/uvm8_rb_tree_test.c
+diff -Naurp kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_gpu.c kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_gpu.c
+--- kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_gpu.c	2019-12-17 08:33:46.000000000 -0500
++++ kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_gpu.c	2026-02-14 15:00:28.307953667 -0500
+@@ -1,5 +1,5 @@
+ /*******************************************************************************
+-    Copyright (c) 2015 NVIDIA Corporation
++    Copyright (c) 2015-2020 NVIDIA Corporation
+ 
+     Permission is hereby granted, free of charge, to any person obtaining a copy
+     of this software and associated documentation files (the "Software"), to
+@@ -42,6 +42,11 @@
+ static void remove_gpu(uvm_gpu_t *gpu);
+ static void disable_peer_access(uvm_gpu_t *gpu_1, uvm_gpu_t *gpu_2);
+ 
++static uvm_user_channel_t *get_user_channel(uvm_rb_tree_node_t *node)
++{
++    return container_of(node, uvm_user_channel_t, instance_ptr.node);
++}
++
+ static NV_STATUS get_gpu_info(uvm_gpu_t *gpu)
+ {
+     NV_STATUS status;
+@@ -370,7 +375,7 @@ static NV_STATUS alloc_gpu(NvProcessorUu
+     uvm_mutex_init(&gpu->isr_lock, UVM_LOCK_ORDER_ISR);
+     uvm_spin_lock_irqsave_init(&gpu->page_fault_interrupts_lock, UVM_LOCK_ORDER_LEAF);
+     uvm_spin_lock_init(&gpu->instance_ptr_table_lock, UVM_LOCK_ORDER_LEAF);
+-    uvm_init_radix_tree_preloadable(&gpu->instance_ptr_table);
++    uvm_rb_tree_init(&gpu->instance_ptr_table);
+     uvm_mutex_init(&gpu->big_page.staging.lock, UVM_LOCK_ORDER_SWIZZLE_STAGING);
+     uvm_tracker_init(&gpu->big_page.staging.tracker);
+ 
+@@ -696,7 +701,7 @@ static void remove_gpu(uvm_gpu_t *gpu)
+                    gpu->id, uvm_gpu_retained_count(gpu));
+ 
+     // All channels should have been removed before the retained count went to 0
+-    UVM_ASSERT(radix_tree_empty(&gpu->instance_ptr_table));
++    UVM_ASSERT(uvm_rb_tree_empty(&gpu->instance_ptr_table));
+ 
+     // Remove the GPU from the table.
+     uvm_spin_lock_irqsave(&g_uvm_global.gpu_table_lock);
+@@ -1299,7 +1304,7 @@ uvm_gpu_address_t uvm_gpu_peer_memory_ad
+     return uvm_gpu_address_virtual(local_gpu->peer_mappings[peer_id].base + addr.address);
+ }
+ 
+-static unsigned long instance_ptr_to_key(uvm_gpu_phys_address_t instance_ptr)
++static NvU64 instance_ptr_to_key(uvm_gpu_phys_address_t instance_ptr)
+ {
+     NvU64 key;
+     int is_sys = (instance_ptr.aperture == UVM_APERTURE_SYS);
+@@ -1311,7 +1316,6 @@ static unsigned long instance_ptr_to_key
+     UVM_ASSERT(instance_ptr.aperture == UVM_APERTURE_VID || instance_ptr.aperture == UVM_APERTURE_SYS);
+ 
+     key = (instance_ptr.address >> 11) | is_sys;
+-    UVM_ASSERT((unsigned long)key == key);
+ 
+     return key;
+ }
+@@ -1320,38 +1324,31 @@ NV_STATUS uvm_gpu_add_instance_ptr(uvm_g
+                                    uvm_gpu_phys_address_t instance_ptr,
+                                    uvm_user_channel_t *user_channel)
+ {
+-    unsigned long key = instance_ptr_to_key(instance_ptr);
+-    int ret;
+-
+-    // Pre-load the tree to allocate memory outside of the table lock. This
+-    // returns with preemption disabled.
+-    ret = radix_tree_preload(NV_UVM_GFP_FLAGS);
+-    if (ret != 0)
+-        return errno_to_nv_status(ret);
++    NvU64 instance_ptr_key = instance_ptr_to_key(instance_ptr);
++    NV_STATUS status;
+ 
+     uvm_spin_lock(&gpu->instance_ptr_table_lock);
+-    ret = radix_tree_insert(&gpu->instance_ptr_table, key, user_channel);
++    user_channel->instance_ptr.node.key = instance_ptr_key;
++    status = uvm_rb_tree_insert(&gpu->instance_ptr_table, &user_channel->instance_ptr.node);
+     uvm_spin_unlock(&gpu->instance_ptr_table_lock);
+ 
+-    // This re-enables preemption
+-    radix_tree_preload_end();
+-
+-    // Since we did the pre-load, and we shouldn't be adding duplicate entries,
+-    // this shouldn't fail.
+-    UVM_ASSERT_MSG(ret == 0, "Insert failed: %d\n", ret);
++    UVM_ASSERT_MSG(status == NV_OK, "Insert failed: %s\n", nvstatusToString(status));
+ 
+     return NV_OK;
+ }
+ 
+ uvm_user_channel_t *uvm_gpu_instance_ptr_to_user_channel(uvm_gpu_t *gpu, uvm_gpu_phys_address_t instance_ptr)
+ {
+-    unsigned long key = instance_ptr_to_key(instance_ptr);
+-    uvm_user_channel_t *user_channel;
++    NvU64 key = instance_ptr_to_key(instance_ptr);
++    uvm_rb_tree_node_t *instance_node;
+ 
+     uvm_spin_lock(&gpu->instance_ptr_table_lock);
+-    user_channel = (uvm_user_channel_t *)radix_tree_lookup(&gpu->instance_ptr_table, key);
++    instance_node = uvm_rb_tree_find(&gpu->instance_ptr_table, key);
+     uvm_spin_unlock(&gpu->instance_ptr_table_lock);
+-    return user_channel;
++    if (!instance_node)
++        return NULL;
++
++    return uvm_gpu_instance_ptr_to_user_channel(gpu, instance_ptr);
+ }
+ 
+ uvm_va_space_t *uvm_gpu_instance_ptr_to_va_space(uvm_gpu_t *gpu, uvm_gpu_phys_address_t instance_ptr)
+@@ -1365,16 +1362,18 @@ uvm_va_space_t *uvm_gpu_instance_ptr_to_
+ 
+ void uvm_gpu_remove_instance_ptr(uvm_gpu_t *gpu, uvm_gpu_phys_address_t instance_ptr)
+ {
+-    unsigned long key = instance_ptr_to_key(instance_ptr);
+-    uvm_user_channel_t *user_channel;
++    NvU64 key = instance_ptr_to_key(instance_ptr);
++    uvm_rb_tree_node_t *instance_node;
+ 
+     uvm_spin_lock(&gpu->instance_ptr_table_lock);
+-    user_channel = (uvm_user_channel_t *)radix_tree_delete(&gpu->instance_ptr_table, key);
++    instance_node = uvm_rb_tree_find(&gpu->instance_ptr_table, key);
++    uvm_rb_tree_remove(&gpu->instance_ptr_table, instance_node);
+     uvm_spin_unlock(&gpu->instance_ptr_table_lock);
+ 
+-    if (user_channel) {
+-        uvm_va_space_t *va_space = user_channel->gpu_va_space->va_space;
+-        uvm_assert_rwsem_locked_write(&va_space->lock);
++    if (instance_node) {
++        uvm_va_space_t *va_space = uvm_gpu_instance_ptr_to_va_space(gpu, instance_ptr);
++	if (va_space)
++            uvm_assert_rwsem_locked_write(&va_space->lock);
+     }
+ }
+ 
+diff -Naurp kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_gpu.h kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_gpu.h
+--- kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_gpu.h	2019-12-17 08:33:46.000000000 -0500
++++ kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_gpu.h	2026-02-14 11:42:22.941061097 -0500
+@@ -40,6 +40,7 @@
+ #include "uvm8_hal_types.h"
+ #include "uvm8_hmm.h"
+ #include "uvm8_va_block_types.h"
++#include "uvm8_rb_tree.h"
+ #include "nv-kthread-q.h"
+ 
+ #if UVM_IS_NEXT()
+@@ -550,7 +551,7 @@ struct uvm_gpu_struct
+     // entries are added and removed from the table under the va_space lock, and
+     // we can't take the isr_lock while holding the va_space lock.
+     uvm_spinlock_t instance_ptr_table_lock;
+-    struct radix_tree_root instance_ptr_table;
++    uvm_rb_tree_t instance_ptr_table;
+ 
+     // This is set to true if the GPU belongs to an SLI group. Else, set to false.
+     bool sli_enabled;
+diff -Naurp kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_kvmalloc.c kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_kvmalloc.c
+--- kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_kvmalloc.c	2019-12-17 08:33:46.000000000 -0500
++++ kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_kvmalloc.c	2026-02-14 15:22:07.709526966 -0500
+@@ -24,6 +24,7 @@
+ #include "uvm_common.h"
+ #include "uvm_linux.h"
+ #include "uvm8_kvmalloc.h"
++#include "uvm8_rb_tree.h"
+ 
+ // To implement realloc for vmalloc-based allocations we need to track the size
+ // of the original allocation. We can do that by allocating a header along with
+@@ -43,6 +44,7 @@ typedef struct
+     const char *file;
+     const char *function;
+     int line;
++    uvm_rb_tree_node_t node;
+ } uvm_kvmalloc_info_t;
+ 
+ typedef enum
+@@ -72,7 +74,7 @@ static struct
+     spinlock_t lock;
+ 
+     // Table of all outstanding allocations
+-    struct radix_tree_root allocation_info;
++    uvm_rb_tree_t allocation_info;
+ 
+     struct kmem_cache *info_cache;
+ } g_uvm_leak_checker;
+@@ -92,7 +94,7 @@ NV_STATUS uvm_kvmalloc_init(void)
+ {
+     if (uvm_leak_checker >= UVM_KVMALLOC_LEAK_CHECK_ORIGIN) {
+         spin_lock_init(&g_uvm_leak_checker.lock);
+-        uvm_init_radix_tree_preloadable(&g_uvm_leak_checker.allocation_info);
++        uvm_rb_tree_init(&g_uvm_leak_checker.allocation_info);
+ 
+         g_uvm_leak_checker.info_cache = NV_KMEM_CACHE_CREATE("uvm_kvmalloc_info_t", uvm_kvmalloc_info_t);
+         if (!g_uvm_leak_checker.info_cache)
+@@ -105,9 +107,6 @@ NV_STATUS uvm_kvmalloc_init(void)
+ 
+ void uvm_kvmalloc_exit(void)
+ {
+-    unsigned long index = 0;
+-    uvm_kvmalloc_info_t *info;
+-
+     if (atomic_long_read(&g_uvm_leak_checker.bytes_allocated) > 0) {
+         printk(KERN_ERR NVIDIA_UVM_PRETTY_PRINTING_PREFIX "!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+         printk(KERN_ERR NVIDIA_UVM_PRETTY_PRINTING_PREFIX "Memory leak of %lu bytes detected.%s\n",
+@@ -119,21 +118,22 @@ void uvm_kvmalloc_exit(void)
+     }
+ 
+     if (uvm_leak_checker >= UVM_KVMALLOC_LEAK_CHECK_ORIGIN) {
+-        while (radix_tree_gang_lookup(&g_uvm_leak_checker.allocation_info, (void**)&info, index, 1)) {
+-            UVM_ASSERT(info);
++        uvm_rb_tree_node_t *node, *next;
++
++        uvm_rb_tree_for_each_safe(node, next, &g_uvm_leak_checker.allocation_info) {
++            uvm_kvmalloc_info_t *info = container_of(node, uvm_kvmalloc_info_t, node);
++
+             printk(KERN_ERR NVIDIA_UVM_PRETTY_PRINTING_PREFIX "    Leaked %zu bytes from %s:%d:%s (%p)\n",
+-                   uvm_kvsize(info->ptr),
++                   uvm_kvsize((void *)((uintptr_t)info->node.key)),
+                    kbasename(info->file),
+                    info->line,
+                    info->function,
+-                   info->ptr);
+-
+-            index = ((unsigned long)info->ptr) + 1;
++                   info->node.key);
+ 
+             // Free so we don't keep eating up memory while debugging. Note that
+             // this also removes the entry from the table, frees info, and drops
+             // the allocated bytes count.
+-            uvm_kvfree(info->ptr);
++            uvm_kvfree((void *)((uintptr_t)info->node.key));
+         }
+ 
+         if (atomic_long_read(&g_uvm_leak_checker.untracked_allocations) == 0)
+@@ -147,36 +147,35 @@ void uvm_kvmalloc_exit(void)
+ 
+ static NV_STATUS insert_info(uvm_kvmalloc_info_t *info)
+ {
+-    int ret = radix_tree_preload(NV_UVM_GFP_FLAGS);
+-    if (ret != 0) {
+-        atomic_long_inc(&g_uvm_leak_checker.untracked_allocations);
+-        return NV_ERR_NO_MEMORY;
+-    }
++    NV_STATUS status;
+ 
+     spin_lock(&g_uvm_leak_checker.lock);
+-    ret = radix_tree_insert(&g_uvm_leak_checker.allocation_info, (unsigned long)info->ptr, info);
++    status = uvm_rb_tree_insert(&g_uvm_leak_checker.allocation_info, &info->node);
+     spin_unlock(&g_uvm_leak_checker.lock);
+-    radix_tree_preload_end();
+ 
+     // We shouldn't have duplicates
+-    UVM_ASSERT(ret == 0);
++    UVM_ASSERT(status == NV_OK);
+     return NV_OK;
+ }
+ 
+ static uvm_kvmalloc_info_t *remove_info(void *p)
+ {
+-    uvm_kvmalloc_info_t *info;
++    uvm_rb_tree_node_t *node;
++    uvm_kvmalloc_info_t *info = NULL;
+ 
+     spin_lock(&g_uvm_leak_checker.lock);
+-    info = (uvm_kvmalloc_info_t *)radix_tree_delete(&g_uvm_leak_checker.allocation_info, (unsigned long)p);
++    node = uvm_rb_tree_find(&g_uvm_leak_checker.allocation_info, (NvU64)p);
++    if (node)
++        uvm_rb_tree_remove(&g_uvm_leak_checker.allocation_info, node);
+     spin_unlock(&g_uvm_leak_checker.lock);
+ 
+-    if (!info) {
++    if (!node) {
+         UVM_ASSERT(atomic_long_read(&g_uvm_leak_checker.untracked_allocations) > 0);
+         atomic_long_dec(&g_uvm_leak_checker.untracked_allocations);
+     }
+     else {
+-        UVM_ASSERT(info->ptr == p);
++        info = container_of(node, uvm_kvmalloc_info_t, node);
++        UVM_ASSERT(info->node.key == (NvU64)((uintptr_t)p));
+     }
+     return info;
+ }
+@@ -203,13 +202,12 @@ static void alloc_tracking_add(void *p,
+             return;
+         }
+ 
+-        info->ptr       = p;
++        info->node.key  = (NvU64)p;
+         info->file      = file;
+         info->function  = function;
+         info->line      = line;
+ 
+-        if (insert_info(info) != NV_OK)
+-            kmem_cache_free(g_uvm_leak_checker.info_cache, info);
++        insert_info(info);
+     }
+ }
+ 
+diff -Naurp kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_rb_tree.c kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_rb_tree.c
+--- kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_rb_tree.c	1969-12-31 19:00:00.000000000 -0500
++++ kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_rb_tree.c	2022-10-12 05:30:29.000000000 -0400
+@@ -0,0 +1,114 @@
++/*******************************************************************************
++    Copyright (c) 2020 NVIDIA Corporation
++
++    Permission is hereby granted, free of charge, to any person obtaining a copy
++    of this software and associated documentation files (the "Software"), to
++    deal in the Software without restriction, including without limitation the
++    rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
++    sell copies of the Software, and to permit persons to whom the Software is
++    furnished to do so, subject to the following conditions:
++
++        The above copyright notice and this permission notice shall be
++        included in all copies or substantial portions of the Software.
++
++    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
++    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++    DEALINGS IN THE SOFTWARE.
++
++*******************************************************************************/
++
++#include "uvm8_rb_tree.h"
++
++static uvm_rb_tree_node_t *get_uvm_rb_tree_node(struct rb_node *rb_node)
++{
++    return rb_entry(rb_node, uvm_rb_tree_node_t, rb_node);
++}
++
++static uvm_rb_tree_node_t *uvm_rb_tree_find_node(uvm_rb_tree_t *tree,
++                                                 NvU64 key,
++                                                 uvm_rb_tree_node_t **parent,
++                                                 uvm_rb_tree_node_t **next)
++{
++    struct rb_node *rb_node = tree->rb_root.rb_node;
++    uvm_rb_tree_node_t *node = NULL;
++    uvm_rb_tree_node_t *_parent = NULL;
++
++    while (rb_node) {
++        node = get_uvm_rb_tree_node(rb_node);
++
++        if (key < node->key)
++            rb_node = rb_node->rb_left;
++        else if (key > node->key)
++            rb_node = rb_node->rb_right;
++        else
++            break;
++
++        _parent = node;
++    }
++
++    if (!rb_node)
++        node = NULL;
++
++    if (parent)
++        *parent = _parent;
++    if (next) {
++        *next = NULL; // Handles the empty tree case
++        if (node) {
++            *next = uvm_rb_tree_next(tree, node);
++        }
++        else if (_parent) {
++            if (_parent->key > key)
++                *next = _parent;
++            else
++                *next = uvm_rb_tree_next(tree, _parent);
++        }
++    }
++
++    return node;
++}
++
++void uvm_rb_tree_init(uvm_rb_tree_t *tree)
++{
++    memset(tree, 0, sizeof(*tree));
++    tree->rb_root = RB_ROOT;
++    INIT_LIST_HEAD(&tree->head);
++}
++
++NV_STATUS uvm_rb_tree_insert(uvm_rb_tree_t *tree, uvm_rb_tree_node_t *node)
++{
++    uvm_rb_tree_node_t *match, *parent;
++
++    match = uvm_rb_tree_find_node(tree, node->key, &parent, NULL);
++    if (match)
++        return NV_ERR_IN_USE;
++
++    // If there's no parent and we didn't match on the root node, the tree is
++    // empty.
++    if (!parent) {
++        rb_link_node(&node->rb_node, NULL, &tree->rb_root.rb_node);
++        rb_insert_color(&node->rb_node, &tree->rb_root);
++        list_add(&node->list, &tree->head);
++        return NV_OK;
++    }
++
++    if (node->key < parent->key) {
++        rb_link_node(&node->rb_node, &parent->rb_node, &parent->rb_node.rb_left);
++        list_add_tail(&node->list, &parent->list);
++    }
++    else {
++        rb_link_node(&node->rb_node, &parent->rb_node, &parent->rb_node.rb_right);
++        list_add(&node->list, &parent->list);
++    }
++
++    rb_insert_color(&node->rb_node, &tree->rb_root);
++    return NV_OK;
++}
++
++uvm_rb_tree_node_t *uvm_rb_tree_find(uvm_rb_tree_t *tree, NvU64 key)
++{
++    return uvm_rb_tree_find_node(tree, key, NULL, NULL);
++}
+diff -Naurp kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_rb_tree.h kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_rb_tree.h
+--- kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_rb_tree.h	1969-12-31 19:00:00.000000000 -0500
++++ kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_rb_tree.h	2022-10-12 05:30:29.000000000 -0400
+@@ -0,0 +1,111 @@
++/*******************************************************************************
++    Copyright (c) 2020 NVIDIA Corporation
++
++    Permission is hereby granted, free of charge, to any person obtaining a copy
++    of this software and associated documentation files (the "Software"), to
++    deal in the Software without restriction, including without limitation the
++    rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
++    sell copies of the Software, and to permit persons to whom the Software is
++    furnished to do so, subject to the following conditions:
++
++        The above copyright notice and this permission notice shall be
++        included in all copies or substantial portions of the Software.
++
++    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
++    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++    DEALINGS IN THE SOFTWARE.
++
++*******************************************************************************/
++
++#ifndef __UVM_RB_TREE_H__
++#define __UVM_RB_TREE_H__
++
++#include "nvtypes.h"
++#include "nvstatus.h"
++#include <linux/rbtree.h>
++#include <linux/list.h>
++#include <linux/string.h>
++#include "nv-list-helpers.h"
++
++// UVM RB trees are an implementation of Red-Black trees, which include some
++// optimizations for fast iteration over the elements in the tree.
++//
++// This implementation requires unique 64-bit keys.
++//
++// All locking is up to the caller.
++
++typedef struct
++{
++    NvU64 key;
++
++    struct rb_node rb_node;
++    struct list_head list;
++} uvm_rb_tree_node_t;
++
++typedef struct
++{
++    // Tree of uvm_rb_tree_node_t's sorted by key.
++    struct rb_root rb_root;
++
++    // List of uvm_rb_tree_node_t's sorted by key. This is an optimization
++    // to avoid calling rb_next and rb_prev frequently, particularly while
++    // iterating.
++    struct list_head head;
++
++} uvm_rb_tree_t;
++
++#define UVM_RB_TREE_CLEAR_NODE(node) RB_CLEAR_NODE(&(node)->rb_node)
++#define UVM_RB_TREE_EMPTY_NODE(node) RB_EMPTY_NODE(&(node)->rb_node)
++
++// Initialize a UVM RB Tree.
++void uvm_rb_tree_init(uvm_rb_tree_t *tree);
++
++// Insert a node into the tree. node->key should be set prior to calling this
++// function.
++// If a node with a matching key exists, NV_ERR_IN_USE is returned.
++NV_STATUS uvm_rb_tree_insert(uvm_rb_tree_t *tree, uvm_rb_tree_node_t *node);
++
++static void uvm_rb_tree_remove(uvm_rb_tree_t *tree, uvm_rb_tree_node_t *node)
++{
++    rb_erase(&node->rb_node, &tree->rb_root);
++    list_del(&node->list);
++}
++
++// Return node matching key, if any.
++uvm_rb_tree_node_t *uvm_rb_tree_find(uvm_rb_tree_t *tree, NvU64 key);
++
++static uvm_rb_tree_node_t *uvm_rb_tree_first(uvm_rb_tree_t *tree)
++{
++    return list_first_entry_or_null(&tree->head, uvm_rb_tree_node_t, list);
++}
++
++// Returns the prev/next node in key order, or NULL if none exists
++static uvm_rb_tree_node_t *uvm_rb_tree_prev(uvm_rb_tree_t *tree, uvm_rb_tree_node_t *node)
++{
++    if (list_is_first(&node->list, &tree->head))
++        return NULL;
++    return list_prev_entry(node, list);
++}
++
++static uvm_rb_tree_node_t *uvm_rb_tree_next(uvm_rb_tree_t *tree, uvm_rb_tree_node_t *node)
++{
++    if (list_is_last(&node->list, &tree->head))
++        return NULL;
++    return list_next_entry(node, list);
++}
++
++// Return true if the range tree is empty.
++static bool uvm_rb_tree_empty(uvm_rb_tree_t *tree)
++{
++    return list_empty(&tree->head);
++}
++
++#define uvm_rb_tree_for_each(node, tree)  list_for_each_entry((node), &(tree)->head, list)
++
++#define uvm_rb_tree_for_each_safe(node, next, tree) list_for_each_entry_safe((node), (next), &(tree)->head, list)
++
++#endif // __UVM_RB_TREE_H__
+diff -Naurp kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_rb_tree_test.c kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_rb_tree_test.c
+--- kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_rb_tree_test.c	1969-12-31 19:00:00.000000000 -0500
++++ kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_rb_tree_test.c	2022-10-12 05:30:30.000000000 -0400
+@@ -0,0 +1,383 @@
++/*******************************************************************************
++    Copyright (c) 2020 NVIDIA Corporation
++
++    Permission is hereby granted, free of charge, to any person obtaining a copy
++    of this software and associated documentation files (the "Software"), to
++    deal in the Software without restriction, including without limitation the
++    rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
++    sell copies of the Software, and to permit persons to whom the Software is
++    furnished to do so, subject to the following conditions:
++
++        The above copyright notice and this permission notice shall be
++        included in all copies or substantial portions of the Software.
++
++    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
++    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++    DEALINGS IN THE SOFTWARE.
++
++*******************************************************************************/
++
++#include "uvm_common.h"
++#include "uvm8_kvmalloc.h"
++#include "uvm8_rb_tree.h"
++#include "uvm8_test.h"
++#include "uvm8_test_rng.h"
++
++typedef struct
++{
++    NvU64 key;
++    uvm_rb_tree_node_t node;
++    struct list_head list;
++} rbtt_tree_node_t;
++
++typedef enum
++{
++    RBTT_OP_ADD,
++    RBTT_OP_REMOVE,
++    RBTT_OP_COUNT
++} rbtt_test_op_t;
++
++typedef struct
++{
++    uvm_rb_tree_t tree;
++    uvm_test_rng_t rng;
++
++    // List of all nodes used for tracking and verification.
++    // Nodes in the list are in insertion order.
++    struct list_head nodes;
++    rbtt_test_op_t preferred_op;
++    size_t count;
++} rbtt_state_t;
++
++static rbtt_state_t *rbtt_state_create(void)
++{
++    rbtt_state_t *state = uvm_kvmalloc_zero(sizeof(*state));
++
++    if (!state)
++        return NULL;
++
++    INIT_LIST_HEAD(&state->nodes);
++    uvm_rb_tree_init(&state->tree);
++    return state;
++}
++
++static void rbtt_state_destroy(rbtt_state_t *state)
++{
++    rbtt_tree_node_t *node, *next;
++
++    list_for_each_entry_safe(node, next, &state->nodes, list) {
++        list_del(&node->list);
++        uvm_kvfree(node);
++    }
++
++    uvm_kvfree(state);
++}
++
++static NV_STATUS rbtt_check_tree(rbtt_state_t *state)
++{
++    uvm_rb_tree_node_t *tree_node = NULL;
++    uvm_rb_tree_node_t *next;
++    rbtt_tree_node_t *node;
++
++    list_for_each_entry(node, &state->nodes, list) {
++        tree_node = uvm_rb_tree_find(&state->tree, node->key);
++        TEST_CHECK_RET(tree_node);
++        TEST_CHECK_RET(tree_node == &node->node);
++    }
++
++    // Check tree iterators.
++    if (state->count == 0) {
++        TEST_CHECK_RET(uvm_rb_tree_empty(&state->tree));
++        TEST_CHECK_RET(uvm_rb_tree_first(&state->tree) == NULL);
++        uvm_rb_tree_for_each(tree_node, &state->tree)
++            TEST_CHECK_RET(0);
++        uvm_rb_tree_for_each_safe(tree_node, next, &state->tree)
++            TEST_CHECK_RET(0);
++    }
++    else {
++        uvm_rb_tree_node_t *prev = NULL;
++        uvm_rb_tree_node_t *curr;
++        size_t tree_node_count = 0;
++
++        TEST_CHECK_RET(!uvm_rb_tree_empty(&state->tree));
++        curr = uvm_rb_tree_first(&state->tree);
++        TEST_CHECK_RET(curr != NULL);
++
++        uvm_rb_tree_for_each(tree_node, &state->tree) {
++            TEST_CHECK_RET(curr == tree_node);
++            TEST_CHECK_RET(uvm_rb_tree_prev(&state->tree, tree_node) == prev);
++            if (prev)
++                TEST_CHECK_RET(prev->key < tree_node->key);
++            prev = tree_node;
++            curr = uvm_rb_tree_next(&state->tree, tree_node);
++            tree_node_count++;
++        }
++
++        TEST_CHECK_RET(curr == NULL);
++        TEST_CHECK_RET(tree_node_count == state->count);
++
++        tree_node_count = 0;
++        prev = NULL;
++        curr = uvm_rb_tree_first(&state->tree);
++        uvm_rb_tree_for_each_safe(tree_node, next, &state->tree) {
++            TEST_CHECK_RET(curr == tree_node);
++            TEST_CHECK_RET(uvm_rb_tree_prev(&state->tree, tree_node) == prev);
++            if (prev)
++                TEST_CHECK_RET(prev->key < tree_node->key);
++            prev = tree_node;
++            curr = uvm_rb_tree_next(&state->tree, tree_node);
++            tree_node_count++;
++        }
++
++        TEST_CHECK_RET(curr == NULL);
++        TEST_CHECK_RET(tree_node_count == state->count);
++    }
++
++
++    return NV_OK;
++}
++
++static rbtt_tree_node_t *rbtt_node_alloc(void)
++{
++    rbtt_tree_node_t *node = uvm_kvmalloc_zero(sizeof(*node));
++
++    if (!node)
++        return NULL;
++
++    INIT_LIST_HEAD(&node->list);
++    return node;
++}
++
++static NV_STATUS rbtt_add_node(rbtt_state_t *state, NvU64 key)
++{
++    rbtt_tree_node_t *node = rbtt_node_alloc();
++    NV_STATUS status;
++
++    if (!node)
++        return NV_ERR_NO_MEMORY;
++
++    node->key = key;
++    node->node.key = key;
++
++    status = uvm_rb_tree_insert(&state->tree, &node->node);
++    if (status == NV_OK) {
++        list_add_tail(&node->list, &state->nodes);
++        state->count++;
++    } else {
++        uvm_kvfree(node);
++    }
++
++    return status;
++}
++
++// This function assumes that node is a valid tree node.
++// All validation checks should be done by the caller.
++static void rbtt_tree_remove_node(rbtt_state_t *state, rbtt_tree_node_t *node)
++{
++    uvm_rb_tree_remove(&state->tree, &node->node);
++    list_del(&node->list);
++    uvm_kvfree(node);
++    UVM_ASSERT(state->count > 0);
++    state->count--;
++}
++
++static NV_STATUS rbtt_tree_remove_by_key(rbtt_state_t *state, NvU64 key)
++{
++    uvm_rb_tree_node_t *tree_node;
++    rbtt_tree_node_t *node;
++    bool exists;
++
++    list_for_each_entry(node, &state->nodes, list) {
++        if (node->key == key)
++            break;
++    }
++
++    // If node is equal to the head of the list, there is no node
++    // matching key in our the list.
++    exists = &node->list != &state->nodes;
++
++    tree_node = uvm_rb_tree_find(&state->tree, key);
++    if (exists) {
++        TEST_CHECK_RET(tree_node);
++        TEST_CHECK_RET(node->key == tree_node->key);
++        rbtt_tree_remove_node(state, node);
++    }
++    else {
++        TEST_CHECK_RET(tree_node == NULL);
++    }
++
++    return rbtt_check_tree(state);
++}
++
++static NV_STATUS rbtt_tree_remove_all(rbtt_state_t *state)
++{
++    rbtt_tree_node_t *node, *next;
++
++    list_for_each_entry_safe(node, next, &state->nodes, list)
++        TEST_NV_CHECK_RET(rbtt_tree_remove_by_key(state, node->key));
++
++    return NV_OK;
++}
++
++static NV_STATUS rbtt_test_directed(rbtt_state_t *state)
++{
++    TEST_CHECK_RET(uvm_rb_tree_empty(&state->tree));
++    TEST_CHECK_RET(uvm_rb_tree_find(&state->tree, 0) == NULL);
++    TEST_CHECK_RET(uvm_rb_tree_find(&state->tree, ULLONG_MAX) == NULL);
++    TEST_CHECK_RET(uvm_rb_tree_first(&state->tree) == NULL);
++    TEST_NV_CHECK_RET(rbtt_check_tree(state));
++
++    MEM_NV_CHECK_RET(rbtt_add_node(state, 0), NV_OK);
++    TEST_NV_CHECK_RET(rbtt_check_tree(state));
++    MEM_NV_CHECK_RET(rbtt_add_node(state, ULLONG_MAX), NV_OK);
++    TEST_NV_CHECK_RET(rbtt_check_tree(state));
++    MEM_NV_CHECK_RET(rbtt_add_node(state, ULLONG_MAX / 2), NV_OK);
++    TEST_NV_CHECK_RET(rbtt_check_tree(state));
++    MEM_NV_CHECK_RET(rbtt_add_node(state, 0), NV_ERR_IN_USE);
++    MEM_NV_CHECK_RET(rbtt_add_node(state, ULLONG_MAX), NV_ERR_IN_USE);
++    MEM_NV_CHECK_RET(rbtt_add_node(state, ULLONG_MAX / 2), NV_ERR_IN_USE);
++    TEST_NV_CHECK_RET(rbtt_check_tree(state));
++
++    // Create gaps and exactly fill them.
++    MEM_NV_CHECK_RET(rbtt_add_node(state, 2), NV_OK);
++    TEST_NV_CHECK_RET(rbtt_check_tree(state));
++    MEM_NV_CHECK_RET(rbtt_add_node(state, 4), NV_OK);
++    TEST_NV_CHECK_RET(rbtt_check_tree(state));
++    MEM_NV_CHECK_RET(rbtt_add_node(state, 1), NV_OK);
++    TEST_NV_CHECK_RET(rbtt_check_tree(state));
++    MEM_NV_CHECK_RET(rbtt_add_node(state, 3), NV_OK);
++    TEST_NV_CHECK_RET(rbtt_check_tree(state));
++
++    TEST_NV_CHECK_RET(rbtt_tree_remove_by_key(state, ULLONG_MAX / 2));
++    TEST_NV_CHECK_RET(rbtt_check_tree(state));
++    TEST_NV_CHECK_RET(rbtt_tree_remove_all(state));
++    TEST_CHECK_RET(uvm_rb_tree_empty(&state->tree));
++
++    return NV_OK;
++}
++
++NV_STATUS uvm8_test_rb_tree_directed(UVM_TEST_RB_TREE_DIRECTED_PARAMS *params, struct file *filp)
++{
++    rbtt_state_t *state = rbtt_state_create();
++    NV_STATUS status;
++
++    if (!state)
++        return NV_ERR_NO_MEMORY;
++
++    status = rbtt_test_directed(state);
++    rbtt_state_destroy(state);
++    return status;
++}
++
++static bool rbtt_test_random_should_fail(rbtt_state_t *state, NvU64 key)
++{
++    rbtt_tree_node_t *node;
++    bool should_fail = NV_FALSE;
++
++    list_for_each_entry(node, &state->nodes, list) {
++        if (node->key == key) {
++            should_fail = NV_TRUE;
++            break;
++        }
++    }
++
++    return should_fail;
++}
++
++static rbtt_tree_node_t *rbtt_test_get_random_node(rbtt_state_t *state)
++{
++    rbtt_tree_node_t *node;
++    size_t index;
++
++    if (!state->count)
++        return NULL;
++
++    index = uvm_test_rng_range_ptr(&state->rng, 0, state->count - 1);
++    node = list_first_entry(&state->nodes, rbtt_tree_node_t, list);
++    while (index--)
++        node = list_next_entry(node, list);
++
++    UVM_ASSERT(node);
++    return node;
++}
++
++static rbtt_test_op_t rbtt_test_get_random_op(rbtt_state_t *state, size_t limit)
++{
++    // The algorithm is designed to grow the tree until it reaches the
++    // limit, then shrink it until it is empty, while still randomizing
++    // the operations.
++
++    if (state->count == 0) {
++        state->preferred_op = RBTT_OP_ADD;
++        return RBTT_OP_ADD;
++    }
++    else if (state->count == limit) {
++        state->preferred_op = RBTT_OP_REMOVE;
++        return RBTT_OP_REMOVE;
++    }
++
++    if (uvm_test_rng_range_32(&state->rng, 0, 3) == 0) {
++        BUILD_BUG_ON((int)RBTT_OP_COUNT != 2);
++        return !state->preferred_op;
++    }
++
++    return state->preferred_op;
++}
++
++static NV_STATUS rbtt_test_random(rbtt_state_t *state, UVM_TEST_RB_TREE_RANDOM_PARAMS *params)
++{
++    rbtt_tree_node_t *node;
++    rbtt_test_op_t op;
++    NvU64 i;
++    NvU64 key;
++    NvU64 key_range_max = params->range_max ? params->range_max : ULLONG_MAX;
++
++    for (i = 0; i < params->iterations; i++) {
++        bool should_fail;
++
++        if (fatal_signal_pending(current))
++            return NV_ERR_SIGNAL_PENDING;
++
++        op = rbtt_test_get_random_op(state, params->node_limit);
++        switch (op) {
++            case RBTT_OP_ADD:
++                // By using a logarithmic key distribution, we are going to get
++                // grouping in the lower ranges of the key space, which increases the
++                // chance for collisions.
++                key = uvm_test_rng_range_log64(&state->rng, 0, key_range_max);
++                should_fail = rbtt_test_random_should_fail(state, key);
++                MEM_NV_CHECK_RET(rbtt_add_node(state, key), should_fail ? NV_ERR_IN_USE : NV_OK);
++                break;
++            case RBTT_OP_REMOVE:
++                node = rbtt_test_get_random_node(state);
++                if (node)
++                    rbtt_tree_remove_node(state, node);
++                else
++                    TEST_CHECK_RET(state->count == 0);
++            default:
++                break;
++        }
++
++        TEST_NV_CHECK_RET(rbtt_check_tree(state));
++    }
++
++    return NV_OK;
++}
++
++NV_STATUS uvm8_test_rb_tree_random(UVM_TEST_RB_TREE_RANDOM_PARAMS *params, struct file *filp)
++{
++    rbtt_state_t *state = rbtt_state_create();
++    NV_STATUS status;
++
++    if (!state)
++        return NV_ERR_NO_MEMORY;
++
++    uvm_test_rng_init(&state->rng, params->seed);
++    status = rbtt_test_random(state, params);
++    rbtt_state_destroy(state);
++    return status;
++}
+diff -Naurp kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_test.c kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_test.c
+--- kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_test.c	2019-12-17 08:33:46.000000000 -0500
++++ kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_test.c	2026-02-14 10:50:11.786001078 -0500
+@@ -177,6 +177,8 @@ long uvm8_test_ioctl(struct file *filp,
+         UVM_ROUTE_CMD_STACK(UVM_TEST_PMA_ALLOC_FREE,                uvm8_test_pma_alloc_free);
+         UVM_ROUTE_CMD_STACK(UVM_TEST_PMM_ALLOC_FREE_ROOT,           uvm8_test_pmm_alloc_free_root);
+         UVM_ROUTE_CMD_STACK(UVM_TEST_PMM_INJECT_PMA_EVICT_ERROR,    uvm8_test_pmm_inject_pma_evict_error);
++        UVM_ROUTE_CMD_STACK(UVM_TEST_RB_TREE_DIRECTED,              uvm8_test_rb_tree_directed);
++        UVM_ROUTE_CMD_STACK(UVM_TEST_RB_TREE_RANDOM,                uvm8_test_rb_tree_random);
+     }
+ 
+     return -EINVAL;
+diff -Naurp kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_test.h kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_test.h
+--- kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_test.h	2019-12-17 08:33:46.000000000 -0500
++++ kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_test.h	2026-02-14 10:49:26.538597055 -0500
+@@ -41,6 +41,20 @@
+         }                                                                           \
+     } while(0)
+ 
++// WARNING: This macro will return out of the current scope
++#define TEST_NV_CHECK_RET(call)                                                             \
++    do {                                                                                    \
++        NV_STATUS _status = (call);                                                         \
++        if (unlikely(_status != NV_OK)) {                                                   \
++            UVM_TEST_PRINT("Test check failed, call '%s' returned '%s', expected '%s'\n",   \
++                           #call,                                                           \
++                           nvstatusToString(_status),                                       \
++                           nvstatusToString(NV_OK));                                        \
++            on_uvm_assert();                                                                \
++            return _status;                                                                 \
++        }                                                                                   \
++    } while (0)
++
+ // Checking macro which doesn't mask NV_ERR_NO_MEMORY
+ #define MEM_NV_CHECK_RET(call, expected)                                                    \
+     do {                                                                                    \
+@@ -147,4 +161,6 @@ NV_STATUS uvm8_test_pma_alloc_free(UVM_T
+ NV_STATUS uvm8_test_pmm_alloc_free_root(UVM_TEST_PMM_ALLOC_FREE_ROOT_PARAMS *params, struct file *filp);
+ NV_STATUS uvm8_test_pmm_inject_pma_evict_error(UVM_TEST_PMM_INJECT_PMA_EVICT_ERROR_PARAMS *params, struct file *filp);
+ 
++NV_STATUS uvm8_test_rb_tree_directed(UVM_TEST_RB_TREE_DIRECTED_PARAMS *params, struct file *filp);
++NV_STATUS uvm8_test_rb_tree_random(UVM_TEST_RB_TREE_RANDOM_PARAMS *params, struct file *filp);
+ #endif
+diff -Naurp kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_test_ioctl.h kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_test_ioctl.h
+--- kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_test_ioctl.h	2019-12-17 08:33:46.000000000 -0500
++++ kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_test_ioctl.h	2026-02-14 10:47:42.985672413 -0500
+@@ -867,6 +867,32 @@ typedef struct
+     NV_STATUS                       rmStatus;                                           // Out
+ } UVM_TEST_PMM_INJECT_PMA_EVICT_ERROR_PARAMS;
+ 
++#define UVM_TEST_RB_TREE_DIRECTED                       UVM8_TEST_IOCTL_BASE(86)
++
++typedef struct
++{
++    NV_STATUS                       rmStatus;                                           // Out
++} UVM_TEST_RB_TREE_DIRECTED_PARAMS;
++
++#define UVM_TEST_RB_TREE_RANDOM                         UVM8_TEST_IOCTL_BASE(87)
++
++typedef struct
++{
++    NvU64                           iterations                       NV_ALIGN_BYTES(8); // In
++
++    // Upper key range bound. Randomly generated node keys will not exceed this
++    // value.
++    NvU64                           range_max;                                          // In
++
++    // This parameter is used to control the size of the tree.
++    // The number of nodes in the tree will bounce between 0 and this limit.
++    // See uvm_rb_tree_test.c:rbtt_test_get_random_op() for full description.
++    NvU32                           node_limit;                                         // In
++    NvU32                           seed;                                               // In
++
++    NV_STATUS                       rmStatus;                                           // Out
++} UVM_TEST_RB_TREE_RANDOM_PARAMS;
++
+ #ifdef __cplusplus
+ }
+ #endif
+diff -Naurp kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_thread_context.c kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_thread_context.c
+--- kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_thread_context.c	2019-12-17 08:33:46.000000000 -0500
++++ kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_thread_context.c	2026-02-14 11:19:38.761804190 -0500
+@@ -30,8 +30,8 @@
+ // Use a raw spinlock as thread contexts are used for lock tracking
+ static spinlock_t g_lock;
+ 
+-// Radix tree for user contexts, mapping get_current()->pid to a uvm_thread_context_t.
+-static struct radix_tree_root g_user_context_tree;
++// UVM RB tree for user contexts, mapping get_current()->pid to a uvm_thread_context_t.
++static uvm_rb_tree_t g_user_context_tree;
+ 
+ // Cache for allocating uvm_thread_context_t
+ static struct kmem_cache *g_uvm_thread_context_cache __read_mostly;
+@@ -42,7 +42,7 @@ static DEFINE_PER_CPU(uvm_thread_context
+ NV_STATUS uvm_thread_context_init(void)
+ {
+     spin_lock_init(&g_lock);
+-    uvm_init_radix_tree_preloadable(&g_user_context_tree);
++    uvm_rb_tree_init(&g_user_context_tree);
+ 
+     g_uvm_thread_context_cache = NV_KMEM_CACHE_CREATE("uvm_thread_context_t", uvm_thread_context_t);
+     if (!g_uvm_thread_context_cache)
+@@ -53,11 +53,12 @@ NV_STATUS uvm_thread_context_init(void)
+ 
+ void uvm_thread_context_exit(void)
+ {
+-    uvm_thread_context_t *thread_context;
++    uvm_rb_tree_node_t *node, *next;
+ 
+-    while (radix_tree_gang_lookup(&g_user_context_tree, (void**)&thread_context, 0, 1)) {
+-        radix_tree_delete(&g_user_context_tree, thread_context->pid);
+-        UVM_ERR_PRINT("Left-over thread_context %p pid %u\n", thread_context, thread_context->pid);
++    uvm_rb_tree_for_each_safe(node, next, &g_user_context_tree) {
++        uvm_thread_context_t *thread_context = container_of(node, uvm_thread_context_t, node);
++        uvm_rb_tree_remove(&g_user_context_tree, node);
++        UVM_ERR_PRINT("Left-over thread_context 0x%llx pid %llu\n", (NvU64)thread_context, thread_context->node.key);
+         UVM_ASSERT(__uvm_check_all_unlocked(thread_context));
+         kmem_cache_free(g_uvm_thread_context_cache, thread_context);
+     }
+@@ -69,14 +70,19 @@ static uvm_thread_context_t *uvm_thread_
+ {
+     unsigned long flags;
+     unsigned long key;
+-    uvm_thread_context_t *thread_context;
++    uvm_rb_tree_node_t *node;
++    uvm_thread_context_t *thread_context = NULL;
++
+ 
+     key = (unsigned long)get_current()->pid;
+ 
+     spin_lock_irqsave(&g_lock, flags);
+-    thread_context = (uvm_thread_context_t *)radix_tree_lookup(&g_user_context_tree, key);
++    node = uvm_rb_tree_find(&g_user_context_tree, key);
+     spin_unlock_irqrestore(&g_lock, flags);
+ 
++    if (node)
++        thread_context = container_of(node, uvm_thread_context_t, node);
++
+     return thread_context;
+ }
+ 
+@@ -86,31 +92,19 @@ static uvm_thread_context_t *uvm_thread_
+     uvm_thread_context_t *thread_context = uvm_thread_context_user();
+ 
+     if (thread_context == NULL) {
+-        int ret;
++        NV_STATUS status;
+         thread_context = kmem_cache_zalloc(g_uvm_thread_context_cache, NV_UVM_GFP_FLAGS);
+         if (thread_context == NULL)
+             return NULL;
+ 
+         thread_context->task = get_current();
+-        thread_context->pid = get_current()->pid;
+-
+-        // Preload allocates nodes into a per-cpu cache and disables preemption
+-        // on success so that they are guaranteed to be available for the next
+-        // insert operation. Preemption is re-enabled with preload_end() later.
+-        ret = radix_tree_preload(NV_UVM_GFP_FLAGS);
+-        if (ret != 0) {
+-            kmem_cache_free(g_uvm_thread_context_cache, thread_context);
+-            return NULL;
+-        }
++        thread_context->node.key = get_current()->pid;
+ 
+         spin_lock_irqsave(&g_lock, flags);
+-        // After preloading this should always succeed
+-        ret = radix_tree_insert(&g_user_context_tree, thread_context->pid, thread_context);
++        status = uvm_rb_tree_insert(&g_user_context_tree, &thread_context->node);
+         spin_unlock_irqrestore(&g_lock, flags);
+ 
+-        radix_tree_preload_end();
+-
+-        UVM_ASSERT_MSG(ret == 0, "Insert failed after a successful preload: %d\n", ret);
++        UVM_ASSERT(status == NV_OK);
+     }
+     else {
+         UVM_ASSERT(thread_context->task == get_current());
+@@ -130,18 +124,15 @@ static void uvm_thread_context_user_rele
+         return;
+ 
+     UVM_ASSERT(thread_context->task == get_current());
+-    UVM_ASSERT(thread_context->pid == get_current()->pid);
++    UVM_ASSERT(thread_context->node.key == get_current()->pid);
+     UVM_ASSERT(thread_context->ref_count > 0);
+ 
+     if (--thread_context->ref_count == 0) {
+-        uvm_thread_context_t *removed;
+-
+         spin_lock_irqsave(&g_lock, flags);
+-        removed = radix_tree_delete(&g_user_context_tree, thread_context->pid);
++        uvm_rb_tree_remove(&g_user_context_tree, &thread_context->node);
+         spin_unlock_irqrestore(&g_lock, flags);
+ 
+-        UVM_ASSERT(removed == thread_context);
+-        kmem_cache_free(g_uvm_thread_context_cache, removed);
++        kmem_cache_free(g_uvm_thread_context_cache, thread_context);
+     }
+ }
+ 
+diff -Naurp kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_thread_context.h kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_thread_context.h
+--- kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_thread_context.h	2019-12-17 08:33:46.000000000 -0500
++++ kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_thread_context.h	2026-02-14 11:10:38.543962276 -0500
+@@ -36,6 +36,7 @@
+ 
+ #include "uvm8_forward_decl.h"
+ #include "uvm8_lock.h"
++#include "uvm8_rb_tree.h"
+ #include "uvm_common.h"
+ #include "uvm_linux.h"
+ 
+@@ -43,13 +44,13 @@ struct uvm_thread_context_struct
+ {
+     NvU32 ref_count;
+ 
+-    // The corresponding task
++    // PID of the task is used as the key in the thread context tree.
+     // Only set for user contexts
+-    struct task_struct *task;
++    uvm_rb_tree_node_t node;
+ 
+-    // pid of the task
++    // The corresponding task
+     // Only set for user contexts
+-    pid_t pid;
++    struct task_struct *task;
+ 
+     // Opt-out of lock tracking if >0
+     NvU32 skip_lock_tracking;
+diff -Naurp kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_user_channel.c kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_user_channel.c
+--- kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_user_channel.c	2019-12-17 08:33:46.000000000 -0500
++++ kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_user_channel.c	2026-02-14 15:07:14.054562725 -0500
+@@ -150,10 +150,10 @@ static NV_STATUS uvm_user_channel_create
+     }
+ 
+     if (channel_info.sysmem)
+-        user_channel->instance_ptr.aperture = UVM_APERTURE_SYS;
++        user_channel->instance_ptr.addr.aperture = UVM_APERTURE_SYS;
+     else
+-        user_channel->instance_ptr.aperture = UVM_APERTURE_VID;
+-    user_channel->instance_ptr.address = channel_info.base;
++        user_channel->instance_ptr.addr.aperture = UVM_APERTURE_VID;
++    user_channel->instance_ptr.addr.address = channel_info.base;
+     user_channel->instance_ptr_desc    = channel_info.instanceDescriptor;
+     user_channel->hw_channel_id        = channel_info.chId;
+     user_channel->num_resources        = channel_info.resourceCount;
+@@ -583,7 +583,7 @@ static NV_STATUS uvm_register_channel(uv
+ 
+     // Tell the GPU page fault handler about this instance_ptr -> user_channel
+     // mapping
+-    status = uvm_gpu_add_instance_ptr(gpu, user_channel->instance_ptr, user_channel);
++    status = uvm_gpu_add_instance_ptr(gpu, user_channel->instance_ptr.addr, user_channel);
+     if (status != NV_OK)
+         goto error_under_read;
+ 
+@@ -714,7 +714,7 @@ void uvm_user_channel_detach(uvm_user_ch
+         // that this only prevents new faults from being serviced. It doesn't
+         // flush out faults currently being serviced, nor prior faults still
+         // pending in the fault buffer. Those are handled separately.
+-        uvm_gpu_remove_instance_ptr(user_channel->gpu_va_space->gpu, user_channel->instance_ptr);
++        uvm_gpu_remove_instance_ptr(user_channel->gpu_va_space->gpu, user_channel->instance_ptr.addr);
+ 
+         // We can't free the instance pointer here since that requires flushing
+         // the GPU fault buffer, which means taking the GPU isr_lock. The caller
+diff -Naurp kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_user_channel.h kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_user_channel.h
+--- kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8_user_channel.h	2019-12-17 08:33:46.000000000 -0500
++++ kmod-nvidia-367xx-367.134.uvm/nvidiapkg/kernel/nvidia-uvm/uvm8_user_channel.h	2026-02-14 14:59:39.251517308 -0500
+@@ -78,7 +78,18 @@ struct uvm_user_channel_struct
+     // pointer and channel. GPU faults report an instance pointer, and the GPU
+     // fault handler converts this instance pointer into the parent
+     // uvm_va_space_t.
+-    uvm_gpu_phys_address_t instance_ptr;
++    struct
++    {
++        // Physical address of the instance pointer.
++        uvm_gpu_phys_address_t addr;
++
++        // Node for inserting the user channel in the parent GPU instance
++        // pointer table. The node will be initialized as an empty UVM RB node
++        // on user channel creation and will transition to not empty when
++        // instance_ptr -> user_channel translation has been added
++        // to the per-GPU UVM RB tree
++        uvm_rb_tree_node_t node;
++    } instance_ptr;
+ 
+     // Descriptor to pass to RM for this channel
+     NvP64 instance_ptr_desc;

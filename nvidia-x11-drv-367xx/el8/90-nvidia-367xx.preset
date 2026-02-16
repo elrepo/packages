@@ -1,0 +1,4 @@
+# Enable NVIDIA persistence mode
+# See:
+# /usr/share/doc/nvidia-x11-drv/html/nvidia-persistenced.html
+enable nvidia-persistenced.service

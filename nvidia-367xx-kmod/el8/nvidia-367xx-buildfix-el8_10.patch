@@ -1,0 +1,115 @@
+diff -Naurp kmod-nvidia-367xx-367.134.orig/nvidiapkg/kernel/common/inc/nv.h kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/common/inc/nv.h
+--- kmod-nvidia-367xx-367.134.orig/nvidiapkg/kernel/common/inc/nv.h	2019-12-17 08:33:51.000000000 -0500
++++ kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/common/inc/nv.h	2026-02-13 20:37:57.774620893 -0500
+@@ -13,6 +13,8 @@
+ #define _NV_H_
+ 
+ #include <nvtypes.h>
++#include <nvstatus.h>
++#include <nv-misc.h>
+ #include <nvCpuUuid.h>
+ #include <stdarg.h>
+ 
+diff -Naurp kmod-nvidia-367xx-367.134.orig/nvidiapkg/kernel/common/inc/nv-linux.h kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/common/inc/nv-linux.h
+--- kmod-nvidia-367xx-367.134.orig/nvidiapkg/kernel/common/inc/nv-linux.h	2019-12-17 08:33:51.000000000 -0500
++++ kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/common/inc/nv-linux.h	2026-02-14 01:41:41.329820332 -0500
+@@ -112,7 +112,9 @@
+ 
+ #include <linux/moduleparam.h>      /* module_param()                   */
+ #include <asm/tlbflush.h>           /* flush_tlb(), flush_tlb_all()     */
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 11, 0) && (RHEL_MAJOR != 8)
+ #include <asm/kmap_types.h>         /* page table entry lookup          */
++#endif
+ 
+ #include <linux/pci.h>              /* pci_find_class, etc              */
+ #include <linux/interrupt.h>        /* tasklets, interrupt helpers      */
+diff -Naurp kmod-nvidia-367xx-367.134.orig/nvidiapkg/kernel/common/inc/os-interface.h kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/common/inc/os-interface.h
+--- kmod-nvidia-367xx-367.134.orig/nvidiapkg/kernel/common/inc/os-interface.h	2019-12-17 08:33:51.000000000 -0500
++++ kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/common/inc/os-interface.h	2026-02-13 18:59:59.619840767 -0500
+@@ -24,6 +24,7 @@
+ *                                                                           *
+ \***************************************************************************/
+ 
++#include <linux/version.h>
+ #include <stdarg.h>
+ 
+ /*
+diff -Naurp kmod-nvidia-367xx-367.134.orig/nvidiapkg/kernel/nvidia/nvlink_linux.c kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia/nvlink_linux.c
+--- kmod-nvidia-367xx-367.134.orig/nvidiapkg/kernel/nvidia/nvlink_linux.c	2019-12-17 08:36:12.000000000 -0500
++++ kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia/nvlink_linux.c	2026-02-14 09:37:30.280839177 -0500
+@@ -346,7 +346,11 @@ void NVLINK_API_CALL nvlink_sleep(unsign
+         // the requested timeout has expired, loop until less
+         // than a jiffie of the desired delay remains.
+         //
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 14, 0) || (RHEL_MAJOR == 8)
++        current->__state = TASK_INTERRUPTIBLE;
++#else
+         current->state = TASK_INTERRUPTIBLE;
++#endif
+         do
+         {
+             schedule_timeout(jiffies);
+diff -Naurp kmod-nvidia-367xx-367.134.orig/nvidiapkg/kernel/nvidia/nvlink_linux.h kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia/nvlink_linux.h
+--- kmod-nvidia-367xx-367.134.orig/nvidiapkg/kernel/nvidia/nvlink_linux.h	2019-12-17 08:36:12.000000000 -0500
++++ kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia/nvlink_linux.h	2026-02-13 19:35:17.022089427 -0500
+@@ -27,6 +27,7 @@
+ #ifndef _NVLINK_LINUX_H_
+ #define _NVLINK_LINUX_H_
+ 
++#include <linux/version.h>
+ #include <linux/init.h>        // for entry/exit macros
+ #include <linux/sched.h>       // for "struct task_struct"
+ #include <linux/kernel.h>      // for printk priority macros
+diff -Naurp kmod-nvidia-367xx-367.134.orig/nvidiapkg/kernel/nvidia/os-interface.c kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia/os-interface.c
+--- kmod-nvidia-367xx-367.134.orig/nvidiapkg/kernel/nvidia/os-interface.c	2019-12-17 08:33:51.000000000 -0500
++++ kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia/os-interface.c	2026-02-13 18:51:22.457162454 -0500
+@@ -555,7 +555,11 @@ NV_STATUS NV_API_CALL os_delay(NvU32 Mil
+         // the requested timeout has expired, loop until less
+         // than a jiffie of the desired delay remains.
+         //
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 14, 0) || (RHEL_MAJOR == 8)
++        current->__state = TASK_INTERRUPTIBLE;
++#else
+         current->state = TASK_INTERRUPTIBLE;
++#endif
+         do
+         {
+             schedule_timeout(jiffies);
+diff -Naurp kmod-nvidia-367xx-367.134.orig/nvidiapkg/kernel/nvidia-uvm/uvm8.c kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8.c
+--- kmod-nvidia-367xx-367.134.orig/nvidiapkg/kernel/nvidia-uvm/uvm8.c	2019-12-17 08:33:46.000000000 -0500
++++ kmod-nvidia-367xx-367.134.el8/nvidiapkg/kernel/nvidia-uvm/uvm8.c	2026-02-14 01:02:08.723406927 -0500
+@@ -99,14 +99,14 @@ static void uvm_destroy_vma_semaphore_po
+ // If a fault handler is not set, paths like handle_pte_fault in older kernels
+ // assume the memory is anonymous. That would make debugging this failure harder
+ // so we force it to fail instead.
+-static int uvm_vm_fault_sigbus(struct vm_area_struct *vma, struct vm_fault *vmf)
++static vm_fault_t uvm_vm_fault_sigbus(struct vm_area_struct *vma, struct vm_fault *vmf)
+ {
+     UVM_DBG_PRINT_RL("Fault to address 0x%lx in disabled vma\n", nv_page_fault_va(vmf));
+     vmf->page = NULL;
+     return VM_FAULT_SIGBUS;
+ }
+ 
+-static int uvm_vm_fault_sigbus_wrapper(struct vm_fault *vmf)
++static vm_fault_t uvm_vm_fault_sigbus_wrapper(struct vm_fault *vmf)
+ {
+ #if defined(NV_VM_OPS_FAULT_REMOVED_VMA_ARG)
+     return uvm_vm_fault_sigbus(vmf->vma, vmf);
+@@ -324,7 +324,7 @@ static void uvm_vm_close_managed(struct
+         uvm_record_unlock_mmap_sem_write(&current->mm->mmap_sem);
+ }
+ 
+-static int uvm_vm_fault(struct vm_area_struct *vma, struct vm_fault *vmf)
++static vm_fault_t uvm_vm_fault(struct vm_area_struct *vma, struct vm_fault *vmf)
+ {
+     uvm_va_space_t *va_space = uvm_va_space_get(vma->vm_file);
+     uvm_va_block_t *va_block;
+@@ -423,7 +423,7 @@ convert_error:
+     }
+ }
+ 
+-static int uvm_vm_fault_wrapper(struct vm_fault *vmf)
++static vm_fault_t uvm_vm_fault_wrapper(struct vm_fault *vmf)
+ {
+ #if defined(NV_VM_OPS_FAULT_REMOVED_VMA_ARG)
+     return uvm_vm_fault(vmf->vma, vmf);
