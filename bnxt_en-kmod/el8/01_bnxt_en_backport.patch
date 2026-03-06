@@ -1,0 +1,180 @@
+diff --git a/Makefile b/Makefile
+index 69e6246..fffda49 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1611,7 +1611,7 @@ ifeq ($(bnxt_quic),1)
+   DISTRO_CFLAG += -DHAVE_BNXT_QUIC
+ endif
+ 
+-override ccflags-y += ${DISTRO_CFLAG} -g -Werror -Wno-error=unused-variable -Wno-error=unused-function -DCHIMP_FW -D__LINUX -DCONFIG_BNXT_SRIOV -DCONFIG_BNXT_DCB -DHSI_DBG_DISABLE -DCONFIG_BNXT_LFC -DSUPPORT_CFA_HW_ALL=1 -DSUPPORT_CFA_EM_FOR_TC=0 -I$(TFCORE_INC)  -I$(TFC_V3_INC) -I$(BNXT_INC) -I$(CFA_V3_INC) -I$(CFA_V3_MPC_INC) -I$(CFA_V3_MM_INC) -I$(CFA_V3_TPM_INC) -I$(CFA_V3_TIM_INC) -I$(HCAPI_INC) -I$(HCAPI_CFA_INC) -I$(GENERIC_TEMPLATES_INC) -I$(TFULP_INC)
++override ccflags-y += ${DISTRO_CFLAG} -g -std=gnu99 -Werror -Wno-error=unused-variable -Wno-error=unused-function -DCHIMP_FW -D__LINUX -DCONFIG_BNXT_SRIOV -DCONFIG_BNXT_DCB -DHSI_DBG_DISABLE -DCONFIG_BNXT_LFC -DSUPPORT_CFA_HW_ALL=1 -DSUPPORT_CFA_EM_FOR_TC=0 -I$(TFCORE_INC)  -I$(TFC_V3_INC) -I$(BNXT_INC) -I$(CFA_V3_INC) -I$(CFA_V3_MPC_INC) -I$(CFA_V3_MM_INC) -I$(CFA_V3_TPM_INC) -I$(CFA_V3_TIM_INC) -I$(HCAPI_INC) -I$(HCAPI_CFA_INC) -I$(GENERIC_TEMPLATES_INC) -I$(TFULP_INC)
+ 
+ ifneq ($(OFED_VERSION), )
+ override ccflags-y += -I$(OFA_INC)
+diff --git a/bnxt_fwctl_bnxt_compat.c b/bnxt_fwctl_bnxt_compat.c
+index 9a0e0d5..551356f 100644
+--- a/bnxt_fwctl_bnxt_compat.c
++++ b/bnxt_fwctl_bnxt_compat.c
+@@ -9,6 +9,7 @@
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+ #include <linux/pci.h>
++#include <linux/uaccess.h>
+ #include "bnxt_fwctl_core_uapi_compat.h"
+ #include "bnxt_fwctl_bnxt_uapi_compat.h"
+ 
+diff --git a/bnxt_fwctl_core_compat.c b/bnxt_fwctl_core_compat.c
+index 1b98c1a..57dfe30 100644
+--- a/bnxt_fwctl_core_compat.c
++++ b/bnxt_fwctl_core_compat.c
+@@ -13,6 +13,7 @@
+ #include <linux/module.h>
+ #include <linux/sizes.h>
+ #include <linux/slab.h>
++#include <linux/uaccess.h>
+ 
+ #include "bnxt_fwctl_core_uapi_compat.h"
+ 
+@@ -100,6 +101,8 @@ static int fwctl_cmd_rpc(struct fwctl_ucmd *ucmd)
+ 	struct fwctl_device *fwctl = ucmd->uctx->fwctl;
+ 	struct fwctl_rpc *cmd = ucmd->cmd;
+ 	size_t out_len;
++	void *inbuf __free(kvfree);
++	void *outbuf __free(kvfree);
+ 
+ 	if (cmd->in_len > MAX_RPC_LEN || cmd->out_len > MAX_RPC_LEN)
+ 		return -EMSGSIZE;
+@@ -125,14 +128,14 @@ static int fwctl_cmd_rpc(struct fwctl_ucmd *ucmd)
+ 		return -EOPNOTSUPP;
+ 	}
+ 
+-	void *inbuf __free(kvfree) = kvzalloc(cmd->in_len, GFP_KERNEL_ACCOUNT);
++	inbuf = kvzalloc(cmd->in_len, GFP_KERNEL_ACCOUNT);
+ 	if (!inbuf)
+ 		return -ENOMEM;
+ 	if (copy_from_user(inbuf, u64_to_user_ptr(cmd->in), cmd->in_len))
+ 		return -EFAULT;
+ 
+ 	out_len = cmd->out_len;
+-	void *outbuf __free(kvfree) = fwctl->ops->fw_rpc(ucmd->uctx,
++	outbuf = fwctl->ops->fw_rpc(ucmd->uctx,
+ 			cmd->scope, inbuf, cmd->in_len, &out_len);
+ 	if (IS_ERR(outbuf))
+ 		return PTR_ERR(outbuf);
+@@ -209,24 +212,26 @@ static long fwctl_fops_ioctl(struct file *filp, unsigned int cmd,
+ 	if (ret)
+ 		return ret;
+ 
+-	guard(rwsem_read)(&uctx->fwctl->registration_lock);
+-	if (!uctx->fwctl->ops)
+-		return -ENODEV;
+-	return op->execute(&ucmd);
++	{ 
++		guard(rwsem_read)(&uctx->fwctl->registration_lock);
++		if (!uctx->fwctl->ops)
++			return -ENODEV;
++		return op->execute(&ucmd);
++	}
+ }
+ 
+ static int fwctl_fops_open(struct inode *inode, struct file *filp)
+ {
+ 	struct fwctl_device *fwctl =
+ 		container_of(inode->i_cdev, struct fwctl_device, cdev);
++	struct fwctl_uctx *uctx __free(kfree);
+ 	int ret;
+ 
+ 	guard(rwsem_read)(&fwctl->registration_lock);
+ 	if (!fwctl->ops)
+ 		return -ENODEV;
+ 
+-	struct fwctl_uctx *uctx __free(kfree) =
+-		kzalloc(fwctl->ops->uctx_size, GFP_KERNEL_ACCOUNT);
++	uctx = kzalloc(fwctl->ops->uctx_size, GFP_KERNEL_ACCOUNT);
+ 	if (!uctx)
+ 		return -ENOMEM;
+ 
+@@ -289,11 +294,15 @@ static void fwctl_device_release(struct device *device)
+ 	kfree(fwctl);
+ }
+ 
++#ifdef RH_KABI_CONST
++static char *fwctl_devnode(RH_KABI_CONST struct device *dev, umode_t *mode)
++#else
+ #ifdef HAVE_DEVNODE_CONST
+ static char *fwctl_devnode(const struct device *dev, umode_t *mode)
+ #else
+ static char *fwctl_devnode(struct device *dev, umode_t *mode)
+ #endif
++#endif
+ {
+ 	return kasprintf(GFP_KERNEL, "fwctl/%s", dev_name(dev));
+ }
+@@ -393,18 +402,20 @@ void fwctl_unregister(struct fwctl_device *fwctl)
+ 	cdev_device_del(&fwctl->cdev, &fwctl->dev);
+ 
+ 	/* Disable and free the driver's resources for any still open FDs. */
+-	guard(rwsem_write)(&fwctl->registration_lock);
+-	guard(mutex)(&fwctl->uctx_list_lock);
+-	while ((uctx = list_first_entry_or_null(&fwctl->uctx_list,
+-						struct fwctl_uctx,
+-						uctx_list_entry)))
+-		fwctl_destroy_uctx(uctx);
++	{
++		guard(rwsem_write)(&fwctl->registration_lock);
++		guard(mutex)(&fwctl->uctx_list_lock);
++		while ((uctx = list_first_entry_or_null(&fwctl->uctx_list,
++							struct fwctl_uctx,
++							uctx_list_entry)))
++			fwctl_destroy_uctx(uctx);
+ 
+-	/*
+-	 * The driver module may unload after this returns, the op pointer will
+-	 * not be valid.
+-	 */
+-	fwctl->ops = NULL;
++		/*
++		 * The driver module may unload after this returns, the op pointer will
++		 * not be valid.
++		 */
++		fwctl->ops = NULL;
++	}
+ }
+ 
+ /* EXPORT_SYMBOL_NS_GPL(fwctl_unregister, "FWCTL"); */
+diff --git a/bnxt_fwctl_core_linux_compat.h b/bnxt_fwctl_core_linux_compat.h
+index da320c5..308d851 100644
+--- a/bnxt_fwctl_core_linux_compat.h
++++ b/bnxt_fwctl_core_linux_compat.h
+@@ -9,8 +9,19 @@
+ #include <linux/device.h>
+ #include <linux/cdev.h>
+ #include <linux/cleanup.h>
++#include <linux/module.h>
+ #include "bnxt_fwctl_core_uapi_compat.h"
+ 
++#ifndef MODULE_IMPORT_NS
++#define MODULE_IMPORT_NS(ns)	MODULE_INFO(import_ns, ns)
++#endif
++#ifndef MODULE_DESCRIPTION
++#define MODULE_DESCRIPTION(_description)	MODULE_INFO(description, _description)
++#endif
++#ifndef MODULE_AUTHOR
++#define MODULE_AUTHOR(_author)	MODULE_INFO(author, _author)
++#endif
++
+ struct fwctl_device;
+ struct fwctl_uctx;
+ 
+diff --git a/bnxt_ptp.c b/bnxt_ptp.c
+index 31af26a..802a1de 100644
+--- a/bnxt_ptp.c
++++ b/bnxt_ptp.c
+@@ -12,6 +12,7 @@
+ #include <linux/pci.h>
+ #include <linux/netdevice.h>
+ #include <linux/etherdevice.h>
++#include <linux/uaccess.h>
+ #ifdef HAVE_IEEE1588_SUPPORT
+ #include <linux/ptp_clock_kernel.h>
+ #include <linux/net_tstamp.h>
