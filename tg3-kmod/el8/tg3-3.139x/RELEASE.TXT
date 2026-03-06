@@ -1,7 +1,7 @@
                               Release Notes
                         Broadcom tg3 Linux Driver
-                              Version 3.139s
-                                01/10/2025
+                              Version 3.139x
+                                09/23/2025
 
                               Broadcom Inc.
                          5300 California Avenue,
@@ -9,6 +9,43 @@
 
 			Copyright (C) 2010-2025 Broadcom
 			   All Rights Reserved
+v3.139x (September 18, 2025)
+   fixes and Enhancements
+   ---------------------
+	1) Problem: (DCSG-62255) Able to set WOL on Citadel cards
+	   Cause  : (DCSG-62255) Able to set WOL on Citadel cards
+	2) Problem: (DCSG-62891) EEE shows disabled in dmesg
+	   Cause  : (DCSG-62891) fix EEE advertised field
+v3.139w(June 17, 2025)
+   fixes and Enhancements
+   ----------------------
+	1) Problem: (DCSG-41575) Packet drop for jumbo frames after usage of 'ethtool -G ... rx'
+	   Cause  : The ethtool command set rx_jumbo_pending to zero so any received jumbo packets are dropped
+
+v3.139v(June 09, 2025)
+   fixes and Enhancements
+   ----------------------
+	1) Problem: (DCSG-40359) Compilation warning on RHEL 10
+	   Cause  : Fix empty-body compilation warning on RHEL 10
+
+v3.139u(June 05, 2025)
+   fixes and Enhancements
+   ----------------------
+	1) Problem: (DCSG-39941) RHEL 10 support
+	   Cause  : Add support for RHEL 10 OS
+	2) Problem: (DCSG-40348) RHEL 9.6 support
+	   Cause  : Add support for RHEL 9.6
+	3) Problem: (DCSG-40344) SLES15 SP7 support
+	   Cause  : Add support for SLES15 SP7
+	4) Problem: (DCSG-31597) Missing 1000baseT in Advertised link modes on H3C boards
+	   Cause  : Cold boot causes the PHY's MII_CTRL1000 register to lose its configuration
+
+v3.139t(April 21, 2025)
+   fixes and Enhancements
+   ----------------------
+        1) Problem: (DCSG-31414) Link disconnected with the latest OOB Driver on RHEL 9.5 OS
+           Cause  : Caused by using mii_eee_cap1_mod_linkmode_t() with an uninitialized bitmap
+
 v3.139s(January 10, 2025)
    fixes and Enhancements
    ----------------------

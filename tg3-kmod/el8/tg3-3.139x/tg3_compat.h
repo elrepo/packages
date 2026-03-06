@@ -493,6 +493,20 @@ static inline void * pci_ioremap_bar(struct pci_dev *pdev, int bar)
 #define PCI_VENDOR_ID_LENOVO		0x17aa
 #endif
 
+#ifndef PCI_VENDOR_ID_H3C
+#define PCI_VENDOR_ID_H3C		0x193d
+
+#define IS_H3C_SUBDEVICE(dev)		((dev == 0x1025) || (dev == 0x1086) ||	\
+					(dev == 0x1016) || (dev == 0x1909))
+
+#define IS_H3C_AFFECTED_TG3(tp)		(tp->pdev->vendor == PCI_VENDOR_ID_BROADCOM) &&		\
+					(tp->pdev->device == TG3PCI_DEVICE_TIGON3_5719) &&	\
+					((tp->pdev->subsystem_vendor == PCI_VENDOR_ID_BROADCOM	\
+					&& IS_H3C_SUBDEVICE(tp->pdev->subsystem_device)) ||	\
+					(tp->pdev->subsystem_vendor == PCI_VENDOR_ID_H3C &&	\
+					IS_H3C_SUBDEVICE(tp->pdev->subsystem_device)))
+#endif
+
 #ifndef PCI_D0
 typedef u32 pm_message_t;
 typedef u32 pci_power_t;
@@ -2176,6 +2190,10 @@ struct ethtool_eee {
 
 #ifndef BCM_HAS_ETHTOOL_KEEE
 #define ethtool_keee ethtool_eee
+#endif
+
+#ifndef BCM_HAS_KERNEL_ETHTOOL_TS_INFO
+#define kernel_ethtool_ts_info ethtool_ts_info
 #endif
 
 #ifdef __VMKLNX__

@@ -2,21 +2,21 @@
 %define kmod_name		tg3
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.51.1.el8_10}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.75.1.el8_10}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	3.139s
-Release:	2%{?dist}
+Version:	3.139x
+Release:	1.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
 URL:		http://www.kernel.org/
 
 # Sources
-# Driver source tarball is inside this one
-# https://docs.broadcom.com/docs-and-downloads/Broadcom_NX1_Linux_Drivers-3.139k.tar.gz
+# Driver source tarball from:
+# https://docs.broadcom.com/docs-and-downloads/Broadcom_NX1_Linux_Drivers-3.139x.zip
 Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
@@ -66,7 +66,7 @@ It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
-%setup -n %{kmod_name}-%{version}
+%setup -q -n %{kmod_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
@@ -112,7 +112,7 @@ done
 %{__rm} -rf %{buildroot}
 
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_name} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -125,7 +125,7 @@ exit 0
 # calling initramfs regeneration separately
 if [ -f "%{kver_state_file}" ]; then
 	kver_base="%{kmod_kernel_version}"
-	kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
+	kvers=$(ls -d "/lib/modules/${kver_base%%%%-*}"*)
 
 	for k_dir in $kvers; do
 		k="${k_dir#/lib/modules/}"
@@ -181,10 +181,17 @@ exit 0
 %files
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config /etc/depmod.d/kmod-%{kmod_name}.conf
-%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
+%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
+%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Mar 05 2026 Tuan Hoang <tqhoang@elrepo.org> - 3.139x-1.1
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
+
+* Thu Mar 05 2026 Tuan Hoang <tqhoang@elrepo.org> - 3.139x-1
+- Update to version 3.139x
+- Rebuilt against RHEL 8.10 GA kernel
+
 * Tue May 20 2025 Tuan Hoang <tqhoang@elrepo.org> - 3.139s-2
 - Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.51.1.el8_10
 

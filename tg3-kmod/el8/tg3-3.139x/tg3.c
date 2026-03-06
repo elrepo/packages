@@ -156,11 +156,11 @@ static inline void _tg3_flag_clear(enum TG3_FLAGS flag, unsigned long *bits)
 #define DRV_MODULE_NAME		"tg3"
 #define TG3_MAJ_NUM			3
 #define TG3_MIN_NUM			139
-#define TG3_REVISION		"s"
+#define TG3_REVISION		"x"
 #define DRV_MODULE_VERSION	\
 	__stringify(TG3_MAJ_NUM) "." __stringify(TG3_MIN_NUM)\
 	TG3_REVISION
-#define DRV_MODULE_RELDATE	"January 10, 2025"
+#define DRV_MODULE_RELDATE	"September 23, 2025"
 #define RESET_KIND_SHUTDOWN	0
 #define RESET_KIND_INIT		1
 #define RESET_KIND_SUSPEND	2
@@ -2362,7 +2362,7 @@ static void tg3_phy_fini(struct tg3 *tp)
 }
 #else
 #define tg3_phy_init(tp)  0
-#define tg3_phy_start(tp)
+#define tg3_phy_start(tp) do {} while (0)
 #define tg3_phy_stop(tp)
 #define tg3_phy_fini(tp)
 #endif /* BCM_INCLUDE_PHYLIB_SUPPORT */
@@ -2593,7 +2593,7 @@ static void tg3_eee_pull_config(struct tg3 *tp, struct ethtool_keee *eee)
 	dest->eee_enabled = !!val;
 
 #ifdef BCM_HAS_ETHTOOL_KEEE
-	mii_eee_cap1_mod_linkmode_t(dest->lp_advertised, val);
+	mii_eee_cap1_mod_linkmode_t(dest->advertised, val);
 #else
 	dest->advertised = mmd_eee_adv_to_ethtool_adv_t(val);
 #endif
@@ -4902,6 +4902,12 @@ static int tg3_phy_pull_config(struct tg3 *tp)
 			if (err)
 				goto done;
 
+			if (!val && IS_H3C_AFFECTED_TG3(tp)) {
+				val |= (ADVERTISE_1000HALF | ADVERTISE_1000FULL |
+					CTL1000_AS_MASTER | CTL1000_ENABLE_MASTER);
+				tg3_writephy(tp, MII_CTRL1000, val);
+			}
+
 			adv = mii_ctrl1000_to_ethtool_adv_t(val);
 		} else {
 			err = tg3_readphy(tp, MII_ADVERTISE, &val);
@@ -4943,7 +4949,7 @@ static int tg3_init_5401phy_dsp(struct tg3 *tp)
 
 static bool tg3_phy_eee_config_ok(struct tg3 *tp)
 {
-	struct ethtool_keee eee;
+	struct ethtool_keee eee = {};
 
 	if (!(tp->phy_flags & TG3_PHYFLG_EEE_CAP))
 		return true;
@@ -5106,7 +5112,7 @@ static void tg3_setup_eee(struct tg3 *tp)
 
 static int tg3_setup_copper_phy(struct tg3 *tp, bool force_reset)
 {
-	bool current_link_up;
+	bool current_link_up, reinit_phy_h3c = false;
 	u32 bmsr, val;
 	u32 lcl_adv, rmt_adv;
 	u16 current_speed;
@@ -5253,6 +5259,11 @@ static int tg3_setup_copper_phy(struct tg3 *tp, bool force_reset)
 		if (tp->link_config.autoneg == AUTONEG_ENABLE) {
 			bool eee_config_ok = tg3_phy_eee_config_ok(tp);
 
+			if (!(tp->phy_flags & TG3_PHYFLG_10_100_ONLY) &&
+			    current_speed != SPEED_1000 &&
+			    IS_H3C_AFFECTED_TG3(tp))
+				reinit_phy_h3c = true;
+
 			if ((bmcr & BMCR_ANENABLE) &&
 			    eee_config_ok &&
 			    tg3_phy_copper_an_config_ok(tp, &lcl_adv) &&
@@ -5297,7 +5308,8 @@ static int tg3_setup_copper_phy(struct tg3 *tp, bool force_reset)
 	}
 
 relink:
-	if (!current_link_up || (tp->phy_flags & TG3_PHYFLG_IS_LOW_POWER)) {
+	if (!current_link_up || reinit_phy_h3c ||
+	    (tp->phy_flags & TG3_PHYFLG_IS_LOW_POWER)) {
 		tg3_phy_copper_begin(tp);
 
 		if (tg3_flag(tp, ROBOSWITCH)) {
@@ -6502,7 +6514,7 @@ static inline void tg3_full_lock(struct tg3 *tp, int irq_sync);
 static inline void tg3_full_unlock(struct tg3 *tp);
 #if IS_ENABLED(CONFIG_PTP_1588_CLOCK)
 #ifdef ETHTOOL_GET_TS_INFO
-static int tg3_get_ts_info(struct net_device *dev, struct ethtool_ts_info *info)
+static int tg3_get_ts_info(struct net_device *dev, struct kernel_ethtool_ts_info *info)
 {
 	struct tg3 *tp = netdev_priv(dev);
 
@@ -13909,7 +13921,9 @@ static int tg3_set_ringparam(struct net_device *dev,
 	if (tg3_flag(tp, MAX_RXPEND_64) &&
 	    tp->rx_pending > 63)
 		tp->rx_pending = 63;
-	tp->rx_jumbo_pending = ering->rx_jumbo_pending;
+
+	if (tg3_flag(tp, JUMBO_RING_ENABLE))
+		tp->rx_jumbo_pending = ering->rx_jumbo_pending;
 
 	for (i = 0; i < tp->irq_max; i++)
 		tp->napi[i].tx_pending = ering->tx_pending;
@@ -17124,6 +17138,22 @@ static struct subsys_tbl_ent * __devinit tg3_lookup_by_subsys(struct tg3 *tp)
 	return NULL;
 }
 
+static bool tg3_is_citadel(struct tg3 *tp)
+{
+	if (tp->pdev->subsystem_vendor != PCI_VENDOR_ID_BROADCOM)
+		return false;
+
+	switch (tp->pdev->subsystem_device) {
+		case TG3PCI_SUBDEVICE_ID_CITADEL_BEVERLYWOOD:
+		case TG3PCI_SUBDEVICE_ID_CITADEL_BEL_AIR:
+		case TG3PCI_SUBDEVICE_ID_CHANNEL_2908:
+		case TG3PCI_SUBDEVICE_ID_CHANNEL_2909:
+			return true;
+		default:
+			return false;
+	}
+}
+
 static void __devinit tg3_get_eeprom_hw_cfg(struct tg3 *tp)
 {
 	u32 val;
@@ -17272,16 +17302,8 @@ static void __devinit tg3_get_eeprom_hw_cfg(struct tg3 *tp)
 				break;
 			case PCI_VENDOR_ID_BROADCOM:
 				/* No EEPROM write protection for CITADEL devices.*/
-				switch (tp->pdev->subsystem_device) {
-				case TG3PCI_SUBDEVICE_ID_CITADEL_BEVERLYWOOD:
-				case TG3PCI_SUBDEVICE_ID_CITADEL_BEL_AIR:
-				case TG3PCI_SUBDEVICE_ID_CHANNEL_2908:
-				case TG3PCI_SUBDEVICE_ID_CHANNEL_2909:
+				if (tg3_is_citadel(tp))
 					tg3_flag_clear(tp, EEPROM_WRITE_PROT);
-					break;
-				default:
-					break;
-				}
 				break;
 			default:
 				break;
@@ -17301,8 +17323,9 @@ static void __devinit tg3_get_eeprom_hw_cfg(struct tg3 *tp)
 		    tg3_flag(tp, 5750_PLUS))
 			tg3_flag_set(tp, ENABLE_APE);
 
-		if (tp->phy_flags & TG3_PHYFLG_ANY_SERDES &&
-		    !(nic_cfg & NIC_SRAM_DATA_CFG_FIBER_WOL))
+		if ((tp->phy_flags & TG3_PHYFLG_ANY_SERDES &&
+		    !(nic_cfg & NIC_SRAM_DATA_CFG_FIBER_WOL)) ||
+		    tg3_is_citadel(tp))
 			tg3_flag_clear(tp, WOL_CAP);
 
 		if (tg3_flag(tp, WOL_CAP) &&
@@ -17601,8 +17624,8 @@ static int __devinit tg3_phy_probe(struct tg3 *tp)
 		tp->eee.advertised = ADVERTISED_100baseT_Full |
 				     ADVERTISED_1000baseT_Full;
 #endif
-
-		tp->eee.eee_enabled = !tg3_disable_eee;
+		if (tg3_disable_eee == -1)
+			tp->eee.eee_enabled = 1;
 		tp->eee.tx_lpi_enabled = 1;
 		tp->eee.tx_lpi_timer = TG3_CPMU_DBTMR1_LNKIDLE_2047US;
 	}

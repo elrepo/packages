@@ -1,7 +1,7 @@
                            Installation Notes
                          Broadcom tg3 Linux Driver
-                              Version 3.139s
-                                01/10/2025
+                              Version 3.139x
+                                09/23/2025
 
                               Broadcom Inc.
                          5300 California Avenue
@@ -157,6 +157,16 @@ or
 
 5. To configure network protocol and address, refer to various Linux
 documentations.
+
+
+Installing DKMS Packages
+=============================
+The following are general guidelines for installing the DKMS RPM and DEB packages.
+1. Install the DKMS RPM package.
+   rpm -ivh tg3-<version>-1dkms.noarch.rpm
+
+2. Install the DKMS DEB package.
+   dpkg -i tg3-dkms_<version>_all.deb
 
 
 Building Driver From TAR File

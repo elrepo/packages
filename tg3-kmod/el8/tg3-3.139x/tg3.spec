@@ -1,5 +1,5 @@
 %define brcmname tg3
-%define brcmvers 3.139s
+%define brcmvers 3.139x
 %define brcmfmly NetXtreme
 %define brcmwork %{brcmname}-%{brcmvers}
 
@@ -88,6 +88,25 @@ rm -rf $RPM_BUILD_ROOT
 %doc LICENSE README.TXT ChangeLog
 
 %changelog
+*Wed September 18 2025 Gautam R A<gautam-r.a@broadcom.com> 3.139x
+- Disable WOL capability on Citadel boards
+- fix EEE advertised field
+
+*Tue June 17 2025 Shravya KN <shravya.k-n@broadcom.com> 3.139w
+- Update rx_jumbo_pending ring param only when jumbo frames are enabled
+
+*Mon June 09 2025 Shravya KN <shravya.k-n@broadcom.com> 3.139v
+- Fix empty-body compilation warning on RHEL 10
+
+*Tue June 03 2025 Shravya KN <shravya.k-n@broadcom.com> 3.139u
+- Add support for RHEL 10 OS
+- Add support for RHEL 9.6
+- Add support for SLES15 SP7
+- Workaround to restore 1G advertisement and active speed on H3C boards after cold boot
+
+*Mon April 21 2024 Shravya KN <shravya.k-n@broadcom.com> 3.139t
+- Fix struct ethtool_keee by zero-initializing the struct containing the bitmap.
+
 *Fri January 10 2025 Sreekanth Reddy <sreekanth.reddy@broadcom.com> 3.139s
 - For make install to work, copy tg3.ko to /usr/lib/kernel_version/updates folder
 

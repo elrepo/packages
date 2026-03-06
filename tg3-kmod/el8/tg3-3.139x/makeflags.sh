@@ -733,3 +733,7 @@ fi
 if grep -q "struct ethtool_rxfh_param" $srcdir/include/linux/ethtool.h ; then
 	echo "#define BCM_HAS_ETHTOOL_RXFH_PARAM"
 fi
+
+if grep -q "kernel_ethtool_ts_info" $srcdir/include/linux/ethtool.h ; then
+	echo "#define BCM_HAS_KERNEL_ETHTOOL_TS_INFO"
+fi

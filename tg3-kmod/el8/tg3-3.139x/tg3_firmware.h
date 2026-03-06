@@ -1008,6 +1008,6 @@ static int tg3_hidden_request_firmware(const struct tg3_firmware **fw,
 
 #define tg3_priv_request_firmware(x, y, z) tg3_hidden_request_firmware((x), (y))
 
-#define tg3_priv_release_firmware(x)
+#define tg3_priv_release_firmware(x) do {} while (0)
 
 #endif /* BCM_HAS_REQUEST_FIRMWARE */
