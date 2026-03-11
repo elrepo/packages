@@ -90,14 +90,8 @@ pushd %{bnxt_en_name}
 popd
 
 %build
-pushd %{bnxt_en_name}
 %{__make} %{?_smp_mflags} \
 	KVER=%{kmod_kernel_version}.%{_arch}
-popd
-pushd %{bnxt_re_name}
-%{__make} %{?_smp_mflags} \
-	KVER=%{kmod_kernel_version}.%{_arch}
-popd
 
 whitelist="/lib/modules/kabi-current/kabi_whitelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
