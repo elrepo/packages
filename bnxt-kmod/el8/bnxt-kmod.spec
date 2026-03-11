@@ -1,23 +1,32 @@
-%define kmod_name		bnxt_en
+%define bundle_prefix		netxtreme
+%define bnxt_en_name		bnxt_en
+%define bnxt_en_version		1.10.3
+%define bnxt_re_name		bnxt_re
+%define bnxt_re_version		236.1.155.0
+
+%define kmod_name		bnxt
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-348.el8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.75.1.el8_10}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	1.10.3
-Release:	1%{?dist}
+Version:	%{bnxt_en_version}_%{bnxt_re_version}
+Release:	1.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
 URL:		http://www.kernel.org/
 
 # Sources
-# Driver source was acquired from:
+# Driver source tarball from:
 # https://docs.broadcom.com/docs-and-downloads/ethernet-network-adapters/NXE/BRCM_236.1.155.0/bcm_236.1.155.0c.tar.gz
-Source0:	%{kmod_name}-%{version}.tar.gz
+Source0:	%{bundle_prefix}-%{bnxt_en_name}-%{bnxt_en_version}-%{bnxt_re_version}.tar.gz
 Source5:	GPL-v2.0.txt
+
+# Source code patches
+Patch0:		01_bnxt_en_backport.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -30,9 +39,6 @@ Source5:	GPL-v2.0.txt
 				/usr/lib/rpm/brp-python-bytecompile "" 1 \
 				/usr/lib/rpm/brp-python-hardlink \
 				PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
-
-# Source code patches
-Patch0:		01_bnxt_en_backport.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -59,6 +65,11 @@ BuildRequires:	redhat-rpm-config
 Provides:	kernel-modules >= %{kmod_kernel_version}.%{_arch}
 Provides:	kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
 
+Provides:	kmod-%{bnxt_en_name} = %{?epoch:%{epoch}:}%{bnxt_en_version}-%{release}
+Obsoletes:	kmod-%{bnxt_en_name} < %{?epoch:%{epoch}:}%{bnxt_en_version}-%{release}
+Provides:	kmod-%{bnxt_re_name} = %{?epoch:%{epoch}:}%{bnxt_re_version}-%{release}
+Obsoletes:	kmod-%{bnxt_re_name} < %{?epoch:%{epoch}:}%{bnxt_re_version}-%{release}
+
 Requires(post):	%{_sbindir}/weak-modules
 Requires(postun):	%{_sbindir}/weak-modules
 Requires:	kernel >= %{kmod_kernel_version}
@@ -69,14 +80,24 @@ It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
-%setup -q -n %{kmod_name}-%{version}
-echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+%setup -q -n %{bundle_prefix}-%{bnxt_en_name}-%{bnxt_en_version}-%{bnxt_re_version}
+echo "override %{bnxt_en_name} * weak-updates/%{kmod_name}" >  kmod-%{kmod_name}.conf
+echo "override %{bnxt_re_name} * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 
 # Apply patch(es)
+pushd %{bnxt_en_name}
 %patch0 -p1
+popd
 
 %build
-%{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD
+pushd %{bnxt_en_name}
+%{__make} %{?_smp_mflags} \
+	KVER=%{kmod_kernel_version}.%{_arch}
+popd
+pushd %{bnxt_re_name}
+%{__make} %{?_smp_mflags} \
+	KVER=%{kmod_kernel_version}.%{_arch}
+popd
 
 whitelist="/lib/modules/kabi-current/kabi_whitelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -89,7 +110,8 @@ sort -u greylist | uniq > greylist.txt
 
 %install
 %{__install} -d %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-%{__install} %{kmod_name}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+%{__install} %{bnxt_en_name}/%{bnxt_en_name}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+%{__install} %{bnxt_re_name}/%{bnxt_re_name}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
@@ -187,6 +209,15 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Mar 10 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.10.3_236.1.155.0-1.1
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
+
+* Tue Mar 10 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.10.3_236.1.155.0-1
+- Change kmod_name to "bnxt"
+- Change source to the bundle tarball
+- Build both bnxt_en and bnxt_re modules
+- Built against RHEL 8.10 GA kernel
+
 * Tue Mar 3 2026 Valts Liepiņš <cipharius@pm.me> - 1.10.3
 - Initial build for RHEL 8.10
 - Incompatible with bnxt_re from RHEL 8.10 due to removed symbol bnxt_ulp_probe
