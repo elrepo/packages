@@ -26,7 +26,8 @@ Source0:	%{bundle_prefix}-%{bnxt_en_name}-%{bnxt_en_version}-%{bnxt_re_version}.
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0:		01_bnxt_en_backport.patch
+Patch0:		elrepo-bnxt-makefile-mock-fix.patch
+Patch1:		01_bnxt_en_backport.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -85,8 +86,9 @@ echo "override %{bnxt_en_name} * weak-updates/%{kmod_name}" >  kmod-%{kmod_name}
 echo "override %{bnxt_re_name} * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 
 # Apply patch(es)
-pushd %{bnxt_en_name}
 %patch0 -p1
+pushd %{bnxt_en_name}
+%patch1 -p1
 popd
 
 %build
@@ -203,10 +205,11 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Tue Mar 10 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.10.3_236.1.155.0-1.1
+* Fri Mar 13 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.10.3_236.1.155.0-1.1
 - Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
 
-* Tue Mar 10 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.10.3_236.1.155.0-1
+* Fri Mar 13 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.10.3_236.1.155.0-1
+- Add patch for mock build
 - Change kmod_name to "bnxt"
 - Change source to the bundle tarball
 - Build both bnxt_en and bnxt_re modules

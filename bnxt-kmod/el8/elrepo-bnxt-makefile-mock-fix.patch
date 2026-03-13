@@ -1,0 +1,26 @@
+diff -ur netxtreme-bnxt_en-1.10.3-236.1.155.0.mock/bnxt_en/Makefile netxtreme-bnxt_en-1.10.3-236.1.155.0/bnxt_en/Makefile
+--- netxtreme-bnxt_en-1.10.3-236.1.155.0.mock/bnxt_en/Makefile	2026-03-13 10:19:05.691944004 -0400
++++ netxtreme-bnxt_en-1.10.3-236.1.155.0/bnxt_en/Makefile	2026-03-13 11:10:10.719390469 -0400
+@@ -22,7 +22,8 @@
+   endif
+   ifeq ($(shell ls /usr/src/linux-$(_KVER)-obj > /dev/null 2>&1 && echo linux),)
+     ifeq ($(shell ls /usr/src/kernels/$(KVER)-$(__ARCH) > /dev/null 2>&1 && echo linux),)
+-      LINUX=
++      LINUX=/usr/src/kernels/$(KVER)
++      LINUXSRC=$(LINUX)
+     else
+       LINUX=/usr/src/kernels/$(KVER)-$(__ARCH)
+       LINUXSRC=$(LINUX)
+diff -ur netxtreme-bnxt_en-1.10.3-236.1.155.0.mock/bnxt_re/Makefile netxtreme-bnxt_en-1.10.3-236.1.155.0/bnxt_re/Makefile
+--- netxtreme-bnxt_en-1.10.3-236.1.155.0.mock/bnxt_re/Makefile	2025-12-23 19:03:01.000000000 -0500
++++ netxtreme-bnxt_en-1.10.3-236.1.155.0/bnxt_re/Makefile	2026-03-13 11:10:20.630159941 -0400
+@@ -38,7 +38,8 @@
+   endif
+   ifeq ($(shell ls /usr/src/linux-$(_KVER)-obj > /dev/null 2>&1 && echo linux),)
+     ifeq ($(shell ls /usr/src/kernels/$(KVER)-$(__ARCH) > /dev/null 2>&1 && echo linux),)
+-      LINUX=
++      LINUX=/usr/src/kernels/$(KVER)
++      LINUXSRC=$(LINUX)
+     else
+       LINUX=/usr/src/kernels/$(KVER)-$(__ARCH)
+       LINUXSRC=$(LINUX)
