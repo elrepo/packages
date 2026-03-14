@@ -8,7 +8,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	9.3.0
+Version:	9.3.1
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -195,6 +195,9 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat Mar 14 2026 Akemi Yagi <toracat@elrepo.org> -9.3.1-1.el8_10
+- Version updated to 9.3.1
+
 * Thu Jan 08 2026 Tuan Hoang <tqhoang@elrepo.org> - 9.3.0-1.el8_10
 - Version updated to 9.3.0
 - Add required drbd-kernel-compat/handshake/handshake.ko
