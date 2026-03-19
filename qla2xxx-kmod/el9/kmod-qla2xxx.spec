@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	10.02.09.400
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -192,6 +192,10 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Mar 19 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.09.400-3
+- Source code updated from RHEL 9.7 kernel-5.14.0-611.36.1.el9_7
+- scsi: qla2xxx: Fix bsg_done() causing double free (Ewan D. Milne) [RHEL-146049]
+
 * Fri Jan 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.09.400-2
 - Fix problems in posttrans section
 - Fix macro usage in files section
