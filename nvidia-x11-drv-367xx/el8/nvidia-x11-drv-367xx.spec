@@ -7,7 +7,7 @@
 
 Name:		nvidia-x11-drv-367xx
 Version:	367.134
-Release:	0%{?dist}
+Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -420,6 +420,9 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.*
 
 %changelog
+* Tue Mar 24 2026 Tuan Hoang <tqhoang@elrepo.org> - 367.134-1
+- Bump for release
+
 * Fri Feb 13 2026 Tuan Hoang <tqhoang@elrepo.org> - 367.134-0
 - Initial build for RHEL 8.10
   [https://elrepo.org/bugs/view.php?id=1585]
