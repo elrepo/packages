@@ -1,15 +1,17 @@
 %define real_name drbd-utils
 
 Name:    drbd9x-utils
-Version: 9.33.0
+Version: 9.34.0
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
 Summary: Management utilities for DRBD
 URL:     http://www.drbd.org/
 
+# Sources.
 Source0: https://pkg.linbit.com//downloads/drbd/utils/drbd-utils-%{version}.tar.gz
 
+# Source code patches.
 Patch1: elrepo-selinux-bug695v2.patch
 
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -71,7 +73,9 @@ It is not required when the init system used is systemd.
 
 %prep
 %setup -n %{real_name}-%{version}
-%patch1 -p1
+
+# Apply patch(es).
+%patch -P1 -p1
 
 %build
 %configure \
@@ -193,6 +197,9 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Wed Apr 08 2026 Akemi Yagi <toracat@elrepo.org> - 9.34.0-1.el9
+- Updated to 9.34.0
+
 * Thu Nov 13 2025 Akemi Yagi <toracat@elrepo.org> - 9.33.0-1.el9
 - Updated to 9.33.0
 

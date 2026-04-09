@@ -1,7 +1,7 @@
 %define real_name drbd-utils
 
 Name:    drbd90-utils
-Version: 9.33.0
+Version: 9.34.0
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
@@ -194,6 +194,9 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Wed Apr 08 2026 Akemi Yagi <toracat@elrepo.org> - 9.34.0-1
+- Updated to 9.34.0
+
 * Thu Dec 04 2025 Akemi Yagi <toracat@elrepo.org> - 9.33.0-1
 - version updated to 9.33.0
 
