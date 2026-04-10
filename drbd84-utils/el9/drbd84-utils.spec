@@ -1,7 +1,7 @@
 %define real_name drbd-utils
 
 Name:    drbd84-utils
-Version: 9.33.0
+Version: 9.34.0
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
@@ -180,6 +180,8 @@ fi
 %{_prefix}/lib/drbd/unsnapshot-resync-target-lvm.sh
 %{_prefix}/lib/tmpfiles.d/drbd.conf
 
+/usr/share/bash-completion/completions/drbdadm
+
 ### pacemaker
 %{_prefix}/lib/drbd/crm-fence-peer.sh
 %{_prefix}/lib/drbd/crm-unfence-peer.sh
@@ -189,8 +191,6 @@ fi
 %{_prefix}/lib/drbd/crm-unfence-peer.9.sh
 %{_prefix}/lib/ocf/resource.d/linbit/drbd.shellfuncs.sh
 
-/usr/share/bash-completion/completions/drbdadm
-
 ### xen
 ## %%{_sysconfdir}/xen/scripts/block-drbd
 
@@ -199,6 +199,9 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Wed Apr 08 2026 Akemi Yagi <toracat@elrepo.org> - 9.34.0-1
+- Updated to 9.34.0
+
 * Sat Nov 15 2025 Akemi Yagi <toracat@elrepo.org> - 9.33.0-1
 - Updated to 9.33.0
 
