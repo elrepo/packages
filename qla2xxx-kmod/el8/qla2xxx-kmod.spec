@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	10.02.09.100
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,16 +19,19 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0:		elrepo-qla2xxx-revert-removed-devices.el8.10.patch
+Patch0: 	elrepo-qla2xxx-revert-removed-devices.el8.10.patch
 
-%define __spec_install_post /usr/lib/rpm/check-buildroot \
-                            /usr/lib/rpm/redhat/brp-ldconfig \
-                            /usr/lib/rpm/brp-compress \
-                            /usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump \
-                            /usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
-                            /usr/lib/rpm/brp-python-bytecompile "" 1 \
-                            /usr/lib/rpm/brp-python-hardlink \
-                            PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
+# Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
+# https://bugzilla.redhat.com/show_bug.cgi?id=1967291
+
+%define __spec_install_post	/usr/lib/rpm/check-buildroot \
+				/usr/lib/rpm/redhat/brp-ldconfig \
+				/usr/lib/rpm/brp-compress \
+				/usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump \
+				/usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
+				/usr/lib/rpm/brp-python-bytecompile "" 1 \
+				/usr/lib/rpm/brp-python-hardlink \
+				PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
 %define __find_provides /usr/lib/rpm/redhat/find-provides.ksyms %{kmod_name} %{?epoch:%{epoch}:}%{version}-%{release}
@@ -111,7 +114,7 @@ done
 %{__rm} -rf %{buildroot}
 
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_name} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -124,7 +127,7 @@ exit 0
 # calling initramfs regeneration separately
 if [ -f "%{kver_state_file}" ]; then
 	kver_base="%{kmod_kernel_version}"
-	kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
+	kvers=$(ls -d "/lib/modules/${kver_base%%%%-*}"*)
 
 	for k_dir in $kvers; do
 		k="${k_dir#/lib/modules/}"
@@ -180,14 +183,23 @@ exit 0
 %files
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config /etc/depmod.d/kmod-%{kmod_name}.conf
-%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
+%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
+%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Apr 15 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.09.100-3
+- Source code updated from RHEL kernel-4.18.0-553.117.1.el8_10.x86_64
+- scsi: qla2xxx: Fix bsg_done() causing double free (Ewan D. Milne) [RHEL-153405] {CVE-2025-71238}
+- Fix hard-coded arch in post section
+- Fix problems in posttrans section
+- Fix macro usage in files section
+
 * Wed Aug 28 2024 Tuan Hoang <tqhoang@elrepo.org> - 10.02.09.100-2
 - Source code updated from RHEL kernel-4.18.0-553.16.1.el8_10.x86_64
-- Fixes CVE-2024-36025
-  [https://access.redhat.com/errata/RHSA-2024:5101]
+- scsi: qla2xxx: Fix double free of fcport (Ewan D. Milne) [RHEL-39549] {CVE-2024-26929}
+- scsi: qla2xxx: Fix double free of the ha->vp_map pointer (Ewan D. Milne) [RHEL-39549] {CVE-2024-26930}
+- scsi: qla2xxx: Fix command flush on cable pull (Ewan D. Milne) [RHEL-39549] {CVE-2024-26931}
+- scsi: qla2xxx: Fix off by one in qla_edif_app_getstats() (Ewan D. Milne) [RHEL-39717] {CVE-2024-36025}
  
 * Wed May 22 2024 Akemi Yagi <toracat@elrepo.org> - 10.02.09.100-1
 - Rebuilt for RHEL 8.10
