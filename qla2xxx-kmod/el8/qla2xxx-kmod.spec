@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	10.02.09.100
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -187,6 +187,10 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Apr 21 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.09.100-4
+- Source code updated from RHEL kernel-4.18.0-553.120.1.el8_10.x86_64
+- scsi: qla2xxx: Fix improper freeing of purex item (CKI Backport Bot) [RHEL-159219] {CVE-2025-68741}
+
 * Wed Apr 15 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.09.100-3
 - Source code updated from RHEL kernel-4.18.0-553.117.1.el8_10.x86_64
 - scsi: qla2xxx: Fix bsg_done() causing double free (Ewan D. Milne) [RHEL-153405] {CVE-2025-71238}

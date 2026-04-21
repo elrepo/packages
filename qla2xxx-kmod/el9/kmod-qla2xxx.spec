@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	10.02.09.400
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -192,6 +192,11 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Apr 21 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.09.400-4
+- Source code updated from RHEL 9.7 kernel-5.14.0-611.49.1.el9_7
+- scsi: qla2xxx: Fix improper freeing of purex item (CKI Backport Bot) [RHEL-159222] {CVE-2025-68741}
+- scsi: qla2xxx: Allow recovery for tape devices (Ewan D. Milne) [RHEL-153437]
+
 * Thu Mar 19 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.09.400-3
 - Source code updated from RHEL 9.7 kernel-5.14.0-611.36.1.el9_7
 - scsi: qla2xxx: Fix bsg_done() causing double free (Ewan D. Milne) [RHEL-146049]
