@@ -1,0 +1,13 @@
+diff -Naurp via-velocity-1.15.el8_10/via-velocity.c via-velocity-1.15/via-velocity.c
+--- via-velocity-1.15.el8_10/via-velocity.c	2024-05-10 12:49:59.000000000 -0400
++++ via-velocity-1.15/via-velocity.c	2026-04-23 12:31:04.193973229 -0400
+@@ -2848,8 +2848,7 @@ static int velocity_probe(struct device
+ 
+ 	netdev->netdev_ops = &velocity_netdev_ops;
+ 	netdev->ethtool_ops = &velocity_ethtool_ops;
+-	netif_napi_add(netdev, &vptr->napi, velocity_poll,
+-							VELOCITY_NAPI_WEIGHT);
++	netif_napi_add(netdev, &vptr->napi, velocity_poll);
+ 
+ 	netdev->hw_features = NETIF_F_IP_CSUM | NETIF_F_SG |
+ 			   NETIF_F_HW_VLAN_CTAG_TX;
