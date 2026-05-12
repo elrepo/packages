@@ -7,8 +7,8 @@
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	11.015.00
-Release:	3%{?dist}
+Version:	11.016.00
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -204,6 +204,9 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon May 11 2026 Tuan Hoang <tqhoang@elrepo.org> - 11.016.00-1
+- Update to 11.016.00
+
 * Fri Jan 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 11.015.00-3
 - Fix problems in posttrans section
 

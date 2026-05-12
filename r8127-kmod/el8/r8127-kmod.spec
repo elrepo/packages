@@ -7,8 +7,8 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	11.015.00
-Release:	2.1%{?dist}
+Version:	11.016.00
+Release:	1.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -197,6 +197,12 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon May 11 2026 Tuan Hoang <tqhoang@elrepo.org> - 11.016.00-1.1
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
+
+* Mon May 11 2026 Tuan Hoang <tqhoang@elrepo.org> - 11.016.00-1
+- Update to 11.016.00
+
 * Tue Dec 02 2025 Tuan Hoang <tqhoang@elrepo.org> - 11.015.00-2.1
 - Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
 

@@ -7,8 +7,8 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	8.055.00
-Release:	2%{?dist}
+Version:	8.056.02
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -197,6 +197,9 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon May 11 2026 Tuan Hoang <tqhoang@elrepo.org> - 8.056.02-1
+- Update to 8.056.02
+
 * Wed Nov 19 2025 Tuan Hoang <tqhoang@elrepo.org> - 8.055.00-2
 - Fix hard-coded arch in post section
 - Change blacklist-r8169.conf to config(noreplace)
