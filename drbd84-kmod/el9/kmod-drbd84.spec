@@ -3,14 +3,14 @@
 %define real_name drbd
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-611.5.1.el9_7}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.5.3.el9_8}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	8.4.11
-%define 	original_release 4
-Release:	%{original_release}.4%{?dist}
+%define 	original_release 5
+Release:	%{original_release}.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -125,7 +125,7 @@ find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --str
 %{__rm} -rf %{buildroot}
 
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -138,7 +138,7 @@ exit 0
 # calling initramfs regeneration separately
 if [ -f "%{kver_state_file}" ]; then
 	kver_base="%{kmod_kernel_version}"
-	kvers=$(ls -d "/lib/modules/${kver_base%%%%-*}"*)
+	kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
 
 	for k_dir in $kvers; do
 		k="${k_dir#/lib/modules/}"
@@ -194,19 +194,13 @@ exit 0
 %files
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
-%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
+%config /etc/depmod.d/kmod-%{kmod_name}.conf
+%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Fri Jan 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 8.4.11-4.4.el9_7
-- Fix problems in posttrans section
-- Fix macro usage in files section
-- Fix hard-coded arch in post section
-
-* Sat Nov 15 2025 Akemi Yagi <toracat@elrepo.org> - 8.4.11-4.3.el9_7
-- Rebuilt for RHEL 9.7
-  against kernel-5.14.0-611.5.1.el9_7
-  Source code unchanged
+* Tue May 05 2026 Akemi Yagi <toracat@elrepo.org> - 8.4.11-5.1.el9_8
+- Source code from RHEL 9.8 GA kernel 5.14.0-687.5.3.el9_8
+- Rebuilt against the 9.8 GA kernel
 
 * Thu Jun 05 2025 Akemi Yagi <toracat@elrepo.org> - 8.4.11-4.2.el9_6
 - Rebuilt against kernel-5.14.0-570.18.1.el9_6
