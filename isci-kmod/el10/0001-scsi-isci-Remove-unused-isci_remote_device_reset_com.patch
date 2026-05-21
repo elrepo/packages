@@ -1,0 +1,108 @@
+From 5d10344ab65271eab7607a2cef0ddbfc4720d133 Mon Sep 17 00:00:00 2001
+From: "Dr. David Alan Gilbert" <linux@treblig.org>
+Date: Mon, 23 Dec 2024 18:02:18 +0000
+Subject: [PATCH 1/7] scsi: isci: Remove unused
+ isci_remote_device_reset_complete()
+
+isci_remote_device_reset_complete() last use was removed in 2012 by commit
+14aaa9f0a318 ("isci: Redesign device suspension, abort, cleanup.")
+
+Remove it.
+
+It was the last user of sci_remote_device_reset_complete().
+
+Remove it.
+
+Signed-off-by: Dr. David Alan Gilbert <linux@treblig.org>
+Link: https://lore.kernel.org/r/20241223180218.50426-1-linux@treblig.org
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+---
+ drivers/scsi/isci/remote_device.c | 29 -----------------------------
+ drivers/scsi/isci/remote_device.h | 17 -----------------
+ 2 files changed, 46 deletions(-)
+
+diff --git a/drivers/scsi/isci/remote_device.c b/drivers/scsi/isci/remote_device.c
+index 866950a02965..287e1ba8ddd7 100644
+--- a/drivers/scsi/isci/remote_device.c
++++ b/drivers/scsi/isci/remote_device.c
+@@ -422,21 +422,6 @@ enum sci_status sci_remote_device_reset(struct isci_remote_device *idev)
+ 	}
+ }
+ 
+-enum sci_status sci_remote_device_reset_complete(struct isci_remote_device *idev)
+-{
+-	struct sci_base_state_machine *sm = &idev->sm;
+-	enum sci_remote_device_states state = sm->current_state_id;
+-
+-	if (state != SCI_DEV_RESETTING) {
+-		dev_warn(scirdev_to_dev(idev), "%s: in wrong state: %s\n",
+-			 __func__, dev_state_name(state));
+-		return SCI_FAILURE_INVALID_STATE;
+-	}
+-
+-	sci_change_state(sm, SCI_DEV_READY);
+-	return SCI_SUCCESS;
+-}
+-
+ enum sci_status sci_remote_device_frame_handler(struct isci_remote_device *idev,
+ 						     u32 frame_index)
+ {
+@@ -1694,20 +1679,6 @@ enum sci_status sci_remote_device_abort_requests_pending_abort(
+ 	return sci_remote_device_terminate_reqs_checkabort(idev, 1);
+ }
+ 
+-enum sci_status isci_remote_device_reset_complete(
+-	struct isci_host *ihost,
+-	struct isci_remote_device *idev)
+-{
+-	unsigned long flags;
+-	enum sci_status status;
+-
+-	spin_lock_irqsave(&ihost->scic_lock, flags);
+-	status = sci_remote_device_reset_complete(idev);
+-	spin_unlock_irqrestore(&ihost->scic_lock, flags);
+-
+-	return status;
+-}
+-
+ void isci_dev_set_hang_detection_timeout(
+ 	struct isci_remote_device *idev,
+ 	u32 timeout)
+diff --git a/drivers/scsi/isci/remote_device.h b/drivers/scsi/isci/remote_device.h
+index 3ad681c4c20a..27ae45332704 100644
+--- a/drivers/scsi/isci/remote_device.h
++++ b/drivers/scsi/isci/remote_device.h
+@@ -174,19 +174,6 @@ enum sci_status sci_remote_device_stop(
+ enum sci_status sci_remote_device_reset(
+ 	struct isci_remote_device *idev);
+ 
+-/**
+- * sci_remote_device_reset_complete() - This method informs the device object
+- *    that the reset operation is complete and the device can resume operation
+- *    again.
+- * @remote_device: This parameter specifies the device which is to be informed
+- *    of the reset complete operation.
+- *
+- * An indication that the device is resuming operation. SCI_SUCCESS the device
+- * is resuming operation.
+- */
+-enum sci_status sci_remote_device_reset_complete(
+-	struct isci_remote_device *idev);
+-
+ /**
+  * enum sci_remote_device_states - This enumeration depicts all the states
+  *    for the common remote device state machine.
+@@ -364,10 +351,6 @@ enum sci_status isci_remote_device_reset(
+ 	struct isci_host *ihost,
+ 	struct isci_remote_device *idev);
+ 
+-enum sci_status isci_remote_device_reset_complete(
+-	struct isci_host *ihost,
+-	struct isci_remote_device *idev);
+-
+ enum sci_status isci_remote_device_suspend_terminate(
+ 	struct isci_host *ihost,
+ 	struct isci_remote_device *idev,
+-- 
+2.52.0
+

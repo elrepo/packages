@@ -1,0 +1,78 @@
+From f5f01c5c409e697c6ae7091ca578bfbd3825e87c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>
+Date: Tue, 14 Jan 2025 22:32:14 +0100
+Subject: [PATCH 1/5] RDMA/qib: Constify 'struct bin_attribute'
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The sysfs core now allows instances of 'struct bin_attribute' to be
+moved into read-only memory. Make use of that to protect them against
+accidental or malicious modifications.
+
+Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
+Link: https://patch.msgid.link/20250114-sysfs-const-bin_attr-infiniband-v1-2-397aaa94d453@weissschuh.net
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
+---
+ drivers/infiniband/hw/qib/qib_sysfs.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/infiniband/hw/qib/qib_sysfs.c b/drivers/infiniband/hw/qib/qib_sysfs.c
+index ba2cd68b53e6..805e37dc7621 100644
+--- a/drivers/infiniband/hw/qib/qib_sysfs.c
++++ b/drivers/infiniband/hw/qib/qib_sysfs.c
+@@ -214,8 +214,8 @@ static const struct attribute_group port_linkcontrol_group = {
+  * Congestion control table size followed by table entries
+  */
+ static ssize_t cc_table_bin_read(struct file *filp, struct kobject *kobj,
+-				 struct bin_attribute *bin_attr, char *buf,
+-				 loff_t pos, size_t count)
++				 const struct bin_attribute *bin_attr,
++				 char *buf, loff_t pos, size_t count)
+ {
+ 	struct qib_pportdata *ppd = qib_get_pportdata_kobj(kobj);
+ 	int ret;
+@@ -241,7 +241,7 @@ static ssize_t cc_table_bin_read(struct file *filp, struct kobject *kobj,
+ 
+ 	return count;
+ }
+-static BIN_ATTR_RO(cc_table_bin, PAGE_SIZE);
++static const BIN_ATTR_RO(cc_table_bin, PAGE_SIZE);
+ 
+ /*
+  * Congestion settings: port control, control map and an array of 16
+@@ -249,8 +249,8 @@ static BIN_ATTR_RO(cc_table_bin, PAGE_SIZE);
+  * trigger threshold and the minimum injection rate delay.
+  */
+ static ssize_t cc_setting_bin_read(struct file *filp, struct kobject *kobj,
+-				   struct bin_attribute *bin_attr, char *buf,
+-				   loff_t pos, size_t count)
++				   const struct bin_attribute *bin_attr,
++				   char *buf, loff_t pos, size_t count)
+ {
+ 	struct qib_pportdata *ppd = qib_get_pportdata_kobj(kobj);
+ 	int ret;
+@@ -274,9 +274,9 @@ static ssize_t cc_setting_bin_read(struct file *filp, struct kobject *kobj,
+ 
+ 	return count;
+ }
+-static BIN_ATTR_RO(cc_setting_bin, PAGE_SIZE);
++static const BIN_ATTR_RO(cc_setting_bin, PAGE_SIZE);
+ 
+-static struct bin_attribute *port_ccmgta_attributes[] = {
++static const struct bin_attribute *const port_ccmgta_attributes[] = {
+ 	&bin_attr_cc_setting_bin,
+ 	&bin_attr_cc_table_bin,
+ 	NULL,
+@@ -295,7 +295,7 @@ static umode_t qib_ccmgta_is_bin_visible(struct kobject *kobj,
+ static const struct attribute_group port_ccmgta_attribute_group = {
+ 	.name = "CCMgtA",
+ 	.is_bin_visible = qib_ccmgta_is_bin_visible,
+-	.bin_attrs = port_ccmgta_attributes,
++	.bin_attrs_new = port_ccmgta_attributes,
+ };
+ 
+ /* Start sl2vl */
+-- 
+2.52.0
+

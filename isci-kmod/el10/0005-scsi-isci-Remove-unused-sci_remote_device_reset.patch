@@ -1,0 +1,88 @@
+From 7c56921936a49c817addfabf0a3c66b39ab0bd35 Mon Sep 17 00:00:00 2001
+From: "Dr. David Alan Gilbert" <linux@treblig.org>
+Date: Sun, 4 May 2025 00:06:01 +0100
+Subject: [PATCH 5/7] scsi: isci: Remove unused sci_remote_device_reset()
+
+sci_remote_device_reset() last use was removed in 2012 by commit
+14aaa9f0a318 ("isci: Redesign device suspension, abort, cleanup.")
+
+Remove it.
+
+Signed-off-by: Dr. David Alan Gilbert <linux@treblig.org>
+Link: https://lore.kernel.org/r/20250503230601.124794-1-linux@treblig.org
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+---
+ drivers/scsi/isci/remote_device.c | 30 ------------------------------
+ drivers/scsi/isci/remote_device.h | 15 ---------------
+ 2 files changed, 45 deletions(-)
+
+diff --git a/drivers/scsi/isci/remote_device.c b/drivers/scsi/isci/remote_device.c
+index 287e1ba8ddd7..82deb6a83a8c 100644
+--- a/drivers/scsi/isci/remote_device.c
++++ b/drivers/scsi/isci/remote_device.c
+@@ -392,36 +392,6 @@ enum sci_status sci_remote_device_stop(struct isci_remote_device *idev,
+ 	}
+ }
+ 
+-enum sci_status sci_remote_device_reset(struct isci_remote_device *idev)
+-{
+-	struct sci_base_state_machine *sm = &idev->sm;
+-	enum sci_remote_device_states state = sm->current_state_id;
+-
+-	switch (state) {
+-	case SCI_DEV_INITIAL:
+-	case SCI_DEV_STOPPED:
+-	case SCI_DEV_STARTING:
+-	case SCI_SMP_DEV_IDLE:
+-	case SCI_SMP_DEV_CMD:
+-	case SCI_DEV_STOPPING:
+-	case SCI_DEV_FAILED:
+-	case SCI_DEV_RESETTING:
+-	case SCI_DEV_FINAL:
+-	default:
+-		dev_warn(scirdev_to_dev(idev), "%s: in wrong state: %s\n",
+-			 __func__, dev_state_name(state));
+-		return SCI_FAILURE_INVALID_STATE;
+-	case SCI_DEV_READY:
+-	case SCI_STP_DEV_IDLE:
+-	case SCI_STP_DEV_CMD:
+-	case SCI_STP_DEV_NCQ:
+-	case SCI_STP_DEV_NCQ_ERROR:
+-	case SCI_STP_DEV_AWAIT_RESET:
+-		sci_change_state(sm, SCI_DEV_RESETTING);
+-		return SCI_SUCCESS;
+-	}
+-}
+-
+ enum sci_status sci_remote_device_frame_handler(struct isci_remote_device *idev,
+ 						     u32 frame_index)
+ {
+diff --git a/drivers/scsi/isci/remote_device.h b/drivers/scsi/isci/remote_device.h
+index 561ae3f2cbbd..c1fdf45751cd 100644
+--- a/drivers/scsi/isci/remote_device.h
++++ b/drivers/scsi/isci/remote_device.h
+@@ -159,21 +159,6 @@ enum sci_status sci_remote_device_stop(
+ 	struct isci_remote_device *idev,
+ 	u32 timeout);
+ 
+-/**
+- * sci_remote_device_reset() - This method will reset the device making it
+- *    ready for operation. This method must be called anytime the device is
+- *    reset either through a SMP phy control or a port hard reset request.
+- * @remote_device: This parameter specifies the device to be reset.
+- *
+- * This method does not actually cause the device hardware to be reset. This
+- * method resets the software object so that it will be operational after a
+- * device hardware reset completes. An indication of whether the device reset
+- * was accepted. SCI_SUCCESS This value is returned if the device reset is
+- * started.
+- */
+-enum sci_status sci_remote_device_reset(
+-	struct isci_remote_device *idev);
+-
+ /**
+  * enum sci_remote_device_states - This enumeration depicts all the states
+  *    for the common remote device state machine.
+-- 
+2.52.0
+

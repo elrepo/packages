@@ -2,13 +2,13 @@
 %define kmod_name	mpt3sas
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-124.8.1.el10_1}
+%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-211.7.3.el10_2}
 
 %{!?dist: %define dist .el10}
 
 Name:		kmod-%{kmod_name}
 Version:	54.100.00.00
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,7 +19,7 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches.
-Patch0:		0001-scsi-switch-bios_param-to-passing-gendisk.patch
+Patch0: 	ELRepo-mpt3sas-RHEL_DIFFERENCES.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -76,7 +76,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
-%patch -P0 -p4 -R
+%patch -P0 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD \
@@ -199,6 +199,11 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 54.100.00.00-2
+- Source code updated from RHEL 10.2 GA kernel
+- Built against RHEL 10.2 GA kernel-6.12.0-211.7.3.el10_2
+- Restore patch to remove RHEL differences macros
+
 * Wed Dec 10 2025 Tuan Hoang <tqhoang@elrepo.org> - 54.100.00.00-1
 - Update to 54.100.00.00 (bug fixes and adds 22.5 Gbps SAS link rate)
 - Source code from kernel 6.18

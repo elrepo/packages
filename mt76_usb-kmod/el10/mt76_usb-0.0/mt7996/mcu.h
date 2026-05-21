@@ -69,7 +69,7 @@ struct mt7996_mcu_rdd_report {
 	__le16 tag;
 	__le16 len;
 
-	u8 band_idx;
+	u8 rdd_idx;
 	u8 long_detected;
 	u8 constant_prf_detected;
 	u8 staggered_prf_detected;
@@ -351,17 +351,6 @@ enum {
 	BP_HW_MODE,
 };
 
-struct mt7996_mcu_bcn_prot_tlv {
-	__le16 tag;
-	__le16 len;
-	u8 pn[6];
-	u8 enable;
-	u8 cipher_id;
-	u8 key[WLAN_MAX_KEY_LEN];
-	u8 key_id;
-	u8 __rsv[3];
-} __packed;
-
 struct bss_ra_tlv {
 	__le16 tag;
 	__le16 len;
@@ -481,7 +470,8 @@ struct bss_mld_tlv {
 	u8 own_mld_id;
 	u8 mac_addr[ETH_ALEN];
 	u8 remap_idx;
-	u8 __rsv[3];
+	u8 link_id;
+	u8 __rsv[2];
 } __packed;
 
 struct sta_rec_ht_uni {
@@ -530,6 +520,9 @@ struct sec_key_uni {
 	u8 key_len;
 	u8 need_resp;
 	u8 key[32];
+	u8 pn[6];
+	u8 bcn_mode;
+	u8 _rsv;
 } __packed;
 
 struct sta_rec_sec_uni {
@@ -832,13 +825,13 @@ enum {
 					 sizeof(struct sta_rec_eht_mld) +	\
 					 sizeof(struct tlv))
 
-#define MT7996_MAX_BEACON_SIZE		1338
 #define MT7996_BEACON_UPDATE_SIZE	(sizeof(struct bss_req_hdr) +		\
 					 sizeof(struct bss_bcn_content_tlv) +	\
 					 4 + MT_TXD_SIZE +			\
 					 sizeof(struct bss_bcn_cntdwn_tlv) +	\
 					 sizeof(struct bss_bcn_mbss_tlv))
-#define MT7996_MAX_BSS_OFFLOAD_SIZE	(MT7996_MAX_BEACON_SIZE +		\
+#define MT7996_MAX_BSS_OFFLOAD_SIZE	2048
+#define MT7996_MAX_BEACON_SIZE		(MT7996_MAX_BSS_OFFLOAD_SIZE - \
 					 MT7996_BEACON_UPDATE_SIZE)
 
 enum {
@@ -935,6 +928,12 @@ enum {
 	UNI_CMD_SER_ENABLE = 1,
 	UNI_CMD_SER_SET,
 	UNI_CMD_SER_TRIGGER
+};
+
+enum {
+	UNI_CMD_SDO_SET = 1,
+	UNI_CMD_SDO_QUERY,
+	UNI_CMD_SDO_CP_MODE = 6,
 };
 
 enum {
