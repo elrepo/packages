@@ -2,13 +2,13 @@
 %define kmod_name	r8125
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-124.8.1.el10_1}
+%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-211.7.3.el10_2}
 
 %{!?dist: %define dist .el10}
 
 Name:		kmod-%{kmod_name}
 Version:	9.016.01
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -22,7 +22,7 @@ Source3:	modprobe-%{kmod_name}.conf
 Source5:	GPL-v2.0.txt
 
 # Patches
-Patch0:		ELRepo-r8125.patch
+Patch0: 	ELRepo-r8125.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -201,6 +201,9 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 9.016.01-4
+- Built against RHEL 10.2 GA kernel-6.12.0-211.7.3.el10_2
+
 * Sat Dec 06 2025 Tuan Hoang <tqhoang@elrepo.org> - 9.016.01-3
 - Fix posttrans bugs
   - Fix broken kvers (suffix removal requires four percent symbols)

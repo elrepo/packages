@@ -1,6 +1,6 @@
-diff -Naurp r8125-9.016.01.orig/src/r8125_n.c r8125-9.016.01/src/r8125_n.c
+diff -Naurp r8125-9.016.01.orig/src/r8125_n.c r8125-9.016.01.el10_2/src/r8125_n.c
 --- r8125-9.016.01.orig/src/r8125_n.c	2025-07-28 10:08:00.000000000 -0400
-+++ r8125-9.016.01/src/r8125_n.c	2025-09-16 14:59:18.948966128 -0400
++++ r8125-9.016.01.el10_2/src/r8125_n.c	2026-05-22 11:02:30.495285866 -0400
 @@ -16465,6 +16465,7 @@ err_out:
          goto out;
  }
@@ -33,3 +33,19 @@ diff -Naurp r8125-9.016.01.orig/src/r8125_n.c r8125-9.016.01/src/r8125_n.c
  
  unlock:
          r8125_spin_unlock(&tp->phy_lock, flags);
+diff -Naurp r8125-9.016.01.orig/src/r8125_ptp.c r8125-9.016.01.el10_2/src/r8125_ptp.c
+--- r8125-9.016.01.orig/src/r8125_ptp.c	2025-07-28 10:08:00.000000000 -0400
++++ r8125-9.016.01.el10_2/src/r8125_ptp.c	2026-05-22 10:59:33.579899026 -0400
+@@ -1213,8 +1213,12 @@ void rtl8125_ptp_init(struct rtl8125_pri
+         switch (tp->HwSuppPtpVer) {
+         case 3:
+                 tp->pps_enable = 0;
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6,13,0) && !(RHEL_MAJOR == 10 && RHEL_MINOR >= 2)
+                 hrtimer_init(&tp->pps_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+                 tp->pps_timer.function = rtl8125_phy_hrtimer_for_pps;
++#else
++                hrtimer_setup(&tp->pps_timer, rtl8125_phy_hrtimer_for_pps, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
++#endif
+                 break;
+         default:
+                 break;

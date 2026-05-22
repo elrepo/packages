@@ -1,0 +1,12 @@
+diff -Naurp r8127-11.016.00.orig/src/r8127_ptp.c r8127-11.016.00.el10_2/src/r8127_ptp.c
+--- r8127-11.016.00.orig/src/r8127_ptp.c	2026-01-28 09:54:49.000000000 -0500
++++ r8127-11.016.00.el10_2/src/r8127_ptp.c	2026-05-22 10:53:21.231177358 -0400
+@@ -753,7 +753,7 @@ void rtl8127_ptp_init(struct rtl8127_pri
+ 
+         /* init a hrtimer for pps */
+         tp->pps_enable = 0;
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(6,13,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6,13,0) && !(RHEL_MAJOR == 10 && RHEL_MINOR >= 2)
+         hrtimer_init(&tp->pps_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+         tp->pps_timer.function = rtl8127_hrtimer_for_pps;
+ #else

@@ -2,13 +2,13 @@
 %define kmod_name	usbip
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-124.8.1.el10_1}
+%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-211.7.3.el10_2}
 
 %{!?dist: %define dist .el10}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -200,6 +200,11 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-4
+- Source code updated from RHEL 10.2 errata 6.12.0-211.16.1.el10_2
+- usbip: validate number_of_packets in usbip_pack_ret_submit() (CKI Backport Bot) [RHEL-171434] {CVE-2026-31607}
+- Built against RHEL 10.2 GA kernel-6.12.0-211.7.3.el10_2
+
 * Wed Dec 10 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-3
 - Fix posttrans bugs
   - Fix broken kvers (suffix removal requires four percent symbols)
