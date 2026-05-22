@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	8.056.02
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
