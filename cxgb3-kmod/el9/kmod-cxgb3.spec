@@ -2,13 +2,13 @@
 %define kmod_name	cxgb3
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-611.5.1.el9_7}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.5.3.el9_8}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	1.1.5
-Release:	10%{?dist}
+Release:	11%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,10 +19,6 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0:		elrepo-cxgb3-extend-structs.el9_1.patch
-Patch1:		elrepo-cxgb3-netif_napi_add.el9_2.patch
-Patch2:		elrepo-cxgb3-napi_is_scheduled.el9_5.patch
-Patch3:		elrepo-cxgb3-cxgb_in_range.el9_6.patch
 
 %define __spec_install_post \
 		/usr/lib/rpm/check-buildroot \
@@ -80,10 +76,6 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
-%patch0 -p0
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
@@ -197,6 +189,10 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat May 23 2026 Akemi Yagi <toracat@elrepo.org> - 1.1.5-11
+- Source code updated from RHEL 9.8 GA kernel
+- Built against RHEL 9.8 GA kernel-5.14.0-687.5.3.el9_8
+
 * Fri Jan 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.1.5-10
 - Fix problems in posttrans section
 - Fix macro usage in files section
