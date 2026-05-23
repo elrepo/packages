@@ -1,0 +1,39 @@
+From 4081ec1c99630d0f1890d9f311843b0d28afc7be Mon Sep 17 00:00:00 2001
+From: Antonio Quartulli <antonio@openvpn.net>
+Date: Tue, 19 May 2026 15:25:07 +0200
+Subject: [PATCH] ovpn: fix 6.16 compat hack on RHEL 9.8
+
+Reported-by: David Sommerseth <dazo@eurephia.org>
+Signed-off-by: Antonio Quartulli <antonio@openvpn.net>
+---
+ linux-compat.h | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/linux-compat.h b/linux-compat.h
+index 85bf821..047f47e 100644
+--- a/linux-compat.h
++++ b/linux-compat.h
+@@ -96,7 +96,6 @@ static inline void ovpn_udp_tunnel6_xmit_skb(struct dst_entry *dst,
+ #define UDP_ENCAP_OVPNINUDP 100  /* transport layer */
+ #endif
+ 
+-#define timer_container_of from_timer
+ 
+ enum ovpn_ifla_attrs {
+ 	IFLA_OVPN_UNSPEC = 0,
+@@ -114,6 +113,12 @@ enum ovpn_mode {
+ 	__OVPN_MODE_AFTER_LAST,
+ };
+ 
++#if RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 8)
++
++#define timer_container_of from_timer
++
++#endif /* RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 6) */
++
+ #else
+ 
+ #define __OVPN_MODE_FIRST 0
+-- 
+2.52.0
+

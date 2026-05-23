@@ -1,15 +1,15 @@
 # Define the kmod package name here.
 %define kmod_name	ovpn
 
-%define kmod_tar_name	ovpn-backports-ovpn-net-next-main-7.0.0-rc4-2026032400
+%define kmod_tar_name	ovpn-backports-ovpn-net-next-main-7.1.0-rc1-2026050800
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-611.5.1.el9_7}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.5.3.el9_8}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	7.0.0.2026032400
+Version:	7.1.0.2026050800
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -192,6 +192,10 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 7.1.0.2026050800-1
+- Tag ovpn-net-next/main-7.1.0-rc1-2026050800
+- Built against RHEL 9.8 GA kernel-5.14.0-687.5.3.el9_8
+
 * Mon Mar 30 2026 Tuan Hoang <tqhoang@elrepo.org> - 7.0.0.2026032400-1
 - Tag ovpn-net-next/main-7.0.0-rc4-2026032400
 - Initial build for RHEL 9.7
