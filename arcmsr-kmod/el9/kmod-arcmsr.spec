@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	1.50.00.05
-Release:	20210429.8%{?dist}
+Release:	20210429.12%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -73,7 +73,9 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
-%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
+%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD \
+	CONFIG_SCSI_ARCMSR=m \
+	EXTRA_CFLAGS='-DCONFIG_SCSI_ARCMSR'
 
 whitelist="/lib/modules/kabi-current/kabi_stablelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -111,7 +113,7 @@ find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --str
 %{__rm} -rf %{buildroot}
 
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_name} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -124,7 +126,7 @@ exit 0
 # calling initramfs regeneration separately
 if [ -f "%{kver_state_file}" ]; then
         kver_base="%{kmod_kernel_version}"
-        kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
+        kvers=$(ls -d "/lib/modules/${kver_base%%%%-*}"*)
 
         for k_dir in $kvers; do
                 k="${k_dir#/lib/modules/}"
@@ -180,13 +182,29 @@ exit 0
 %files
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config /etc/depmod.d/kmod-%{kmod_name}.conf
-%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
+%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
+%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Fri May 22 2026 Akemi Yagi <toracat@elrepo.org> - 1.50.00.05-20210429.8
+* Fri May 22 2026 Akemi Yagi <toracat@elrepo.org> - 1.50.00.05-20210429.12
 - Source code updated from RHEL 9.8 GA kernel
 - Built against RHEL 9.8 GA kernel-5.14.0-687.5.3.el9_8
+
+* Fri Jan 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.50.00.05-20210429.11
+- Fix problems in posttrans section
+- Fix macro usage in files section
+
+* Mon Nov 17 2025 Tuan Hoang <tqhoang@elrepo.org> - 1.50.00.05-20210429.10
+- Rebuilt against RHEL 9.7 GA kernel
+- Source code updated from 9.7 GA kernel
+- Fix hard-coded arch in post section
+
+* Wed May 14 2025 Tuan Hoang <tqhoang@elrepo.org> - 1.50.00.05-20210429.9
+- Rebuilt against RHEL 9.6 GA kernel
+- Source code from kernel-5.14.0-570.12.1.el9_6
+
+* Tue Nov 12 2024 Philip J Perry <phil@elrepo.org> - 1.50.00.05-20210429.8
+- Rebuilt for RHEL 9.5
 
 * Thu May 02 2024 Akemi Yagi <toracat@elrepo.org> - 1.50.00.05-20210429.7
 - Rebuilt for RHEL 9.4
