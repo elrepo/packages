@@ -1,5 +1,5 @@
 Name:    nvidia-detect
-Version: 580.159.03
+Version: 580.159.04
 Release: 1%{?dist}
 Group:   Applications/System
 License: GPLv2
@@ -36,6 +36,9 @@ A utility to detect NVIDIA graphics cards.
 %{_bindir}/nvidia-detect
 
 %changelog
+* Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 580.159.04-1
+- Add support for detection of devices added to 580.159.04 driver release
+
 * Tue Apr 28 2026 Tuan Hoang <tqhoang@elrepo.org> - 580.159.03-1
 - Add support for detection of devices added to 580.159.03 driver release
 
