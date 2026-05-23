@@ -2,13 +2,13 @@
 %define kmod_name	leds-gpio
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-611.5.1.el9_7}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.5.3.el9_8}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	11%{?dist}
+Release:	5%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -79,6 +79,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
+# %%patch0 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD CONFIG_LEDS_GPIO=m
@@ -119,7 +120,7 @@ find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --str
 %{__rm} -rf %{buildroot}
 
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -132,7 +133,7 @@ exit 0
 # calling initramfs regeneration separately
 if [ -f "%{kver_state_file}" ]; then
         kver_base="%{kmod_kernel_version}"
-        kvers=$(ls -d "/lib/modules/${kver_base%%%%-*}"*)
+        kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
 
         for k_dir in $kvers; do
                 k="${k_dir#/lib/modules/}"
@@ -188,39 +189,16 @@ exit 0
 %files
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
-%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
+%config /etc/depmod.d/kmod-%{kmod_name}.conf
+%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Fri Jan 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-11
-- Fix problems in posttrans section
-- Fix macro usage in files section
-- Fix hard-coded arch in post section
+* Sat May 23 2026 Akemi Yagi <toracat@elrepo.org> - 0.0-5
+- Source code updated from RHEL 9.8 GA kernel
+- Built against RHEL 9.8 GA kernel-5.14.0-687.5.3.el9_8
 
-* Tue Nov 18 2025 Akemi Yagi <toracat@elrepo.org> - 0.0-10
-- Rebuilt against RHEL 9.7 GA kernel
-
-* Wed May 14 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-9
-- Rebuilt against RHEL 9.6 GA kernel
-- Source code from kernel-5.14.0-570.12.1.el9_6
-
-* Tue Nov 12 2024 Tuan Hoang <tqhoang@elrepo.org> - 0.0-8
-- Rebuilt against RHEL 9.5 GA kernel
-- Source code from kernel-5.14.0-503.11.1.el9_5
-
-* Fri May 03 2024 Tuan Hoang <tqhoang@elrepo.org> - 0.0-7
-- Rebuilt against 9.4 GA kernel 5.14.0-427.13.1.el9_4
-- Source code from kernel-5.14.0-427.13.1.el9_4
-
-* Sat Jan 27 2024 Tuan Hoang <tqhoang@elrepo.org> - 0.0-6
-- Rebuilt against RHEL 9.3 errata kernel 5.14.0-362.18.1.el9_3
-
-* Fri Dec 15 2023 Tuan Hoang <tqhoang@elrepo.org> - 0.0-5
-- Rebuilt against RHEL 9.3 GA kernel 5.14.0-362.13.1.el9_3
-
-* Wed Dec 13 2023 Tuan Hoang <tqhoang@elrepo.org> - 0.0-4
-- Rebuilt against RHEL 9.3 GA kernel 5.14.0-362.8.1.el9_3
-- Add patch to fix build for el9_3
+* Tue Nov 07 2023 Akemi Yagi <toracat@elrepo.org> - 0.0-4
+- Rebuilt against 9.3 GA kernel 5.14.0-362.8.1.el9_3
 
 * Tue May 09 2023 Akemi Yagi <toracat@elrepo.org> - 0.0-3
 - Rebuilt against RHEL 9.2 GA kernel 5.14.0-284.11.1.el9_2

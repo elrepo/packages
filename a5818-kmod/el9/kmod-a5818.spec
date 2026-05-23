@@ -2,13 +2,13 @@
 %define kmod_name	a5818
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-611.5.1.el9_7}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.5.3.el9_8}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	1.0.5
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -190,6 +190,9 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sat May 23 2026 Akemi Yagi <toracat@elrepo.org> - 1.0.5-4
+- Rebuilt against RHEL 9.8 GA kernel-5.14.0-687.5.3.el9_8
+
 * Fri Jan 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.0.5-3
 - Fix problems in posttrans section
 - Fix macro usage in files section
