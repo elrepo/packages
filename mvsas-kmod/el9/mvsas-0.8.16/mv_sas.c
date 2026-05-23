@@ -1266,7 +1266,7 @@ static void mvs_task_done(struct sas_task *task)
 
 static void mvs_tmf_timedout(struct timer_list *t)
 {
-	struct sas_task_slow *slow = from_timer(slow, t, timer);
+	struct sas_task_slow *slow = timer_container_of(slow, t, timer);
 	struct sas_task *task = slow->task;
 
 	task->task_state_flags |= SAS_TASK_STATE_ABORTED;
@@ -1935,7 +1935,7 @@ static int mvs_handle_event(struct mvs_info *mvi, void *data, int handler)
 
 static void mvs_sig_time_out(struct timer_list *t)
 {
-	struct mvs_phy *phy = from_timer(phy, t, timer);
+	struct mvs_phy *phy = timer_container_of(phy, t, timer);
 	struct mvs_info *mvi = phy->mvi;
 	u8 phy_no;
 

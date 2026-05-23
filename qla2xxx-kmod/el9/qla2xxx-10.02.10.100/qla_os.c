@@ -17,6 +17,7 @@
 #include <linux/crash_dump.h>
 #include <linux/trace_events.h>
 #include <linux/trace.h>
+#include <linux/irq.h>
 
 #include <scsi/scsi_tcq.h>
 #include <scsi/scsicam.h>
@@ -1194,7 +1195,8 @@ qla2x00_wait_for_hba_ready(scsi_qla_host_t *vha)
 	while ((qla2x00_reset_active(vha) || ha->dpc_active ||
 		ha->flags.mbox_busy) ||
 	       test_bit(FX00_RESET_RECOVERY, &vha->dpc_flags) ||
-	       test_bit(FX00_TARGET_SCAN, &vha->dpc_flags)) {
+	       test_bit(FX00_TARGET_SCAN, &vha->dpc_flags) ||
+	       (vha->scan.scan_flags & SF_SCANNING)) {
 		if (test_bit(UNLOADING, &base_vha->dpc_flags))
 			break;
 		msleep(1000);
@@ -7392,7 +7394,7 @@ static void qla_wind_down_chip(scsi_qla_host_t *vha)
 void
 qla2x00_timer(struct timer_list *t)
 {
-	scsi_qla_host_t *vha = from_timer(vha, t, timer);
+	scsi_qla_host_t *vha = timer_container_of(vha, t, timer);
 	unsigned long	cpu_flags = 0;
 	int		start_dpc = 0;
 	int		index;
@@ -7783,6 +7785,31 @@ static void qla_pci_error_cleanup(scsi_qla_host_t *vha)
 }
 
 
+/**
+ * qla2xxx_set_affinity_nobalance
+ * @pdev: pci_dev struct for a qla2xxx device
+ * @flag: bool
+ * true: enable "IRQ_NO_BALANCING" bit for msix interrupt
+ * false: disable "IRQ_NO_BALANCING" bit for msix interrupt
+ * Description: This function will be called to disable/enable
+ * "IRQ_NO_BALANCING" to avoid irqbalance daemon
+ * kicking in during adapter reset.
+ **/
+
+static void qla2xxx_set_affinity_nobalance(struct pci_dev *pdev, bool flag)
+{
+	int irq, i;
+
+	for (i = 0; i < QLA_BASE_VECTORS; i++) {
+		irq = pci_irq_vector(pdev, i);
+
+		if (flag)
+			irq_set_status_flags(irq, IRQ_NO_BALANCING);
+		else
+			irq_clear_status_flags(irq, IRQ_NO_BALANCING);
+	}
+}
+
 static pci_ers_result_t
 qla2xxx_pci_error_detected(struct pci_dev *pdev, pci_channel_state_t state)
 {
@@ -7800,6 +7827,8 @@ qla2xxx_pci_error_detected(struct pci_dev *pdev, pci_channel_state_t state)
 		ret = PCI_ERS_RESULT_NEED_RESET;
 		goto out;
 	}
+
+	qla2xxx_set_affinity_nobalance(pdev, false);
 
 	switch (state) {
 	case pci_channel_io_normal:
@@ -7946,6 +7975,8 @@ qla2xxx_pci_slot_reset(struct pci_dev *pdev)
 exit_slot_reset:
 	ql_dbg(ql_dbg_aer, base_vha, 0x900e,
 	    "Slot Reset returning %x.\n", ret);
+
+	qla2xxx_set_affinity_nobalance(pdev, true);
 
 	return ret;
 }

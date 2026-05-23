@@ -2,13 +2,13 @@
 %define kmod_name	qla2xxx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-611.5.1.el9_7}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.5.3.el9_8}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	10.02.09.400
-Release:	4%{?dist}
+Version:	10.02.10.100
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -192,6 +192,11 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.10.100-1
+- Source code updated from RHEL 9.8 errata kernel-5.14.0-687.10.1.el9_8
+- scsi: qla2xxx: Fix improper freeing of purex item (CKI Backport Bot) [RHEL-159223] {CVE-2025-68741}
+- Built against RHEL 9.8 GA kernel-5.14.0-687.5.3.el9_8
+
 * Tue Apr 21 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.09.400-4
 - Source code updated from RHEL 9.7 kernel-5.14.0-611.49.1.el9_7
 - scsi: qla2xxx: Fix improper freeing of purex item (CKI Backport Bot) [RHEL-159222] {CVE-2025-68741}
