@@ -1744,7 +1744,7 @@ de4x5_tx(struct net_device *dev)
 static void
 de4x5_ast(struct timer_list *t)
 {
-	struct de4x5_private *lp = from_timer(lp, t, timer);
+	struct de4x5_private *lp = timer_container_of(lp, t, timer);
 	struct net_device *dev = dev_get_drvdata(lp->gendev);
 	int next_tick = DE4X5_AUTOSENSE_MS;
 	int dt;
