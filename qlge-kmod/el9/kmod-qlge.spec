@@ -2,13 +2,13 @@
 %define kmod_name	qlge
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-611.5.1.el9_7}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.5.3.el9_8}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	1.00.00.35
-Release:	5%{?dist}
+Release:	6%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,10 +19,12 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Patches.
-Patch0:		0001-staging-qlge-Replace-strncpy-with-strscpy.patch
-Patch1:		0002-staging-qlge-Replace-the-occurrences-of-1-x-by-BIT-x.patch
-Patch2:		0003-staging-qlge-Update-TODO.patch
-Patch3:		0004-staging-qlge-devlink-health-use-retained-error-fmsg-.patch
+Patch0: 	0001-staging-qlge-Replace-strncpy-with-strscpy.patch
+Patch1: 	0002-staging-qlge-Replace-the-occurrences-of-1-x-by-BIT-x.patch
+Patch2: 	0003-staging-qlge-Update-TODO.patch
+Patch3: 	0004-staging-qlge-devlink-health-use-retained-error-fmsg-.patch
+Patch10: 	elrepo-qlge-devlink_health_reporter_create.el9_8.patch
+Patch11: 	elrepo-qlge-timer_container_of.el9_8.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -87,6 +89,8 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 %patch1 -p4
 %patch2 -p4
 %patch3 -p4
+%patch10 -p1
+%patch11 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD \
@@ -201,6 +205,11 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.00.00.35-6
+- Built against RHEL 9.8 GA kernel-5.14.0-687.5.3.el9_8
+- Add devlink_health_reporter_create patch for RHEL 9.8
+- Add timer_container_of patch for RHEL 9.8
+
 * Fri Jan 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.00.00.35-5
 - Fix problems in posttrans section
 - Fix macro usage in files section

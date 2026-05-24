@@ -1300,7 +1300,7 @@ static int vortex_probe1(struct device *gendev, void __iomem *ioaddr, int irq,
 	if (print_info)
 		pr_cont(", IRQ %d\n", dev->irq);
 	/* Tell them about an invalid IRQ. */
-	if (dev->irq <= 0 || dev->irq >= nr_irqs)
+	if (dev->irq <= 0 || dev->irq >= irq_get_nr_irqs())
 		pr_warn(" *** Warning: IRQ %d is unlikely to work! ***\n",
 			dev->irq);
 
@@ -1781,7 +1781,7 @@ out:
 static void
 vortex_timer(struct timer_list *t)
 {
-	struct vortex_private *vp = from_timer(vp, t, timer);
+	struct vortex_private *vp = timer_container_of(vp, t, timer);
 	struct net_device *dev = vp->mii.dev;
 	void __iomem *ioaddr = vp->ioaddr;
 	int next_tick = 60*HZ;

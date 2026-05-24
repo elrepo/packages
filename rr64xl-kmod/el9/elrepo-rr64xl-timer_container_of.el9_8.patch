@@ -1,0 +1,33 @@
+diff -Naurp kmod-rr64xl-1.5.8.orig/osm/linux/os_linux.c kmod-rr64xl-1.5.8.el9_8/osm/linux/os_linux.c
+--- kmod-rr64xl-1.5.8.orig/osm/linux/os_linux.c	2026-05-23 23:30:28.913402200 -0400
++++ kmod-rr64xl-1.5.8.el9_8/osm/linux/os_linux.c	2026-05-23 23:32:08.780971481 -0400
+@@ -658,7 +658,7 @@ HPT_U8 os_get_vbus_seq(void *osext)
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,15,0)
+ static void os_timer_for_ldm(struct timer_list *t)
+ {
+-        PVBUS_EXT vbus_ext = (PVBUS_EXT)from_timer(vbus_ext, t, timer);
++        PVBUS_EXT vbus_ext = (PVBUS_EXT)timer_container_of(vbus_ext, t, timer);
+         unsigned long flags;
+ 
+         spin_lock_irqsave(vbus_ext->lock, flags);
+diff -Naurp kmod-rr64xl-1.5.8.orig/osm/linux/osm_linux.c kmod-rr64xl-1.5.8.el9_8/osm/linux/osm_linux.c
+--- kmod-rr64xl-1.5.8.orig/osm/linux/osm_linux.c	2026-05-23 23:30:28.915402292 -0400
++++ kmod-rr64xl-1.5.8.el9_8/osm/linux/osm_linux.c	2026-05-23 23:32:24.996713406 -0400
+@@ -1878,7 +1878,7 @@ static void hpt_flush_done(PCOMMAND pCmd
+ static void cmd_timeout_sem(struct timer_list *t)
+ {
+ 	PSEM_TIMER psem_tm;
+-	psem_tm = (PSEM_TIMER)from_timer(psem_tm, t, timer);
++	psem_tm = (PSEM_TIMER)timer_container_of(psem_tm, t, timer);
+ 	up(&psem_tm->sem);
+ }
+ #else 
+@@ -2222,7 +2222,7 @@ static void hpt_ioctl_timeout(struct tim
+ {
+ 
+ 	PSEM_TIMER psem_tm;
+-	psem_tm = (PSEM_TIMER)from_timer(psem_tm, t, timer);
++	psem_tm = (PSEM_TIMER)timer_container_of(psem_tm, t, timer);
+ 	up(&psem_tm->sem);
+ }
+ #else 

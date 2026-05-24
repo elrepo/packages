@@ -3,13 +3,13 @@
 %define extid 22_06_10
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-611.5.1.el9_7}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.5.3.el9_8}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	1.5.8
-Release:	5%{?dist}
+Release:	6%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	HighPoint
@@ -19,12 +19,13 @@ URL:		https://www.highpoint-tech.com/
 Source0:	RR64xl_Linux_Src_v%{version}_%{extid}.tar.gz
 
 # Source code patches
-Patch0:		elrepo-%{kmod_name}-SCSI_DISK_MAJOR.el9_0.patch
-Patch1:		elrepo-%{kmod_name}-atomic-bd_openers.el9_1.patch
-Patch2:		elrepo-%{kmod_name}-virt_to_bus.el9_3.patch
-Patch3:		elrepo-%{kmod_name}-blkdev_get_by_dev.el9_4.patch
-Patch4:		elrepo-%{kmod_name}-bdev_file_open_by_dev.el9_5.patch
-Patch5:		elrepo-%{kmod_name}-blk_queue_max_hw_sectors.el9_6.patch
+Patch0: 	elrepo-rr64xl-SCSI_DISK_MAJOR.el9_0.patch
+Patch1: 	elrepo-rr64xl-atomic-bd_openers.el9_1.patch
+Patch2: 	elrepo-rr64xl-virt_to_bus.el9_3.patch
+Patch3: 	elrepo-rr64xl-blkdev_get_by_dev.el9_4.patch
+Patch4: 	elrepo-rr64xl-bdev_file_open_by_dev.el9_5.patch
+Patch5: 	elrepo-rr64xl-blk_queue_max_hw_sectors.el9_6.patch
+Patch6: 	elrepo-rr64xl-timer_container_of.el9_8.patch
 
 %define __spec_install_post \
 		/usr/lib/rpm/check-buildroot \
@@ -89,6 +90,7 @@ echo "override rr640l * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
 
 %build
 pushd product/%{kmod_name}/linux >/dev/null
@@ -204,6 +206,10 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.5.8-6
+- Built against RHEL 9.8 GA kernel-5.14.0-687.5.3.el9_8
+- Add timer_container_of patch for RHEL 9.8
+
 * Fri Jan 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.5.8-5
 - Fix problems in posttrans section
 - Fix macro usage in files section
