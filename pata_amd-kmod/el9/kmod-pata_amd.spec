@@ -2,13 +2,13 @@
 %define kmod_name	pata_amd
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-611.5.1.el9_7}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.5.3.el9_8}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	0.4.1
-Release:	11%{?dist}
+Release:	12%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -197,6 +197,10 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.4.1-12
+- Source code updated from RHEL 9.8 GA kernel
+- Built against RHEL 9.8 GA kernel-5.14.0-687.5.3.el9_8
+
 * Fri Jan 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.4.1-11
 - Fix problems in posttrans section
 
