@@ -56,7 +56,7 @@ static long ioctl_wait(struct xdma_cdev *xcdev, unsigned long arg)
      * the usage of spin locks on this critical section.
      */
 
-	// 1. set user_mask, to be checked in HandleVmeUserEvent
+	// 1. set user_mask, to be checked in vme_user_irq_service
 	vme_user_irq->user_mask = data.mask;
 
 	// 2. ensure user_mask is set before checking and resetting last_irq

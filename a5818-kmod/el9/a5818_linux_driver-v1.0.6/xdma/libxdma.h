@@ -67,7 +67,8 @@
  *  if the config bar is fixed, the driver does not neeed to search through
  *  all of the bars
  */
-//#define XDMA_CONFIG_BAR_NUM	1
+#define XDMA_USER_BAR_NUM	0  // CAEN A5818
+#define XDMA_CONFIG_BAR_NUM	1  // CAEN A5818
 
 /* SECTION: Preprocessor macros/constants */
 #define XDMA_BAR_NUM (6)
@@ -484,7 +485,11 @@ struct xdma_request_cb {
 
 	unsigned int sw_desc_idx;
 	unsigned int sw_desc_cnt;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0)
+        struct sw_desc sdesc[];
+#else
 	struct sw_desc sdesc[0];
+#endif
 };
 
 struct xdma_engine {

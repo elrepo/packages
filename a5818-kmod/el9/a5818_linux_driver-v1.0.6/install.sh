@@ -1,5 +1,5 @@
 #!/bin/bash -e
-VERSION=1.0.5
+VERSION=1.0.6
 
 sed -e "s/\${version}/$VERSION/" dkms.conf.in > dkms.conf
 

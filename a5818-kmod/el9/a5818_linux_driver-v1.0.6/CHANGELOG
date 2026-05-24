@@ -10,6 +10,17 @@
 
 -----------------------------------------------------------------------------
 
+v1.0.6 (17/04/2026)
+-------------------
+
+New features:
+- Add support for Ubuntu 26.04, Ubuntu 24.04 HWE, Debian 13, RHEL 10, Fedora
+    42 and Fedora 43.
+- Drop support for EOL distibutions.
+
+Fixes:
+- Fix support for Ubuntu 24.04.
+
 
 v1.0.5 (19/11/2024)
 -------------------

@@ -134,7 +134,7 @@ skip_tran:
 skip_dev_lock:
 #ifdef RHEL_RELEASE_VERSION
 #if RHEL_RELEASE_VERSION(9, 0) < RHEL_RELEASE_CODE
-	caio->iocb->ki_complete(caio->iocb, numbytes);
+	caio->iocb->ki_complete(caio->iocb, -EBUSY);
 #elif RHEL_RELEASE_VERSION(8, 0) < RHEL_RELEASE_CODE
 	caio->iocb->ki_complete(caio->iocb, numbytes, -EBUSY);
 #else
@@ -142,7 +142,7 @@ skip_dev_lock:
 #endif
 #else
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 16, 0)
-	caio->iocb->ki_complete(caio->iocb, numbytes);
+	caio->iocb->ki_complete(caio->iocb, -EBUSY);
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0)
 	caio->iocb->ki_complete(caio->iocb, numbytes, -EBUSY);
 #else
@@ -253,7 +253,6 @@ static int check_transfer_align(struct xdma_engine *engine,
 
 /*
  * Map a user memory range into a scatterlist
- * inspired by vhost_scsi_map_to_sgl()
  * Returns the number of scatterlist entries used or -errno on error.
  */
 static inline void xdma_io_cb_release(struct xdma_io_cb *cb)
@@ -619,6 +618,7 @@ static ssize_t cdev_read_iter(struct kiocb *iocb, struct iov_iter *io)
 #endif
 }
 #endif
+
 
 static int ioctl_do_perf_start(struct xdma_engine *engine, unsigned long arg)
 {

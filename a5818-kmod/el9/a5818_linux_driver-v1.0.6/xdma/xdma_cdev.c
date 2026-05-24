@@ -669,7 +669,7 @@ int xdma_cdev_init(void)
 	}
 
 	// CAEN A5818
-	// Make default permission to 0x666
+	// Make default permission to 0666
 	// https://stackoverflow.com/a/61218761/3287591
 	g_xdma_class->devnode = caen_a5818_devnode;
 

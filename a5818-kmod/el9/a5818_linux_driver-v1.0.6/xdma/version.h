@@ -25,7 +25,7 @@
 #define DRV_MOD_PATCHLEVEL	2
 #define A5818_DRV_MOD_MAJOR			1
 #define A5818_DRV_MOD_MINOR			0
-#define A5818_DRV_MOD_PATCHLEVEL	5
+#define A5818_DRV_MOD_PATCHLEVEL	6
 
 #define DRV_MODULE_VERSION      \
 	__stringify(DRV_MOD_MAJOR) "." \

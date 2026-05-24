@@ -20,6 +20,7 @@ topdir := $(shell cd $(src)/.. && pwd)
 
 TARGET_MODULE:=a5818
 
+# Compose flags that will be used for compilation
 EXTRA_CFLAGS := -I$(topdir)/include $(XVC_FLAGS)
 ifeq ($(DEBUG),1)
 	EXTRA_CFLAGS += -D__LIBXDMA_DEBUG__
@@ -28,6 +29,10 @@ ifneq ($(config_bar_num),)
 	EXTRA_CFLAGS += -DXDMA_CONFIG_BAR_NUM=$(config_bar_num)
 endif
 #EXTRA_CFLAGS += -DINTERNAL_TESTING
+
+# CAEN A5818: set both flags for cross-distro/kbuild compatibility;
+# some environments honor ccflags-y, others still rely on EXTRA_CFLAGS.
+ccflags-y := $(EXTRA_CFLAGS)
 
 ifneq ($(KERNELRELEASE),)
 	$(TARGET_MODULE)-objs := libxdma.o xdma_cdev.o cdev_ctrl.o cdev_events.o cdev_vme_events.o cdev_sgdma.o cdev_xvc.o cdev_bypass.o xdma_mod.o xdma_thread.o xdma_proc.o
