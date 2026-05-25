@@ -1,0 +1,79 @@
+From 3c7ad2d665b0f511afb6a27f0370098f5ad11b32 Mon Sep 17 00:00:00 2001
+From: Jakub Acs <acsjakub@amazon.de>
+Date: Tue, 10 Feb 2026 14:51:20 +0000
+Subject: [PATCH 1/3] trim req_count early
+
+vidioc_qbuf() transitively relies on opener->buffer_count to be set
+correctly when validating index of a to-be-accessed buffer. Shortcut in
+vidioc_reqbufs() allows to set the opener->buffer_count to arbitrary
+u32 value, this can be e.g. UINT_MAX, causing the validation in
+vidioc_qbuf() to always pass. vidioc_qbuf() then proceeds to access the
+buffer at the requested index, which can be very well out of bounds.
+
+Resulting in e.g. the following out of bounds access:
+
+BUG: KASAN: slab-out-of-bounds in vidioc_qbuf+0x1262/0x1590 /v4l2-loopback/v4l2loopback.c:1834
+Read of size 4 at addr ffff88810726a0bc by task syz.6.26963/109643
+
+CPU: 1 UID: 0 PID: 109643 Comm: syz.6.26963 Not tainted 6.12.64 #24
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.16.3-0-ga6ed6b701f0a-prebuilt.qemu.org 04/01/2014
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0xa7/0xd0 lib/dump_stack.c:120
+ print_address_description.constprop.0+0x2c/0x3d0 mm/kasan/report.c:377
+ print_report+0xaa/0x250 mm/kasan/report.c:481
+ kasan_report+0xab/0xe0 mm/kasan/report.c:594
+ vidioc_qbuf+0x1262/0x1590 /v4l2-loopback/v4l2loopback.c:1834
+ v4l_qbuf drivers/media/v4l2-core/v4l2-ioctl.c:2174 [inline]
+ v4l_qbuf+0x9d/0xd0 drivers/media/v4l2-core/v4l2-ioctl.c:2168
+ __video_do_ioctl+0x6f0/0xeb0 drivers/media/v4l2-core/v4l2-ioctl.c:3119
+ video_usercopy+0x366/0xbb0 drivers/media/v4l2-core/v4l2-ioctl.c:3460
+ v4l2_ioctl+0x1ae/0x230 drivers/media/v4l2-core/v4l2-dev.c:364
+ vfs_ioctl fs/ioctl.c:51 [inline]
+ __do_sys_ioctl fs/ioctl.c:907 [inline]
+ __se_sys_ioctl fs/ioctl.c:893 [inline]
+ __x64_sys_ioctl+0x1a1/0x210 fs/ioctl.c:893
+ do_syscall_x64 arch/x86/entry/common.c:47 [inline]
+ do_syscall_64+0x5b/0x180 arch/x86/entry/common.c:78
+ entry_SYSCALL_64_after_hwframe+0x76/0x7e
+RIP: 0033:0x7f430bd8f7c9
+
+This crash was discovered by syzkaller.
+
+Fix it by trimming the req_count early in the vidioc_reqbufs(), as the
+comment also clearly states dev->buffer_count is the upper bound.
+
+Signed-off-by: Jakub Acs <acsjakub@amazon.de>
+---
+ v4l2loopback.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/v4l2loopback.c b/v4l2loopback.c
+index 22e2707..91f8f21 100644
+--- a/v4l2loopback.c
++++ b/v4l2loopback.c
+@@ -1651,6 +1651,9 @@ static int vidioc_reqbufs(struct file *file, void *fh,
+ 		reqbuf->memory, req_count, dev->used_buffer_count,
+ 		dev->buffer_count);
+ 
++	if (req_count > dev->buffer_count)
++		req_count = dev->buffer_count;
++
+ 	switch (reqbuf->memory) {
+ 	case V4L2_MEMORY_MMAP:
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 20, 0)
+@@ -1727,10 +1730,6 @@ static int vidioc_reqbufs(struct file *file, void *fh,
+ 
+ 	MARK();
+ 	opener->buffer_count = 0;
+-
+-	if (req_count > dev->buffer_count)
+-		req_count = dev->buffer_count;
+-
+ 	if (has_no_owners(dev)) {
+ 		result = allocate_buffers(dev, &dev->pix_format);
+ 		if (result < 0)
+-- 
+2.52.0
+

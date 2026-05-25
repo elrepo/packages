@@ -1,10 +1,12 @@
+%define debug_package %{nil}
+
 Name:           v4l2loopback
 Summary:        Utils for V4L2 loopback devices
-Version:        0.12.5
-Release:        4%{?dist}
+Version:        0.15.3
+Release:        1%{?dist}
 License:        GPLv2+
 
-URL:            https://github.com/umlaeute/v4l2loopback
+URL:            https://github.com/v4l2loopback/v4l2loopback
 Source0:        %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
 Source1:        modprobe-d-98-v4l2loopback.conf
 Source2:        modules-load-d-v4l2loopback.conf
@@ -14,13 +16,11 @@ BuildRequires:  make
 BuildRequires:  help2man
 BuildRequires:  systemd-rpm-macros
 # For kmod package
-# Provides:       %{name}-kmod-common = %{version}-%{release}
+# Provides:       %%{name}-kmod-common = %%{version}-%%{release}
 Requires:       kmod-%{name} >= %{version}
 # For compatibility with older name
-# Provides:       %{name}-utils = %{version}-%{release}
-# Obsoletes:      %{name}-utils < 0.12.5-3
-
-BuildArch:      noarch
+# Provides:       %%{name}-utils = %%{version}-%%{release}
+# Obsoletes:      %%{name}-utils < 0.12.5-3
 
 %description
 This allows you to create "virtual video devices". Normal (v4l2)
@@ -52,8 +52,12 @@ install -D -m 0644 %{SOURCE2} %{buildroot}%{_modulesloaddir}/v4l2loopback.conf
 %{_modprobedir}/98-v4l2loopback.conf
 %{_modulesloaddir}/v4l2loopback.conf
 
-
 %changelog
+* Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.15.3-1
+- Update to version 0.15.3 to match kmod
+- Remove setting of BuildArch
+- Disable creation of debug info and remove debug file from package
+
 * Sun Mar 07 2021 Akemi Yagi <toracat@elrepo.org> - 0.12.5-4
 - Rebuilt for elrepo from the rpmfusion package
 

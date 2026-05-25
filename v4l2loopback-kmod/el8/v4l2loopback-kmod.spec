@@ -7,16 +7,21 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	0.13.1
+Version:	0.15.3
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
-URL:		https://github.com/umlaeute/v4l2loopback
+URL:		https://github.com/v4l2loopback/v4l2loopback
 
 # Sources
 Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
+
+# Source code patches
+Patch0: 	0001-trim-req_count-early.patch
+Patch1: 	0002-Use-full-ordering-for-buffer-mapped-flag.patch
+Patch2: 	0003-Lock-image-during-memcpy-access.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -25,12 +30,10 @@ Source5:	GPL-v2.0.txt
 				/usr/lib/rpm/redhat/brp-ldconfig \
 				/usr/lib/rpm/brp-compress \
 				/usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump \
- 				/usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
+				/usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
 				/usr/lib/rpm/brp-python-bytecompile "" 1 \
 				/usr/lib/rpm/brp-python-hardlink \
 				PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
-
-# Source code patches
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -71,7 +74,9 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
-# % patch0 -p1
+%patch0 -p1
+%patch1 -p1
+%patch2 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
@@ -112,7 +117,7 @@ done
 %{__rm} -rf %{buildroot}
 
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_name} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -125,7 +130,7 @@ exit 0
 # calling initramfs regeneration separately
 if [ -f "%{kver_state_file}" ]; then
 	kver_base="%{kmod_kernel_version}"
-	kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
+	kvers=$(ls -d "/lib/modules/${kver_base%%%%-*}"*)
 
 	for k_dir in $kvers; do
 		k="${k_dir#/lib/modules/}"
@@ -181,10 +186,17 @@ exit 0
 %files
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config /etc/depmod.d/kmod-%{kmod_name}.conf
-%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
+%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
+%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.15.3-1
+- Update to version 0.15.3
+- Add upstream patches
+- Fix problems in posttrans section
+- Fix macro usage in files section
+- Fix hard-coded arch in post section
+
 * Thu May 23 2024 Akemi Yagi <toracat@elrepo.org> - 0.13.1-1
 - Rebuilt against RHEL 8.10 GA kernel-4.18.0-553.el8_10
 - Source code from https://github.com/umlaeute/v4l2loopback
