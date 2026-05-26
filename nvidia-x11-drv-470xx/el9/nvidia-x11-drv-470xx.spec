@@ -7,7 +7,7 @@
 
 Name:		nvidia-x11-drv-470xx
 Version:	470.256.02
-Release:	8%{?dist}
+Release:	9%{?dist}
 Group:		User Interface/X Hardware Support
 License:	Distributable
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -496,6 +496,9 @@ fi ||:
 %endif
 
 %changelog
+* Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-9
+- Bump release to sync with kmod-nvidia-470xx for RHEL 9.8
+
 * Sat Dec 27 2025 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-8
 - Update spec with changes similar to other legacy drivers
 - Add missing EGL config file 10_nvidia_wayland.json
