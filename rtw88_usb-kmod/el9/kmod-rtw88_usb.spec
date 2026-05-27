@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	12%{?dist}
+Release:	13%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -81,7 +81,7 @@ cat /dev/null > kmod-%{kmod_name}.conf
 
 # List of rtw88 modules
 # Keep in sync with make command args below
-%define rtw88_modules "rtw88_8723du rtw88_88xxa rtw88_8812a rtw88_8812au rtw88_8814a rtw88_8814au rtw88_8821a rtw88_8821au rtw88_8821cu rtw88_8822bu rtw88_8822cu"
+%define rtw88_modules "rtw88_8723du rtw88_88xxa rtw88_8812a rtw88_8812au rtw88_8814a rtw88_8814au rtw88_8821a rtw88_8821au rtw88_8821cu rtw88_8822cu"
 
 cat /dev/null > kmod-%{kmod_name}.conf
 for modules in `echo -n %{rtw88_modules}`
@@ -106,8 +106,6 @@ done
 	CONFIG_RTW88_8821AU=m \
 	CONFIG_RTW88_8821C=m \
 	CONFIG_RTW88_8821CU=m \
-	CONFIG_RTW88_8822B=m \
-	CONFIG_RTW88_8822BU=m \
 	CONFIG_RTW88_8822C=m \
 	CONFIG_RTW88_8822CU=m \
 
@@ -225,8 +223,12 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue May 26 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-13
+- Remove rtw88_8822bu driver since the latest is in the GA kernel
+ 
 * Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-12
 - Source code updated from RHEL 9.8 GA kernel
+- Remove obsoleted patch
 - Built against RHEL 9.8 GA kernel-5.14.0-687.5.3.el9_8
 
 * Fri Jan 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-11
@@ -236,7 +238,7 @@ exit 0
 - Rebuilt against RHEL 9.7 GA kernel
 - Source code updated from 9.7 GA kernel
 - Remove obsoleted patches
-- Add support for 
+- Add support for more devices
 
 * Sat Jul 19 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-9
 - Re-add rtw88_8822bu driver
