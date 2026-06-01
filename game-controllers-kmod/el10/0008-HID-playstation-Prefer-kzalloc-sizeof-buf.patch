@@ -1,0 +1,38 @@
+From 400c6bbc7b48a011c18c765cd1fbb396113e2f63 Mon Sep 17 00:00:00 2001
+From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+Date: Wed, 25 Jun 2025 00:56:52 +0300
+Subject: [PATCH 08/18] HID: playstation: Prefer kzalloc(sizeof(*buf)...)
+
+Use the shorter variant as suggested by checkpatch.pl:
+
+  CHECK: Prefer kzalloc(sizeof(*buf)...) over kzalloc(sizeof(struct dualsense_output_report_bt)...)
+
+This also improves further maintainability.
+
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+Reviewed-by: Benjamin Tissoires <bentiss@kernel.org>
+Tested-by: Benjamin Tissoires <bentiss@kernel.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.com>
+---
+ drivers/hid/hid-playstation.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
+index 37fc1a74517c..6e3132418f2e 100644
+--- a/drivers/hid/hid-playstation.c
++++ b/drivers/hid/hid-playstation.c
+@@ -1531,9 +1531,9 @@ static void dualsense_remove(struct ps_device *ps_dev)
+ static int dualsense_reset_leds(struct dualsense *ds)
+ {
+ 	struct dualsense_output_report report;
+-	u8 *buf;
++	struct dualsense_output_report_bt *buf;
+ 
+-	buf = kzalloc(sizeof(struct dualsense_output_report_bt), GFP_KERNEL);
++	buf = kzalloc(sizeof(*buf), GFP_KERNEL);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+-- 
+2.52.0
+

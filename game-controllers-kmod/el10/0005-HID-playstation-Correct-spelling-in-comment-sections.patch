@@ -1,0 +1,43 @@
+From 70db9aa76d29663047a84f337091f438be3c8a4f Mon Sep 17 00:00:00 2001
+From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+Date: Wed, 25 Jun 2025 00:56:49 +0300
+Subject: [PATCH 05/18] HID: playstation: Correct spelling in comment sections
+
+Handle a couple of spelling complaints from checkpatch.pl:
+
+  CHECK: 'connectd' may be misspelled - perhaps 'connected'?
+  CHECK: 'Comptabile' may be misspelled - perhaps 'Compatible'?
+
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+Reviewed-by: Benjamin Tissoires <bentiss@kernel.org>
+Tested-by: Benjamin Tissoires <bentiss@kernel.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.com>
+---
+ drivers/hid/hid-playstation.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
+index 78d28a0eb697..349d6cac964a 100644
+--- a/drivers/hid/hid-playstation.c
++++ b/drivers/hid/hid-playstation.c
+@@ -338,7 +338,7 @@ struct dualsense_output_report {
+ /* Battery status within batery_status field. */
+ #define DS4_BATTERY_STATUS_FULL		11
+ /* Status1 bit2 contains dongle connection state:
+- * 0 = connectd
++ * 0 = connected
+  * 1 = disconnected
+  */
+ #define DS4_STATUS1_DONGLE_STATE	BIT(2)
+@@ -2169,7 +2169,7 @@ static void dualshock4_output_worker(struct work_struct *work)
+ 
+ 	if (ds4->update_lightbar) {
+ 		common->valid_flag0 |= DS4_OUTPUT_VALID_FLAG0_LED;
+-		/* Comptabile behavior with hid-sony, which used a dummy global LED to
++		/* Compatible behavior with hid-sony, which used a dummy global LED to
+ 		 * allow enabling/disabling the lightbar. The global LED maps to
+ 		 * lightbar_enabled.
+ 		 */
+-- 
+2.52.0
+

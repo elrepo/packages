@@ -1,0 +1,34 @@
+From b8874720b2f33a06ff1d4cf3827e7ec1195cb360 Mon Sep 17 00:00:00 2001
+From: Vicki Pfau <vi@endrift.com>
+Date: Mon, 6 Oct 2025 18:05:33 -0700
+Subject: [PATCH] HID: nintendo: Rate limit IMU compensation message
+
+Some controllers are very bad at updating the IMU, leading to these
+messages spamming the syslog. Rate-limiting them helps with this a bit.
+
+Signed-off-by: Vicki Pfau <vi@endrift.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.com>
+---
+ drivers/hid/hid-nintendo.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
+index e3e54f1df44f..c2849a541f65 100644
+--- a/drivers/hid/hid-nintendo.c
++++ b/drivers/hid/hid-nintendo.c
+@@ -1455,10 +1455,10 @@ static void joycon_parse_imu_report(struct joycon_ctlr *ctlr,
+ 				ctlr->imu_avg_delta_ms;
+ 		ctlr->imu_timestamp_us += 1000 * ctlr->imu_avg_delta_ms;
+ 		if (dropped_pkts > JC_IMU_DROPPED_PKT_WARNING) {
+-			hid_warn(ctlr->hdev,
++			hid_warn_ratelimited(ctlr->hdev,
+ 				 "compensating for %u dropped IMU reports\n",
+ 				 dropped_pkts);
+-			hid_warn(ctlr->hdev,
++			hid_warn_ratelimited(ctlr->hdev,
+ 				 "delta=%u avg_delta=%u\n",
+ 				 delta, ctlr->imu_avg_delta_ms);
+ 		}
+-- 
+2.52.0
+

@@ -1,0 +1,65 @@
+From 802b4c158cf57d615dae50000be4c6063a7db7ba Mon Sep 17 00:00:00 2001
+From: Elliot Tester <elliotctester@gmail.com>
+Date: Wed, 25 Mar 2026 23:16:17 +0100
+Subject: [PATCH 04/10] Input: xpad - remove stale TODO and changelog header
+
+All items in the TODO block have since been addressed: axis tuning,
+analog button handling, rumble support, and dance pad USB IDs are all
+implemented. The manual changelog is also removed as history is tracked
+in git.
+
+Signed-off-by: Elliot Tester <elliotctester1@gmail.com>
+Link: https://patch.msgid.link/20260325221618.135833-1-elliotctester1@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/joystick/xpad.c | 34 ----------------------------------
+ 1 file changed, 34 deletions(-)
+
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index bf4accf3f581..ce0f0b7e8fa0 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -25,40 +25,6 @@
+  *  - Greg Kroah-Hartman - usb-skeleton driver
+  *  - Xbox Linux project - extra USB IDs
+  *  - Pekka Pöyry (quantus) - Xbox One controller reverse-engineering
+- *
+- * TODO:
+- *  - fine tune axes (especially trigger axes)
+- *  - fix "analog" buttons (reported as digital now)
+- *  - get rumble working
+- *  - need USB IDs for other dance pads
+- *
+- * History:
+- *
+- * 2002-06-27 - 0.0.1 : first version, just said "XBOX HID controller"
+- *
+- * 2002-07-02 - 0.0.2 : basic working version
+- *  - all axes and 9 of the 10 buttons work (german InterAct device)
+- *  - the black button does not work
+- *
+- * 2002-07-14 - 0.0.3 : rework by Vojtech Pavlik
+- *  - indentation fixes
+- *  - usb + input init sequence fixes
+- *
+- * 2002-07-16 - 0.0.4 : minor changes, merge with Vojtech's v0.0.3
+- *  - verified the lack of HID and report descriptors
+- *  - verified that ALL buttons WORK
+- *  - fixed d-pad to axes mapping
+- *
+- * 2002-07-17 - 0.0.5 : simplified d-pad handling
+- *
+- * 2004-10-02 - 0.0.6 : DDR pad support
+- *  - borrowed from the Xbox Linux kernel
+- *  - USB id's for commonly used dance pads are present
+- *  - dance pads will map D-PAD to buttons, not axes
+- *  - pass the module paramater 'dpad_to_buttons' to force
+- *    the D-PAD to map to buttons if your pad is not detected
+- *
+- * Later changes can be tracked in SCM.
+  */
+ 
+ #include <linux/bits.h>
+-- 
+2.52.0
+

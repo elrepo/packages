@@ -1,0 +1,67 @@
+From 3969f77f5dd5c69d513a33f350128e61e0e1ab00 Mon Sep 17 00:00:00 2001
+From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+Date: Tue, 23 Sep 2025 00:29:41 +0300
+Subject: [PATCH 13/18] HID: playstation: Silence sparse warnings for locking
+ context imbalances
+
+It seems sparse has some difficulties with guard() handling or when
+mixing it with scoped_guard(), as it shows a bunch lock related
+warnings:
+
+  hid-playstation.c:1230:32: warning: context imbalance in 'dualsense_player_led_set_brightness' - wrong count at exit
+  hid-playstation.c:1414:12: warning: context imbalance in 'dualsense_parse_report' - wrong count at exit
+  hid-playstation.c:1615:12: warning: context imbalance in 'dualsense_play_effect' - different lock contexts for basic block
+  hid-playstation.c:1668:13: warning: context imbalance in 'dualsense_set_lightbar' - wrong count at exit
+  hid-playstation.c:1680:13: warning: context imbalance in 'dualsense_set_player_leds' - wrong count at exit
+  hid-playstation.c:2185:33: warning: context imbalance in 'dualshock4_led_set_blink' - wrong count at exit
+  hid-playstation.c:2226:33: warning: context imbalance in 'dualshock4_led_set_brightness' - wrong count at exit
+  hid-playstation.c:2596:12: warning: context imbalance in 'dualshock4_play_effect' - different lock contexts for basic block
+  hid-playstation.c:2634:13: warning: context imbalance in 'dualshock4_set_bt_poll_interval' - wrong count at exit
+  hid-playstation.c:2642:13: warning: context imbalance in 'dualshock4_set_default_lightbar_colors' - wrong count at exit
+
+Silent them by switching from guard() to scoped_guard() in
+{dualsense|dualshock4}_schedule_work().
+
+Reported-by: Benjamin Tissoires <bentiss@kernel.org>
+Suggested-by: Benjamin Tissoires <bentiss@kernel.org>
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.com>
+---
+ drivers/hid/hid-playstation.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
+index e03ab8a92bca..87038dacebe7 100644
+--- a/drivers/hid/hid-playstation.c
++++ b/drivers/hid/hid-playstation.c
+@@ -1274,9 +1274,10 @@ static void dualsense_init_output_report(struct dualsense *ds,
+ 
+ static inline void dualsense_schedule_work(struct dualsense *ds)
+ {
+-	guard(spinlock_irqsave)(&ds->base.lock);
+-	if (ds->output_worker_initialized)
+-		schedule_work(&ds->output_worker);
++	/* Using scoped_guard() instead of guard() to make sparse happy */
++	scoped_guard(spinlock_irqsave, &ds->base.lock)
++		if (ds->output_worker_initialized)
++			schedule_work(&ds->output_worker);
+ }
+ 
+ /*
+@@ -2626,9 +2627,10 @@ static void dualshock4_remove(struct ps_device *ps_dev)
+ 
+ static inline void dualshock4_schedule_work(struct dualshock4 *ds4)
+ {
+-	guard(spinlock_irqsave)(&ds4->base.lock);
+-	if (ds4->output_worker_initialized)
+-		schedule_work(&ds4->output_worker);
++	/* Using scoped_guard() instead of guard() to make sparse happy */
++	scoped_guard(spinlock_irqsave, &ds4->base.lock)
++		if (ds4->output_worker_initialized)
++			schedule_work(&ds4->output_worker);
+ }
+ 
+ static void dualshock4_set_bt_poll_interval(struct dualshock4 *ds4, u8 interval)
+-- 
+2.52.0
+

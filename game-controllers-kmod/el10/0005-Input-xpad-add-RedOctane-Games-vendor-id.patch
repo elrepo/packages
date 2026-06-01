@@ -1,0 +1,29 @@
+From 84e7a17d1813394b48b0641fce8217fc0bba1960 Mon Sep 17 00:00:00 2001
+From: Sanjay Govind <sanjay.govind9@gmail.com>
+Date: Fri, 3 Apr 2026 22:35:50 -0700
+Subject: [PATCH 05/10] Input: xpad - add RedOctane Games vendor id
+
+Add vendor ID for RedOctane Games to xpad driver.
+
+Signed-off-by: Sanjay Govind <sanjay.govind9@gmail.com>
+Link: https://patch.msgid.link/20260311213106.271577-2-sanjay.govind9@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/joystick/xpad.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index ce0f0b7e8fa0..e2fa69af2ce1 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -551,6 +551,7 @@ static const struct usb_device_id xpad_table[] = {
+ 	XPAD_XBOX360_VENDOR(0x3651),		/* CRKD Controllers */
+ 	XPAD_XBOXONE_VENDOR(0x366c),		/* ByoWave controllers */
+ 	XPAD_XBOX360_VENDOR(0x37d7),		/* Flydigi Controllers */
++	XPAD_XBOX360_VENDOR(0x3958),		/* RedOctane Games Controllers */
+ 	XPAD_XBOX360_VENDOR(0x413d),		/* Black Shark Green Ghost Controller */
+ 	{ }
+ };
+-- 
+2.52.0
+

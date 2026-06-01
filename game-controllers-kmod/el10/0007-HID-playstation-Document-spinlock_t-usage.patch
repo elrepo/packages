@@ -1,0 +1,34 @@
+From d9812f06be437c64e00fd557ed374100c97077cc Mon Sep 17 00:00:00 2001
+From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+Date: Wed, 25 Jun 2025 00:56:51 +0300
+Subject: [PATCH 07/18] HID: playstation: Document spinlock_t usage
+
+Document the usage of 'lock' member in struct ps_device and silent
+checkpatch.pl complaint:
+
+  CHECK: spinlock_t definition without comment
+
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+Reviewed-by: Benjamin Tissoires <bentiss@kernel.org>
+Tested-by: Benjamin Tissoires <bentiss@kernel.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.com>
+---
+ drivers/hid/hid-playstation.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
+index 811b0b90c0e2..37fc1a74517c 100644
+--- a/drivers/hid/hid-playstation.c
++++ b/drivers/hid/hid-playstation.c
+@@ -38,7 +38,7 @@ enum PS_TYPE {
+ struct ps_device {
+ 	struct list_head list;
+ 	struct hid_device *hdev;
+-	spinlock_t lock;
++	spinlock_t lock; /* Sync between event handler and workqueue */
+ 
+ 	u32 player_id;
+ 
+-- 
+2.52.0
+

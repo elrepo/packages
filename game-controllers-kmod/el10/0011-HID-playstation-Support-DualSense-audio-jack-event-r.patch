@@ -1,0 +1,97 @@
+From e1c24d545b8d0f4f04e01258f1ac5d2934c6a08d Mon Sep 17 00:00:00 2001
+From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+Date: Wed, 25 Jun 2025 00:56:55 +0300
+Subject: [PATCH 11/18] HID: playstation: Support DualSense audio jack event
+ reporting
+
+The DualSense controller complies with v1.0 of the USB Audio Class spec
+(UAC1), hence it cannot advertise any jack detection capability.
+
+However, this feature can be implemented in the generic USB audio driver
+via quirks, i.e. by configuring an input handler to receive hotplug
+events from the HID driver.
+
+When operating in USB mode, register a dedicated input device for the
+audio jack and use it to report all headphone and headset mic insert
+events.
+
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+Tested-by: Benjamin Tissoires <bentiss@kernel.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.com>
+---
+ drivers/hid/hid-playstation.c | 36 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
+
+diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
+index 4285260c7e22..d2bee1a314b1 100644
+--- a/drivers/hid/hid-playstation.c
++++ b/drivers/hid/hid-playstation.c
+@@ -176,6 +176,7 @@ struct dualsense {
+ 	struct input_dev *gamepad;
+ 	struct input_dev *sensors;
+ 	struct input_dev *touchpad;
++	struct input_dev *jack;
+ 
+ 	/* Update version is used as a feature/capability version. */
+ 	u16 update_version;
+@@ -955,6 +956,25 @@ static struct input_dev *ps_touchpad_create(struct hid_device *hdev, int width,
+ 	return touchpad;
+ }
+ 
++static struct input_dev *ps_headset_jack_create(struct hid_device *hdev)
++{
++	struct input_dev *jack;
++	int ret;
++
++	jack = ps_allocate_input_dev(hdev, "Headset Jack");
++	if (IS_ERR(jack))
++		return ERR_CAST(jack);
++
++	input_set_capability(jack, EV_SW, SW_HEADPHONE_INSERT);
++	input_set_capability(jack, EV_SW, SW_MICROPHONE_INSERT);
++
++	ret = input_register_device(jack);
++	if (ret)
++		return ERR_PTR(ret);
++
++	return jack;
++}
++
+ static ssize_t firmware_version_show(struct device *dev,
+ 				     struct device_attribute *attr, char *buf)
+ {
+@@ -1357,8 +1377,15 @@ static void dualsense_output_worker(struct work_struct *work)
+ 				common->audio_control2 =
+ 					FIELD_PREP(DS_OUTPUT_AUDIO_FLAGS2_SP_PREAMP_GAIN, 0x2);
+ 			}
++
++			input_report_switch(ds->jack, SW_HEADPHONE_INSERT, val);
+ 		}
+ 
++		val = ds->plugged_state & DS_STATUS1_MIC_DETECT;
++		if (val != (ds->prev_plugged_state & DS_STATUS1_MIC_DETECT))
++			input_report_switch(ds->jack, SW_MICROPHONE_INSERT, val);
++
++		input_sync(ds->jack);
+ 		ds->prev_plugged_state = ds->plugged_state;
+ 	}
+ 
+@@ -1778,6 +1805,15 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
+ 		goto err;
+ 	}
+ 
++	/* Bluetooth audio is currently not supported. */
++	if (hdev->bus == BUS_USB) {
++		ds->jack = ps_headset_jack_create(hdev);
++		if (IS_ERR(ds->jack)) {
++			ret = PTR_ERR(ds->jack);
++			goto err;
++		}
++	}
++
+ 	ret = ps_device_register_battery(ps_dev);
+ 	if (ret)
+ 		goto err;
+-- 
+2.52.0
+
