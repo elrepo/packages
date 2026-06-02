@@ -1,7 +1,7 @@
 From 134a40c9d6d9bf27a6743e65eebdb81985880712 Mon Sep 17 00:00:00 2001
 From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
 Date: Wed, 25 Jun 2025 00:56:48 +0300
-Subject: [PATCH 04/18] HID: playstation: Replace uint{32,16,8}_t with
+Subject: [PATCH 04/21] HID: playstation: Replace uint{32,16,8}_t with
  u{32,16,8}
 
 And get rid of the following checkpatch.pl complaints:

@@ -23,18 +23,22 @@ Source5:	GPL-v2.0.txt
 # Source code patches.
 #
 # led-class-multicolor upstream patches
-# - Patch is from linux-6.18.y
+# - Patches are from linux master (7.1-rc6)
 #
 Patch10: 	0001-leds-multicolor-Fix-intensity-setting-while-SW-blink.patch
+Patch11: 	0002-leds-multicolor-Change-intensity_value-to-unsigned-i.patch
+
 #
 # hid-nintendo upstream patches
-# - Patch is from linux-6.18.y
+# - Patches are from linux master (7.1-rc6)
 #
 Patch20: 	0001-HID-nintendo-Rate-limit-IMU-compensation-message.patch
+Patch21: 	0002-HID-nintendo-Reduce-JC_SUBCMD_RATE_MAX_ATTEMPTS.patch
+
 #
 # hid-playstation upstream patches
 # - Patch30 is from linux-6.12.y (apply reversed)
-# - Patch31+ are from linux-6.18.y
+# - Patch31+ are from linux master (7.1-rc6)
 #
 Patch30: 	0000-HID-playstation-Fix-memory-leak-in-dualshock4_get_ca.patch
 Patch31: 	0001-HID-playstation-Make-use-of-bitfield-macros.patch
@@ -54,7 +58,9 @@ Patch44: 	0014-HID-playstation-Switch-to-scoped_guard-in-dualsense-.patch
 Patch45: 	0015-HID-playstation-Fix-memory-leak-in-dualshock4_get_ca.patch
 Patch46: 	0016-HID-playstation-Center-initial-joystick-axes-to-prev.patch
 Patch47: 	0017-HID-playstation-Add-missing-check-for-input_ff_creat.patch
-Patch48: 	0018-HID-playstation-Clamp-num_touch_reports.patch
+Patch48: 	0020-HID-playstation-validate-num_touch_reports-in-DualSh.patch
+Patch49: 	0021-HID-playstation-Clamp-num_touch_reports.patch
+
 #
 # xpad upstream patches
 # - Patches are from linux master (7.1-rc6)
@@ -138,9 +144,11 @@ done
 # Apply patch(es).
 pushd drivers-leds
 %patch -P10 -p3
+%patch -P11 -p3
 popd
 pushd drivers-hid
 %patch -P20 -p3
+%patch -P21 -p3
 %patch -P30 -p3 -R
 %patch -P31 -p3
 %patch -P32 -p3
@@ -160,6 +168,7 @@ pushd drivers-hid
 %patch -P46 -p3
 %patch -P47 -p3
 %patch -P48 -p3
+%patch -P49 -p3
 popd
 pushd drivers-input-joystick
 %patch -P50 -p4
@@ -314,7 +323,7 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Sun May 31 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-1
+* Tue Jun 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-1
 - Initial build for game controllers (hid-nintendo, hid-playstation, xpad)
 - Source code from RHEL 10.2 GA kernel-6.12.0-211.7.3.el10_2
 - Built against RHEL 10.2 GA kernel-6.12.0-211.7.3.el10_2

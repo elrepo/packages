@@ -1,0 +1,36 @@
+From 2295657ac30a5d40564f76dcb107730feacceef1 Mon Sep 17 00:00:00 2001
+From: Willy Huang <willyhuang@google.com>
+Date: Thu, 30 Oct 2025 14:37:04 +0800
+Subject: [PATCH 2/2] HID: nintendo: Reduce JC_SUBCMD_RATE_MAX_ATTEMPTS
+
+The JC_SUBCMD_RATE_MAX_ATTEMPTS constant is currently set to 500.
+In a worst-case scenario where all attempts consistently fail, this could
+cause the loop to block for up to 60000 ms (500 * 60ms * 2, including the
+additional retry after a timeout).
+
+This change lowers the maximum potential blocking time to 3000 ms
+(25 * 60ms * 2), improving system responsiveness and efficiency.
+
+Signed-off-by: Willy Huang <willyhuang@google.com>
+Reviewed-by: Daniel J. Ogorchock <djogorchock@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.com>
+---
+ drivers/hid/hid-nintendo.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
+index c2849a541f65..342cd6893502 100644
+--- a/drivers/hid/hid-nintendo.c
++++ b/drivers/hid/hid-nintendo.c
+@@ -819,7 +819,7 @@ static void joycon_wait_for_input_report(struct joycon_ctlr *ctlr)
+ #define JC_INPUT_REPORT_MAX_DELTA	17
+ #define JC_SUBCMD_TX_OFFSET_MS		4
+ #define JC_SUBCMD_VALID_DELTA_REQ	3
+-#define JC_SUBCMD_RATE_MAX_ATTEMPTS	500
++#define JC_SUBCMD_RATE_MAX_ATTEMPTS	25
+ #define JC_SUBCMD_RATE_LIMITER_USB_MS	20
+ #define JC_SUBCMD_RATE_LIMITER_BT_MS	60
+ #define JC_SUBCMD_RATE_LIMITER_MS(ctlr)	((ctlr)->hdev->bus == BUS_USB ? JC_SUBCMD_RATE_LIMITER_USB_MS : JC_SUBCMD_RATE_LIMITER_BT_MS)
+-- 
+2.52.0
+

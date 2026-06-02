@@ -1,7 +1,7 @@
 From e35ca991a777ef513040cbb36bc8245a031a2633 Mon Sep 17 00:00:00 2001
 From: Sven Schwermer <sven.schwermer@disruptive-technologies.com>
 Date: Fri, 4 Apr 2025 20:40:36 +0200
-Subject: [PATCH] leds: multicolor: Fix intensity setting while SW blinking
+Subject: [PATCH 1/2] leds: multicolor: Fix intensity setting while SW blinking
 
 When writing to the multi_intensity file, don't unconditionally call
 led_set_brightness. By only doing this if blinking is inactive we

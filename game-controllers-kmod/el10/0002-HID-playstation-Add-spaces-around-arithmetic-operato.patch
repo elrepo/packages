@@ -1,7 +1,7 @@
 From 6c6af4c4dfd3ca734b3507361476ec1774dca477 Mon Sep 17 00:00:00 2001
 From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
 Date: Wed, 25 Jun 2025 00:56:46 +0300
-Subject: [PATCH 02/18] HID: playstation: Add spaces around arithmetic
+Subject: [PATCH 02/21] HID: playstation: Add spaces around arithmetic
  operators
 
 Get rid of several checkpatch.pl complaints:

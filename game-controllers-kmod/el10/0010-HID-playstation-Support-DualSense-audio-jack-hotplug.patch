@@ -1,7 +1,7 @@
 From b1b4806c0c528e51c648dbaf8cd9f7027c1c11b7 Mon Sep 17 00:00:00 2001
 From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
 Date: Wed, 25 Jun 2025 00:56:54 +0300
-Subject: [PATCH 10/18] HID: playstation: Support DualSense audio jack hotplug
+Subject: [PATCH 10/21] HID: playstation: Support DualSense audio jack hotplug
  detection
 
 The default audio output path on DualSense controller hardware is set to

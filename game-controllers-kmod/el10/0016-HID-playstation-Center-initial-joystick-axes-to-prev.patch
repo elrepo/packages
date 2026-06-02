@@ -1,10 +1,8 @@
-From 747b9a7d4c712fd84dcf958471d7dd0caed78736 Mon Sep 17 00:00:00 2001
+From e9143268d259d98e111a649affa061acb8e13c5b Mon Sep 17 00:00:00 2001
 From: Siarhei Vishniakou <svv@google.com>
 Date: Tue, 11 Nov 2025 15:45:19 -0800
-Subject: [PATCH 16/18] HID: playstation: Center initial joystick axes to
+Subject: [PATCH 16/21] HID: playstation: Center initial joystick axes to
  prevent spurious events
-
-[ Upstream commit e9143268d259d98e111a649affa061acb8e13c5b ]
 
 When a new PlayStation gamepad (DualShock 4 or DualSense) is initialized,
 the input subsystem sets the default value for its absolute axes (e.g.,
@@ -33,7 +31,6 @@ delta and thus, no spurious event.
 Signed-off-by: Siarhei Vishniakou <svv@google.com>
 Reviewed-by: Benjamin Tissoires <bentiss@kernel.org>
 Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
  drivers/hid/hid-playstation.c | 5 +++++
  1 file changed, 5 insertions(+)

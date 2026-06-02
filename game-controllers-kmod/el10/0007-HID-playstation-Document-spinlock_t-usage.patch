@@ -1,7 +1,7 @@
 From d9812f06be437c64e00fd557ed374100c97077cc Mon Sep 17 00:00:00 2001
 From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
 Date: Wed, 25 Jun 2025 00:56:51 +0300
-Subject: [PATCH 07/18] HID: playstation: Document spinlock_t usage
+Subject: [PATCH 07/21] HID: playstation: Document spinlock_t usage
 
 Document the usage of 'lock' member in struct ps_device and silent
 checkpatch.pl complaint:

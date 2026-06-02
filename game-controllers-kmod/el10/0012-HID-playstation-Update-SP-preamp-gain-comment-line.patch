@@ -1,7 +1,7 @@
 From d335230cb29b7f578dba0b770d97cd320c83892b Mon Sep 17 00:00:00 2001
 From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
 Date: Tue, 23 Sep 2025 00:29:40 +0300
-Subject: [PATCH 12/18] HID: playstation: Update SP preamp gain comment line
+Subject: [PATCH 12/21] HID: playstation: Update SP preamp gain comment line
 
 Adjusting speaker pre-amp gain to 0x2 indicates +6dB, hence update the
 related comment line accordingly.

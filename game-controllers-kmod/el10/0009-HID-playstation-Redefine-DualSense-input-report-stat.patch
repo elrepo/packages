@@ -1,7 +1,7 @@
 From d7b744fa977b4c402c25ba723b4981a8420ad15a Mon Sep 17 00:00:00 2001
 From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
 Date: Wed, 25 Jun 2025 00:56:53 +0300
-Subject: [PATCH 09/18] HID: playstation: Redefine DualSense input report
+Subject: [PATCH 09/21] HID: playstation: Redefine DualSense input report
  status field
 
 The 'status' member of struct dualsense_input_report is currently used

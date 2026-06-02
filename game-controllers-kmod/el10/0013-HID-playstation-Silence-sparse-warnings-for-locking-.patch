@@ -1,7 +1,7 @@
 From 3969f77f5dd5c69d513a33f350128e61e0e1ab00 Mon Sep 17 00:00:00 2001
 From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
 Date: Tue, 23 Sep 2025 00:29:41 +0300
-Subject: [PATCH 13/18] HID: playstation: Silence sparse warnings for locking
+Subject: [PATCH 13/21] HID: playstation: Silence sparse warnings for locking
  context imbalances
 
 It seems sparse has some difficulties with guard() handling or when

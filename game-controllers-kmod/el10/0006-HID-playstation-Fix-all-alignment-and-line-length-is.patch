@@ -1,7 +1,7 @@
 From 56d7f285bfaa38fad082c1b50e20c1b57b2a8e18 Mon Sep 17 00:00:00 2001
 From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
 Date: Wed, 25 Jun 2025 00:56:50 +0300
-Subject: [PATCH 06/18] HID: playstation: Fix all alignment and line length
+Subject: [PATCH 06/21] HID: playstation: Fix all alignment and line length
  issues
 
 Format code to address the following checkpatch.pl reports:

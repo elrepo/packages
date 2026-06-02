@@ -1,7 +1,7 @@
 From b8874720b2f33a06ff1d4cf3827e7ec1195cb360 Mon Sep 17 00:00:00 2001
 From: Vicki Pfau <vi@endrift.com>
 Date: Mon, 6 Oct 2025 18:05:33 -0700
-Subject: [PATCH] HID: nintendo: Rate limit IMU compensation message
+Subject: [PATCH 1/2] HID: nintendo: Rate limit IMU compensation message
 
 Some controllers are very bad at updating the IMU, leading to these
 messages spamming the syslog. Rate-limiting them helps with this a bit.

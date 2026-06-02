@@ -1,7 +1,7 @@
 From 8513c154f8ad7097653dd9bf43d6155e5aad4ab3 Mon Sep 17 00:00:00 2001
 From: Abdun Nihaal <nihaal@cse.iitm.ac.in>
 Date: Mon, 10 Nov 2025 22:45:50 +0530
-Subject: [PATCH 15/18] HID: playstation: Fix memory leak in
+Subject: [PATCH 15/21] HID: playstation: Fix memory leak in
  dualshock4_get_calibration_data()
 
 The memory allocated for buf is not freed in the error paths when

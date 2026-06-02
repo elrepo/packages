@@ -1,9 +1,7 @@
-From 7812694752a5f295eaa05a093b90a2c332666051 Mon Sep 17 00:00:00 2001
+From cac61b58a3b6340c52afa06bb15eac033158db2f Mon Sep 17 00:00:00 2001
 From: "T.J. Mercier" <tjmercier@google.com>
 Date: Fri, 17 Apr 2026 08:47:02 -0700
-Subject: [PATCH 18/18] HID: playstation: Clamp num_touch_reports
-
-commit cac61b58a3b6340c52afa06bb15eac033158db2f upstream.
+Subject: [PATCH 21/21] HID: playstation: Clamp num_touch_reports
 
 A device would never lie about the number of touch reports would it?
 
@@ -19,17 +17,16 @@ Cc: stable@vger.kernel.org
 Reported-by: Xingyu Jin <xingyuj@google.com>
 Signed-off-by: T.J. Mercier <tjmercier@google.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/hid/hid-playstation.c | 6 ++++--
  1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-index 2ec6d4445e84..12fad45ac106 100644
+index c43caac20b61..e48537331675 100644
 --- a/drivers/hid/hid-playstation.c
 +++ b/drivers/hid/hid-playstation.c
-@@ -2378,7 +2378,8 @@ static int dualshock4_parse_report(struct ps_device *ps_dev, struct hid_report *
- 			(struct dualshock4_input_report_usb *)data;
+@@ -2384,7 +2384,8 @@ static int dualshock4_parse_report(struct ps_device *ps_dev, struct hid_report *
+ 		}
  
  		ds4_report = &usb->common;
 -		num_touch_reports = usb->num_touch_reports;
@@ -38,7 +35,7 @@ index 2ec6d4445e84..12fad45ac106 100644
  		touch_reports = usb->touch_reports;
  	} else if (hdev->bus == BUS_BLUETOOTH && report->id == DS4_INPUT_REPORT_BT &&
  		   size == DS4_INPUT_REPORT_BT_SIZE) {
-@@ -2392,7 +2393,8 @@ static int dualshock4_parse_report(struct ps_device *ps_dev, struct hid_report *
+@@ -2404,7 +2405,8 @@ static int dualshock4_parse_report(struct ps_device *ps_dev, struct hid_report *
  		}
  
  		ds4_report = &bt->common;

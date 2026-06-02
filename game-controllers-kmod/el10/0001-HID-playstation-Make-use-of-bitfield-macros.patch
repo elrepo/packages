@@ -1,7 +1,7 @@
 From 0d52aafb8bcee01b11ec8f3b46050540585431eb Mon Sep 17 00:00:00 2001
 From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
 Date: Wed, 25 Jun 2025 00:56:45 +0300
-Subject: [PATCH 01/18] HID: playstation: Make use of bitfield macros
+Subject: [PATCH 01/21] HID: playstation: Make use of bitfield macros
 
 Improve code readability and make it more robust by replacing open coded
 bit operations with the equivalent bitfield macros.

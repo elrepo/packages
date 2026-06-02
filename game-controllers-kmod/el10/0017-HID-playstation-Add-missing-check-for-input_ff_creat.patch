@@ -1,10 +1,8 @@
-From 35301ca2a83d17aac2f3e8e35c696f0da2a13111 Mon Sep 17 00:00:00 2001
+From e6807641ac94e832988655a1c0e60ccc806b76dc Mon Sep 17 00:00:00 2001
 From: Haotian Zhang <vulab@iscas.ac.cn>
 Date: Mon, 17 Nov 2025 16:28:08 +0800
-Subject: [PATCH 17/18] HID: playstation: Add missing check for
+Subject: [PATCH 17/21] HID: playstation: Add missing check for
  input_ff_create_memless
-
-[ Upstream commit e6807641ac94e832988655a1c0e60ccc806b76dc ]
 
 The ps_gamepad_create() function calls input_ff_create_memless()
 without verifying its return value,  which can lead to incorrect
@@ -15,7 +13,6 @@ Add a check for the return value of input_ff_create_memless().
 Fixes: 51151098d7ab ("HID: playstation: add DualSense classic rumble support.")
 Signed-off-by: Haotian Zhang <vulab@iscas.ac.cn>
 Signed-off-by: Jiri Kosina <jkosina@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
  drivers/hid/hid-playstation.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)

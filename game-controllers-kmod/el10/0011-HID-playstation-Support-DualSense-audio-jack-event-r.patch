@@ -1,7 +1,7 @@
 From e1c24d545b8d0f4f04e01258f1ac5d2934c6a08d Mon Sep 17 00:00:00 2001
 From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
 Date: Wed, 25 Jun 2025 00:56:55 +0300
-Subject: [PATCH 11/18] HID: playstation: Support DualSense audio jack event
+Subject: [PATCH 11/21] HID: playstation: Support DualSense audio jack event
  reporting
 
 The DualSense controller complies with v1.0 of the USB Audio Class spec

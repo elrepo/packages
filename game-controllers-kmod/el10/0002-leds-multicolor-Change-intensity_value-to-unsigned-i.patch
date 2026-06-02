@@ -1,0 +1,51 @@
+From b5227947e68e7515ba449b870338909ed32ac8d2 Mon Sep 17 00:00:00 2001
+From: Michael Tretter <m.tretter@pengutronix.de>
+Date: Fri, 6 Feb 2026 15:21:23 +0100
+Subject: [PATCH 2/2] leds: multicolor: Change intensity_value to unsigned int
+
+Using min to compare the intensity_value with led_dev->max_brightness
+causes a signedness error:
+
+	drivers/leds/led-class-multicolor.c: In function 'multi_intensity_store':
+	././include/linux/compiler_types.h:630:45: error:
+	  call to '__compiletime_assert_195' declared with attribute error:
+	    min(intensity_value[i], led_cdev->max_brightness) signedness error
+
+Change the type of intensity_value to unsigned int to fix the signedness
+error.
+
+intensity_value is used to set mcled_cdev->subled_info[i].intensity,
+which is unsigned int, too.
+
+Fixes: 129f82752bce ("leds: multicolor: Limit intensity to max_brightness of LED")
+Signed-off-by: Michael Tretter <m.tretter@pengutronix.de>
+Link: https://patch.msgid.link/20260206-leds-multicolor-fix-signedness-error-v1-1-48a00ed33c07@pengutronix.de
+Signed-off-by: Lee Jones <lee@kernel.org>
+---
+ drivers/leds/led-class-multicolor.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/leds/led-class-multicolor.c b/drivers/leds/led-class-multicolor.c
+index fd66d2bdeace..6b671f3f9c61 100644
+--- a/drivers/leds/led-class-multicolor.c
++++ b/drivers/leds/led-class-multicolor.c
+@@ -34,14 +34,14 @@ static ssize_t multi_intensity_store(struct device *dev,
+ 	struct led_classdev *led_cdev = dev_get_drvdata(dev);
+ 	struct led_classdev_mc *mcled_cdev = lcdev_to_mccdev(led_cdev);
+ 	int nrchars, offset = 0;
+-	int intensity_value[LED_COLOR_ID_MAX];
++	unsigned int intensity_value[LED_COLOR_ID_MAX];
+ 	int i;
+ 	ssize_t ret;
+ 
+ 	mutex_lock(&led_cdev->led_access);
+ 
+ 	for (i = 0; i < mcled_cdev->num_colors; i++) {
+-		ret = sscanf(buf + offset, "%i%n",
++		ret = sscanf(buf + offset, "%u%n",
+ 			     &intensity_value[i], &nrchars);
+ 		if (ret != 1) {
+ 			ret = -EINVAL;
+-- 
+2.52.0
+
