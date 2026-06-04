@@ -30,7 +30,7 @@ static int sas_disable_routing(struct domain_device *dev,  u8 *sas_addr);
 
 static void smp_task_timedout(struct timer_list *t)
 {
-	struct sas_task_slow *slow = from_timer(slow, t, timer);
+	struct sas_task_slow *slow = timer_container_of(slow, t, timer);
 	struct sas_task *task = slow->task;
 	unsigned long flags;
 
