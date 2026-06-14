@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	4.0
-Release:	13%{?dist}
+Release:	14%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -206,9 +206,14 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 4.0-13
-- Source code updated from RHEL 9.8 GA kernel
+* Sun Jun 14 2026 Tuan Hoang <tqhoang@elrepo.org> - 4.0-14
 - Built against RHEL 9.8 GA kernel-5.14.0-687.5.3.el9_8
+- Source code updated from RHEL 9.8 errata kernel-5.14.0-687.15.1.el9_8
+- RDMA/mlx4: Fix mis-use of RCU in mlx4_srq_event() (Kamal Heib) [RHEL-179988] {CVE-2026-46181}
+
+* Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 4.0-13
+- Built against RHEL 9.8 GA kernel-5.14.0-687.5.3.el9_8
+- Source code updated from RHEL 9.8 GA kernel
 
 * Fri Jan 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 4.0-12
 - Fix problems in posttrans section

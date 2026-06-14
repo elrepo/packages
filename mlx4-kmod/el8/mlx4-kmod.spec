@@ -2,13 +2,13 @@
 %define kmod_name		mlx4
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.45.1.el8_10}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.75.1.el8_10}
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	4.0
-Release:	13%{?dist}
+Release:	14.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -66,7 +66,15 @@ echo "override %{kmod_name}_core * weak-updates/%{kmod_name}" > kmod-%{kmod_name
 echo "override %{kmod_name}_en * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 
 %build
-%{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD
+%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD \
+	CONFIG_MLX4_CORE=m \
+	CONFIG_MLX4_EN=m \
+	CONFIG_MLX4_EN_DCB=y \
+	CONFIG_MLX4_CORE_GEN2=y \
+	EXTRA_CFLAGS+='-DCONFIG_MLX4_CORE ' \
+	EXTRA_CFLAGS+='-DCONFIG_MLX4_EN ' \
+	EXTRA_CFLAGS+='-DCONFIG_MLX4_EN_DCB ' \
+	EXTRA_CFLAGS+='-DCONFIG_MLX4_CORE_GEN2 '
 
 whitelist="/lib/modules/kabi-current/kabi_whitelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -178,8 +186,16 @@ exit 0
 %doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Sun Jun 14 2026 Tuan Hoang <tqhoang@elrepo.org> - 4.0-14.1
+- Rebuilt against RHEL 8.10 errata kernel-4.18.0-553.75.1.el8_10
+
+* Sun Jun 14 2026 Tuan Hoang <tqhoang@elrepo.org> - 4.0-14
+- Built against RHEL 8.10 GA kernel-4.18.0-553.el8_10
+- Source code updated from RHEL kernel-4.18.0-553.132.1.el8_10
+- RDMA/mlx4: Fix mis-use of RCU in mlx4_srq_event() (Kamal Heib) [RHEL-179982] {CVE-2026-46181}
+
 * Fri Mar 28 2025 Tuan Hoang <tqhoang@elrepo.org> - 4.0-13
-- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.45.1.el8_10
+- Rebuilt against RHEL 8.10 errata kernel-4.18.0-553.45.1.el8_10
 
 * Wed May 22 2024 Akemi Yagi <toracat@elrepo.org> - 4.0-12
 - Rebuilt for RHEL 8.10
