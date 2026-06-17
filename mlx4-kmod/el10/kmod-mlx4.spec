@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	4.0
-Release:	4%{?dist}
+Release:	5%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -24,6 +24,7 @@ Patch1: 	0002-net-mlx4_core-Avoid-impossible-mlx4_db_alloc-order-v.patch
 Patch2: 	0003-net-mlx4_en-Prevent-potential-integer-overflow-calcu.patch
 Patch3: 	0004-net-mlx4-add-SOF_TIMESTAMPING_TX_SOFTWARE-flag-when-.patch
 Patch4: 	0005-net-mlx4-prevent-potential-use-after-free-in-mlx4_en.patch
+Patch5: 	0006-RDMA-mlx4-Fix-mis-use-of-RCU-in-mlx4_srq_event.patch
 Patch100:	0101-RDMA-mlx4-Avoid-false-error-about-access-to-uninitia.patch
 Patch101:	0102-RDMA-mlx4-Fix-resource-leak-on-error-in-mlx4_ib_crea.patch
 
@@ -89,6 +90,7 @@ echo "override %{kmod_name}_ib * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}
 %patch -P2 -p6
 %patch -P3 -p6
 %patch -P4 -p6
+%patch -P5 -p1
 pushd infiniband
 %patch -P100 -p5
 %patch -P101 -p5
@@ -224,6 +226,9 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Jun 17 2026 Tuan Hoang <tqhoang@elrepo.org> - 4.0-5
+- Add patch to preemptively fix CVE-2026-46181
+
 * Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 4.0-4
 - Source code updated from RHEL 10.2 GA kernel
 - Built against RHEL 10.2 GA kernel-6.12.0-211.7.3.el10_2
