@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	10.02.09.100
-Release:	4%{?dist}
+Release:	5%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -20,6 +20,7 @@ Source5:	GPL-v2.0.txt
 
 # Source code patches
 Patch0: 	elrepo-qla2xxx-revert-removed-devices.el8.10.patch
+Patch1: 	0001-scsi-qla2xxx-Completely-fix-fcport-double-free.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -72,6 +73,7 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 
 # Apply patch(es)
 %patch0 -p1
+%patch1 -p4
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD \
@@ -187,6 +189,9 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Jun 23 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.10.100-5
+- Add patch to preemptively fix CVE-2026-43414
+
 * Tue Apr 21 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.09.100-4
 - Source code updated from RHEL kernel-4.18.0-553.120.1.el8_10.x86_64
 - scsi: qla2xxx: Fix improper freeing of purex item (CKI Backport Bot) [RHEL-159219] {CVE-2025-68741}

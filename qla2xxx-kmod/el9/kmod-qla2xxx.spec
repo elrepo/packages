@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	10.02.10.100
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -192,6 +192,11 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Jun 23 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.10.100-2
+- Source code updated from RHEL 9.8 errata kernel-5.14.0-687.17.1.el9_8
+- scsi: qla2xxx: Completely fix fcport double free (Ewan D. Milne) [RHEL-179754] {CVE-2026-43414}
+- Built against RHEL 9.8 GA kernel-5.14.0-687.5.3.el9_8
+
 * Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.10.100-1
 - Source code updated from RHEL 9.8 errata kernel-5.14.0-687.10.1.el9_8
 - scsi: qla2xxx: Fix improper freeing of purex item (CKI Backport Bot) [RHEL-159223] {CVE-2025-68741}

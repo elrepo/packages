@@ -1,0 +1,21 @@
+diff --git a/qla2xxx-kmod/el8/qla2xxx-10.02.09.100/qla_iocb.c b/qla2xxx-kmod/el8/qla2xxx-10.02.09.100/qla_iocb.c
+index ce3b347e..42efd122 100644
+--- a/qla2xxx-kmod/el8/qla2xxx-10.02.09.100/qla_iocb.c
++++ b/qla2xxx-kmod/el8/qla2xxx-10.02.09.100/qla_iocb.c
+@@ -2694,7 +2694,7 @@ qla24xx_els_dcmd_iocb(scsi_qla_host_t *vha, int els_opcode,
+ 	 */
+ 	sp = qla2x00_get_sp(vha, fcport, GFP_KERNEL);
+ 	if (!sp) {
+-		kfree(fcport);
++		qla2x00_free_fcport(fcport);
+ 		ql_log(ql_log_info, vha, 0x70e6,
+ 		 "SRB allocation failed\n");
+ 		return -ENOMEM;
+@@ -2725,7 +2725,6 @@ qla24xx_els_dcmd_iocb(scsi_qla_host_t *vha, int els_opcode,
+ 	if (!elsio->u.els_logo.els_logo_pyld) {
+ 		/* ref: INIT */
+ 		kref_put(&sp->cmd_kref, qla2x00_sp_release);
+-		qla2x00_free_fcport(fcport);
+ 		return QLA_FUNCTION_FAILED;
+ 	}
+ 
