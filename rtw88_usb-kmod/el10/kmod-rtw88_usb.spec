@@ -66,6 +66,8 @@ Requires(postun):	%{_sbindir}/depmod
 Requires(post):		%{_sbindir}/weak-modules
 Requires(postun):	%{_sbindir}/weak-modules
 
+Recommends:		realtek-firmware
+
 %description
 This package provides the %{kmod_name} kernel module(s).
 It is built to depend upon the specific ABI provided by a range of releases
