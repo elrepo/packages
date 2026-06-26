@@ -1,0 +1,33 @@
+From 41cb08555c4164996d67c78b3bf1c658075b75f1 Mon Sep 17 00:00:00 2001
+From: Ingo Molnar <mingo@kernel.org>
+Date: Fri, 9 May 2025 07:51:14 +0200
+Subject: [PATCH] treewide, timers: Rename from_timer() to timer_container_of()
+
+Move this API to the canonical timer_*() namespace.
+
+[ tglx: Redone against pre rc1 ]
+
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/all/aB2X0jCKQO56WdMt@gmail.com
+---
+ fs/ocfs2/cluster/tcp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/fs/ocfs2/cluster/tcp.c b/fs/ocfs2/cluster/tcp.c
+index 43e652a2adaf..b05d4e9d13b2 100644
+--- a/fs/ocfs2/cluster/tcp.c
++++ b/fs/ocfs2/cluster/tcp.c
+@@ -1488,7 +1488,8 @@ static void o2net_sc_send_keep_req(struct work_struct *work)
+  * where shutdown is going to be involved */
+ static void o2net_idle_timer(struct timer_list *t)
+ {
+-	struct o2net_sock_container *sc = from_timer(sc, t, sc_idle_timeout);
++	struct o2net_sock_container *sc = timer_container_of(sc, t,
++							     sc_idle_timeout);
+ 	struct o2net_node *nn = o2net_nn_from_num(sc->sc_node->nd_num);
+ #ifdef CONFIG_DEBUG_FS
+ 	unsigned long msecs = ktime_to_ms(ktime_get()) -
+-- 
+2.52.0
+

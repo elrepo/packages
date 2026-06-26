@@ -1,0 +1,30 @@
+From b875bd5b381e114115922944f7a01e31f8b07c2a Mon Sep 17 00:00:00 2001
+From: Benjamin Coddington <bcodding@redhat.com>
+Date: Wed, 11 Sep 2024 15:43:00 -0400
+Subject: [PATCH 2/2] exportfs: Remove EXPORT_OP_ASYNC_LOCK
+
+Now that GFS2 and OCFS2 are signalling async ->lock() support with
+FOP_ASYNC_LOCK and checks for support are converted, we can remove
+EXPORT_OP_ASYNC_LOCK.
+
+Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
+Link: https://lore.kernel.org/r/0a114db814fec3086f937ae3d44a086f13b8de26.1726083391.git.bcodding@redhat.com
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Christian Brauner <brauner@kernel.org>
+---
+ fs/ocfs2/export.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/fs/ocfs2/export.c b/fs/ocfs2/export.c
+index 96b684763b39..b95724b767e1 100644
+--- a/fs/ocfs2/export.c
++++ b/fs/ocfs2/export.c
+@@ -280,5 +280,4 @@ const struct export_operations ocfs2_export_ops = {
+ 	.fh_to_dentry	= ocfs2_fh_to_dentry,
+ 	.fh_to_parent	= ocfs2_fh_to_parent,
+ 	.get_parent	= ocfs2_get_parent,
+-	.flags		= EXPORT_OP_ASYNC_LOCK,
+ };
+-- 
+2.52.0
+

@@ -1,0 +1,39 @@
+From a0b5ff07491010789fcb012bc8f9dad9d26f9a8b Mon Sep 17 00:00:00 2001
+From: Davidlohr Bueso <dave@stgolabs.net>
+Date: Thu, 17 Apr 2025 18:59:18 -0700
+Subject: [PATCH] fs/ocfs2: use sleeping version of __find_get_block()
+
+This is a path that allows for blocking as it does IO. Convert
+to the new nonatomic flavor to benefit from potential performance
+benefits and adapt in the future vs migration such that semantics
+are kept.
+
+Suggested-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Davidlohr Bueso <dave@stgolabs.net>
+Link: https://kdevops.org/ext4/v6.15-rc2.html # [0]
+Link: https://lore.kernel.org/all/aAAEvcrmREWa1SKF@bombadil.infradead.org/ # [1]
+Link: https://lore.kernel.org/20250418015921.132400-5-dave@stgolabs.net
+Tested-by: kdevops@lists.linux.dev
+Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
+Signed-off-by: Christian Brauner <brauner@kernel.org>
+---
+ fs/ocfs2/journal.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/fs/ocfs2/journal.c b/fs/ocfs2/journal.c
+index f1b4b3e611cb..c7a9729dc9d0 100644
+--- a/fs/ocfs2/journal.c
++++ b/fs/ocfs2/journal.c
+@@ -1249,7 +1249,7 @@ static int ocfs2_force_read_journal(struct inode *inode)
+ 		}
+ 
+ 		for (i = 0; i < p_blocks; i++, p_blkno++) {
+-			bh = __find_get_block(osb->sb->s_bdev, p_blkno,
++			bh = __find_get_block_nonatomic(osb->sb->s_bdev, p_blkno,
+ 					osb->sb->s_blocksize);
+ 			/* block not cached. */
+ 			if (!bh)
+-- 
+2.52.0
+
