@@ -1,0 +1,19 @@
+diff -Naurp ocfs2-0.0.orig/file.c ocfs2-0.0/file.c
+--- ocfs2-0.0.orig/file.c	2026-06-27 14:15:50.683648147 -0400
++++ ocfs2-0.0/file.c	2026-06-27 14:40:40.544468422 -0400
+@@ -2807,6 +2807,7 @@ const struct file_operations ocfs2_fops
+ 	.splice_write	= iter_file_splice_write,
+ 	.fallocate	= ocfs2_fallocate,
+ 	.remap_file_range = ocfs2_remap_file_range,
++	.fop_flags      = FOP_ASYNC_LOCK,
+ };
+ 
+ const struct file_operations ocfs2_dops = {
+@@ -2822,6 +2823,7 @@ const struct file_operations ocfs2_dops
+ #endif
+ 	.lock		= ocfs2_lock,
+ 	.flock		= ocfs2_flock,
++	.fop_flags      = FOP_ASYNC_LOCK,
+ };
+ 
+ /*

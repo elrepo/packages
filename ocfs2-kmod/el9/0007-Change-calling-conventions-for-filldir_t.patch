@@ -1,0 +1,138 @@
+From 25885a35a72007cf28ec5f9ba7169c5c798f7167 Mon Sep 17 00:00:00 2001
+From: Al Viro <viro@zeniv.linux.org.uk>
+Date: Tue, 16 Aug 2022 11:57:56 -0400
+Subject: [PATCH] Change calling conventions for filldir_t
+
+filldir_t instances (directory iterators callbacks) used to return 0 for
+"OK, keep going" or -E... for "stop".  Note that it's *NOT* how the
+error values are reported - the rules for those are callback-dependent
+and ->iterate{,_shared}() instances only care about zero vs. non-zero
+(look at emit_dir() and friends).
+
+So let's just return bool ("should we keep going?") - it's less confusing
+that way.  The choice between "true means keep going" and "true means
+stop" is bikesheddable; we have two groups of callbacks -
+	do something for everything in directory, until we run into problem
+and
+	find an entry in directory and do something to it.
+
+The former tended to use 0/-E... conventions - -E<something> on failure.
+The latter tended to use 0/1, 1 being "stop, we are done".
+The callers treated anything non-zero as "stop", ignoring which
+non-zero value did they get.
+
+"true means stop" would be more natural for the second group; "true
+means keep going" - for the first one.  I tried both variants and
+the things like
+	if allocation failed
+		something = -ENOMEM;
+		return true;
+just looked unnatural and asking for trouble.
+
+[folded suggestion from Matthew Wilcox <willy@infradead.org>]
+Acked-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+---
+ fs/ocfs2/dir.c     | 10 +++++-----
+ fs/ocfs2/journal.c | 14 +++++++-------
+ 2 files changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/fs/ocfs2/dir.c b/fs/ocfs2/dir.c
+index 81c3d65d68fe..694471fc46b8 100644
+--- a/fs/ocfs2/dir.c
++++ b/fs/ocfs2/dir.c
+@@ -2032,7 +2032,7 @@ struct ocfs2_empty_dir_priv {
+ 	unsigned seen_other;
+ 	unsigned dx_dir;
+ };
+-static int ocfs2_empty_dir_filldir(struct dir_context *ctx, const char *name,
++static bool ocfs2_empty_dir_filldir(struct dir_context *ctx, const char *name,
+ 				   int name_len, loff_t pos, u64 ino,
+ 				   unsigned type)
+ {
+@@ -2052,7 +2052,7 @@ static int ocfs2_empty_dir_filldir(struct dir_context *ctx, const char *name,
+ 	 */
+ 	if (name_len == 1 && !strncmp(".", name, 1) && pos == 0) {
+ 		p->seen_dot = 1;
+-		return 0;
++		return true;
+ 	}
+ 
+ 	if (name_len == 2 && !strncmp("..", name, 2) &&
+@@ -2060,13 +2060,13 @@ static int ocfs2_empty_dir_filldir(struct dir_context *ctx, const char *name,
+ 		p->seen_dot_dot = 1;
+ 
+ 		if (p->dx_dir && p->seen_dot)
+-			return 1;
++			return false;
+ 
+-		return 0;
++		return true;
+ 	}
+ 
+ 	p->seen_other = 1;
+-	return 1;
++	return false;
+ }
+ 
+ static int ocfs2_empty_dir_dx(struct inode *inode,
+diff --git a/fs/ocfs2/journal.c b/fs/ocfs2/journal.c
+index fa87d89cf754..126671e6caed 100644
+--- a/fs/ocfs2/journal.c
++++ b/fs/ocfs2/journal.c
+@@ -2057,7 +2057,7 @@ struct ocfs2_orphan_filldir_priv {
+ 	enum ocfs2_orphan_reco_type orphan_reco_type;
+ };
+ 
+-static int ocfs2_orphan_filldir(struct dir_context *ctx, const char *name,
++static bool ocfs2_orphan_filldir(struct dir_context *ctx, const char *name,
+ 				int name_len, loff_t pos, u64 ino,
+ 				unsigned type)
+ {
+@@ -2066,21 +2066,21 @@ static int ocfs2_orphan_filldir(struct dir_context *ctx, const char *name,
+ 	struct inode *iter;
+ 
+ 	if (name_len == 1 && !strncmp(".", name, 1))
+-		return 0;
++		return true;
+ 	if (name_len == 2 && !strncmp("..", name, 2))
+-		return 0;
++		return true;
+ 
+ 	/* do not include dio entry in case of orphan scan */
+ 	if ((p->orphan_reco_type == ORPHAN_NO_NEED_TRUNCATE) &&
+ 			(!strncmp(name, OCFS2_DIO_ORPHAN_PREFIX,
+ 			OCFS2_DIO_ORPHAN_PREFIX_LEN)))
+-		return 0;
++		return true;
+ 
+ 	/* Skip bad inodes so that recovery can continue */
+ 	iter = ocfs2_iget(p->osb, ino,
+ 			  OCFS2_FI_FLAG_ORPHAN_RECOVERY, 0);
+ 	if (IS_ERR(iter))
+-		return 0;
++		return true;
+ 
+ 	if (!strncmp(name, OCFS2_DIO_ORPHAN_PREFIX,
+ 			OCFS2_DIO_ORPHAN_PREFIX_LEN))
+@@ -2090,7 +2090,7 @@ static int ocfs2_orphan_filldir(struct dir_context *ctx, const char *name,
+ 	 * happen concurrently with unlink/rename */
+ 	if (OCFS2_I(iter)->ip_next_orphan) {
+ 		iput(iter);
+-		return 0;
++		return true;
+ 	}
+ 
+ 	trace_ocfs2_orphan_filldir((unsigned long long)OCFS2_I(iter)->ip_blkno);
+@@ -2099,7 +2099,7 @@ static int ocfs2_orphan_filldir(struct dir_context *ctx, const char *name,
+ 	OCFS2_I(iter)->ip_next_orphan = p->head;
+ 	p->head = iter;
+ 
+-	return 0;
++	return true;
+ }
+ 
+ static int ocfs2_queue_orphans(struct ocfs2_super *osb,
+-- 
+2.52.0
+

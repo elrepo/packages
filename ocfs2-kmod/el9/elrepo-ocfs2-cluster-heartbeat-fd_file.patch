@@ -1,0 +1,11 @@
+--- ocfs2-0.0.orig/cluster/heartbeat.c	2026-06-26 23:11:30.093383643 -0400
++++ ocfs2-0.0/cluster/heartbeat.c	2026-06-26 23:34:59.786333381 -0400
+@@ -29,6 +29,8 @@
+ #include "masklog.h"
+ 
+ 
++#define fd_file(f) (f.file)
++
+ /*
+  * The first heartbeat pass had one global thread that would serialize all hb
+  * callback calls.  This global serializing sem should only be removed once

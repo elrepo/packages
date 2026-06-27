@@ -1,0 +1,28 @@
+From 0aaf08de8426f823bd0e36797445222e6392e374 Mon Sep 17 00:00:00 2001
+From: Al Viro <viro@zeniv.linux.org.uk>
+Date: Thu, 19 Jan 2023 19:22:22 -0500
+Subject: [PATCH] __blockdev_direct_IO(): get rid of submit_io callback
+
+always NULL...
+
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+---
+ fs/ocfs2/aops.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/fs/ocfs2/aops.c b/fs/ocfs2/aops.c
+index 1d65f6ef00ca..50448ba5fda8 100644
+--- a/fs/ocfs2/aops.c
++++ b/fs/ocfs2/aops.c
+@@ -2448,7 +2448,7 @@ static ssize_t ocfs2_direct_IO(struct kiocb *iocb, struct iov_iter *iter)
+ 
+ 	return __blockdev_direct_IO(iocb, inode, inode->i_sb->s_bdev,
+ 				    iter, get_block,
+-				    ocfs2_dio_end_io, NULL, 0);
++				    ocfs2_dio_end_io, 0);
+ }
+ 
+ const struct address_space_operations ocfs2_aops = {
+-- 
+2.52.0
+

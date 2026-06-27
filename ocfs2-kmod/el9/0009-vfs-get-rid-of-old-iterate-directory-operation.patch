@@ -1,0 +1,59 @@
+From 3e3271549670783be20e233a2b78a87a0b04c715 Mon Sep 17 00:00:00 2001
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Sat, 5 Aug 2023 12:25:01 -0700
+Subject: [PATCH] vfs: get rid of old '->iterate' directory operation
+
+All users now just use '->iterate_shared()', which only takes the
+directory inode lock for reading.
+
+Filesystems that never got convered to shared mode now instead use a
+wrapper that drops the lock, re-takes it in write mode, calls the old
+function, and then downgrades the lock back to read mode.
+
+This way the VFS layer and other callers no longer need to care about
+filesystems that never got converted to the modern era.
+
+The filesystems that use the new wrapper are ceph, coda, exfat, jfs,
+ntfs, ocfs2, overlayfs, and vboxsf.
+
+Honestly, several of them look like they really could just iterate their
+directories in shared mode and skip the wrapper entirely, but the point
+of this change is to not change semantics or fix filesystems that
+haven't been fixed in the last 7+ years, but to finally get rid of the
+dual iterators.
+
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Christian Brauner <brauner@kernel.org>
+---
+ fs/ocfs2/file.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/fs/ocfs2/file.c b/fs/ocfs2/file.c
+index 91a194596552..bf2c17ea96a0 100644
+--- a/fs/ocfs2/file.c
++++ b/fs/ocfs2/file.c
+@@ -2793,10 +2793,11 @@ const struct file_operations ocfs2_fops = {
+ 	.remap_file_range = ocfs2_remap_file_range,
+ };
+ 
++WRAP_DIR_ITER(ocfs2_readdir) // FIXME!
+ const struct file_operations ocfs2_dops = {
+ 	.llseek		= generic_file_llseek,
+ 	.read		= generic_read_dir,
+-	.iterate	= ocfs2_readdir,
++	.iterate_shared	= shared_ocfs2_readdir,
+ 	.fsync		= ocfs2_sync_file,
+ 	.release	= ocfs2_dir_release,
+ 	.open		= ocfs2_dir_open,
+@@ -2842,7 +2843,7 @@ const struct file_operations ocfs2_fops_no_plocks = {
+ const struct file_operations ocfs2_dops_no_plocks = {
+ 	.llseek		= generic_file_llseek,
+ 	.read		= generic_read_dir,
+-	.iterate	= ocfs2_readdir,
++	.iterate_shared	= shared_ocfs2_readdir,
+ 	.fsync		= ocfs2_sync_file,
+ 	.release	= ocfs2_dir_release,
+ 	.open		= ocfs2_dir_open,
+-- 
+2.52.0
+

@@ -1,0 +1,43 @@
+From 0d72b92883c651a11059d93335f33d65c6eb653b Mon Sep 17 00:00:00 2001
+From: Jeff Layton <jlayton@kernel.org>
+Date: Mon, 7 Aug 2023 15:38:33 -0400
+Subject: [PATCH] fs: pass the request_mask to generic_fillattr
+
+generic_fillattr just fills in the entire stat struct indiscriminately
+today, copying data from the inode. There is at least one attribute
+(STATX_CHANGE_COOKIE) that can have side effects when it is reported,
+and we're looking at adding more with the addition of multigrain
+timestamps.
+
+Add a request_mask argument to generic_fillattr and have most callers
+just pass in the value that is passed to getattr. Have other callers
+(e.g. ksmbd) just pass in STATX_BASIC_STATS. Also move the setting of
+STATX_CHANGE_COOKIE into generic_fillattr.
+
+Acked-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Reviewed-by: Xiubo Li <xiubli@redhat.com>
+Reviewed-by: "Paulo Alcantara (SUSE)" <pc@manguebit.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Message-Id: <20230807-mgctime-v7-2-d1dec143a704@kernel.org>
+Signed-off-by: Christian Brauner <brauner@kernel.org>
+---
+ fs/ocfs2/file.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/fs/ocfs2/file.c b/fs/ocfs2/file.c
+index 1b337ebce4df..8184499ae7a5 100644
+--- a/fs/ocfs2/file.c
++++ b/fs/ocfs2/file.c
+@@ -1319,7 +1319,7 @@ int ocfs2_getattr(struct mnt_idmap *idmap, const struct path *path,
+ 		goto bail;
+ 	}
+ 
+-	generic_fillattr(&nop_mnt_idmap, inode, stat);
++	generic_fillattr(&nop_mnt_idmap, request_mask, inode, stat);
+ 	/*
+ 	 * If there is inline data in the inode, the inode will normally not
+ 	 * have data blocks allocated (it may have an external xattr block).
+-- 
+2.52.0
+

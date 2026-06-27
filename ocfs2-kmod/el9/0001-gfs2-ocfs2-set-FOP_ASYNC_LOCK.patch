@@ -1,0 +1,39 @@
+From 2253ab99f2e978d94693d6f63c83aa5b5d4c7839 Mon Sep 17 00:00:00 2001
+From: Benjamin Coddington <bcodding@redhat.com>
+Date: Wed, 11 Sep 2024 15:42:58 -0400
+Subject: [PATCH 1/2] gfs2/ocfs2: set FOP_ASYNC_LOCK
+
+Both GFS2 and OCFS2 use DLM locking, which will allow async lock requests.
+Signal this support by setting FOP_ASYNC_LOCK.
+
+Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
+Link: https://lore.kernel.org/r/fc4163dbbf33c58e5a8b8ee8cb8c57e555f53ce5.1726083391.git.bcodding@redhat.com
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Christian Brauner <brauner@kernel.org>
+---
+ fs/ocfs2/file.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/fs/ocfs2/file.c b/fs/ocfs2/file.c
+index ccc57038a977..a642f1adee6a 100644
+--- a/fs/ocfs2/file.c
++++ b/fs/ocfs2/file.c
+@@ -2793,6 +2793,7 @@ const struct file_operations ocfs2_fops = {
+ 	.splice_write	= iter_file_splice_write,
+ 	.fallocate	= ocfs2_fallocate,
+ 	.remap_file_range = ocfs2_remap_file_range,
++	.fop_flags	= FOP_ASYNC_LOCK,
+ };
+ 
+ WRAP_DIR_ITER(ocfs2_readdir) // FIXME!
+@@ -2809,6 +2810,7 @@ const struct file_operations ocfs2_dops = {
+ #endif
+ 	.lock		= ocfs2_lock,
+ 	.flock		= ocfs2_flock,
++	.fop_flags	= FOP_ASYNC_LOCK,
+ };
+ 
+ /*
+-- 
+2.52.0
+

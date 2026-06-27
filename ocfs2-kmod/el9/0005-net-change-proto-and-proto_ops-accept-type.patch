@@ -1,0 +1,44 @@
+From 92ef0fd55ac80dfc2e4654edfe5d1ddfa6e070fe Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Thu, 9 May 2024 09:20:08 -0600
+Subject: [PATCH] net: change proto and proto_ops accept type
+
+Rather than pass in flags, error pointer, and whether this is a kernel
+invocation or not, add a struct proto_accept_arg struct as the argument.
+This then holds all of these arguments, and prepares accept for being
+able to pass back more information.
+
+No functional changes in this patch.
+
+Acked-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ fs/ocfs2/cluster/tcp.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/fs/ocfs2/cluster/tcp.c b/fs/ocfs2/cluster/tcp.c
+index 960080753d3b..2b8fa3e782fb 100644
+--- a/fs/ocfs2/cluster/tcp.c
++++ b/fs/ocfs2/cluster/tcp.c
+@@ -1784,6 +1784,9 @@ static int o2net_accept_one(struct socket *sock, int *more)
+ 	struct o2nm_node *node = NULL;
+ 	struct o2nm_node *local_node = NULL;
+ 	struct o2net_sock_container *sc = NULL;
++	struct proto_accept_arg arg = {
++		.flags = O_NONBLOCK,
++	};
+ 	struct o2net_node *nn;
+ 	unsigned int nofs_flag;
+ 
+@@ -1802,7 +1805,7 @@ static int o2net_accept_one(struct socket *sock, int *more)
+ 
+ 	new_sock->type = sock->type;
+ 	new_sock->ops = sock->ops;
+-	ret = sock->ops->accept(sock, new_sock, O_NONBLOCK, false);
++	ret = sock->ops->accept(sock, new_sock, &arg);
+ 	if (ret < 0)
+ 		goto out;
+ 
+-- 
+2.52.0
+
