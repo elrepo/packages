@@ -231,6 +231,6 @@ exit 0
 - Initial build for RHEL 9.8
   [https://elrepo.org/bugs/view.php?id=1597]
 - Source code from linux-6.6.143
-- Add upstream patches from linux-6.16.y
-- Add backport patches
+- Add relevant upstream patches
+- Add reversed upstream and backport patches
 - Built against RHEL 9.8 GA kernel-5.14.0-687.5.3.el9_8
