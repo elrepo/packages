@@ -29,7 +29,7 @@
 #include "nvidia-detect.h"
 
 #define PROGRAM_NAME		"nvidia-detect"
-#define NVIDIA_VERSION		"580.159.04"
+#define NVIDIA_VERSION		"595.84"
 
 #ifndef PCI_VENDOR_ID_INTEL
 #define PCI_VENDOR_ID_INTEL	0x8086
@@ -42,6 +42,7 @@
 #if RHEL_MAJOR == 10
 #define KMOD_NVIDIA		"kmod-nvidia"
 #define KMOD_NVIDIA_OPEN	"kmod-nvidia-open"
+#define KMOD_NVIDIA_580XX	"kmod-nvidia-580xx"
 #define KMOD_NVIDIA_470XX	""	/* No longer supported on RHEL */
 #define KMOD_NVIDIA_390XX	""	/* No longer supported on RHEL */
 #define KMOD_NVIDIA_367XX	""	/* No longer supported on RHEL */
@@ -53,6 +54,7 @@
 #elif RHEL_MAJOR == 9
 #define KMOD_NVIDIA		"kmod-nvidia"
 #define KMOD_NVIDIA_OPEN	"kmod-nvidia-open"
+#define KMOD_NVIDIA_580XX	"kmod-nvidia-580xx"
 #define KMOD_NVIDIA_470XX	"kmod-nvidia-470xx"
 #define KMOD_NVIDIA_390XX	""	/* No longer supported on RHEL */
 #define KMOD_NVIDIA_367XX	""	/* No longer supported on RHEL */
@@ -64,6 +66,7 @@
 #elif RHEL_MAJOR == 8
 #define KMOD_NVIDIA		"kmod-nvidia"
 #define KMOD_NVIDIA_OPEN	"kmod-nvidia-open"
+#define KMOD_NVIDIA_580XX	"kmod-nvidia-580xx"
 #define KMOD_NVIDIA_470XX	"kmod-nvidia-470xx"
 #define KMOD_NVIDIA_390XX	"kmod-nvidia-390xx"
 #define KMOD_NVIDIA_367XX	""	/* No longer supported on RHEL */
@@ -75,6 +78,7 @@
 #elif RHEL_MAJOR == 7
 #define KMOD_NVIDIA		"kmod-nvidia"
 #define KMOD_NVIDIA_OPEN	""	/* No longer supported on RHEL */
+#define KMOD_NVIDIA_580XX	""	/* No longer supported on RHEL */
 #define KMOD_NVIDIA_470XX	"kmod-nvidia-470xx"
 #define KMOD_NVIDIA_390XX	"kmod-nvidia-390xx"
 #define KMOD_NVIDIA_367XX	""	/* No longer supported on RHEL */
@@ -86,6 +90,7 @@
 #else	/* make no specific package recommendation */
 #define KMOD_NVIDIA		""
 #define KMOD_NVIDIA_OPEN	""
+#define KMOD_NVIDIA_580XX	""
 #define KMOD_NVIDIA_470XX	""
 #define KMOD_NVIDIA_390XX	""
 #define KMOD_NVIDIA_367XX	""
@@ -102,6 +107,7 @@
  * http://cgit.freedesktop.org/xorg/xserver/tree/hw/xfree86/common/xf86Module.h
  */
 #define XORG_ABI_CURRENT	25	/* 5xx.xxx.xx; Xorg 21.1 */
+#define XORG_ABI_580XX		25	/* 580.xxx.xx; Xorg 21.1 */
 #define XORG_ABI_470XX		25	/* 470.256.02; Xorg 21.1 */
 #define XORG_ABI_390XX		25	/* 390.157; Xorg 21.1 */
 #define XORG_ABI_367XX		20	/* 367.57; Xorg 1.18 */
@@ -134,6 +140,7 @@ enum {
 	NVIDIA_LEGACY_367XX,
 	NVIDIA_LEGACY_390XX,
 	NVIDIA_LEGACY_470XX,
+	NVIDIA_LEGACY_580XX,
 };
 
 static int ret = 0;
@@ -187,6 +194,7 @@ static void usage(void)
 	printf("%2d: Device supported by the legacy 367.xx NVIDIA driver\n", NVIDIA_LEGACY_367XX);
 	printf("%2d: Device supported by the legacy 390.xx NVIDIA driver\n", NVIDIA_LEGACY_390XX);
 	printf("%2d: Device supported by the legacy 470.xx NVIDIA driver\n", NVIDIA_LEGACY_470XX);
+	printf("%2d: Device supported by the legacy 580.xx NVIDIA driver\n", NVIDIA_LEGACY_580XX);
 	printf("\nPlease report bugs at http://elrepo.org/bugs\n");
 }
 
@@ -218,6 +226,16 @@ static void list_all_nvidia_devices(void)
 			PCI_VENDOR_ID_NVIDIA, nv_current_pci_ids[i]);
 
 		printf("[%04x:%04x] %s\n", PCI_VENDOR_ID_NVIDIA, nv_current_pci_ids[i], name);
+	}
+
+	printf("\n*** Devices supported by the legacy 580.xx NVIDIA driver %s ***\n\n",
+		KMOD_NVIDIA_580XX);
+	for (i = 0; i < ARRAY_SIZE(nv_580xx_pci_ids); i++) {
+		name = pci_lookup_name(pacc, namebuf, sizeof(namebuf),
+			PCI_LOOKUP_VENDOR | PCI_LOOKUP_DEVICE,
+			PCI_VENDOR_ID_NVIDIA, nv_580xx_pci_ids[i]);
+
+		printf("[%04x:%04x] %s\n", PCI_VENDOR_ID_NVIDIA, nv_580xx_pci_ids[i], name);
 	}
 
 	printf("\n*** Devices supported by the legacy 470.xx NVIDIA driver %s ***\n\n",
@@ -329,6 +347,17 @@ static int nv_lookup_device_id(u_int16_t device_id)
 		}
 	}
 
+	/** Find devices supported by the 580xx legacy driver **/
+	for (i = 0; i < ARRAY_SIZE(nv_580xx_pci_ids); i++) {
+		if (device_id == nv_580xx_pci_ids[i]) {
+			if (opt_verbose) {
+				printf("This device requires the legacy 580.xx NVIDIA "
+					"driver %s\n", KMOD_NVIDIA_580XX);
+			}
+			return NVIDIA_LEGACY_580XX;
+		}
+	}
+
 	/** Find devices supported by the 470xx legacy driver **/
 	for (i = 0; i < ARRAY_SIZE(nv_470xx_pci_ids); i++) {
 		if (device_id == nv_470xx_pci_ids[i]) {
@@ -436,6 +465,10 @@ static int terse_output(void)
 		printf("%s\n", KMOD_NVIDIA);
 		return 0;
 	}
+	else if (ret == NVIDIA_LEGACY_580XX) {
+		printf("%s\n", KMOD_NVIDIA_580XX);
+		return 0;
+	}
 	else if (ret == NVIDIA_LEGACY_470XX) {
 		printf("%s\n", KMOD_NVIDIA_470XX);
 		return 0;
@@ -520,6 +553,8 @@ static bool check_xorg_abi_compat(int driver)
 		if (driver == NVIDIA_CURRENT_OPEN && abi <= XORG_ABI_CURRENT )
 			return 1;
 		else if (driver == NVIDIA_CURRENT && abi <= XORG_ABI_CURRENT )
+			return 1;
+		else if (driver == NVIDIA_LEGACY_580XX && abi <= XORG_ABI_580XX )
 			return 1;
 		else if (driver == NVIDIA_LEGACY_470XX && abi <= XORG_ABI_470XX )
 			return 1;
