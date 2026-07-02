@@ -7,16 +7,16 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	3.139x
+Version:	3.139y
 Release:	1.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
-URL:		http://www.kernel.org/
+URL:		https://www.broadcom.com/products/ethernet-connectivity/network-adapters/
 
 # Sources
 # Driver source tarball from:
-# https://docs.broadcom.com/docs-and-downloads/Broadcom_NX1_Linux_Drivers-3.139x.zip
+# https://docs.broadcom.com/docs-and-downloads/Broadcom-NX1-Linux_Drivers-3.139y.zip
 Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
@@ -185,6 +185,13 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Jul 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 3.139y-1.1
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
+
+* Thu Jul 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 3.139y-1
+- Update to version 3.139y
+- Built against RHEL 8.10 GA kernel 4.18.0-553.el8_10
+
 * Thu Mar 05 2026 Tuan Hoang <tqhoang@elrepo.org> - 3.139x-1.1
 - Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
 
