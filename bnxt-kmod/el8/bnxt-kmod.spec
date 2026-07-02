@@ -2,7 +2,7 @@
 %define bnxt_en_name		bnxt_en
 %define bnxt_en_version		1.10.3
 %define bnxt_re_name		bnxt_re
-%define bnxt_re_version		236.1.155.0
+%define bnxt_re_version		237.1.137.0
 
 %define kmod_name		bnxt
 
@@ -17,17 +17,16 @@ Release:	1.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
-URL:		http://www.kernel.org/
+URL:		https://www.broadcom.com/products/ethernet-connectivity/network-adapters
 
 # Sources
 # Driver source tarball from:
-# https://docs.broadcom.com/docs-and-downloads/ethernet-network-adapters/NXE/BRCM_236.1.155.0/bcm_236.1.155.0c.tar.gz
+# https://docs.broadcom.com/docs-and-downloads/ethernet-network-adapters/NXE/BRCM_237.1.148.0/bcm_237.1.148.0a.tar.gz
 Source0:	%{bundle_prefix}-%{bnxt_en_name}-%{bnxt_en_version}-%{bnxt_re_version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
 Patch0:		elrepo-bnxt-makefile-mock-fix.patch
-Patch1:		01_bnxt_en_backport.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -87,9 +86,6 @@ echo "override %{bnxt_re_name} * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}
 
 # Apply patch(es)
 %patch0 -p1
-pushd %{bnxt_en_name}
-%patch1 -p1
-popd
 
 %build
 %{__make} %{?_smp_mflags} \
@@ -205,6 +201,14 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Jul 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.10.3_237.1.137.0-1.1
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
+
+* Thu Jul 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.10.3_237.1.137.0-1
+- Update to version 1.10.3-237.1.137.0
+- Removed unnecessary patch
+- Built against RHEL 8.10 GA kernel 4.18.0-553.el8_10
+
 * Fri Mar 13 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.10.3_236.1.155.0-1.1
 - Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
 
