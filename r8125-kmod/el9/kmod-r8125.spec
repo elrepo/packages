@@ -7,8 +7,8 @@
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	9.016.01
-Release:	4%{?dist}
+Version:	9.018.00
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -22,7 +22,7 @@ Source3:	modprobe-%{kmod_name}.conf
 Source5:	GPL-v2.0.txt
 
 # Patches
-Patch0:		ELRepo-r8125.patch
+Patch0: 	ELRepo-r8125.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -204,6 +204,13 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Jul 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 9.018.00-1
+- Update to 9.018.00
+- Removes compile option ENABLE_PTP_MASTER_MODE
+- Enables compile option ENABLE_PAGE_REUSE
+- Removes modprobe option enable_ptp_master_mode
+- Renames modprobe option eee_giga_lite to enable_giga_lite
+
 * Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 9.016.01-4
 - Rebuilt against RHEL 9.8 GA kernel-5.14.0-687.5.3.el9_8
 

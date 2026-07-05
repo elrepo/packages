@@ -7,8 +7,8 @@
 %{!?dist: %define dist .el10}
 
 Name:		kmod-%{kmod_name}
-Version:	9.016.01
-Release:	4%{?dist}
+Version:	9.018.00
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -201,6 +201,13 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Jul 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 9.018.00-1
+- Update to 9.018.00
+- Removes compile option ENABLE_PTP_MASTER_MODE
+- Enables compile option ENABLE_PAGE_REUSE
+- Removes modprobe option enable_ptp_master_mode
+- Renames modprobe option eee_giga_lite to enable_giga_lite
+
 * Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 9.016.01-4
 - Built against RHEL 10.2 GA kernel-6.12.0-211.7.3.el10_2
 
