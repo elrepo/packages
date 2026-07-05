@@ -7,8 +7,8 @@
 %{!?dist: %define dist .el10}
 
 Name:		kmod-%{kmod_name}
-Version:	10.016.00
-Release:	4%{?dist}
+Version:	10.017.00
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -201,6 +201,10 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Jul 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.017.00-1
+- Update to 10.017.00
+- Removes unused compile option ENABLE_PTP_MASTER_MODE
+
 * Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.016.00-4
 - Built against RHEL 10.2 GA kernel-6.12.0-211.7.3.el10_2
 

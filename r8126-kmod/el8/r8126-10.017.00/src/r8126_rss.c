@@ -576,6 +576,8 @@ void rtl8126_init_rss(struct rtl8126_private *tp)
 {
         int i;
 
+        tp->rss_flags = RTL8126_UDP_RSS_FLAGS;
+
         for (i = 0; i < rtl8126_rss_indir_tbl_entries(tp); i++)
                 tp->rss_indir_tbl[i] = ethtool_rxfh_indir_default(i, tp->num_rx_rings);
 

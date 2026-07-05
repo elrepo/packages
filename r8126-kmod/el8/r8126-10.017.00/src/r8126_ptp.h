@@ -94,7 +94,7 @@ enum PTP_INSR_TYPE {
         EVENT_CAP_INTR   = (1 << 0),
         TRIG_GEN_INTR    = (1 << 1),
         RX_TS_INTR       = (1 << 2),
-        TX_TX_INTR       = (1 << 3),
+        TX_TS_INTR       = (1 << 3),
 };
 
 enum PTP_TRX_TS_STA_REG {

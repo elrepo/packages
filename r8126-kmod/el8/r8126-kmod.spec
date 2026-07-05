@@ -7,8 +7,8 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	10.016.00
-Release:	2.1%{?dist}
+Version:	10.017.00
+Release:	1.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -22,7 +22,7 @@ Source3:	modprobe-%{kmod_name}.conf
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0:		ELRepo-r8126.patch
+Patch0: 	ELRepo-r8126.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -197,6 +197,14 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Jul 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.017.00-1.1
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
+
+* Thu Jul 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.017.00-1
+- Update to 10.017.00
+- Removes unused compile option ENABLE_PTP_MASTER_MODE
+- Built against RHEL 8.10 GA kernel 4.18.0-553.el8_10
+
 * Tue Dec 02 2025 Tuan Hoang <tqhoang@elrepo.org> - 10.016.00-2.1
 - Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
 

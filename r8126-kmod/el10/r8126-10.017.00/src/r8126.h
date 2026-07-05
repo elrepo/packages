@@ -214,6 +214,20 @@ static inline void fsleep(unsigned long usecs)
 }
 #endif /* LINUX_VERSION_CODE < KERNEL_VERSION(5,8,0) */
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,4,92)
+/* Iterate through singly-linked GSO fragments of an skb. */
+#define skb_list_walk_safe(first, skb, next_skb)                               \
+	for ((skb) = (first), (next_skb) = (skb) ? (skb)->next : NULL; (skb);  \
+	     (skb) = (next_skb), (next_skb) = (skb) ? (skb)->next : NULL)
+#endif /* LINUX_VERSION_CODE < KERNEL_VERSION(5,4,92) */
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,14,217)
+static inline void skb_mark_not_on_list(struct sk_buff *skb)
+{
+        skb->next = NULL;
+}
+#endif /* LINUX_VERSION_CODE < KERNEL_VERSION(4,14,217) */
+
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,2,0)
 #define netdev_xmit_more() (0)
 #endif
@@ -626,7 +640,7 @@ static inline u32 rtl8126_ethtool_adv_to_mmd_eee_adv_cap2_t(u32 adv)
 #define RSS_SUFFIX ""
 #endif
 
-#define RTL8126_VERSION "10.016.00" NAPI_SUFFIX REALWOW_SUFFIX PTP_SUFFIX RSS_SUFFIX
+#define RTL8126_VERSION "10.017.00" NAPI_SUFFIX REALWOW_SUFFIX PTP_SUFFIX RSS_SUFFIX
 #define MODULENAME "r8126"
 #define PFX MODULENAME ": "
 
@@ -698,6 +712,7 @@ This is free software, and you are welcome to redistribute it under certain cond
 #define Jumbo_Frame_7k  (7*1024 - ETH_HLEN - VLAN_HLEN - ETH_FCS_LEN)
 #define Jumbo_Frame_8k  (8*1024 - ETH_HLEN - VLAN_HLEN - ETH_FCS_LEN)
 #define Jumbo_Frame_9k  (9*1024 - ETH_HLEN - VLAN_HLEN - ETH_FCS_LEN)
+#define Jumbo_Frame_16k (16*1024 - ETH_HLEN - VLAN_HLEN - ETH_FCS_LEN)
 #define InterFrameGap   0x03    /* 3 means InterFrameGap = the shortest one */
 #define RxEarly_off_V1 (0x07 << 11)
 #define RxEarly_off_V2 (1 << 11)
@@ -1570,6 +1585,7 @@ enum RTL8126_registers {
         PTP_Time_SHIFTER_S_8125      = 0x6856,
         PPS_RISE_TIME_NS_8125        = 0x68A0,
         PPS_RISE_TIME_S_8125         = 0x68A4,
+        PTP_DUMMY_REG                = 0XC070,
         PTP_EGRESS_TIME_BASE_NS_8125 = 0XCF20,
         PTP_EGRESS_TIME_BASE_S_8125  = 0XCF24,
         PTP_CTL                 = 0xE400,
@@ -1891,6 +1907,10 @@ enum _DescStatusBit {
         LargeSend   = (1 << 27), /* TCP Large Send Offload (TSO) */
         GiantSendv4 = (1 << 26), /* TCP Giant Send Offload V4 (GSOv4) */
         GiantSendv6 = (1 << 25), /* TCP Giant Send Offload V6 (GSOv6) */
+        GiantSendEn_V3 = (1 << 16), /* Giant Send Offload Enable V3 */
+        GiantSendv4_V3 = (1 << 29), /* IPv4 Giant Send Offload V3 */
+        GiantSendv6_V3 = (0), /* IPv6 Giant Send Offload V3 */
+        GiantSendTCP_V3 = (1 << 30), /* TCP Giant Send Offload V3 */
         LargeSend_DP = (1 << 16), /* TCP Large Send Offload (TSO) */
         MSSShift    = 16,        /* MSS value position */
         MSSMask     = 0x7FFU,    /* MSS value 11 bits */
@@ -2044,14 +2064,11 @@ enum efuse {
 #define RsvdMaskV3  0x3fff8000
 #define RsvdMaskV4  RsvdMaskV3
 
+/* Tx desc V3 */
 struct TxDesc {
         u32 opts1;
         u32 opts2;
         u64 addr;
-        u32 reserved0;
-        u32 reserved1;
-        u32 reserved2;
-        u32 reserved3;
 };
 
 struct RxDesc {
@@ -2182,6 +2199,8 @@ enum r8126_flag {
         R8126_FLAG_TASK_ESD_CHECK_PENDING,
         R8126_FLAG_TASK_LINKCHG_CHECK_PENDING,
         R8126_FLAG_TASK_LINK_CHECK_PENDING,
+        R8126_FLAG_SHUTDOWN,
+        R8126_FLAG_SUSPEND,
         R8126_FLAG_MAX
 };
 
@@ -2677,6 +2696,8 @@ struct rtl8126_private {
 
         u8 ring_lib_enabled;
 
+        u8 recheck_desc_ownbit;
+
         const char *fw_name;
         struct rtl8126_fw *rtl_fw;
         u32 ocp_base;
@@ -2745,6 +2766,7 @@ struct rtl8126_private {
         u16 MacMcuPageSize;
         u64 hw_mcu_patch_code_ver;
         u64 bin_mcu_patch_code_ver;
+        u8 hw_has_mac_mcu_patch_code;
 
         u8 HwSuppTcamVer;
 
@@ -2818,8 +2840,7 @@ enum eetype {
 };
 
 enum mcfg {
-        CFG_METHOD_1=1,
-        CFG_METHOD_2,
+        CFG_METHOD_2=2,
         CFG_METHOD_3,
         CFG_METHOD_DEFAULT,
         CFG_METHOD_MAX
