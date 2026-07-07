@@ -1441,7 +1441,8 @@ mpt3sas_base_done(struct MPT3SAS_ADAPTER *ioc, u16 smid, u8 msix_index,
 	ioc->base_cmds.status |= MPT3_CMD_COMPLETE;
 	if (mpi_reply) {
 		ioc->base_cmds.status |= MPT3_CMD_REPLY_VALID;
-		memcpy(ioc->base_cmds.reply, mpi_reply, mpi_reply->MsgLength*4);
+		memcpy(ioc->base_cmds.reply, mpi_reply,
+		    min_t(u32, (u32)mpi_reply->MsgLength * 4, ioc->reply_sz));
 	}
 	ioc->base_cmds.status &= ~MPT3_CMD_PENDING;
 
@@ -4576,7 +4577,7 @@ _base_display_ioc_capabilities(struct MPT3SAS_ADAPTER *ioc)
 	char desc[17] = {0};
 	u32 iounit_pg1_flags;
 
-	strncpy(desc, ioc->manu_pg0.ChipName, 16);
+	strlcpy(desc, ioc->manu_pg0.ChipName, sizeof(desc));
 	ioc_info(ioc, "%s: FWVersion(%02d.%02d.%02d.%02d), ChipRevision(0x%02x)\n",
 		 desc,
 		 (ioc->facts.FWVersion.Word & 0xFF000000) >> 24,
@@ -7431,7 +7432,8 @@ mpt3sas_port_enable_done(struct MPT3SAS_ADAPTER *ioc, u16 smid, u8 msix_index,
 	ioc->port_enable_cmds.status &= ~MPT3_CMD_PENDING;
 	ioc->port_enable_cmds.status |= MPT3_CMD_COMPLETE;
 	ioc->port_enable_cmds.status |= MPT3_CMD_REPLY_VALID;
-	memcpy(ioc->port_enable_cmds.reply, mpi_reply, mpi_reply->MsgLength*4);
+	memcpy(ioc->port_enable_cmds.reply, mpi_reply,
+	    min_t(u32, (u32)mpi_reply->MsgLength * 4, ioc->reply_sz));
 	ioc_status = le16_to_cpu(mpi_reply->IOCStatus) & MPI2_IOCSTATUS_MASK;
 	if (ioc_status != MPI2_IOCSTATUS_SUCCESS)
 		ioc->port_enable_failed = 1;
