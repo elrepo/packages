@@ -8,7 +8,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	9.3.1
+Version:	9.3.3
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -195,6 +195,12 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Jul 16 2026 Akemi Yagi <toracat@elrepo.org> -9.3.3-1.el8_10
+- Version updated to 9.3.3
+
+* Fri Apr 24 2026 Akemi Yagi <toracat@elrepo.org> -9.3.2-1.el8_10
+- Version updated to 9.3.2
+
 * Sat Mar 14 2026 Akemi Yagi <toracat@elrepo.org> -9.3.1-1.el8_10
 - Version updated to 9.3.1
 

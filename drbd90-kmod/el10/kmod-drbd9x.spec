@@ -8,8 +8,8 @@
 %{!?dist: %define dist .el10}
 
 Name:		kmod-%{kmod_name}
-Version:	9.3.2
-Release:	2%{?dist}
+Version:	9.3.3
+Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -196,6 +196,9 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Jul 16 2026 Akemi Yagi <toracat@elrepo.org> -9.3.3-1.el10_2
+- Version updated to 9.3.3
+
 * Tue May 19 2026 Akemi Yagi <toracat@elrepo.org> -9.3.2-2.el10_2
 - Rebuilt against the RHEL 10.2 GA kernel. kernel-6.12.0-211.7.3.el10_2
 
