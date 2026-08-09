@@ -1,0 +1,22 @@
+# Enable NVIDIA power management services (required for Wayland)
+#
+# Note:
+# suspend-then-hibernate requires systemd >= 248
+#
+# See:
+# /usr/share/doc/nvidia-x11-drv/html/powermanagement.html
+# /usr/lib/udev/rules.d/61-gdm.rules
+enable nvidia-hibernate.service
+enable nvidia-resume.service
+enable nvidia-suspend.service
+enable nvidia-suspend-then-hibernate.service
+
+# Enable NVIDIA dynamic boost service
+# See:
+# /usr/share/doc/nvidia-x11-drv/html/dynamicboost.html
+enable nvidia-powerd.service
+
+# Enable NVIDIA persistence mode
+# See:
+# /usr/share/doc/nvidia-x11-drv/html/nvidia-persistenced.html
+enable nvidia-persistenced.service

@@ -13,12 +13,12 @@
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	580.159.04
+Version:	595.91.07
 Release:	1.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	MIT and Redistributable, no modification permitted
-URL:		http://www.nvidia.com/
+URL:		https://www.nvidia.com/
 
 # Sources
 Source0:	https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
@@ -260,6 +260,13 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Mon Aug 03 2026 Tuan Hoang <tqhoang@elrepo.org> - 595.91.07-1.1
+- Rebuilt against RHEL 9.8 errata kernel-5.14.0-687.12.1.el9_8
+
+* Mon Aug 03 2026 Tuan Hoang <tqhoang@elrepo.org> - 595.91.07-1
+- Updated to version 595.91.07
+- Built against RHEL 9.8 GA kernel-5.14.0-687.5.3.el9_8
+
 * Sat May 30 2026 Tuan Hoang <tqhoang@elrepo.org> - 580.159.04-1.1
 - Rebuilt against RHEL 9.8 errata kernel-5.14.0-687.12.1.el9_8
 

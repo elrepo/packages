@@ -1,20 +1,18 @@
-# Define the Min Xwayland version (ABI) that this driver release supports
+# Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# https://download.nvidia.com/XFree86/Linux-x86_64/595.91.07/README/minimumrequirements.html
+# https://download.nvidia.com/XFree86/Linux-x86_64/580.178.04/README/minimumrequirements.html
 
-%define		min_xwayland_ver	21.1
+%define		max_xorg_ver	1.20.99
 %define		debug_package	%{nil}
 
 # Default options to bundle EGL libs and ICD files
 %if 0%{?rhel} <= 9
 %bcond_without	egl_gbm
 %bcond_with	egl_wayland
-%bcond_without	egl_wayland2
 %bcond_without	egl_x11
 %else
 %bcond_with	egl_gbm
 %bcond_with	egl_wayland
-%bcond_with	egl_wayland2
 %bcond_with	egl_x11
 %endif
 
@@ -30,21 +28,16 @@
 %define		egl_wayland_min_version		1.1.9
 %endif
 
-%if %{with egl_wayland2}
-%define		egl_wayland2_version		1.0.1
-%else
-%define		egl_wayland2_min_version	1.0.0
-%endif
-
 %if %{with egl_x11}
 %define		egl_x11_version			1.0.5
 %else
 %define		egl_x11_min_version		1.0.0
 %endif
 
+%define		kmod_legacy			-580xx
 
-Name:		nvidia-x11-drv
-Version:	595.91.07
+Name:		nvidia-x11-drv%{kmod_legacy}
+Version:	580.178.04
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	MIT and Redistributable, no modification permitted
@@ -80,11 +73,11 @@ BuildRequires:	perl
 BuildRequires:	systemd-rpm-macros
 
 Requires:	perl-interpreter
-Requires:	xorg-x11-server-Xwayland >= %{min_xwayland_ver}
+Requires:	xorg-x11-server-Xorg <= %{max_xorg_ver}
 
 Requires:	%{name}-libs%{?_isa} = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:	kmod-nvidia = %{?epoch:%{epoch}:}%{version}
-Requires(post):	kmod-nvidia = %{?epoch:%{epoch}:}%{version}
+Requires:	kmod-nvidia%{kmod_legacy} = %{?epoch:%{epoch}:}%{version}
+Requires(post):	kmod-nvidia%{kmod_legacy} = %{?epoch:%{epoch}:}%{version}
 
 Requires(post):	/sbin/ldconfig
 Requires(post):	 dracut
@@ -92,7 +85,7 @@ Requires(post):	 grubby
 Requires(preun): grubby
 
 # elrepo
-Conflicts:	nvidia-x11-drv-580xx
+Conflicts:	nvidia-x11-drv
 Conflicts:	nvidia-x11-drv-470xx
 Conflicts:	nvidia-x11-drv-390xx
 Conflicts:	nvidia-x11-drv-367xx
@@ -134,7 +127,7 @@ Group:		User Interface/X Hardware Support
 ## nvidia-x11-drv-libs on headless systems. See bug 
 ## https://elrepo.org/bugs/view.php?id=926
 ## Requires:	%%{name} = %%{?epoch:%%{epoch}:}%%{version}-%%{release}
-Requires:	xorg-x11-server-Xwayland >= %{min_xwayland_ver}
+Requires:	xorg-x11-server-Xorg <= %{max_xorg_ver}
 Requires(post):	/sbin/ldconfig
 Requires:	libvdpau%{?_isa} >= 1.0
 Requires:	libglvnd%{?_isa} >= 1.0
@@ -160,13 +153,6 @@ Provides:	egl-wayland%{?_isa} = %{egl_wayland_version}
 Requires:	egl-wayland%{?_isa} >= %{egl_wayland_min_version}
 %endif
 
-%if %{with egl_wayland2}
-Conflicts:	egl-wayland2%{?_isa}
-Provides:	egl-wayland2%{?_isa} = %{egl_wayland2_version}
-%else
-Requires:	egl-wayland2%{?_isa} >= %{egl_wayland2_min_version}
-%endif
-
 %if %{with egl_x11}
 Conflicts:	egl-x11%{?_isa}
 Provides:	egl-x11%{?_isa} = %{egl_x11_version}
@@ -174,7 +160,7 @@ Provides:	egl-x11%{?_isa} = %{egl_x11_version}
 Requires:	egl-x11%{?_isa} >= %{egl_x11_min_version}
 %endif
 
-Conflicts:	nvidia-x11-drv-580xx-libs
+Conflicts:	nvidia-x11-drv-libs
 Conflicts:	nvidia-x11-drv-470xx-libs
 Conflicts:	nvidia-x11-drv-390xx-libs
 Conflicts:	nvidia-x11-drv-367xx-libs
@@ -184,7 +170,7 @@ Conflicts:	nvidia-x11-drv-173xx-libs
 Conflicts:	nvidia-x11-drv-96xx-libs
 Conflicts:	nvidia-x11-drv-71xx-libs
 
-Conflicts:	nvidia-x11-drv-580xx-32bit
+Conflicts:	nvidia-x11-drv-32bit
 Conflicts:	nvidia-x11-drv-470xx-32bit
 Conflicts:	nvidia-x11-drv-390xx-32bit
 Conflicts:	nvidia-x11-drv-367xx-32bit
@@ -259,10 +245,6 @@ sed -i -e 's|libnvidia-vksc-core|%{_libdir}/libnvidia-vksc-core|g' $RPM_BUILD_RO
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d
 %{__install} -p -m 0644 10_nvidia_wayland.json $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/
 %endif
-%if %{with egl_wayland2}
-%{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d
-%{__install} -p -m 0644 09_nvidia_wayland2.json $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/
-%endif
 %if %{with egl_x11}
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d
 %{__install} -p -m 0644 20_nvidia_xcb.json $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/
@@ -304,9 +286,6 @@ pushd 32
 %if %{with egl_wayland}
 %{__install} -p -m 0755 libnvidia-egl-wayland.so.%{egl_wayland_version} $RPM_BUILD_ROOT%{_libdir}/
 %endif
-%if %{with egl_wayland2}
-%{__install} -p -m 0755 libnvidia-egl-wayland2.so.%{egl_wayland2_version} $RPM_BUILD_ROOT%{_libdir}/
-%endif
 %if %{with egl_x11}
 %{__install} -p -m 0755 libnvidia-egl-xcb.so.%{egl_x11_version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-egl-xlib.so.%{egl_x11_version} $RPM_BUILD_ROOT%{_libdir}/
@@ -339,7 +318,6 @@ pushd 32
 %{__install} -p -m 0755 libnvidia-rtcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-sandboxutils.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %endif
-%{__install} -p -m 0755 libnvidia-tileiras.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-tls.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %ifarch x86_64
 %{__install} -p -m 0755 libnvidia-vksc-core.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
@@ -404,10 +382,6 @@ popd
 %{__ln_s} libnvidia-egl-wayland.so.%{egl_wayland_version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so.1
 %{__ln_s} libnvidia-egl-wayland.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so
 %endif
-%if %{with egl_wayland2}
-%{__ln_s} libnvidia-egl-wayland2.so.%{egl_wayland2_version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland2.so.1
-%{__ln_s} libnvidia-egl-wayland2.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland2.so
-%endif
 %if %{with egl_x11}
 %{__ln_s} libnvidia-egl-xcb.so.%{egl_x11_version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xcb.so.1
 %{__ln_s} libnvidia-egl-xcb.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xcb.so
@@ -451,7 +425,6 @@ popd
 %{__ln_s} libnvidia-sandboxutils.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-sandboxutils.so.1
 %{__ln_s} libnvidia-sandboxutils.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-sandboxutils.so
 %endif
-%{__ln_s} libnvidia-tileiras.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-tileiras.so
 %{__ln_s} libnvidia-tls.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-tls.so
 %ifarch x86_64
 %{__ln_s} libnvidia-vksc-core.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-vksc-core.so.1
@@ -525,7 +498,7 @@ desktop-file-install \
 %{__mkdir_p} $RPM_BUILD_ROOT%{_presetdir}/
 %{__install} -p -m 0755 systemd/nvidia-sleep.sh $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 systemd/system-sleep/nvidia $RPM_BUILD_ROOT%{_systemd_util_dir}/system-sleep/
-%{__cp} -a systemd/system/* $RPM_BUILD_ROOT%{_unitdir}/
+%{__install} -p -m 0644 systemd/system/nvidia-*.service $RPM_BUILD_ROOT%{_unitdir}/
 %{__install} -p -m 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_presetdir}/
 %endif
 
@@ -635,9 +608,6 @@ fi ||:
 %if %{with egl_wayland}
 %{_datadir}/egl/egl_external_platform.d/10_nvidia_wayland.json
 %endif
-%if %{with egl_wayland2}
-%{_datadir}/egl/egl_external_platform.d/09_nvidia_wayland2.json
-%endif
 %if %{with egl_x11}
 %{_datadir}/egl/egl_external_platform.d/20_nvidia_xcb.json
 %{_datadir}/egl/egl_external_platform.d/20_nvidia_xlib.json
@@ -671,10 +641,6 @@ fi ||:
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 %{_libdir}/xorg/modules/extensions/libglxserver_nvidia.*
 %{_unitdir}/*.service
-%{_unitdir}/systemd-hibernate.service.d/*
-%{_unitdir}/systemd-hybrid-sleep.service.d/*
-%{_unitdir}/systemd-suspend-then-hibernate.service.d/*
-%{_unitdir}/systemd-suspend.service.d/*
 %{_presetdir}/*nvidia.preset
 %{_systemd_util_dir}/system-sleep/nvidia
 %endif
@@ -691,38 +657,8 @@ fi ||:
 %endif
 
 %changelog
-* Mon Aug 03 2026 Tuan Hoang <tqhoang@elrepo.org> - 595.91.07-1
-- Updated to version 595.91.07
-- Add conditional bundling for egl-wayland2
+* Mon Aug 03 2026 Tuan Hoang <tqhoang@elrepo.org> - 580.178.04-1
+- Updated to version 580.178.04
 
-* Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 580.159.04-1
-- Updated to version 580.159.04
-
-* Tue Apr 28 2026 Tuan Hoang <tqhoang@elrepo.org> - 580.159.03-1
-- Updated to version 580.159.03
-
-* Sun Mar 15 2026 Tuan Hoang <tqhoang@elrepo.org> - 580.142-1
-- Updated to version 580.142
-
-* Thu Jan 15 2026 Tuan Hoang <tqhoang@elrepo.org> - 580.126.09-1
-- Updated to version 580.126.09
-
-* Fri Dec 12 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.119.02-1
-- Updated to version 580.119.02
-
-* Tue Nov 11 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.105.08-1
-- Updated to version 580.105.08
-
-* Sat Oct 04 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.95.05-1
-- Updated to version 580.95.05
-
-* Thu Sep 11 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.82.09-1
-- Updated to version 580.82.09
-
-* Wed Sep 03 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.82.07-1
-- Updated to version 580.82.07
-
-* Mon Aug 25 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.76.05-1
-- Updated to version 580.76.05
-- Built against RHEL 10.0 GA kernel
-- Fork for RHEL10
+* Tue Jul 07 2026 Tuan Hoang <tqhoang@elrepo.org> - 580.173.02-1
+- Initial build of legacy 580xx package

@@ -1,11 +1,7 @@
 # Define the kmod package name here.
-# Add the option '--with open' to build the kernel-open driver
-%if %{?_with_open:1}%{!?_with_open:0}
-%define kmod_open	-open
-%endif
-
 %define kmod_basename	nvidia
-%define kmod_name	%{kmod_basename}%{?kmod_open}
+%define kmod_legacy	-580xx
+%define kmod_name	%{kmod_basename}%{kmod_legacy}
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
 %{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-211.7.3.el10_2}
@@ -13,7 +9,7 @@
 %{!?dist: %define dist .el10}
 
 Name:		kmod-%{kmod_name}
-Version:	595.91.07
+Version:	580.178.04
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -64,15 +60,12 @@ BuildRequires:		make
 Provides:		kernel-modules >= %{kmod_kernel_version}.%{_arch}
 Provides:		kmod-%{kmod_basename} = %{?epoch:%{epoch}:}%{version}-%{release}
 
-%if %{?_with_open:1}%{!?_with_open:0}
 Conflicts:		kmod-%{kmod_basename}
-%else
 Conflicts:		kmod-%{kmod_basename}-open
-%endif
 
 Requires:		kernel >= %{kmod_kernel_version}
 Requires:		kernel-core-uname-r >= %{kmod_kernel_version}
-Requires:		nvidia-x11-drv = %{?epoch:%{epoch}:}%{version}
+Requires:		nvidia-x11-drv%{kmod_legacy} = %{?epoch:%{epoch}:}%{version}
 
 Requires(post): 	%{_sbindir}/depmod
 Requires(postun):	%{_sbindir}/depmod
@@ -80,24 +73,24 @@ Requires(post): 	%{_sbindir}/weak-modules
 Requires(postun):	%{_sbindir}/weak-modules
 
 %description
-This package provides the NVIDIA OpenGL kernel%{?kmod_open} driver modules.
+This package provides the NVIDIA OpenGL kernel driver modules.
 It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
 %setup -q -c -T
-echo "override %{kmod_basename} * weak-updates/%{kmod_basename}" > kmod-%{kmod_name}.conf
-echo "override %{kmod_basename}-drm * weak-updates/%{kmod_basename}" >> kmod-%{kmod_name}.conf
-echo "override %{kmod_basename}-modeset * weak-updates/%{kmod_basename}" >> kmod-%{kmod_name}.conf
-echo "override %{kmod_basename}-peermem * weak-updates/%{kmod_basename}" >> kmod-%{kmod_name}.conf
-echo "override %{kmod_basename}-uvm * weak-updates/%{kmod_basename}" >> kmod-%{kmod_name}.conf
+echo "override %{kmod_basename} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "override %{kmod_basename}-drm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+echo "override %{kmod_basename}-modeset * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+echo "override %{kmod_basename}-peermem * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+echo "override %{kmod_basename}-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 sh %{SOURCE0} --extract-only --target nvidiapkg
 %{__cp} -a nvidiapkg _kmod_build_
 
 %build
 ## %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
 export SYSSRC=%{_usrsrc}/kernels/%{kmod_kernel_version}.%{_arch}
-pushd _kmod_build_/kernel%{?kmod_open}
+pushd _kmod_build_/kernel
 %{__make} %{?_smp_mflags} module
 popd
 
@@ -111,13 +104,13 @@ done
 sort -u greylist | uniq > greylist.txt
 
 %install
-%{__install} -d %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_basename}/
-pushd _kmod_build_/kernel%{?kmod_open}
-%{__install} %{kmod_basename}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_basename}/
-%{__install} %{kmod_basename}-drm.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_basename}/
-%{__install} %{kmod_basename}-modeset.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_basename}/
-%{__install} %{kmod_basename}-peermem.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_basename}/
-%{__install} %{kmod_basename}-uvm.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_basename}/
+%{__install} -d %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+pushd _kmod_build_/kernel
+%{__install} %{kmod_basename}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+%{__install} %{kmod_basename}-drm.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+%{__install} %{kmod_basename}-modeset.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+%{__install} %{kmod_basename}-peermem.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+%{__install} %{kmod_basename}-uvm.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 popd
 pushd _kmod_build_
 # Install GPU System Processor (GSP) firmware
@@ -154,7 +147,7 @@ find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --str
 %{__rm} -rf %{buildroot}
 
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_basename} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -247,55 +240,10 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
-* Mon Aug 03 2026 Tuan Hoang <tqhoang@elrepo.org> - 595.91.07-1
-- Updated to version 595.91.07
+* Mon Aug 03 2026 Tuan Hoang <tqhoang@elrepo.org> - 580.178.04-1
+- Updated to version 580.178.04
 - Built against RHEL 10.2 GA kernel-6.12.0-211.7.3.el10_2
 
-* Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 580.159.04-1
-- Updated to version 580.159.04
-- Built against RHEL 10.2 GA kernel
-
-* Tue Apr 28 2026 Tuan Hoang <tqhoang@elrepo.org> - 580.159.03-1
-- Updated to version 580.159.03
-- Built against RHEL 10.1 GA kernel
-
-* Sun Mar 15 2026 Tuan Hoang <tqhoang@elrepo.org> - 580.142-1
-- Updated to version 580.142
-- Built against RHEL 10.1 GA kernel
-
-* Thu Jan 15 2026 Tuan Hoang <tqhoang@elrepo.org> - 580.126.09-1
-- Updated to version 580.126.09
-- Built against RHEL 10.1 GA kernel
-
-* Fri Dec 12 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.119.02-1
-- Updated to version 580.119.02
-- Built against RHEL 10.1 GA kernel
-
-* Tue Nov 11 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.105.08-1
-- Updated to version 580.105.08
-- Built against RHEL 10.1 GA kernel
-
-* Sat Oct 04 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.95.05-1.1
-- Rebuilt against RHEL 10.0 errata kernel 6.12.0-55.32.1.el10_0
-
-* Sat Oct 04 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.95.05-1
-- Updated to version 580.95.05
-- Built against RHEL 10.0 GA kernel
-
-* Thu Sep 11 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.82.09-1.1
-- Rebuilt against RHEL 10.0 errata kernel 6.12.0-55.32.1.el10_0
-
-* Thu Sep 11 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.82.09-1
-- Updated to version 580.82.09
-- Built against RHEL 10.0 GA kernel
-
-* Mon Sep 08 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.82.07-1.1
-- Rebuilt against RHEL 10.0 errata kernel 6.12.0-55.31.1.el10_0
-
-* Wed Sep 03 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.82.07-1
-- Updated to version 580.82.07
-
-* Tue Aug 12 2025 Tuan Hoang <tqhoang@elrepo.org> - 580.76.05-1
-- Updated to version 580.76.05
-- Built against RHEL 10.0 GA kernel
-- Fork for RHEL10
+* Tue Jul 07 2026 Tuan Hoang <tqhoang@elrepo.org> - 580.173.02-1
+- Initial build of legacy 580xx package
+- Built against RHEL 10.2 GA kernel-6.12.0-211.7.3.el10_2

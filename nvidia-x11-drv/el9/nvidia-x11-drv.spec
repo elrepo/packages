@@ -1,6 +1,6 @@
 # Define the Max Xorg version (ABI) that this driver release supports
 # See README.txt, Chapter 2. Minimum Software Requirements or
-# https://download.nvidia.com/XFree86/Linux-x86_64/580.159.04/README/minimumrequirements.html
+# https://download.nvidia.com/XFree86/Linux-x86_64/595.91.07/README/minimumrequirements.html
 
 %define		max_xorg_ver	1.20.99
 %define		debug_package	%{nil}
@@ -9,34 +9,42 @@
 %if 0%{?rhel} <= 9
 %bcond_without	egl_gbm
 %bcond_with	egl_wayland
+%bcond_without	egl_wayland2
 %bcond_without	egl_x11
 %else
 %bcond_with	egl_gbm
 %bcond_with	egl_wayland
+%bcond_with	egl_wayland2
 %bcond_with	egl_x11
 %endif
 
 %if %{with egl_gbm}
-%define		egl_gbm_version		1.1.3
+%define		egl_gbm_version			1.1.3
 %else
-%define		egl_gbm_min_version	1.1.2
+%define		egl_gbm_min_version		1.1.2
 %endif
 
 %if %{with egl_wayland}
-%define		egl_wayland_version	1.1.20
+%define		egl_wayland_version		1.1.20
 %else
-%define		egl_wayland_min_version	1.1.7
+%define		egl_wayland_min_version		1.1.9
+%endif
+
+%if %{with egl_wayland2}
+%define		egl_wayland2_version		1.0.1
+%else
+%define		egl_wayland2_min_version	1.0.0
 %endif
 
 %if %{with egl_x11}
-%define		egl_x11_version		1.0.5
+%define		egl_x11_version			1.0.5
 %else
-%define		egl_x11_min_version	1.0.0
+%define		egl_x11_min_version		1.0.0
 %endif
 
 
 Name:		nvidia-x11-drv
-Version:	580.159.04
+Version:	595.91.07
 Release:	1%{?dist}
 Group:		User Interface/X Hardware Support
 License:	MIT and Redistributable, no modification permitted
@@ -84,6 +92,7 @@ Requires(post):	 grubby
 Requires(preun): grubby
 
 # elrepo
+Conflicts:	nvidia-x11-drv-580xx
 Conflicts:	nvidia-x11-drv-470xx
 Conflicts:	nvidia-x11-drv-390xx
 Conflicts:	nvidia-x11-drv-367xx
@@ -91,6 +100,7 @@ Conflicts:	nvidia-x11-drv-340xx
 Conflicts:	nvidia-x11-drv-304xx
 Conflicts:	nvidia-x11-drv-173xx
 Conflicts:	nvidia-x11-drv-96xx
+Conflicts:	nvidia-x11-drv-71xx
 
 # negativo17.org
 Conflicts:	nvidia-kmod-common
@@ -100,17 +110,19 @@ Conflicts:	dkms-nvidia
 Conflicts:	dkms-nvidia-x11-drv
 Conflicts:	dkms-nvidia-x11-drv-32bit
 
+# rpmfusion
 Conflicts:	xorg-x11-drv-nvidia
 Conflicts:	xorg-x11-drv-nvidia-beta
 Conflicts:	xorg-x11-drv-nvidia-legacy
-Conflicts:	xorg-x11-drv-nvidia-71xx
-Conflicts:	xorg-x11-drv-nvidia-96xx
-Conflicts:	xorg-x11-drv-nvidia-173xx
-Conflicts:	xorg-x11-drv-nvidia-304xx
-Conflicts:	xorg-x11-drv-nvidia-340xx
-Conflicts:	xorg-x11-drv-nvidia-367xx
-Conflicts:	xorg-x11-drv-nvidia-390xx
+Conflicts:	xorg-x11-drv-nvidia-580xx
 Conflicts:	xorg-x11-drv-nvidia-470xx
+Conflicts:	xorg-x11-drv-nvidia-390xx
+Conflicts:	xorg-x11-drv-nvidia-367xx
+Conflicts:	xorg-x11-drv-nvidia-340xx
+Conflicts:	xorg-x11-drv-nvidia-304xx
+Conflicts:	xorg-x11-drv-nvidia-173xx
+Conflicts:	xorg-x11-drv-nvidia-96xx
+Conflicts:	xorg-x11-drv-nvidia-71xx
 
 %description
 This package provides the proprietary NVIDIA OpenGL X11 display driver files.
@@ -148,6 +160,13 @@ Provides:	egl-wayland%{?_isa} = %{egl_wayland_version}
 Requires:	egl-wayland%{?_isa} >= %{egl_wayland_min_version}
 %endif
 
+%if %{with egl_wayland2}
+Conflicts:	egl-wayland2%{?_isa}
+Provides:	egl-wayland2%{?_isa} = %{egl_wayland2_version}
+%else
+Requires:	egl-wayland2%{?_isa} >= %{egl_wayland2_min_version}
+%endif
+
 %if %{with egl_x11}
 Conflicts:	egl-x11%{?_isa}
 Provides:	egl-x11%{?_isa} = %{egl_x11_version}
@@ -155,6 +174,7 @@ Provides:	egl-x11%{?_isa} = %{egl_x11_version}
 Requires:	egl-x11%{?_isa} >= %{egl_x11_min_version}
 %endif
 
+Conflicts:	nvidia-x11-drv-580xx-libs
 Conflicts:	nvidia-x11-drv-470xx-libs
 Conflicts:	nvidia-x11-drv-390xx-libs
 Conflicts:	nvidia-x11-drv-367xx-libs
@@ -162,6 +182,9 @@ Conflicts:	nvidia-x11-drv-340xx-libs
 Conflicts:	nvidia-x11-drv-304xx-libs
 Conflicts:	nvidia-x11-drv-173xx-libs
 Conflicts:	nvidia-x11-drv-96xx-libs
+Conflicts:	nvidia-x11-drv-71xx-libs
+
+Conflicts:	nvidia-x11-drv-580xx-32bit
 Conflicts:	nvidia-x11-drv-470xx-32bit
 Conflicts:	nvidia-x11-drv-390xx-32bit
 Conflicts:	nvidia-x11-drv-367xx-32bit
@@ -169,6 +192,7 @@ Conflicts:	nvidia-x11-drv-340xx-32bit
 Conflicts:	nvidia-x11-drv-304xx-32bit
 Conflicts:	nvidia-x11-drv-173xx-32bit
 Conflicts:	nvidia-x11-drv-96xx-32bit
+Conflicts:	nvidia-x11-drv-71xx-32bit
 
 %description libs
 This package provides libraries for the proprietary NVIDIA OpenGL X11 display driver files.
@@ -235,6 +259,10 @@ sed -i -e 's|libnvidia-vksc-core|%{_libdir}/libnvidia-vksc-core|g' $RPM_BUILD_RO
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d
 %{__install} -p -m 0644 10_nvidia_wayland.json $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/
 %endif
+%if %{with egl_wayland2}
+%{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d
+%{__install} -p -m 0644 09_nvidia_wayland2.json $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/
+%endif
 %if %{with egl_x11}
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d
 %{__install} -p -m 0644 20_nvidia_xcb.json $RPM_BUILD_ROOT%{_datadir}/egl/egl_external_platform.d/
@@ -276,6 +304,9 @@ pushd 32
 %if %{with egl_wayland}
 %{__install} -p -m 0755 libnvidia-egl-wayland.so.%{egl_wayland_version} $RPM_BUILD_ROOT%{_libdir}/
 %endif
+%if %{with egl_wayland2}
+%{__install} -p -m 0755 libnvidia-egl-wayland2.so.%{egl_wayland2_version} $RPM_BUILD_ROOT%{_libdir}/
+%endif
 %if %{with egl_x11}
 %{__install} -p -m 0755 libnvidia-egl-xcb.so.%{egl_x11_version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-egl-xlib.so.%{egl_x11_version} $RPM_BUILD_ROOT%{_libdir}/
@@ -308,6 +339,7 @@ pushd 32
 %{__install} -p -m 0755 libnvidia-rtcore.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-sandboxutils.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %endif
+%{__install} -p -m 0755 libnvidia-tileiras.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %{__install} -p -m 0755 libnvidia-tls.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
 %ifarch x86_64
 %{__install} -p -m 0755 libnvidia-vksc-core.so.%{version} $RPM_BUILD_ROOT%{_libdir}/
@@ -372,6 +404,10 @@ popd
 %{__ln_s} libnvidia-egl-wayland.so.%{egl_wayland_version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so.1
 %{__ln_s} libnvidia-egl-wayland.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland.so
 %endif
+%if %{with egl_wayland2}
+%{__ln_s} libnvidia-egl-wayland2.so.%{egl_wayland2_version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland2.so.1
+%{__ln_s} libnvidia-egl-wayland2.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-wayland2.so
+%endif
 %if %{with egl_x11}
 %{__ln_s} libnvidia-egl-xcb.so.%{egl_x11_version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xcb.so.1
 %{__ln_s} libnvidia-egl-xcb.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-egl-xcb.so
@@ -415,6 +451,7 @@ popd
 %{__ln_s} libnvidia-sandboxutils.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-sandboxutils.so.1
 %{__ln_s} libnvidia-sandboxutils.so.1 $RPM_BUILD_ROOT%{_libdir}/libnvidia-sandboxutils.so
 %endif
+%{__ln_s} libnvidia-tileiras.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-tileiras.so
 %{__ln_s} libnvidia-tls.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-tls.so
 %ifarch x86_64
 %{__ln_s} libnvidia-vksc-core.so.%{version} $RPM_BUILD_ROOT%{_libdir}/libnvidia-vksc-core.so.1
@@ -488,7 +525,7 @@ desktop-file-install \
 %{__mkdir_p} $RPM_BUILD_ROOT%{_presetdir}/
 %{__install} -p -m 0755 systemd/nvidia-sleep.sh $RPM_BUILD_ROOT%{_bindir}/
 %{__install} -p -m 0755 systemd/system-sleep/nvidia $RPM_BUILD_ROOT%{_systemd_util_dir}/system-sleep/
-%{__install} -p -m 0644 systemd/system/nvidia-*.service $RPM_BUILD_ROOT%{_unitdir}/
+%{__cp} -a systemd/system/* $RPM_BUILD_ROOT%{_unitdir}/
 %{__install} -p -m 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_presetdir}/
 %endif
 
@@ -598,6 +635,9 @@ fi ||:
 %if %{with egl_wayland}
 %{_datadir}/egl/egl_external_platform.d/10_nvidia_wayland.json
 %endif
+%if %{with egl_wayland2}
+%{_datadir}/egl/egl_external_platform.d/09_nvidia_wayland2.json
+%endif
 %if %{with egl_x11}
 %{_datadir}/egl/egl_external_platform.d/20_nvidia_xcb.json
 %{_datadir}/egl/egl_external_platform.d/20_nvidia_xlib.json
@@ -630,12 +670,11 @@ fi ||:
 %{_prefix}/lib/nvidia/alternate-install*
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 %{_libdir}/xorg/modules/extensions/libglxserver_nvidia.*
-%{_unitdir}/nvidia-persistenced.service
-%{_unitdir}/nvidia-hibernate.service
-%{_unitdir}/nvidia-powerd.service
-%{_unitdir}/nvidia-resume.service
-%{_unitdir}/nvidia-suspend.service
-%{_unitdir}/nvidia-suspend-then-hibernate.service
+%{_unitdir}/*.service
+%{_unitdir}/systemd-hibernate.service.d/*
+%{_unitdir}/systemd-hybrid-sleep.service.d/*
+%{_unitdir}/systemd-suspend-then-hibernate.service.d/*
+%{_unitdir}/systemd-suspend.service.d/*
 %{_presetdir}/*nvidia.preset
 %{_systemd_util_dir}/system-sleep/nvidia
 %endif
@@ -652,6 +691,10 @@ fi ||:
 %endif
 
 %changelog
+* Mon Aug 03 2026 Tuan Hoang <tqhoang@elrepo.org> - 595.91.07-1
+- Updated to version 595.91.07
+- Add conditional bundling for egl-wayland2
+
 * Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 580.159.04-1
 - Updated to version 580.159.04
 
