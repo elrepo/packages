@@ -1,5 +1,5 @@
 %define brcmname tg3
-%define brcmvers 3.139x
+%define brcmvers 3.139y
 %define brcmfmly NetXtreme
 %define brcmwork %{brcmname}-%{brcmvers}
 
@@ -88,6 +88,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc LICENSE README.TXT ChangeLog
 
 %changelog
+*Mon March 23 2026 Shravya KN <shravya.k-n@broadcom.com> 3.139y
+- Do not drive GPIO1 on Citadel during rmmod
+
 *Wed September 18 2025 Gautam R A<gautam-r.a@broadcom.com> 3.139x
 - Disable WOL capability on Citadel boards
 - fix EEE advertised field

@@ -156,11 +156,11 @@ static inline void _tg3_flag_clear(enum TG3_FLAGS flag, unsigned long *bits)
 #define DRV_MODULE_NAME		"tg3"
 #define TG3_MAJ_NUM			3
 #define TG3_MIN_NUM			139
-#define TG3_REVISION		"x"
+#define TG3_REVISION		"y"
 #define DRV_MODULE_VERSION	\
 	__stringify(TG3_MAJ_NUM) "." __stringify(TG3_MIN_NUM)\
 	TG3_REVISION
-#define DRV_MODULE_RELDATE	"September 23, 2025"
+#define DRV_MODULE_RELDATE	"March 23, 2026"
 #define RESET_KIND_SHUTDOWN	0
 #define RESET_KIND_INIT		1
 #define RESET_KIND_SUSPEND	2
@@ -3171,6 +3171,8 @@ static void tg3_pwrsrc_die_with_vmain(struct tg3 *tp)
 		    TG3_GRC_LCLCTL_PWRSW_DELAY);
 }
 
+static bool tg3_is_citadel(struct tg3 *tp);
+
 static void tg3_pwrsrc_switch_to_vaux(struct tg3 *tp)
 {
 	if (!tg3_flag(tp, IS_NIC))
@@ -3229,6 +3231,10 @@ static void tg3_pwrsrc_switch_to_vaux(struct tg3 *tp)
 			grc_local_ctrl &= ~(GRC_LCLCTRL_GPIO_OE2 |
 					    GRC_LCLCTRL_GPIO_OUTPUT2);
 		}
+		/* Do not drive GPIO1 on Citadel cards */
+		if (tg3_is_citadel(tp))
+			grc_local_ctrl &= ~(GRC_LCLCTRL_GPIO_OE1 |
+					    GRC_LCLCTRL_GPIO_OUTPUT1);
 		tw32_wait_f(GRC_LOCAL_CTRL,
 			    tp->grc_local_ctrl | grc_local_ctrl,
 			    TG3_GRC_LCLCTL_PWRSW_DELAY);

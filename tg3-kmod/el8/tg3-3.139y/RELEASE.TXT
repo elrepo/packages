@@ -1,7 +1,7 @@
                               Release Notes
                         Broadcom tg3 Linux Driver
-                              Version 3.139x
-                                09/23/2025
+                              Version 3.139y
+                                03/23/2026
 
                               Broadcom Inc.
                          5300 California Avenue,
@@ -9,6 +9,12 @@
 
 			Copyright (C) 2010-2025 Broadcom
 			   All Rights Reserved
+v3.139y (March 23, 2026)
+   fixes and Enhancements
+   ---------------------
+        1) Problem: (DCSG-113168) Seeing mailbox error in coredump while unloading the driver
+	   Cause  : (DCSG-113168) rmmod drove GPIO1 pin high; Citadel FW treats it as mailbox read and reported error
+
 v3.139x (September 18, 2025)
    fixes and Enhancements
    ---------------------
