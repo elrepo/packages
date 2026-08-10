@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	3.139y
+Version:	3.140b
 Release:	1.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -185,6 +185,13 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Aug 10 2026 Tuan Hoang <tqhoang@elrepo.org> - 3.140b-1.1
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
+
+* Mon Aug 10 2026 Tuan Hoang <tqhoang@elrepo.org> - 3.140b-1
+- Update to version 3.140b
+- Built against RHEL 8.10 GA kernel 4.18.0-553.el8_10
+
 * Thu Jul 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 3.139y-1.1
 - Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
 

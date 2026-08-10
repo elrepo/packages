@@ -155,12 +155,12 @@ static inline void _tg3_flag_clear(enum TG3_FLAGS flag, unsigned long *bits)
 
 #define DRV_MODULE_NAME		"tg3"
 #define TG3_MAJ_NUM			3
-#define TG3_MIN_NUM			139
-#define TG3_REVISION		"y"
+#define TG3_MIN_NUM			140
+#define TG3_REVISION		"b"
 #define DRV_MODULE_VERSION	\
 	__stringify(TG3_MAJ_NUM) "." __stringify(TG3_MIN_NUM)\
 	TG3_REVISION
-#define DRV_MODULE_RELDATE	"March 23, 2026"
+#define DRV_MODULE_RELDATE	"June 15, 2026"
 #define RESET_KIND_SHUTDOWN	0
 #define RESET_KIND_INIT		1
 #define RESET_KIND_SUSPEND	2
@@ -3455,7 +3455,7 @@ static int tg3_nvram_lock(struct tg3 *tp)
 	if (tg3_flag(tp, NVRAM)) {
 		int i;
 
-		if (tp->nvram_lock_cnt == 0) {
+		if (atomic_read(&tp->nvram_lock_cnt) == 0) {
 			tw32(NVRAM_SWARB, SWARB_REQ_SET1);
 			for (i = 0; i < 8000; i++) {
 				if (tr32(NVRAM_SWARB) & SWARB_GNT1)
@@ -3467,7 +3467,7 @@ static int tg3_nvram_lock(struct tg3 *tp)
 				return -ENODEV;
 			}
 		}
-		tp->nvram_lock_cnt++;
+		atomic_inc(&tp->nvram_lock_cnt);
 	}
 	return 0;
 }
@@ -3476,9 +3476,9 @@ static int tg3_nvram_lock(struct tg3 *tp)
 static void tg3_nvram_unlock(struct tg3 *tp)
 {
 	if (tg3_flag(tp, NVRAM)) {
-		if (tp->nvram_lock_cnt > 0)
-			tp->nvram_lock_cnt--;
-		if (tp->nvram_lock_cnt == 0)
+		if (atomic_read(&tp->nvram_lock_cnt) > 0)
+			atomic_dec(&tp->nvram_lock_cnt);
+		if (atomic_read(&tp->nvram_lock_cnt) == 0)
 			tw32_f(NVRAM_SWARB, SWARB_REQ_CLR1);
 	}
 }
@@ -3725,13 +3725,14 @@ static int tg3_nvram_write_block_unbuffered(struct tg3 *tp, u32 offset, u32 len,
 			break;
 
 		page_off = offset & pagemask;
-		size = pagesize;
+		size = pagesize - page_off;
 		if (len < size)
 			size = len;
 
 		len -= size;
 
 		memcpy(tmp + page_off, buf, size);
+		buf += size;
 
 		offset = offset + (pagesize - page_off);
 
@@ -9970,7 +9971,7 @@ static int tg3_chip_reset(struct tg3 *tp)
 	/* No matching tg3_nvram_unlock() after this because
 	 * chip reset below will undo the nvram lock.
 	 */
-	tp->nvram_lock_cnt = 0;
+	atomic_set(&tp->nvram_lock_cnt, 0);
 
 	/* GRC_MISC_CFG core clock reset will clear the memory
 	 * enable bit in PCI register 4 and the MSI enable bit
@@ -12013,7 +12014,7 @@ static void tg3_timer(struct timer_list *t)
 #ifndef BCM_HAS_TIMER_SETUP
 	struct tg3 *tp = (struct tg3 *) __opaque;
 #else
-	struct tg3 *tp = from_timer(tp, t, timer);
+	struct tg3 *tp = timer_container_of(tp, t, timer);
 #endif
 
 	if (tp->pcierr_recovery)
@@ -12200,7 +12201,7 @@ static void tg3_timer_start(struct tg3 *tp)
 
 static void tg3_timer_stop(struct tg3 *tp)
 {
-	del_timer_sync(&tp->timer);
+	timer_delete_sync(&tp->timer);
 }
 
 /* Restart hardware after configuration changes, self-test, etc.
@@ -12331,8 +12332,11 @@ static void tg3_reset_task(void *_data)
 		goto out;
 	}
 #else /* !defined(__VMKLNX__) */
-	if (err)
+	if (err) {
+		tp->irq_sync = 0;
+		tg3_napi_enable(tp);
 		goto out;
+	}
 #endif /* defined(__VMKLNX__) */
 
 	tg3_netif_start(tp);
@@ -12342,7 +12346,8 @@ out:
 
 	if (!err)
 		tg3_phy_start(tp);
-
+	else
+		dev_close(tp->dev);
 
 #if !defined(__VMKLNX__)
 out2:
@@ -12946,6 +12951,8 @@ static void tg3_stop(struct tg3 *tp)
 {
 	int i;
 
+	tg3_timer_stop(tp);
+
 #if !defined(__VMKLNX__)
 	if (!tp->unrecoverable_err)
 		tg3_reset_task_cancel(tp);
@@ -12954,8 +12961,6 @@ static void tg3_stop(struct tg3 *tp)
 #endif
 
 	tg3_netif_stop(tp);
-
-	tg3_timer_stop(tp);
 
 	tg3_hwmon_close(tp);
 
@@ -15675,6 +15680,9 @@ tg3_priv_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		return 0;
 
 	case NICE_CMD_REG_READ32_INDIRECT:
+		if (nrq->nrq_offset >= pci_resource_len(tp->pdev, 0))
+			return -EINVAL;
+
 		/* Make sure the offset is 4-byte aligned. */
 		if (nrq->nrq_offset & 0x00000003)
 			return -EINVAL;
@@ -15682,6 +15690,9 @@ tg3_priv_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		return 0;
 
 	case NICE_CMD_REG_WRITE32_INDIRECT:
+		if (nrq->nrq_offset >= pci_resource_len(tp->pdev, 0))
+			return -EINVAL;
+
 		/* Make sure the offset is 4-byte aligned. */
 		if (nrq->nrq_offset & 0x00000003)
 			return -EINVAL;
@@ -20446,8 +20457,8 @@ static int tg3_suspend(struct pci_dev *pdev, pm_message_t state)
 	if (!netif_running(dev))
 		goto power_down;
 
-	tg3_reset_task_cancel(tp);
 	tg3_timer_stop(tp);
+	tg3_reset_task_cancel(tp);
 	tg3_phy_stop(tp);
 	tg3_netif_stop(tp);
 

@@ -633,6 +633,10 @@ if grep -q "timer_setup" $srcdir/include/linux/timer.h ; then
 	echo "#define BCM_HAS_TIMER_SETUP"
 fi
 
+if grep -q "timer_delete_sync" $srcdir/include/linux/timer.h ; then
+        echo "#define BCM_HAS_TIMER_DELETE_SYNC"
+fi
+
 if [ -f $srcdir/include/linux/sched/signal.h ] ; then
 	echo "#define BCM_HAS_SIGNAL_PENDING"
 fi

@@ -1,7 +1,7 @@
                               Release Notes
                         Broadcom tg3 Linux Driver
-                              Version 3.139y
-                                03/23/2026
+                              Version 3.140b
+                                06/15/2026
 
                               Broadcom Inc.
                          5300 California Avenue,
@@ -9,6 +9,36 @@
 
 			Copyright (C) 2010-2025 Broadcom
 			   All Rights Reserved
+
+
+v3.140b (June 15, 2026)
+   fixes and Enhancements
+   ---------------------
+	1) Problem: (DCSG-174418) NIC interrupts credited to kernel entropy pool
+	   Cause  : Upstream removed IRQF_SAMPLE_RANDOM usage from network drivers
+	2) Problem: (DCSG-174422) nvram_lock_cnt RMW raced between ethtool and reset paths
+	   Cause  : Fixed nvram_lock_cnt races that can corrupt data
+	3) Problem: (DCSG-174414) Fix irq_sync leak and NAPI hang on reset_task init failure
+	   Cause  : Failed chip re-init can leave irq_sync set and NAPI disabled, causing kernel hangs
+	4) Problem: (DCSG-174420) Timer can re-queue reset_task after suspend flushed it
+	   Cause  : Prevent reset_task re-queue during suspend that can hang the workqueue
+	5) Problem: (DCSG-179961) Add upper bound check of NICE READ and WRITE commands
+	   Cause  : Fix out-of-bounds NIC register access via unchecked nrq offsets
+
+v3.140a (June 10, 2026)
+   fixes and Enhancements
+   ---------------------
+	1) Problem: (DCSG-176251) tg3 fails to build on Ubuntu 26.04
+	   Cause  : (DCSG-176251) Upstream replaced del_timer_sync with timer_delete_sync
+	2) Problem: (DCSG-174392) Possible heap overflow in unbuffered NVRAM write path
+	   Cause  : (DCSG-174392) Non-page-aligned ETHTOOL_SEEPROM offset could overflow the NVRAM page buffer, corrupting the kernel heap.
+
+v3.139z (April 30, 2026)
+   fixes and Enhancements
+   ---------------------
+        1) Problem: (DCSG-154582) tg3 fails to build on RHEL 9.8
+	   Cause  : (DCSG-154582) Upstream renamed from_timer() to timer_container_of(); rename was backported into RH 9.8
+
 v3.139y (March 23, 2026)
    fixes and Enhancements
    ---------------------

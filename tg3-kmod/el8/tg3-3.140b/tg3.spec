@@ -1,5 +1,5 @@
 %define brcmname tg3
-%define brcmvers 3.139y
+%define brcmvers 3.140b
 %define brcmfmly NetXtreme
 %define brcmwork %{brcmname}-%{brcmvers}
 
@@ -88,6 +88,20 @@ rm -rf $RPM_BUILD_ROOT
 %doc LICENSE README.TXT ChangeLog
 
 %changelog
+*Mon June 15 2026 shantiprasad Shettar <shantiprasad.shettar@broadcom.com> 3.140b
+- Removed IRQF_SAMPLE_RANDOM usage from network drivers
+- Fixed nvram_lock_cnt races that can corrupt data
+- Fix stale irq_sync and disabled NAPI after re-init failure
+- Prevent reset_task re-queue during suspend that can hang the workqueue
+- Fix out-of-bounds NIC register access via unchecked nrq offsets
+
+*Wed June 10 2026 Shravya KN <shravya.k-n@broadcom.com> 3.140a
+- Fix build on Ubuntu 26.04 after upstream replaces del_timer_sync with timer_delete_sync
+- Fix possible heap buffer overflow in unbuffered NVRAM write
+
+*Mon May 4 2026 Shravya KN <shravya.k-n@broadcom.com> 3.139z
+- Fix build on RHEL 9.8 after from_timer() rename to timer_container_of()
+
 *Mon March 23 2026 Shravya KN <shravya.k-n@broadcom.com> 3.139y
 - Do not drive GPIO1 on Citadel during rmmod
 

@@ -84,14 +84,18 @@ typedef void irqreturn_t;
 #define IRQF_SHARED SA_SHIRQ
 #endif
 
-#ifndef IRQF_SAMPLE_RANDOM
-#define IRQF_SAMPLE_RANDOM SA_SAMPLE_RANDOM
-#endif
-
 #if (LINUX_VERSION_CODE <= 0x020600)
 #define schedule_work(x)	schedule_task(x)
 #define work_struct		tq_struct
 #define INIT_WORK(x, y, z)	INIT_TQUEUE(x, y, z)
+#endif
+
+#ifndef timer_container_of
+#define timer_container_of(v, c, f)	from_timer(v, c, f)
+#endif
+
+#ifndef BCM_HAS_TIMER_DELETE_SYNC
+#define timer_delete_sync(t)	del_timer_sync(t)
 #endif
 
 #ifndef BCM_HAS_KZALLOC

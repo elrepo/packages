@@ -3512,7 +3512,7 @@ struct tg3 {
 	struct sk_buff			*tx_tstamp_skb;
 	u64				pre_tx_ts;
 
-	int				nvram_lock_cnt;
+	atomic_t			nvram_lock_cnt;
 	u32				nvram_size;
 #define TG3_NVRAM_SIZE_2KB		0x00000800
 #define TG3_NVRAM_SIZE_64KB		0x00010000
