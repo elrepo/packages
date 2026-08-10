@@ -2,7 +2,7 @@
 %define bnxt_en_name		bnxt_en
 %define bnxt_en_version		1.10.3
 %define bnxt_re_name		bnxt_re
-%define bnxt_re_version		237.1.137.0
+%define bnxt_re_version		238.1.165.0
 
 %define kmod_name		bnxt
 
@@ -201,6 +201,13 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Aug 10 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.10.3_238.1.165.0-1.1
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
+
+* Mon Aug 10 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.10.3_238.1.165.0-1
+- Update to version 1.10.3-238.1.165.0
+- Built against RHEL 8.10 GA kernel 4.18.0-553.el8_10
+
 * Thu Jul 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.10.3_237.1.137.0-1.1
 - Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
 
