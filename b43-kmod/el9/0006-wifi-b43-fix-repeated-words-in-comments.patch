@@ -1,0 +1,30 @@
+From e2dfb8a5c605eb989e35132ef96cbbff03ed3ca3 Mon Sep 17 00:00:00 2001
+From: Jilin Yuan <yuanjilin@cdjrlc.com>
+Date: Sat, 9 Jul 2022 21:31:19 +0800
+Subject: [PATCH 06/17] wifi: b43: fix repeated words in comments
+
+Delete the redundant word 'early'.
+
+Signed-off-by: Jilin Yuan <yuanjilin@cdjrlc.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220709133119.21076-1-yuanjilin@cdjrlc.com
+---
+ drivers/net/wireless/broadcom/b43/phy_common.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/wireless/broadcom/b43/phy_common.h b/drivers/net/wireless/broadcom/b43/phy_common.h
+index 4213caca9117..5ec5233acf40 100644
+--- a/drivers/net/wireless/broadcom/b43/phy_common.h
++++ b/drivers/net/wireless/broadcom/b43/phy_common.h
+@@ -88,7 +88,7 @@ enum b43_txpwr_result {
+  * 			initialized here.
+  * 			Must not be NULL.
+  * @prepare_hardware:	Prepare the PHY. This is called before b43_chip_init to
+- * 			do some early early PHY hardware init.
++ * 			do some early PHY hardware init.
+  * 			Can be NULL, if not required.
+  * @init:		Initialize the PHY.
+  * 			Must not be NULL.
+-- 
+2.52.0
+

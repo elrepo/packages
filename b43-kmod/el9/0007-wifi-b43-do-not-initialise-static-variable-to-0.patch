@@ -1,0 +1,32 @@
+From dbf8cd368a4786d7a6a3a4c842d083a4924658f5 Mon Sep 17 00:00:00 2001
+From: Xin Gao <gaoxin@cdjrlc.com>
+Date: Thu, 21 Jul 2022 03:42:45 +0800
+Subject: [PATCH 07/17] wifi: b43: do not initialise static variable to 0
+
+No need to initialise static variables to zero.
+
+Signed-off-by: Xin Gao <gaoxin@cdjrlc.com>
+Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
+[kvalo@kernel.org: improve commit log]
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220720194245.8442-1-gaoxin@cdjrlc.com
+---
+ drivers/net/wireless/broadcom/b43/main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/wireless/broadcom/b43/main.c b/drivers/net/wireless/broadcom/b43/main.c
+index 008ee1f98af4..b2539a916fd0 100644
+--- a/drivers/net/wireless/broadcom/b43/main.c
++++ b/drivers/net/wireless/broadcom/b43/main.c
+@@ -105,7 +105,7 @@ int b43_modparam_verbose = B43_VERBOSITY_DEFAULT;
+ module_param_named(verbose, b43_modparam_verbose, int, 0644);
+ MODULE_PARM_DESC(verbose, "Log message verbosity: 0=error, 1=warn, 2=info(default), 3=debug");
+ 
+-static int b43_modparam_pio = 0;
++static int b43_modparam_pio;
+ module_param_named(pio, b43_modparam_pio, int, 0644);
+ MODULE_PARM_DESC(pio, "Use PIO accesses by default: 0=DMA, 1=PIO");
+ 
+-- 
+2.52.0
+

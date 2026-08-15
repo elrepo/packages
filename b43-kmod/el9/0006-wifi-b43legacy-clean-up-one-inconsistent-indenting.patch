@@ -1,0 +1,32 @@
+From 7d13c0ae38a62835ead261527727a9f9bf949d43 Mon Sep 17 00:00:00 2001
+From: Yang Li <yang.lee@linux.alibaba.com>
+Date: Tue, 19 Jul 2022 15:56:37 +0800
+Subject: [PATCH 06/12] wifi: b43legacy: clean up one inconsistent indenting
+
+Eliminate the follow smatch warning:
+drivers/net/wireless/broadcom/b43legacy/main.c:2947 b43legacy_wireless_core_stop() warn: inconsistent indenting
+
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220719075637.111716-1-yang.lee@linux.alibaba.com
+---
+ drivers/net/wireless/broadcom/b43legacy/main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/wireless/broadcom/b43legacy/main.c b/drivers/net/wireless/broadcom/b43legacy/main.c
+index cbc21c7c3138..4022c544aefe 100644
+--- a/drivers/net/wireless/broadcom/b43legacy/main.c
++++ b/drivers/net/wireless/broadcom/b43legacy/main.c
+@@ -2944,7 +2944,7 @@ static void b43legacy_wireless_core_stop(struct b43legacy_wldev *dev)
+ 			dev_kfree_skb(skb_dequeue(&wl->tx_queue[queue_num]));
+ 	}
+ 
+-b43legacy_mac_suspend(dev);
++	b43legacy_mac_suspend(dev);
+ 	free_irq(dev->dev->irq, dev);
+ 	b43legacydbg(wl, "Wireless interface stopped\n");
+ }
+-- 
+2.52.0
+

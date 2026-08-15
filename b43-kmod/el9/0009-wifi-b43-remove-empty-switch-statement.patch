@@ -1,0 +1,36 @@
+From 8f15a8d6786c031b230e46077acbe1e07fabb5ce Mon Sep 17 00:00:00 2001
+From: Johannes Berg <johannes.berg@intel.com>
+Date: Sun, 4 Sep 2022 21:29:12 +0200
+Subject: [PATCH 09/17] wifi: b43: remove empty switch statement
+
+There's a TODO here, just move the dependency on phy->rev
+into the comment. Not that this driver is likely to get
+any updates.
+
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220904212910.ea00a892e41b.I709217fc307125f8670c7f6a9093111b46194131@changeid
+---
+ drivers/net/wireless/broadcom/b43/phy_n.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/drivers/net/wireless/broadcom/b43/phy_n.c b/drivers/net/wireless/broadcom/b43/phy_n.c
+index aa5c99465674..2c0c019a815d 100644
+--- a/drivers/net/wireless/broadcom/b43/phy_n.c
++++ b/drivers/net/wireless/broadcom/b43/phy_n.c
+@@ -2479,11 +2479,7 @@ static void b43_nphy_gain_ctl_workarounds_rev19(struct b43_wldev *dev)
+ 
+ static void b43_nphy_gain_ctl_workarounds_rev7(struct b43_wldev *dev)
+ {
+-	struct b43_phy *phy = &dev->phy;
+-
+-	switch (phy->rev) {
+-	/* TODO */
+-	}
++	/* TODO - should depend on phy->rev */
+ }
+ 
+ static void b43_nphy_gain_ctl_workarounds_rev3(struct b43_wldev *dev)
+-- 
+2.52.0
+

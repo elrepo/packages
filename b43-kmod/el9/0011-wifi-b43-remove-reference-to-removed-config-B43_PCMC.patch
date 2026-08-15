@@ -1,0 +1,55 @@
+From 3ca7f0b2523cac5d436cd09758db07e10b1a322a Mon Sep 17 00:00:00 2001
+From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Date: Tue, 22 Nov 2022 14:12:48 +0100
+Subject: [PATCH 11/17] wifi: b43: remove reference to removed config
+ B43_PCMCIA
+
+Commit 399500da18f7 ("ssb: pick PCMCIA host code support from b43 driver")
+removes the config B43_PCMCIA.
+
+Clean up the last reference to this removed config B43_PCMCIA in the
+b43_print_driverinfo() function.
+
+Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221122131248.23738-1-lukas.bulwahn@gmail.com
+---
+ drivers/net/wireless/broadcom/b43/main.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/net/wireless/broadcom/b43/main.c b/drivers/net/wireless/broadcom/b43/main.c
+index 298febbdffc0..92ca0b2ca286 100644
+--- a/drivers/net/wireless/broadcom/b43/main.c
++++ b/drivers/net/wireless/broadcom/b43/main.c
+@@ -5784,15 +5784,12 @@ void b43_controller_restart(struct b43_wldev *dev, const char *reason)
+ 
+ static void b43_print_driverinfo(void)
+ {
+-	const char *feat_pci = "", *feat_pcmcia = "", *feat_nphy = "",
++	const char *feat_pci = "", *feat_nphy = "",
+ 		   *feat_leds = "", *feat_sdio = "";
+ 
+ #ifdef CONFIG_B43_PCI_AUTOSELECT
+ 	feat_pci = "P";
+ #endif
+-#ifdef CONFIG_B43_PCMCIA
+-	feat_pcmcia = "M";
+-#endif
+ #ifdef CONFIG_B43_PHY_N
+ 	feat_nphy = "N";
+ #endif
+@@ -5803,9 +5800,8 @@ static void b43_print_driverinfo(void)
+ 	feat_sdio = "S";
+ #endif
+ 	printk(KERN_INFO "Broadcom 43xx driver loaded "
+-	       "[ Features: %s%s%s%s%s ]\n",
+-	       feat_pci, feat_pcmcia, feat_nphy,
+-	       feat_leds, feat_sdio);
++	       "[ Features: %s%s%s%s ]\n",
++	       feat_pci, feat_nphy, feat_leds, feat_sdio);
+ }
+ 
+ static int __init b43_init(void)
+-- 
+2.52.0
+
