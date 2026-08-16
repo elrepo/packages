@@ -16,8 +16,10 @@ URL:		http://www.kernel.org/
 
 # Sources.
 Source0:	%{kmod_name}-%{version}.tar.gz
-Source1:	modprobe-b43.conf
-Source2:	modprobe-b43legacy.conf
+Source1:	dracut-b43.conf
+Source2:	dracut-b43legacy.conf
+Source3:	modprobe-b43.conf
+Source4:	modprobe-b43legacy.conf
 Source5:	GPL-v2.0.txt
 
 # Source code patches.
@@ -63,8 +65,8 @@ Patch35:	0006-wifi-b43legacy-clean-up-one-inconsistent-indenting.patch
 Patch41:	0012-wifi-b43legacy-enforce-bounds-check-on-firmware-key-.patch
 
 Recommends:	b43-fwcutter
-Recommends:	b43-openfwwf
 Recommends:	b43-tools
+# Recommends:	b43-openfwwf
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -287,9 +289,12 @@ sort -u greylist | uniq > greylist.txt
 %{__install} */*.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
+%{__install} -d %{buildroot}%{_sysconfdir}/dracut.conf.d/
+%{__install} -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/dracut.conf.d/
+%{__install} -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/dracut.conf.d/
 %{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d/
-%{__install} -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/modprobe.d/
-%{__install} -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/modprobe.d/
+%{__install} -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/modprobe.d/
+%{__install} -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/modprobe.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
@@ -382,6 +387,7 @@ exit 0
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
 %config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
+%config %{_sysconfdir}/dracut.conf.d/dracut-%{kmod_name}*.conf
 %config(noreplace) %{_sysconfdir}/modprobe.d/modprobe-%{kmod_name}*.conf
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
