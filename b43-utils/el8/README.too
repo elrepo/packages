@@ -1,0 +1,24 @@
+Using the b43-fwcutter tool to install Broadcom firmware
+--------------------------------------------------------
+
+The b43 and b43legacy drivers included in the kernel require firmware
+images to load onto a Broadcom wireless device in order to make
+them function.  These firmware images can be extracted from any of a
+number of driver binaries released for OSX, Windows, or Linux.
+
+The following URL (taken from the README file) points to sources of
+firmware images which are known to work with these drivers:
+
+	http://linuxwireless.sipsolutions.net/en/users/Drivers/b43/#firmware
+
+Pleae note that the b43legacy driver requires "version 3" firmware,
+while the b43 driver requires "version 4" firmware.
+
+Once you have obtained the source of the appropriate firmware,
+run the command below as root.  Be sure to replace '<DRIVERFILE>'
+with the actual name of the source file (e.g. wl_apsta.o):
+
+   b43-fwcutter -w /lib/firmware <DRIVERFILE>
+
+The command above will extract the firmware to the appropriate location
+for loading by the driver as necessary.

@@ -1,0 +1,147 @@
+From b7e389235cfe49a049d116839bda2a3b931c423e Mon Sep 17 00:00:00 2001
+From: Kees Cook <keescook@chromium.org>
+Date: Wed, 3 Jun 2020 13:09:38 -0700
+Subject: [PATCH 10/16] treewide: Remove uninitialized_var() usage
+
+commit 3f649ab728cda8038259d8f14492fe400fbab911 upstream.
+
+Using uninitialized_var() is dangerous as it papers over real bugs[1]
+(or can in the future), and suppresses unrelated compiler warnings
+(e.g. "unused variable"). If the compiler thinks it is uninitialized,
+either simply initialize the variable or make compiler changes.
+
+In preparation for removing[2] the[3] macro[4], remove all remaining
+needless uses with the following script:
+
+git grep '\buninitialized_var\b' | cut -d: -f1 | sort -u | \
+	xargs perl -pi -e \
+		's/\buninitialized_var\(([^\)]+)\)/\1/g;
+		 s:\s*/\* (GCC be quiet|to make compiler happy) \*/$::g;'
+
+drivers/video/fbdev/riva/riva_hw.c was manually tweaked to avoid
+pathological white-space.
+
+No outstanding warnings were found building allmodconfig with GCC 9.3.0
+for x86_64, i386, arm64, arm, powerpc, powerpc64le, s390x, mips, sparc64,
+alpha, and m68k.
+
+[1] https://lore.kernel.org/lkml/20200603174714.192027-1-glider@google.com/
+[2] https://lore.kernel.org/lkml/CA+55aFw+Vbj0i=1TGqCR5vQkCzWJ0QxK6CernOU6eedsudAixw@mail.gmail.com/
+[3] https://lore.kernel.org/lkml/CA+55aFwgbgqhbp1fkxvRKEpzyR5J8n1vKT1VZdz9knmPuXhOeg@mail.gmail.com/
+[4] https://lore.kernel.org/lkml/CA+55aFz2500WfbKXAx8s67wrm9=yVJu65TpLgN_ybYNv0VEOKA@mail.gmail.com/
+
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com> # drivers/infiniband and mlx4/mlx5
+Acked-by: Jason Gunthorpe <jgg@mellanox.com> # IB
+Acked-by: Kalle Valo <kvalo@codeaurora.org> # wireless drivers
+Reviewed-by: Chao Yu <yuchao0@huawei.com> # erofs
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/net/wireless/broadcom/b43/debugfs.c |  2 +-
+ drivers/net/wireless/broadcom/b43/dma.c     |  2 +-
+ drivers/net/wireless/broadcom/b43/lo.c      |  2 +-
+ drivers/net/wireless/broadcom/b43/phy_n.c   |  2 +-
+ drivers/net/wireless/broadcom/b43/xmit.c    | 12 ++++++------
+ 5 files changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/net/wireless/broadcom/b43/debugfs.c b/drivers/net/wireless/broadcom/b43/debugfs.c
+index 77046384dd80..70b02d664170 100644
+--- a/drivers/net/wireless/broadcom/b43/debugfs.c
++++ b/drivers/net/wireless/broadcom/b43/debugfs.c
+@@ -506,7 +506,7 @@ static ssize_t b43_debugfs_read(struct file *file, char __user *userbuf,
+ 	struct b43_wldev *dev;
+ 	struct b43_debugfs_fops *dfops;
+ 	struct b43_dfs_file *dfile;
+-	ssize_t uninitialized_var(ret);
++	ssize_t ret;
+ 	char *buf;
+ 	const size_t bufsize = 1024 * 16; /* 16 kiB buffer */
+ 	const size_t buforder = get_order(bufsize);
+diff --git a/drivers/net/wireless/broadcom/b43/dma.c b/drivers/net/wireless/broadcom/b43/dma.c
+index d46d57b989ae..06139835055f 100644
+--- a/drivers/net/wireless/broadcom/b43/dma.c
++++ b/drivers/net/wireless/broadcom/b43/dma.c
+@@ -50,7 +50,7 @@
+ static u32 b43_dma_address(struct b43_dma *dma, dma_addr_t dmaaddr,
+ 			   enum b43_addrtype addrtype)
+ {
+-	u32 uninitialized_var(addr);
++	u32 addr;
+ 
+ 	switch (addrtype) {
+ 	case B43_DMA_ADDR_LOW:
+diff --git a/drivers/net/wireless/broadcom/b43/lo.c b/drivers/net/wireless/broadcom/b43/lo.c
+index a335f94c72ff..10cc0c0d70c3 100644
+--- a/drivers/net/wireless/broadcom/b43/lo.c
++++ b/drivers/net/wireless/broadcom/b43/lo.c
+@@ -742,7 +742,7 @@ struct b43_lo_calib *b43_calibrate_lo_setting(struct b43_wldev *dev,
+ 	};
+ 	int max_rx_gain;
+ 	struct b43_lo_calib *cal;
+-	struct lo_g_saved_values uninitialized_var(saved_regs);
++	struct lo_g_saved_values saved_regs;
+ 	/* Values from the "TXCTL Register and Value Table" */
+ 	u16 txctl_reg;
+ 	u16 txctl_value;
+diff --git a/drivers/net/wireless/broadcom/b43/phy_n.c b/drivers/net/wireless/broadcom/b43/phy_n.c
+index 3508a7822619..3a74e82c9fb6 100644
+--- a/drivers/net/wireless/broadcom/b43/phy_n.c
++++ b/drivers/net/wireless/broadcom/b43/phy_n.c
+@@ -5655,7 +5655,7 @@ static int b43_nphy_rev2_cal_rx_iq(struct b43_wldev *dev,
+ 	u8 rfctl[2];
+ 	u8 afectl_core;
+ 	u16 tmp[6];
+-	u16 uninitialized_var(cur_hpf1), uninitialized_var(cur_hpf2), cur_lna;
++	u16 cur_hpf1, cur_hpf2, cur_lna;
+ 	u32 real, imag;
+ 	enum nl80211_band band;
+ 
+diff --git a/drivers/net/wireless/broadcom/b43/xmit.c b/drivers/net/wireless/broadcom/b43/xmit.c
+index 1b9c191e2a22..c123e2204663 100644
+--- a/drivers/net/wireless/broadcom/b43/xmit.c
++++ b/drivers/net/wireless/broadcom/b43/xmit.c
+@@ -435,10 +435,10 @@ int b43_generate_txhdr(struct b43_wldev *dev,
+ 	if ((rates[0].flags & IEEE80211_TX_RC_USE_RTS_CTS) ||
+ 	    (rates[0].flags & IEEE80211_TX_RC_USE_CTS_PROTECT)) {
+ 		unsigned int len;
+-		struct ieee80211_hdr *uninitialized_var(hdr);
++		struct ieee80211_hdr *hdr;
+ 		int rts_rate, rts_rate_fb;
+ 		int rts_rate_ofdm, rts_rate_fb_ofdm;
+-		struct b43_plcp_hdr6 *uninitialized_var(plcp);
++		struct b43_plcp_hdr6 *plcp;
+ 		struct ieee80211_rate *rts_cts_rate;
+ 
+ 		rts_cts_rate = ieee80211_get_rts_cts_rate(dev->wl->hw, info);
+@@ -449,7 +449,7 @@ int b43_generate_txhdr(struct b43_wldev *dev,
+ 		rts_rate_fb_ofdm = b43_is_ofdm_rate(rts_rate_fb);
+ 
+ 		if (rates[0].flags & IEEE80211_TX_RC_USE_CTS_PROTECT) {
+-			struct ieee80211_cts *uninitialized_var(cts);
++			struct ieee80211_cts *cts;
+ 
+ 			switch (dev->fw.hdr_format) {
+ 			case B43_FW_HDR_598:
+@@ -471,7 +471,7 @@ int b43_generate_txhdr(struct b43_wldev *dev,
+ 			mac_ctl |= B43_TXH_MAC_SENDCTS;
+ 			len = sizeof(struct ieee80211_cts);
+ 		} else {
+-			struct ieee80211_rts *uninitialized_var(rts);
++			struct ieee80211_rts *rts;
+ 
+ 			switch (dev->fw.hdr_format) {
+ 			case B43_FW_HDR_598:
+@@ -663,8 +663,8 @@ void b43_rx(struct b43_wldev *dev, struct sk_buff *skb, const void *_rxhdr)
+ 	const struct b43_rxhdr_fw4 *rxhdr = _rxhdr;
+ 	__le16 fctl;
+ 	u16 phystat0, phystat3;
+-	u16 uninitialized_var(chanstat), uninitialized_var(mactime);
+-	u32 uninitialized_var(macstat);
++	u16 chanstat, mactime;
++	u32 macstat;
+ 	u16 chanid;
+ 	int padding, rate_idx;
+ 
+-- 
+2.43.7
+

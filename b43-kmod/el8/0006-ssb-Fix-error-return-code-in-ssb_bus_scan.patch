@@ -1,0 +1,41 @@
+ELRepo: Modified to backport to RHEL 8.10
+
+From a05091c9b2ef89c7d8c891dd420bd133fcd29176 Mon Sep 17 00:00:00 2001
+From: Zhen Lei <thunder.leizhen@huawei.com>
+Date: Sat, 15 May 2021 15:29:49 +0800
+Subject: [PATCH 6/8] ssb: Fix error return code in ssb_bus_scan()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+[ Upstream commit 77a0989baa427dbd242c5784d05a53ca3d197d43 ]
+
+Fix to return -EINVAL from the error handling case instead of 0, as done
+elsewhere in this function.
+
+Fixes: 61e115a56d1a ("[SSB]: add Sonics Silicon Backplane bus support")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Acked-by: Michael Büsch <m@bues.ch>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210515072949.7151-1-thunder.leizhen@huawei.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/ssb/scan.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/ssb/scan.c b/drivers/ssb/scan.c
+index 6ceee98ed6ff..5c7e61cafd19 100644
+--- a/drivers/ssb/scan.c
++++ b/drivers/ssb/scan.c
+@@ -325,6 +325,7 @@ int ssb_bus_scan(struct ssb_bus *bus,
+ 	if (bus->nr_devices > ARRAY_SIZE(bus->devices)) {
+ 		ssb_err("More than %d ssb cores found (%d)\n",
+ 			SSB_MAX_NR_CORES, bus->nr_devices);
++		err = -EINVAL;
+ 		goto err_unmap;
+ 	}
+ 	if (bus->bustype == SSB_BUSTYPE_SSB) {
+-- 
+2.43.7
+

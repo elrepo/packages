@@ -1,0 +1,72 @@
+From b7e389235cfe49a049d116839bda2a3b931c423e Mon Sep 17 00:00:00 2001
+From: Kees Cook <keescook@chromium.org>
+Date: Wed, 3 Jun 2020 13:09:38 -0700
+Subject: [PATCH 8/8] treewide: Remove uninitialized_var() usage
+
+commit 3f649ab728cda8038259d8f14492fe400fbab911 upstream.
+
+Using uninitialized_var() is dangerous as it papers over real bugs[1]
+(or can in the future), and suppresses unrelated compiler warnings
+(e.g. "unused variable"). If the compiler thinks it is uninitialized,
+either simply initialize the variable or make compiler changes.
+
+In preparation for removing[2] the[3] macro[4], remove all remaining
+needless uses with the following script:
+
+git grep '\buninitialized_var\b' | cut -d: -f1 | sort -u | \
+	xargs perl -pi -e \
+		's/\buninitialized_var\(([^\)]+)\)/\1/g;
+		 s:\s*/\* (GCC be quiet|to make compiler happy) \*/$::g;'
+
+drivers/video/fbdev/riva/riva_hw.c was manually tweaked to avoid
+pathological white-space.
+
+No outstanding warnings were found building allmodconfig with GCC 9.3.0
+for x86_64, i386, arm64, arm, powerpc, powerpc64le, s390x, mips, sparc64,
+alpha, and m68k.
+
+[1] https://lore.kernel.org/lkml/20200603174714.192027-1-glider@google.com/
+[2] https://lore.kernel.org/lkml/CA+55aFw+Vbj0i=1TGqCR5vQkCzWJ0QxK6CernOU6eedsudAixw@mail.gmail.com/
+[3] https://lore.kernel.org/lkml/CA+55aFwgbgqhbp1fkxvRKEpzyR5J8n1vKT1VZdz9knmPuXhOeg@mail.gmail.com/
+[4] https://lore.kernel.org/lkml/CA+55aFz2500WfbKXAx8s67wrm9=yVJu65TpLgN_ybYNv0VEOKA@mail.gmail.com/
+
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com> # drivers/infiniband and mlx4/mlx5
+Acked-by: Jason Gunthorpe <jgg@mellanox.com> # IB
+Acked-by: Kalle Valo <kvalo@codeaurora.org> # wireless drivers
+Reviewed-by: Chao Yu <yuchao0@huawei.com> # erofs
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/net/wireless/broadcom/b43legacy/debugfs.c | 2 +-
+ drivers/net/wireless/broadcom/b43legacy/main.c    | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/wireless/broadcom/b43legacy/debugfs.c b/drivers/net/wireless/broadcom/b43legacy/debugfs.c
+index 82ef56ed7ca1..d3c9a916b44c 100644
+--- a/drivers/net/wireless/broadcom/b43legacy/debugfs.c
++++ b/drivers/net/wireless/broadcom/b43legacy/debugfs.c
+@@ -203,7 +203,7 @@ static ssize_t b43legacy_debugfs_read(struct file *file, char __user *userbuf,
+ 	struct b43legacy_wldev *dev;
+ 	struct b43legacy_debugfs_fops *dfops;
+ 	struct b43legacy_dfs_file *dfile;
+-	ssize_t uninitialized_var(ret);
++	ssize_t ret;
+ 	char *buf;
+ 	const size_t bufsize = 1024 * 16; /* 16 KiB buffer */
+ 	const size_t buforder = get_order(bufsize);
+diff --git a/drivers/net/wireless/broadcom/b43legacy/main.c b/drivers/net/wireless/broadcom/b43legacy/main.c
+index ef1f1b5d63b1..a147c93583b2 100644
+--- a/drivers/net/wireless/broadcom/b43legacy/main.c
++++ b/drivers/net/wireless/broadcom/b43legacy/main.c
+@@ -2612,7 +2612,7 @@ static void b43legacy_put_phy_into_reset(struct b43legacy_wldev *dev)
+ static int b43legacy_switch_phymode(struct b43legacy_wl *wl,
+ 				      unsigned int new_mode)
+ {
+-	struct b43legacy_wldev *uninitialized_var(up_dev);
++	struct b43legacy_wldev *up_dev;
+ 	struct b43legacy_wldev *down_dev;
+ 	int err;
+ 	bool gmode = false;
+-- 
+2.43.7
+

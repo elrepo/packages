@@ -1,0 +1,67 @@
+From b7e389235cfe49a049d116839bda2a3b931c423e Mon Sep 17 00:00:00 2001
+From: Kees Cook <keescook@chromium.org>
+Date: Wed, 3 Jun 2020 13:09:38 -0700
+Subject: [PATCH 7/8] treewide: Remove uninitialized_var() usage
+
+commit 3f649ab728cda8038259d8f14492fe400fbab911 upstream.
+
+Using uninitialized_var() is dangerous as it papers over real bugs[1]
+(or can in the future), and suppresses unrelated compiler warnings
+(e.g. "unused variable"). If the compiler thinks it is uninitialized,
+either simply initialize the variable or make compiler changes.
+
+In preparation for removing[2] the[3] macro[4], remove all remaining
+needless uses with the following script:
+
+git grep '\buninitialized_var\b' | cut -d: -f1 | sort -u | \
+	xargs perl -pi -e \
+		's/\buninitialized_var\(([^\)]+)\)/\1/g;
+		 s:\s*/\* (GCC be quiet|to make compiler happy) \*/$::g;'
+
+drivers/video/fbdev/riva/riva_hw.c was manually tweaked to avoid
+pathological white-space.
+
+No outstanding warnings were found building allmodconfig with GCC 9.3.0
+for x86_64, i386, arm64, arm, powerpc, powerpc64le, s390x, mips, sparc64,
+alpha, and m68k.
+
+[1] https://lore.kernel.org/lkml/20200603174714.192027-1-glider@google.com/
+[2] https://lore.kernel.org/lkml/CA+55aFw+Vbj0i=1TGqCR5vQkCzWJ0QxK6CernOU6eedsudAixw@mail.gmail.com/
+[3] https://lore.kernel.org/lkml/CA+55aFwgbgqhbp1fkxvRKEpzyR5J8n1vKT1VZdz9knmPuXhOeg@mail.gmail.com/
+[4] https://lore.kernel.org/lkml/CA+55aFz2500WfbKXAx8s67wrm9=yVJu65TpLgN_ybYNv0VEOKA@mail.gmail.com/
+
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com> # drivers/infiniband and mlx4/mlx5
+Acked-by: Jason Gunthorpe <jgg@mellanox.com> # IB
+Acked-by: Kalle Valo <kvalo@codeaurora.org> # wireless drivers
+Reviewed-by: Chao Yu <yuchao0@huawei.com> # erofs
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/ssb/driver_chipcommon.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/ssb/driver_chipcommon.c b/drivers/ssb/driver_chipcommon.c
+index 99a4656d113d..832ee69f45f5 100644
+--- a/drivers/ssb/driver_chipcommon.c
++++ b/drivers/ssb/driver_chipcommon.c
+@@ -119,7 +119,7 @@ void ssb_chipco_set_clockmode(struct ssb_chipcommon *cc,
+ static enum ssb_clksrc chipco_pctl_get_slowclksrc(struct ssb_chipcommon *cc)
+ {
+ 	struct ssb_bus *bus = cc->dev->bus;
+-	u32 uninitialized_var(tmp);
++	u32 tmp;
+ 
+ 	if (cc->dev->id.revision < 6) {
+ 		if (bus->bustype == SSB_BUSTYPE_SSB ||
+@@ -149,7 +149,7 @@ static enum ssb_clksrc chipco_pctl_get_slowclksrc(struct ssb_chipcommon *cc)
+ /* Get maximum or minimum (depending on get_max flag) slowclock frequency. */
+ static int chipco_pctl_clockfreqlimit(struct ssb_chipcommon *cc, int get_max)
+ {
+-	int uninitialized_var(limit);
++	int limit;
+ 	enum ssb_clksrc clocksrc;
+ 	int divisor = 1;
+ 	u32 tmp;
+-- 
+2.43.7
+

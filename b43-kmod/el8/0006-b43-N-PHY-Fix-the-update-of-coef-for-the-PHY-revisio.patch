@@ -1,0 +1,49 @@
+From 0d6c742302d9cc7186a429fbd8403204c4d90981 Mon Sep 17 00:00:00 2001
+From: Colin Ian King <colin.king@canonical.com>
+Date: Mon, 15 Feb 2021 12:05:32 +0000
+Subject: [PATCH 06/16] b43: N-PHY: Fix the update of coef for the PHY revision
+ >= 3case
+
+[ Upstream commit 4773acf3d4b50768bf08e9e97a204819e9ea0895 ]
+
+The documentation for the PHY update [1] states:
+
+Loop 4 times with index i
+
+    If PHY Revision >= 3
+        Copy table[i] to coef[i]
+    Otherwise
+        Set coef[i] to 0
+
+the copy of the table to coef is currently implemented the wrong way
+around, table is being updated from uninitialized values in coeff.
+Fix this by swapping the assignment around.
+
+[1] https://bcm-v4.sipsolutions.net/802.11/PHY/N/RestoreCal/
+
+Fixes: 2f258b74d13c ("b43: N-PHY: implement restoring general configuration")
+Addresses-Coverity: ("Uninitialized scalar variable")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/net/wireless/broadcom/b43/phy_n.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/wireless/broadcom/b43/phy_n.c b/drivers/net/wireless/broadcom/b43/phy_n.c
+index 44ab080d6518..88446258e775 100644
+--- a/drivers/net/wireless/broadcom/b43/phy_n.c
++++ b/drivers/net/wireless/broadcom/b43/phy_n.c
+@@ -5320,7 +5320,7 @@ static void b43_nphy_restore_cal(struct b43_wldev *dev)
+ 
+ 	for (i = 0; i < 4; i++) {
+ 		if (dev->phy.rev >= 3)
+-			table[i] = coef[i];
++			coef[i] = table[i];
+ 		else
+ 			coef[i] = 0;
+ 	}
+-- 
+2.43.7
+

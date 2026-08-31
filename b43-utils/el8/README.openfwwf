@@ -1,0 +1,46 @@
+Open FirmWare for WiFi networks: a UniBS NTW group project
+
+Realized by Francesco Gringoli and Lorenzo Nava
+
+Welcome!
+
+   OpenFWWF, Open FirmWare for WiFi networks, is a project that wants to
+   provide an easy and inexpensive platform to implement new Medium Access
+   Control (MAC) mechanism, and wants to be a valid alternative to
+   simulations and expensive ad-hoc platforms. The combination of OpenFWWF
+   and b43 driver is a complete and cheap tool that makes testing of new
+   MAC easy achievable.
+
+   This site provides an open source firmware for Broadcom/AirForce
+   chipset based devices. Currently this firmware has been tested on 4306
+   and 4318 chipset revisions and with kernel 2.6.27-rc5 (module b43 from
+   wireless-testing). Firmware has been developed starting from
+   specifications in http://bcm-v4.sipsolutions.net: we report here
+   some information more we discovered, such as important interactions
+   between the MAC processor, the hardware registers and the operating
+   mechanisms that rules data frames along the transmission and reception
+   paths.
+   This project has been successfully completed thanks to the work of
+   reverse engineering available at http://bcm-v4.sipsolutions.net and
+   to the tools that Michael Buesch makes available to the community.
+
+   What this firmware supports:
+     * works in infrastructured mode as both station and AP, the latter
+       requires hostapd
+     * it is compliant with DCF access scheme in b and g modes, not tested
+       in a bands
+     * Preliminary testing shows that ad-hoc mode works as it does with
+       proprietary firmware
+
+   What this firmware does not support:
+     * does not implement RTS/CTS handshake procedure, must be disabled on
+       module load
+     * does not work with hardware cryptography acceleration, use without
+       encryption!
+     * does not work with dot11 QoS, must be disabled on module load
+
+
+If you need help:
+
+   If you need help, send a message to the OpenFWWF team:
+   mailto:openfwwf@ing.unibs.it

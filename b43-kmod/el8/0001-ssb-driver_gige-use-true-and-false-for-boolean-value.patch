@@ -1,0 +1,33 @@
+From c7743c428111912fffceb38b860024f7e33b3e3c Mon Sep 17 00:00:00 2001
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Date: Sat, 4 Aug 2018 19:04:53 -0500
+Subject: [PATCH 1/8] ssb: driver_gige: use true and false for boolean values
+
+Return statements in functions returning bool should use true or false
+instead of an integer value.
+
+This code was detected with the help of Coccinelle.
+
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Reviewed-by: Michael Buesch <m@bues.ch>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+---
+ drivers/ssb/driver_gige.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/ssb/driver_gige.c b/drivers/ssb/driver_gige.c
+index e9734051e3c4..ebee6b0e3c34 100644
+--- a/drivers/ssb/driver_gige.c
++++ b/drivers/ssb/driver_gige.c
+@@ -242,7 +242,7 @@ static int ssb_gige_probe(struct ssb_device *sdev,
+ bool pdev_is_ssb_gige_core(struct pci_dev *pdev)
+ {
+ 	if (!pdev->resource[0].name)
+-		return 0;
++		return false;
+ 	return (strcmp(pdev->resource[0].name, SSB_GIGE_MEM_RES_NAME) == 0);
+ }
+ EXPORT_SYMBOL(pdev_is_ssb_gige_core);
+-- 
+2.43.7
+
