@@ -1,0 +1,76 @@
+#!/bin/sh
+#
+# install_bcm43xx_firmware
+#
+# This script tries to download and install the firmware needed to run
+# WLAN cards using Broadcom's bcm43xx chips.
+
+# ELRepo: Modified to add variables, add chmod, and update URLs
+
+# firmware directories
+FIRMWARE_DIR=/lib/firmware
+DOC_DIR=/usr/share/doc
+
+# firmware for b43
+B43_URL=https://web.archive.org/web/20150117040036/http://www.lwfinger.com/b43-firmware
+B43_FILE=broadcom-wl-6.30.163.46.tar.bz2
+B43_FIRMWARE=broadcom-wl-6.30.163.46.wl_apsta.o
+
+# firmware for b43legacy
+B43L_URL=https://web.archive.org/web/20150117040052/http://downloads.openwrt.org/sources
+B43L_FILE=wl_apsta-3.130.20.0.o
+B43L_FIRMWARE=${B43L_FILE}
+
+test -z "$( type -p curl)" && { echo "'curl' is not installed, aborting. Please install 'curl' and try again."; exit 1; }
+test -z "$( type -p b43-fwcutter)" && { echo "'b43-fwcutter' is not installed, aborting. Please install 'b43-fwcutter' and try again."; exit 1; }
+test -d ${FIRMWARE_DIR} || mkdir -p ${FIRMWARE_DIR} || chmod 755 ${FIRMWARE_DIR}
+
+TMPDIR=$(mktemp -d /var/tmp/bcm.XXXXXX) || exit 1
+
+pushd $TMPDIR >/dev/null
+
+echo "Downloading b43 firmware"
+curl -L -# -f -o ${B43_FILE} ${B43_URL}/${B43_FILE}
+if [ $? -eq 0 ];then
+	echo "Extracting b43 firmware"
+	tar xjf ${B43_FILE}
+	b43-fwcutter -w ${FIRMWARE_DIR} ${B43_FIRMWARE}
+else
+	echo "Could not download b43 firmware. Please look at ${DOC_DIR}/b43-fwcutter/README."
+fi
+
+echo
+echo "Downloading b43legacy firmware"
+curl -L -# -f -o ${B43L_FILE} ${B43L_URL}/${B43L_FILE}
+if [ $? -eq 0 ];then
+	echo "Extracting b43legacy firmware"
+	b43-fwcutter -w ${FIRMWARE_DIR} ${B43L_FIRMWARE}
+else
+	echo "Could not download b43legacy firmware. Please look at ${DOC_DIR}/b43-fwcutter/README."
+fi
+
+echo
+if [ -d ${FIRMWARE_DIR}/b43 ] ; then
+	echo "b43 firmware successfully installed."
+	chmod 755 ${FIRMWARE_DIR}/b43
+	sync
+	modprobe -r b43
+	modprobe b43
+else
+	echo "b43 firmware installation failed."
+fi
+
+if [ -d ${FIRMWARE_DIR}/b43legacy ] ; then
+	echo "b43legacy firmware successfully installed."
+	chmod 755 ${FIRMWARE_DIR}/b43legacy
+	sync
+	modprobe -r b43legacy
+	modprobe b43legacy
+else
+	echo "b43legacy firmware installation failed."
+fi
+
+popd >/dev/null
+rm -rf $TMPDIR
+
+exit 0
