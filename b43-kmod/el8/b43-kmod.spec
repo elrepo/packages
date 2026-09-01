@@ -71,6 +71,10 @@ Patch46: 	0007-b43legacy-fix-incorrect-__packed-annotation.patch
 Patch47: 	0008-b43legacy-treewide-Remove-uninitialized_var-usage.patch
 Patch48: 	6601-wifi-b43legacy-enforce-bounds-check-on-firmware-key-.patch
 
+Recommends:	b43-fwcutter
+Recommends:	b43-tools
+# Recommends:	b43-openfwwf
+
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
 
