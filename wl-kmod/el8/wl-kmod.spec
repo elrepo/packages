@@ -1,8 +1,3 @@
-# RHEL 8 systemd is missing this macro define
-%if 0%{?rhel} == 8
-%define _systemd_util_dir %(dirname %{_unitdir})
-%endif
-
 # Define the kmod package name here.
 %define kmod_name	wl
 
