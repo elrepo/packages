@@ -1,0 +1,3 @@
+# Enable unload Broadcom wl driver before shutdown
+#
+enable kmod-wl-unload-on-shutdown.service

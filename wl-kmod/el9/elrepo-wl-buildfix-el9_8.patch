@@ -1,0 +1,171 @@
+diff -Naurp kmod-wl-6.30.223.271.ubuntu.orig/amd64/src/include/linuxver.h kmod-wl-6.30.223.271.ubuntu.el9/amd64/src/include/linuxver.h
+--- kmod-wl-6.30.223.271.ubuntu.orig/amd64/src/include/linuxver.h	2026-09-03 23:04:20.568273259 -0400
++++ kmod-wl-6.30.223.271.ubuntu.el9/amd64/src/include/linuxver.h	2026-09-03 23:12:55.020952799 -0400
+@@ -148,7 +148,7 @@ typedef irqreturn_t(*FN_ISR) (int irq, v
+ #endif
+ 
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29)
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 13, 0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 13, 0) || RHEL_MAJOR >= 9
+ #include "lib80211.h"
+ #else
+ #include <net/lib80211.h>
+diff -Naurp kmod-wl-6.30.223.271.ubuntu.orig/amd64/src/wl/sys/wl_cfg80211_hybrid.c kmod-wl-6.30.223.271.ubuntu.el9/amd64/src/wl/sys/wl_cfg80211_hybrid.c
+--- kmod-wl-6.30.223.271.ubuntu.orig/amd64/src/wl/sys/wl_cfg80211_hybrid.c	2026-09-03 23:04:20.585274042 -0400
++++ kmod-wl-6.30.223.271.ubuntu.el9/amd64/src/wl/sys/wl_cfg80211_hybrid.c	2026-09-04 02:03:21.044070753 -0400
+@@ -67,7 +67,7 @@ wl_cfg80211_scan(struct wiphy *wiphy,
+ static s32 wl_cfg80211_scan(struct wiphy *wiphy, struct net_device *ndev,
+            struct cfg80211_scan_request *request);
+ #endif
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 17, 0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 17, 0) || RHEL_MAJOR >= 9
+ static s32 wl_cfg80211_set_wiphy_params(struct wiphy *wiphy, int radio_idx, u32 changed);
+ #else
+ static s32 wl_cfg80211_set_wiphy_params(struct wiphy *wiphy, u32 changed);
+@@ -93,7 +93,7 @@ static int wl_cfg80211_connect(struct wi
+            struct cfg80211_connect_params *sme);
+ static s32 wl_cfg80211_disconnect(struct wiphy *wiphy, struct net_device *dev, u16 reason_code);
+ 
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 17, 0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 17, 0) || RHEL_MAJOR >= 9
+ static s32
+ wl_cfg80211_set_tx_power(struct wiphy *wiphy, struct wireless_dev *wdev,
+ 			 int radio_idx,
+@@ -110,7 +110,7 @@ static s32 wl_cfg80211_set_tx_power(stru
+            enum tx_power_setting type, s32 mbm);
+ #endif
+ 
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 17, 0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 17, 0) || RHEL_MAJOR >= 9
+ static s32 wl_cfg80211_get_tx_power(struct wiphy *wiphy, struct wireless_dev *wdev, int radio_idx, unsigned int link_id, s32 *dbm);
+ #elif LINUX_VERSION_CODE >= KERNEL_VERSION(6, 14, 0)
+ static s32 wl_cfg80211_get_tx_power(struct wiphy *wiphy, struct wireless_dev *wdev, u32 /*link_id*/, s32 *dbm);
+@@ -120,7 +120,7 @@ static s32 wl_cfg80211_get_tx_power(stru
+ static s32 wl_cfg80211_get_tx_power(struct wiphy *wiphy, s32 *dbm);
+ #endif
+ 
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0) || RHEL_MAJOR >= 8
+ static s32 wl_cfg80211_config_default_key(struct wiphy *wiphy,
+            struct net_device *dev, int link_id, u8 key_idx, bool unicast,
+            bool multicast);
+@@ -141,7 +141,7 @@ static s32 wl_cfg80211_get_key(struct wi
+            int link_id, u8 key_idx, bool pairwise, const u8 *mac_addr,
+            void *cookie,
+            void (*callback) (void *cookie, struct key_params *params));
+-#elif LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
++#elif LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0) || RHEL_MAJOR >= 8
+ static s32 wl_cfg80211_add_key(struct wiphy *wiphy, struct net_device *dev,
+            int link_id, u8 key_idx, bool pairwise, const u8 *mac_addr,
+            struct key_params *params);
+@@ -688,7 +688,7 @@ static s32 wl_set_retry(struct net_devic
+ 	return err;
+ }
+ 
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 17, 0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 17, 0) || RHEL_MAJOR >= 9
+ static s32 wl_cfg80211_set_wiphy_params(struct wiphy *wiphy, int radio_idx, u32 changed)
+ #else
+ static s32 wl_cfg80211_set_wiphy_params(struct wiphy *wiphy, u32 changed)
+@@ -1130,7 +1130,7 @@ wl_cfg80211_disconnect(struct wiphy *wip
+ 	return err;
+ }
+ 
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 17, 0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 17, 0) || RHEL_MAJOR >= 9
+ static s32
+ wl_cfg80211_set_tx_power(struct wiphy *wiphy, struct wireless_dev *wdev,
+ 			 int radio_idx,
+@@ -1196,7 +1196,7 @@ wl_cfg80211_set_tx_power(struct wiphy *w
+ 	return err;
+ }
+ 
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 17, 0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 17, 0) || RHEL_MAJOR >= 9
+ static s32 wl_cfg80211_get_tx_power(struct wiphy *wiphy, struct wireless_dev *wdev, int radio_idx, unsigned int link_id, s32 *dbm)
+ #elif LINUX_VERSION_CODE >= KERNEL_VERSION(6, 14, 0)
+ static s32 wl_cfg80211_get_tx_power(struct wiphy *wiphy, struct wireless_dev *wdev, u32 /*link_id*/, s32 *dbm)
+@@ -1223,7 +1223,7 @@ static s32 wl_cfg80211_get_tx_power(stru
+ 	return err;
+ }
+ 
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0) || RHEL_MAJOR >= 8
+ static s32
+ wl_cfg80211_config_default_key(struct wiphy *wiphy,
+ 	struct net_device *dev, int link_id, u8 key_idx, bool unicast,
+@@ -1258,7 +1258,7 @@ static s32
+ wl_cfg80211_add_key(struct wiphy *wiphy, struct wireless_dev *wdev,
+                     int link_id, u8 key_idx, bool pairwise, const u8 *mac_addr,
+                     struct key_params *params)
+-#elif LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
++#elif LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0) || RHEL_MAJOR >= 8
+ static s32
+ wl_cfg80211_add_key(struct wiphy *wiphy, struct net_device *dev,
+                     int link_id, u8 key_idx, bool pairwise, const u8 *mac_addr,
+@@ -1391,7 +1391,7 @@ wl_cfg80211_add_key(struct wiphy *wiphy,
+ static s32
+ wl_cfg80211_del_key(struct wiphy *wiphy, struct wireless_dev *wdev,
+                     int link_id, u8 key_idx, bool pairwise, const u8 *mac_addr)
+-#elif LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
++#elif LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0) || RHEL_MAJOR >= 8
+ static s32
+ wl_cfg80211_del_key(struct wiphy *wiphy, struct net_device *dev,
+                     int link_id, u8 key_idx, bool pairwise, const u8 *mac_addr)
+@@ -1447,7 +1447,7 @@ wl_cfg80211_get_key(struct wiphy *wiphy,
+                     int link_id, u8 key_idx, bool pairwise, const u8 *mac_addr,
+                     void *cookie,
+                     void (*callback) (void *cookie, struct key_params * params))
+-#elif LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
++#elif LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0) || RHEL_MAJOR >= 8
+ static s32
+ wl_cfg80211_get_key(struct wiphy *wiphy, struct net_device *dev,
+                     int link_id, u8 key_idx, bool pairwise, const u8 *mac_addr,
+@@ -2496,7 +2496,7 @@ wl_bss_roaming_done(struct wl_cfg80211_p
+ 	struct wl_cfg80211_connect_info *conn_info = wl_to_conn(wl);
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12, 0)
+ 	struct cfg80211_roam_info roam_info = {
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 0, 0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 0, 0) && RHEL_MAJOR < 8
+ 		.bssid = wl->profile->bssid,
+ #else
+ 		.links[0].bssid = wl->profile->bssid,
+diff -Naurp kmod-wl-6.30.223.271.ubuntu.orig/amd64/src/wl/sys/wl_linux.c kmod-wl-6.30.223.271.ubuntu.el9/amd64/src/wl/sys/wl_linux.c
+--- kmod-wl-6.30.223.271.ubuntu.orig/amd64/src/wl/sys/wl_linux.c	2026-09-03 23:04:20.587274134 -0400
++++ kmod-wl-6.30.223.271.ubuntu.el9/amd64/src/wl/sys/wl_linux.c	2026-09-04 02:37:57.765943764 -0400
+@@ -1514,7 +1514,7 @@ wl_down(wl_info_t *wl)
+ 		int i = 0;
+ 		for (i = 0; (atomic_read(&wl->callbacks) > callbacks) && i < 10000; i++) {
+ 			schedule();
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 13, 0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 13, 0) && RHEL_MAJOR <= 8
+ 			flush_scheduled_work();
+ #endif
+ 		}
+@@ -2389,7 +2389,7 @@ wl_timer(
+ #endif
+ ) {
+ 	wl_timer_t *t =
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 16, 0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 16, 0) || RHEL_MAJOR >= 9
+ 		timer_container_of(t, tl, timer);
+ #elif LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0)
+ 		from_timer(t, tl, timer);
+@@ -3354,7 +3354,7 @@ wl_proc_read(char *buffer, char **start,
+ static ssize_t
+ wl_proc_read(struct file *filp, char __user *buffer, size_t length, loff_t *offp)
+ {
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 17, 0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 17, 0) && RHEL_MAJOR <= 8
+ 	wl_info_t * wl = PDE_DATA(file_inode(filp));
+ #else
+ 	wl_info_t * wl = pde_data(file_inode(filp));
+@@ -3415,7 +3415,7 @@ wl_proc_write(struct file *filp, const c
+ static ssize_t
+ wl_proc_write(struct file *filp, const char __user *buff, size_t length, loff_t *offp)
+ {
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 17, 0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 17, 0) && RHEL_MAJOR <= 8
+ 	wl_info_t * wl = PDE_DATA(file_inode(filp));
+ #else
+ 	wl_info_t * wl = pde_data(file_inode(filp));

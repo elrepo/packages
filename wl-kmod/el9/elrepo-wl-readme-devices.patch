@@ -1,0 +1,22 @@
+diff -Naurp kmod-wl-6.30.223.271.ubuntu.orig/README.txt kmod-wl-6.30.223.271.ubuntu.el10/README.txt
+--- kmod-wl-6.30.223.271.ubuntu.orig/README.txt	2026-09-07 10:55:37.039413053 -0400
++++ kmod-wl-6.30.223.271.ubuntu.el10/README.txt	2026-09-07 11:47:38.900936604 -0400
+@@ -59,14 +59,16 @@ here may also work.
+           4322 	Dualband    0x14e4	0x432b  	Dell 1510
+           4322 2.4 Ghz      0x14e4 	0x432c  	
+           4322 5 Ghz        0x14e4 	0x432d  	
+-          43142 2.4 Ghz     0x14e4	0x4365
++          43142 2.4 Ghz     0x14e4	0x4365  	Dell 1704/1708
++          43224 Dualband    0x14e4	0x0576
+           43224 Dualband    0x14e4	0x4353  	Dell 1520
+           43225 2.4 Ghz     0x14e4	0x4357  	
+           43227 2.4 Ghz     0x14e4	0x4358
+           43228 Dualband    0x14e4	0x4359  	Dell 1530/1540
+           4331  Dualband    0x14e4	0x4331
++          4352  Dualband    0x14e4	0x43b1  	Dell 1550/1560
++          4360  Dualband    0x14e4	0x4360
+           4360  Dualband    0x14e4	0x43a0
+-          4352  Dualband    0x14e4	0x43a0
+ 
+ To find the Device ID's of Broadcom cards on your machines do:
+ # lspci -n | grep 14e4

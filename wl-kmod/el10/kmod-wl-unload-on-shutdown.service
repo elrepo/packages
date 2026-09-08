@@ -1,0 +1,12 @@
+[Unit]
+Description=Unload Broadcom wl driver before shutdown
+DefaultDependencies=no
+Before=shutdown.target umount.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/modprobe -r wl
+RemainAfterExit=yes
+
+[Install]
+WantedBy=shutdown.target
