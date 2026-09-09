@@ -9,7 +9,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	4.2.28
+Version:	4.2.30
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -18,7 +18,14 @@ URL:		https://www.meinbergglobal.com/english/sw/#linux
 
 # Sources
 Source0:	https://www.meinbergglobal.com/download/drivers/%{upstream_name}-%{version}.tar.gz
+Source1:	90-mbgsvcd.preset
 Source5:	GPL-v2.0.txt
+
+# For systemd_ scriptlets
+BuildRequires:	systemd-rpm-macros
+
+Recommends:	%{kmod_name}-systemd
+Recommends:	%{kmod_name}-utils
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -27,7 +34,7 @@ Source5:	GPL-v2.0.txt
 				/usr/lib/rpm/redhat/brp-ldconfig \
 				/usr/lib/rpm/brp-compress \
 				/usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump \
- 				/usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
+				/usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
 				/usr/lib/rpm/brp-python-bytecompile "" 1 \
 				/usr/lib/rpm/brp-python-hardlink \
 				PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
@@ -68,6 +75,15 @@ This package provides the %{kmod_name} kernel module(s).
 It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
+%package -n %{kmod_name}-systemd
+Summary: systemd service files for %{kmod_name}
+Group: System Environment/Kernel
+
+Requires:	%{kmod_name}-utils
+
+%description -n %{kmod_name}-systemd
+systemd service files for %{kmod_name}
+
 %package -n %{kmod_name}-utils
 Summary: Userspace utilities for %{kmod_name}
 Group: System Environment/Kernel
@@ -99,15 +115,37 @@ sort -u greylist | uniq > greylist.txt
 
 %install
 # Install udev rules for kmod device
-%{__install} -Dp -m0644 udev/55-mbgclock.rules %{buildroot}/etc/udev/rules.d/55-mbgclock.rules
+%{__install} -Dp -m0644 udev/55-mbgclock.rules %{buildroot}%{_sysconfdir}/udev/rules.d/55-mbgclock.rules
 
 %{__install} -d %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install}  mbgclock/*.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
+%{__install} -d %{buildroot}%{_sysconfdir}/dracut.conf.d/
+%{__install} -m 0644 initrd/dracut/01-omit_mbgclock.conf %{buildroot}%{_sysconfdir}/dracut.conf.d/dracut-%{kmod_name}.conf
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 %{SOURCE5} %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
+
+# Install the utils files
+%{__install} -d %{buildroot}%{_defaultdocdir}/%{kmod_name}-utils/SELinux
+%{__install} -m 0644 README %{buildroot}%{_defaultdocdir}/%{kmod_name}-utils/
+%{__install} -m 0644 SELinux/README %{buildroot}%{_defaultdocdir}/%{kmod_name}-utils/SELinux
+%{__install} -m 0755 SELinux/selinux-allow-ntpd-refclock %{buildroot}%{_defaultdocdir}/%{kmod_name}-utils/SELinux
+
+# Quick and dirty loop for mbg utils
+for binary in $(ls); do
+    if [[ -x ${binary}/${binary} ]]; then
+        %{__install} -Dp -m0755 ${binary}/${binary} %{buildroot}%{_sbindir}/${binary}
+    fi
+done
+
+# Install the systemd files
+%{__sed} -i 's|ExecStart=@prefix@|ExecStart=\/usr|g' rc-scripts/systemd/mbgsvcd.service
+%{__mkdir_p} %{buildroot}%{_unitdir}/
+%{__install} -p -m 0644 rc-scripts/systemd/mbgsvcd.service %{buildroot}%{_unitdir}/
+%{__mkdir_p} %{buildroot}%{_presetdir}/
+%{__install} -p -m 0644 %{SOURCE1} %{buildroot}%{_presetdir}/
 
 # strip the modules(s)
 find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --strip-debug
@@ -123,23 +161,11 @@ sha256 %{privkey} %{pubkey} $module;
 done
 %endif
 
-# Quick and dirty loop for mbg utils
-for binary in $(ls); do
-    if [[ -x ${binary}/${binary} ]]; then
-        %{__install} -Dp -m0755 ${binary}/${binary} %{buildroot}%{_sbindir}/${binary}
-    fi
-done
-
 %clean
 %{__rm} -rf %{buildroot}
 
-%files -n %{kmod_name}-utils
-%defattr(0644,root,root,-)
-%attr(0755,root,root) %{_sbindir}/mbg*
-/etc/udev/rules.d/55-mbgclock.rules
-
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_name} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -152,7 +178,7 @@ exit 0
 # calling initramfs regeneration separately
 if [ -f "%{kver_state_file}" ]; then
 	kver_base="%{kmod_kernel_version}"
-	kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
+	kvers=$(ls -d "/lib/modules/${kver_base%%%%-*}"*)
 
 	for k_dir in $kvers; do
 		k="${k_dir#/lib/modules/}"
@@ -190,6 +216,8 @@ fi
 mkdir -p "%{dup_state_dir}"
 rpm -ql kmod-%{kmod_name}-%{version}-%{release}.%{_arch} | grep '\.ko$' > "%{dup_module_list}"
 
+exit 0
+
 %postun
 if rpm -q --filetriggers kmod 2> /dev/null| grep -q "Trigger for weak-modules call on kmod removal"; then
 	initramfs_opt="--no-initramfs"
@@ -205,13 +233,40 @@ rmdir "%{dup_state_dir}" 2> /dev/null
 
 exit 0
 
+%post -n %{kmod_name}-systemd
+%systemd_post mbgsvcd.service
+
+%preun -n %{kmod_name}-systemd
+%systemd_preun mbgsvcd.service
+
 %files
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config /etc/depmod.d/kmod-%{kmod_name}.conf
-%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
+%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
+%config %{_sysconfdir}/dracut.conf.d/dracut-%{kmod_name}.conf
+%config %{_sysconfdir}/udev/rules.d/55-mbgclock.rules
+%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
+
+%files -n %{kmod_name}-systemd
+%defattr(0644,root,root,-)
+%{_unitdir}/*.service
+%{_presetdir}/*.preset
+
+%files -n %{kmod_name}-utils
+%defattr(0644,root,root,-)
+%attr(0755,root,root) %{_sbindir}/mbg*
+%doc %{_defaultdocdir}/%{kmod_name}-utils/
 
 %changelog
+* Mon Sep 07 2026 Tuan Hoang <tqhoang@elrepo.org> - 4.2.30-1
+- Updated to version 4.2.30
+- Added systemd sub-package
+- Added dracut config file
+- Moved udev rules from utils to kmod package
+- Fix hard-coded arch in post section
+- Fix problems in posttrans section
+- Fix macro usage in files section
+
 * Tue Dec 31 2024 Tuan Hoang <tqhoang@elrepo.org> - 4.2.28-1
 - Updated to version 4.2.28
 - Enable support for SYN1588 PCIe NICs
