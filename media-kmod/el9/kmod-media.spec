@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	7%{?dist}
+Release:	8%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -67,7 +67,7 @@ Requires(postun):	%{_sbindir}/depmod
 Requires(post):		%{_sbindir}/weak-modules
 Requires(postun):	%{_sbindir}/weak-modules
 
-Recommends:		xc3028-firmware
+Recommends:		dvb-firmware
 
 Obsoletes:		kmod-hdpvr <= 0.2.1
 Provides:		kmod-hdpvr  = 0.2.1-99%{?dist}
@@ -84,7 +84,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 
 # List of multimedia modules
 # Keep in sync with make command args below
-%define media_modules "dvb-core lgdt330x zl10353 tvp5150 si2157 xc2028 rc-core rc-pinnacle-pctv-hd em28xx em28xx-alsa em28xx-dvb em28xx-rc em28xx-v4l hdpvr v4l2-fwnode v4l2-async"
+%define media_modules "dvb-core lgdt330x s5h1411 tda10048 zl10353 tvp5150 saa7164 rc-core rc-pinnacle-pctv-hd si2157 tda18271 xc2028 em28xx em28xx-alsa em28xx-dvb em28xx-rc em28xx-v4l hdpvr v4l2-fwnode v4l2-async"
 
 cat /dev/null > kmod-%{kmod_name}.conf
 for modules in `echo -n %{media_modules}`
@@ -110,26 +110,40 @@ done
 %build
 # The EXTRA_CFLAGS is required for any drivers that use ifdef or IS_REACHABLE macros
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD \
+	\
 	CONFIG_MEDIA_DIGITAL_TV_SUPPORT=y \
+	\
 	CONFIG_DVB_CORE=m \
+	\
 	CONFIG_DVB_LGDT330X=m \
+	CONFIG_DVB_S5H1411=m \
+	CONFIG_DVB_TDA10048=m \
 	CONFIG_DVB_ZL10353=m \
+	\
 	CONFIG_VIDEO_TVP5150=m \
-	CONFIG_MEDIA_TUNER=m \
-	CONFIG_MEDIA_TUNER_SI2157=m \
-	CONFIG_MEDIA_TUNER_XC2028=m \
+	\
+	CONFIG_VIDEO_SAA7164=m \
+	\
 	CONFIG_RC_CORE=m \
 	CONFIG_RC_MAP=m \
 	CONFIG_MEDIA_CEC_RC=y \
+	\
+	CONFIG_MEDIA_TUNER=m \
+	CONFIG_MEDIA_TUNER_SI2157=m \
+	CONFIG_MEDIA_TUNER_TDA18271=m \
+	CONFIG_MEDIA_TUNER_XC2028=m \
+	\
 	CONFIG_VIDEO_EM28XX=m \
 	CONFIG_VIDEO_EM28XX_ALSA=m \
 	CONFIG_VIDEO_EM28XX_DVB=m \
 	CONFIG_VIDEO_EM28XX_RC=m \
 	CONFIG_VIDEO_EM28XX_V4L2=m \
 	CONFIG_VIDEO_HDPVR=m \
+	\
 	CONFIG_V4L2_FWNODE=m \
 	CONFIG_V4L2_ASYNC=m \
-	EXTRA_CFLAGS='-DCONFIG_DVB_LGDT330X -DCONFIG_DVB_ZL10353 -DCONFIG_VIDEO_TVP5150 -DCONFIG_MEDIA_TUNER_XC2028 -DCONFIG_RC_CORE -DCONFIG_RC_MAP -DCONFIG_MEDIA_CEC_RC'
+	\
+	EXTRA_CFLAGS='-DCONFIG_DVB_CORE -DCONFIG_DVB_LGDT330X -DCONFIG_DVB_S5H1411 -DCONFIG_DVB_TDA10048 -DCONFIG_DVB_ZL10353 -DCONFIG_VIDEO_TVP5150 -DCONFIG_VIDEO_SAA7164 -DCONFIG_RC_CORE -DCONFIG_RC_MAP -DCONFIG_MEDIA_CEC_RC -DCONFIG_MEDIA_TUNER -DCONFIG_MEDIA_TUNER_SI2157 -DCONFIG_MEDIA_TUNER_TDA18271 -DCONFIG_MEDIA_TUNER_XC2028 -DCONFIG_VIDEO_EM28XX -DCONFIG_VIDEO_EM28XX_ALSA -DCONFIG_VIDEO_EM28XX_DVB -DCONFIG_VIDEO_EM28XX_RC -DCONFIG_VIDEO_EM28XX_V4L2 -DCONFIG_VIDEO_HDPVR -DCONFIG_V4L2_FWNODE -DCONFIG_V4L2_ASYNC'
 
 whitelist="/lib/modules/kabi-current/kabi_stablelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -245,6 +259,11 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Sep 09 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-8
+- Change recommends xc3028-firmware to dvb-firmware
+- Add saa7164 and associated modules
+  [https://elrepo.org/bugs/view.php?id=1605]
+
 * Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-7
 - Source code updated from RHEL 9.8 GA kernel
 - Built against RHEL 9.8 GA kernel-5.14.0-687.5.3.el9_8
@@ -275,5 +294,5 @@ exit 0
 
 * Tue Sep 23 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-1
 - Initial build for RHEL 9
-  https://elrepo.org/bugs/view.php?id=1553
+  [https://elrepo.org/bugs/view.php?id=1553]
 - Source from RHEL 9.6 GA kernel
