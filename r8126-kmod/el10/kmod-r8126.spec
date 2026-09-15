@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el10}
 
 Name:		kmod-%{kmod_name}
-Version:	10.017.00
+Version:	10.018.00
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -201,6 +201,12 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Sep 14 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.018.00-1
+- Update to 10.018.00
+- Enables compile option ENABLE_PAGE_REUSE
+- Renames modprobe option eee_giga_lite to enable_giga_lite
+- Built against RHEL 10.2 GA kernel-6.12.0-211.7.3.el10_2
+
 * Thu Jul 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.017.00-1
 - Update to 10.017.00
 - Removes unused compile option ENABLE_PTP_MASTER_MODE

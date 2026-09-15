@@ -7,7 +7,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	10.017.00
+Version:	10.018.00
 Release:	1.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -197,6 +197,15 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Mon Sep 14 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.018.00-1.1
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
+
+* Mon Sep 14 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.018.00-1
+- Update to 10.018.00
+- Enables compile option ENABLE_PAGE_REUSE
+- Renames modprobe option eee_giga_lite to enable_giga_lite
+- Built against RHEL 8.10 GA kernel 4.18.0-553.el8_10
+
 * Thu Jul 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.017.00-1.1
 - Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
 
