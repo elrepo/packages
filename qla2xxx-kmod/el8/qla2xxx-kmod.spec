@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	10.02.09.100
-Release:	5%{?dist}
+Release:	6%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -189,7 +189,12 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Tue Jun 23 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.10.100-5
+* Wed Sep 16 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.09.100-6
+- Source code updated from RHEL kernel-4.18.0-553.163.1.el8_10.x86_64
+- scsi: qla2xxx: Clear cmds after chip reset (CKI Backport Bot) [RHEL-230822] {CVE-2025-68745}
+- Built against RHEL 8.10 GA kernel-4.18.0-553.el8_10.x86_64
+
+* Tue Jun 23 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.09.100-5
 - Add patch to preemptively fix CVE-2026-43414
 
 * Tue Apr 21 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.09.100-4
