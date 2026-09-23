@@ -1,0 +1,17 @@
+diff -Naurp vhci-hcd-1.15.omn/Makefile vhci-hcd-1.15/Makefile
+--- vhci-hcd-1.15.omn/Makefile	2026-09-22 22:11:25.692525165 -0400
++++ vhci-hcd-1.15/Makefile	2026-09-23 16:12:36.831759056 -0400
+@@ -11,11 +11,11 @@ OLD_CORE_INCLUDE_DIR = $(KDIR)/drivers/u
+ ORIG_CORE_INCLUDE_DIR = $(KDIR)/include/linux/usb
+ COPY_CORE_INCLUDE_DIR = $(PWD)/linux/$(KVERSION_VERSION).$(KVERSION_PATCHLEVEL).$(KVERSION_SUBLEVEL)/drivers/usb/core
+ CORE_INCLUDE_DIR = $(shell test -e $(ORIG_CORE_INCLUDE_DIR)/hcd.h && echo $(ORIG_CORE_INCLUDE_DIR) || (test -e $(OLD_CORE_INCLUDE_DIR)/hcd.h && echo $(OLD_CORE_INCLUDE_DIR) || echo $(COPY_CORE_INCLUDE_DIR)))
+-KVERSION = $(shell uname -r)
++KVERSION ?= $(shell uname -r)
+ KVERSION_VERSION = $(shell echo $(KVERSION) | ( awk -F - '{ ORS = ""; print $$1 }'; echo '.0.0.0' ) | awk -F . '{ print $$1 }')
+ KVERSION_PATCHLEVEL = $(shell echo $(KVERSION) | ( awk -F - '{ ORS = ""; print $$1 }'; echo '.0.0.0' ) | awk -F . '{ print $$2 }')
+ KVERSION_SUBLEVEL = $(shell echo $(KVERSION) | ( awk -F - '{ ORS = ""; print $$1 }'; echo '.0.0.0' ) | awk -F . '{ print $$3 }')
+-KDIR = $(BUILD_PREFIX)/lib/modules/$(KVERSION)/build
++KDIR ?= $(BUILD_PREFIX)/usr/src/kernels/$(KVERSION)
+ PWD = $(shell pwd)
+ INSTALL_DIR = $(INSTALL_PREFIX)/lib/modules/$(KVERSION)
+ DEST = $(INSTALL_DIR)/kernel/$(MDIR)
