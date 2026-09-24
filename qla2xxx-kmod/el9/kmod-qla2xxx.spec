@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	10.02.10.100
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -192,6 +192,11 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Sep 24 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.10.100-4
+- Source code updated from RHEL 9.8 errata kernel-5.14.0-687.51.1.el9_8
+- scsi: qla2xxx: Bound rsp_info_len to avoid OOB sense-data read (CKI Backport Bot) [RHEL-262595] {CVE-2026-89846}
+- Built against RHEL 9.8 GA kernel-5.14.0-687.5.3.el9_8
+
 * Wed Sep 16 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.10.100-3
 - Source code updated from RHEL 9.8 errata kernel-5.14.0-687.48.1.el9_8
 - scsi: qla2xxx: Clear cmds after chip reset (CKI Backport Bot) [RHEL-235907] {CVE-2025-68745}
