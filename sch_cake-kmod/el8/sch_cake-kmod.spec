@@ -2,13 +2,13 @@
 %define kmod_name	sch_cake
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.34.1.el8_10}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.168.1.el8_10}
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
 Version:        0.0
-Release:        4%{?dist}
+Release:        5.1%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -110,7 +110,7 @@ find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --str
 %{__rm} -rf %{buildroot}
 
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_name} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -123,7 +123,7 @@ exit 0
 # calling initramfs regeneration separately
 if [ -f "%{kver_state_file}" ]; then
         kver_base="%{kmod_kernel_version}"
-        kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
+        kvers=$(ls -d "/lib/modules/${kver_base%%%%-*}"*)
 
         for k_dir in $kvers; do
                 k="${k_dir#/lib/modules/}"
@@ -179,15 +179,26 @@ exit 0
 %files
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config /etc/depmod.d/kmod-%{kmod_name}.conf
-%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
+%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
+%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Sep 24 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-5.1
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.168.1.el8_10
+
+* Thu Sep 24 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-5
+- Source code updated from RHEL kernel-4.18.0-553.168.1.el8_10
+- sch_cake: do not use skb_mac_header() in cake_overhead() (Ivan Vecera) [RHEL-188227] {CVE-2026-53091}
+- Fix hard-coded arch in post section
+- Fix problems in posttrans section
+- Fix macro usage in files section
+- Built against RHEL 8.10 GA kernel 4.18.0-553.el8_10
+
 * Sun Jan 12 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-4
-- Rebuilt against RHEL 8.10 GA kernel 4.18.0-553.34.1.el8_10
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.34.1.el8_10
 
 * Thu Jan 09 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-3
-- Rebuilt against RHEL 8.10 GA kernel 4.18.0-553.33.1.el8_10
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.33.1.el8_10
 
 * Sat May 25 2024 Tuan Hoang <tqhoang@elrepo.org> - 0.0-2
 - Rebuilt against RHEL 8.10 GA kernel 4.18.0-553.el8_10
