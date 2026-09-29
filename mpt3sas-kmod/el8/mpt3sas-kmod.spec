@@ -180,7 +180,7 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Wed Sep 16 2026 Tuan Hoang <tqhoang@elrepo.org> 43.100.00.00-3
+* Wed Sep 16 2026 Tuan Hoang <tqhoang@elrepo.org> 43.100.00.00-4
 - Source code updated from RHEL kernel-4.18.0-553.163.1.el8_10.x86_64
 - scsi: mpt3sas: Avoid freeing unallocated PCIe SGL buffers (Laurence Oberman) [RHEL-194117]
 - Fix hard-coded arch in post section
