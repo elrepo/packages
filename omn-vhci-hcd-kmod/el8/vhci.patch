@@ -1,0 +1,2054 @@
+diff -uprN vhci-hcd-1.15.orig/Makefile vhci-hcd-1.15/Makefile
+--- vhci-hcd-1.15.orig/Makefile	2015-06-27 17:09:14.000000000 +0530
++++ vhci-hcd-1.15/Makefile	2026-03-16 15:14:49.297102913 +0530
+@@ -20,6 +20,7 @@ PWD = $(shell pwd)
+ INSTALL_DIR = $(INSTALL_PREFIX)/lib/modules/$(KVERSION)
+ DEST = $(INSTALL_DIR)/kernel/$(MDIR)
+ KSRC = $(KDIR)
++EXTRA_CFLAGS += -DKVERSION_VERSION=$(KVERSION_VERSION) -DKVERSION_PATCHLEVEL=$(KVERSION_PATCHLEVEL)
+ 
+ CONF_H = conf/usb-vhci.config.h
+ 
+@@ -30,9 +31,10 @@ DIST_DIRS = patch test
+ DIST_FILES = AUTHORS ChangeLog COPYING INSTALL Makefile NEWS README TODO usb-vhci-hcd.c usb-vhci-iocifc.c usb-vhci-hcd.h usb-vhci.h usb-vhci-dump-urb.c patch/Kconfig.patch test/Makefile test/test.c
+ 
+ obj-m := $(OBJS)
++ccflags-y += $(EXTRA_CFLAGS)
+ 
+ default: $(CONF_H)
+-	make -C $(KDIR) SUBDIRS=$(PWD) PWD=$(PWD) BUILD_PREFIX=$(BUILD_PREFIX) KDIR=$(KDIR) KVERSION=$(KVERSION) modules
++	make -C $(KDIR) M=$(PWD) PWD=$(PWD) BUILD_PREFIX=$(BUILD_PREFIX) KDIR=$(KDIR) KVERSION=$(KVERSION) modules
+ .PHONY: default
+ .SUFFIXES:
+ 
+@@ -88,7 +90,7 @@ srcdox: clean-srcdox
+ $(CONF_H):
+ 	$(MAKE) testconfig
+ 
+-TESTMAKE = make -C $(KDIR) SUBDIRS=$(PWD)/test PWD=$(PWD)/test BUILD_PREFIX=$(BUILD_PREFIX) KDIR=$(KDIR) KVERSION=$(KVERSION) EXTRA_CFLAGS='-Wno-unused $(EXTRA_CFLAGS) $1' modules
++TESTMAKE = make -C $(KDIR) M=$(PWD)/test PWD=$(PWD)/test BUILD_PREFIX=$(BUILD_PREFIX) KDIR=$(KDIR) KVERSION=$(KVERSION) EXTRA_CFLAGS='-Wno-unused $(EXTRA_CFLAGS) $1' modules
+ 
+ testcc: clean-test
+ 	$(call TESTMAKE)
+@@ -130,6 +132,12 @@ testconfig: testcc
+ 	else \
+ 		echo "#define NO_HAS_TT_FLAG" >>$(CONF_H); \
+ 	fi
++	$(MAKE) clean-test
++	if $(call TESTMAKE,-DTEST_CLASS_OWNER) >/dev/null 2>&1; then \
++		echo "//#define NO_CLASS_OWNER" >>$(CONF_H); \
++	else \
++		echo "#define NO_CLASS_OWNER" >>$(CONF_H); \
++	fi
+ 	echo "// end of file" >>$(CONF_H)
+ .PHONY: testconfig
+ 
+diff -uprN vhci-hcd-1.15/test/test.c vhci-hcd-1.15.patch/test/test.c
+--- vhci-hcd-1.15/test/test.c	2013-06-21 08:02:38.000000000 +0800
++++ vhci-hcd-1.15.patch/test/test.c	2024-05-07 13:08:53.934717791 +0800
+@@ -68,6 +68,13 @@ static struct usb_hcd testhcd = {
+ };
+ #endif
+ 
++static struct class testclass = {
++#ifdef TEST_CLASS_OWNER
++	.owner = THIS_MODULE,
++#endif
++	.name = "test"
++};
++
+ static int __init init(void)
+ {
+ 	if(usb_disabled()) return -ENODEV;
+diff -uprN vhci-hcd-1.15/usb-vhci-dump-urb.c vhci-hcd-1.15.patch/usb-vhci-dump-urb.c
+--- vhci-hcd-1.15/usb-vhci-dump-urb.c	2013-06-21 08:02:38.000000000 +0800
++++ vhci-hcd-1.15.patch/usb-vhci-dump-urb.c	2024-05-07 11:10:42.629267925 +0800
+@@ -148,3 +148,15 @@ static void dump_urb(struct urb *urb)
+ 		printk("\n");
+ 	}
+ }
++
++static void dump_urbs(struct urb **urbs, int num_urbs)
++{
++	int i = 0;
++	if(!debug_output) return;
++	for(i = 0; i < num_urbs; i++)
++	{
++		struct urb *urb = urbs[i];
++		vhci_printk(KERN_DEBUG, "dump urbs[%d]:\n", i);
++		dump_urb(urb);
++	}
++}
+diff -uprN vhci-hcd-1.15/usb-vhci.h vhci-hcd-1.15.patch/usb-vhci.h
+--- vhci-hcd-1.15/usb-vhci.h	2013-06-21 08:02:38.000000000 +0800
++++ vhci-hcd-1.15.patch/usb-vhci.h	2024-05-07 11:10:42.630267938 +0800
+@@ -52,6 +52,15 @@
+ //#define USB_PORT_STAT_TEST          0x0800
+ //#define USB_PORT_STAT_INDICATOR     0x1000
+ 
++/*
++ * Additions to wPortStatus bit field from USB 3.0
++ * See USB 3.0 spec Table 10-10
++ */
++#define USB_PORT_STAT_LINK_STATE        0x01e0
++#define USB_SS_PORT_STAT_POWER          0x0200
++#define USB_SS_PORT_STAT_SPEED          0x1c00
++#define USB_PORT_STAT_SPEED_5GBPS       0x0000
++
+ // wPortChange bit field
+ // See USB 2.0 spec Table 11-22
+ #define USB_PORT_STAT_C_CONNECTION  0x0001
+@@ -60,6 +69,14 @@
+ #define USB_PORT_STAT_C_OVERCURRENT 0x0008
+ #define USB_PORT_STAT_C_RESET       0x0010
+ 
++/*
++ * USB 3.0 wPortChange bit fields
++ * See USB 3.0 spec Table 10-11
++ */
++#define USB_PORT_STAT_C_BH_RESET        0x0020
++#define USB_PORT_STAT_C_LINK_STATE      0x0040
++#define USB_PORT_STAT_C_CONFIG_ERROR    0x0080
++
+ #endif
+ 
+ // structure for the USB_VHCI_HCD_IOCREGISTER ioctl
+diff -uprN vhci-hcd-1.15/usb-vhci-hcd.c vhci-hcd-1.15.patch/usb-vhci-hcd.c
+--- vhci-hcd-1.15/usb-vhci-hcd.c	2013-06-21 08:02:38.000000000 +0800
++++ vhci-hcd-1.15.patch/usb-vhci-hcd.c	2024-05-07 11:10:42.630267938 +0800
+@@ -73,15 +73,28 @@
+ #	define trace_function(dev) do {} while(0)
+ #endif
+ 
++#if KVERSION_VERSION < 3
++#	define HCD_IRQ -1
++#elif KVERSION_VERSION == 3 && KVERSION_PATCHLEVEL < 4
++#	define HCD_IRQ -1
++#else
++#	define HCD_IRQ 0
++#endif
++
+ static const char driver_name[] = DRIVER_NAME;
+ static const char driver_desc[] = DRIVER_DESC;
+ #ifdef DEBUG
+ static unsigned int debug_output = 0;
+ #endif
+ 
++static bool is_support_usb3 = true;
++module_param_named(is_support_usb3, is_support_usb3, bool, S_IRUGO);
++MODULE_PARM_DESC(is_support_usb3, "true to support usb3.0 devices, false to support usb2.0 only");
++
+ MODULE_DESCRIPTION(DRIVER_DESC " driver");
+ MODULE_AUTHOR("Michael Singer <michael@a-singer.de>");
+ MODULE_LICENSE("GPL");
++MODULE_VERSION("1.15.0");
+ 
+ static inline const char *vhci_dev_name(struct device *dev)
+ {
+@@ -115,6 +128,8 @@ int usb_vhci_dev_id(struct usb_vhci_devi
+ }
+ EXPORT_SYMBOL_GPL(usb_vhci_dev_id);
+ 
++// TODO: There are two USB bus now, but this function only returns USB2.0 busnum
++// It's okay because USB3.0 busnum equal to USB2.0 busnum + 1
+ int usb_vhci_dev_busnum(struct usb_vhci_device *vdev)
+ {
+ 	return vhcidev_to_usbhcd(vdev)->self.busnum;
+@@ -124,12 +139,15 @@ EXPORT_SYMBOL_GPL(usb_vhci_dev_busnum);
+ void usb_vhci_maybe_set_status(struct usb_vhci_urb_priv *urbp, int status)
+ {
+ #ifdef OLD_GIVEBACK_MECH
+-	struct urb *const urb = urbp->urb;
++	int i;
+ 	unsigned long flags;
+-	spin_lock_irqsave(&urb->lock, flags);
+-	if(urb->status == -EINPROGRESS)
+-		urb->status = status;
+-	spin_unlock_irqrestore(&urb->lock, flags);
++	for (i = 0; i < urbp->num_urbs; ++i) {
++		struct urb *const urb = urbp->urbs[i];
++		spin_lock_irqsave(&urb->lock, flags);
++		if(urb->status == -EINPROGRESS)
++			urb->status = status;
++		spin_unlock_irqrestore(&urb->lock, flags);
++	}
+ #else
+ 	(void)atomic_cmpxchg(&urbp->status, -EINPROGRESS, status);
+ #endif
+@@ -139,7 +157,7 @@ EXPORT_SYMBOL_GPL(usb_vhci_maybe_set_sta
+ #ifdef DEBUG
+ #include "usb-vhci-dump-urb.c"
+ #else
+-static inline void dump_urb(struct urb *urb) {/* do nothing */}
++static inline void dump_urbs(struct urb **urbs, int num_urbs) {/* do nothing */}
+ #endif
+ 
+ // caller has vhc->lock
+@@ -147,7 +165,7 @@ static inline void dump_urb(struct urb *
+ static void vhci_port_update(struct usb_vhci_hcd *vhc, u8 port)
+ {
+ 	struct usb_vhci_device *vdev = vhcihcd_to_vhcidev(vhc);
+-	vhc->port_update |= 1 << port;
++	vhc->port_update |= (u64)1 << port;
+ 	vdev->ifc->wakeup(vdev);
+ }
+ 
+@@ -157,34 +175,57 @@ void usb_vhci_urb_giveback(struct usb_vh
+ {
+ 	struct device *dev;
+ 	struct usb_hcd *hcd;
+-	struct urb *const urb = urbp->urb;
+-	struct usb_device *const udev = urb->dev;
++	struct usb_device *const udev = urbp->urbs[0]->dev;
++	int i;
+ #ifndef OLD_GIVEBACK_MECH
+ 	int status;
+ #endif
+-	hcd = vhcihcd_to_usbhcd(vhc);
++
++	if(urbp->urbs[0]->dev->speed >= USB_SPEED_SUPER)
++		hcd = vhc->ss_hcd;
++	else
++		hcd = vhc->hs_hcd;
++
+ 	dev = vhcihcd_to_dev(vhc);
+ 	trace_function(dev);
+ #ifndef OLD_GIVEBACK_MECH
+ 	status = atomic_read(&urbp->status);
+ #endif
+-	urb->hcpriv = NULL;
+ 	list_del(&urbp->urbp_list);
+ #ifndef OLD_GIVEBACK_MECH
+-	usb_hcd_unlink_urb_from_ep(hcd, urb);
++	for(i = 0; i < urbp->num_urbs; i++)
++	{
++		urbp->urbs[i]->hcpriv = NULL;
++		usb_hcd_unlink_urb_from_ep(hcd, urbp->urbs[i]);
++	}
+ #endif
+ 	spin_unlock(&vhc->lock);
+-	kfree(urbp);
+-	dump_urb(urb);
++	dump_urbs(urbp->urbs, urbp->num_urbs);
++#ifdef DEBUG
++	if(debug_output)
++	{
++		for(i = 0; i < urbp->num_urbs; i++)
++			dev_dbg(dev, "giveback urbs[%d]: actual_length %d, transfer_buffer_length %d\n", i, urbp->urbs[i]->actual_length, urbp->urbs[i]->transfer_buffer_length);
++	}
++#endif
++
+ #ifdef OLD_GIVEBACK_MECH
+-	usb_hcd_giveback_urb(hcd, urb);
++	for (i = 0; i < urbp->num_urbs; i++)
++	{
++		usb_hcd_giveback_urb(hcd, urbp->urbs[i]);
++		usb_put_dev(udev);
++	}
+ #else
+ #	ifdef DEBUG
+ 	if(debug_output) vhci_printk(KERN_DEBUG, "usb_vhci_urb_giveback: status=%d(%s)\n", status, get_status_str(status));
+ #	endif
+-	usb_hcd_giveback_urb(hcd, urb, status);
++	for(i = 0; i < urbp->num_urbs; i++)
++	{
++		usb_hcd_giveback_urb(hcd, urbp->urbs[i], status);
++		usb_put_dev(udev);
++	}
+ #endif
+-	usb_put_dev(udev);
++	kfree(urbp);
+ 	spin_lock(&vhc->lock);
+ }
+ EXPORT_SYMBOL_GPL(usb_vhci_urb_giveback);
+@@ -200,9 +241,12 @@ static int vhci_urb_enqueue(struct usb_h
+ 	struct usb_vhci_urb_priv *urbp;
+ 	struct usb_vhci_device *vdev;
+ 	unsigned long flags;
++	struct usb_sg_request *io;
++	int i = 0;
+ #ifndef OLD_GIVEBACK_MECH
+ 	int retval;
+ #endif
++	io = (struct usb_sg_request *)urb->context;
+ 
+ 	vhc = usbhcd_to_vhcihcd(hcd);
+ 	dev = vhcihcd_to_dev(vhc);
+@@ -210,30 +254,56 @@ static int vhci_urb_enqueue(struct usb_h
+ 
+ 	trace_function(dev);
+ 
++#ifdef DEBUG
++	if(debug_output) vhci_printk(KERN_INFO, "%s: urb %p, entries %d, transfer_buffer_length %d, type %d, is_dir_in %d, urb->status = %d(%s)\n",
++			__FUNCTION__, urb, io->entries, urb->transfer_buffer_length, usb_pipetype(urb->pipe), usb_pipein(urb->pipe), urb->status,get_status_str(urb->status));
++#endif
++
+ 	if(unlikely(!urb->transfer_buffer && urb->transfer_buffer_length))
+ 		return -EINVAL;
+ 
+-	urbp = kzalloc(sizeof *urbp, mem_flags);
+-	if(unlikely(!urbp))
+-		return -ENOMEM;
+-	urbp->urb = urb;
+-	atomic_set(&urbp->status, urb->status);
++	if(io->entries > 0 && io->entries <= 30 && usb_pipebulk(urb->pipe) && urb != io->urbs[io->entries - 1])
++	{
++		return 0;
++	}
+ 
+-	vhci_dbg("vhci_urb_enqueue: urb->status = %d(%s)",urb->status,get_status_str(urb->status));
++	if (io->entries > 0 && io->entries <= 30 && usb_pipebulk(urb->pipe))
++	{
++		urbp = kzalloc(sizeof *urbp + sizeof urb * io->entries, mem_flags);
++		if(unlikely(!urbp)) return -ENOMEM;
+ 
+-	spin_lock_irqsave(&vhc->lock, flags);
+-#ifndef OLD_GIVEBACK_MECH
+-	retval = usb_hcd_link_urb_to_ep(hcd, urb);
+-	if(unlikely(retval))
++		for(i = 0; i < io->entries; ++i)
++		{
++			urbp->urbs[i] = io->urbs[i];
++		}
++		urbp->num_urbs = io->entries;
++	}
++	else
+ 	{
+-		kfree(urbp);
+-		spin_unlock_irqrestore(&vhc->lock, flags);
+-		return retval;
++		urbp = kzalloc(sizeof *urbp + sizeof urb, mem_flags);
++		if(unlikely(!urbp)) return -ENOMEM;
++
++		urbp->urbs[0] = urb;
++		urbp->num_urbs = 1;
+ 	}
++	atomic_set(&urbp->status, urb->status);
++
++	spin_lock_irqsave(&vhc->lock, flags);
++	for(i = 0; i < urbp->num_urbs; ++i)
++	{
++#ifndef OLD_GIVEBACK_MECH
++		retval = usb_hcd_link_urb_to_ep(hcd, urbp->urbs[i]);
++		if(unlikely(retval))
++		{
++			kfree(urbp);
++			spin_unlock_irqrestore(&vhc->lock, flags);
++			return retval;
++    	}
+ #endif
+-	usb_get_dev(urb->dev);
++		usb_get_dev(urbp->urbs[i]->dev);
++		urbp->urbs[i]->hcpriv = urbp;
++	}
+ 	list_add_tail(&urbp->urbp_list, &vhc->urbp_list_inbox);
+-	urb->hcpriv = urbp;
+ 	spin_unlock_irqrestore(&vhc->lock, flags);
+ 	vdev->ifc->wakeup(vdev);
+ 	return 0;
+@@ -253,12 +323,16 @@ static int vhci_urb_dequeue(struct usb_h
+ #ifndef OLD_GIVEBACK_MECH
+ 	int retval;
+ #endif
++	struct usb_sg_request *io = (struct usb_sg_request *)urb->context;
+ 
+ 	vhc = usbhcd_to_vhcihcd(hcd);
+ 	dev = vhcihcd_to_dev(vhc);
+ 	vdev = vhcihcd_to_vhcidev(vhc);
+ 
+ 	trace_function(dev);
++#ifdef DEBUG
++	vhci_dbg("vhci_urb_dequeue: entries %d, urb %p, urb->status = %d(%s)",io->entries,urb,urb->status,get_status_str(urb->status));
++#endif
+ 
+ 	spin_lock_irqsave(&vhc->lock, flags);
+ #ifndef OLD_GIVEBACK_MECH
+@@ -269,11 +343,15 @@ static int vhci_urb_dequeue(struct usb_h
+ 		return retval;
+ 	}
+ #endif
++	if(usb_pipebulk(urb->pipe) && io->entries > 0 && io->entries <= 30 && io->urbs[io->entries - 1] != urb)
++	{
++		goto exit;
++	}
+ 
+ 	// search the queue of unprocessed urbs (inbox)
+ 	list_for_each_entry(entry, &vhc->urbp_list_inbox, urbp_list)
+ 	{
+-		if(entry->urb == urb)
++		if(entry->urbs == ((struct usb_vhci_urb_priv *)(urb->hcpriv))->urbs)
+ 		{
+ 			urbp = entry;
+ 			break;
+@@ -281,14 +359,20 @@ static int vhci_urb_dequeue(struct usb_h
+ 	}
+ 
+ 	// if found in inbox
+-	if(urbp)
++	if(urbp) {
++                // If the vhci have been disabled
++                if (vhc->disabled == true) {
++                        // give back urb with shutdown status
++                        usb_vhci_maybe_set_status(urbp, -ESHUTDOWN);
++                }
+ 		usb_vhci_urb_giveback(vhc, urbp);
++        }
+ 	else // if not found...
+ 	{
+ 		// ...then check if the urb is on a vacation through user space
+ 		list_for_each_entry(entry, &vhc->urbp_list_fetched, urbp_list)
+ 		{
+-			if(entry->urb == urb)
++			if(entry->urbs == ((struct usb_vhci_urb_priv *)(urb->hcpriv))->urbs)
+ 			{
+ 				// move it into the cancel list
+ 				list_move_tail(&entry->urbp_list, &vhc->urbp_list_cancel);
+@@ -298,6 +382,7 @@ static int vhci_urb_dequeue(struct usb_h
+ 		}
+ 	}
+ 
++exit:
+ 	spin_unlock_irqrestore(&vhc->lock, flags);
+ 	return 0;
+ }
+@@ -309,21 +394,56 @@ static void vhci_timer(unsigned long _vh
+ }
+ */
+ 
++static void get_vhci_params(struct usb_hcd *hcd, struct usb_vhci_hcd *vhc, // IN
++							u8 *port_count, struct usb_vhci_port **ports, u8 *index, u8 *offset //OUT
++							)
++{
++	u8 count, idx, os;
++	struct usb_vhci_port *ps;
++
++	if(hcd->speed >= HCD_USB3)
++	{
++		count = vhc->usb3_port_count;
++		ps = vhc->ports + vhc->usb2_port_count;
++		os = vhc->usb2_port_count;
++		idx = 1;
++	}
++	else
++	{
++		count = vhc->usb2_port_count;
++		ps = vhc->ports;
++		os = 0;
++		idx = 0;
++	}
++
++	if(port_count) *port_count = count;
++	if(ports)      *ports = ps;
++	if(index)      *index = idx;
++	if(offset)     *offset = os;
++}
++
+ static int vhci_hub_status(struct usb_hcd *hcd, char *buf)
+ {
+ 	struct usb_vhci_hcd *vhc;
+ 	struct device *dev;
+ 	unsigned long flags;
+ 	u8 port;
+-	int retval = 0;
++	int changed = 0;
+ 	int idx, rel_bit, abs_bit;
++	struct usb_vhci_port *ports;
++	u8 port_count;
++	u8 index;
++	int retval;
+ 
+ 	vhc = usbhcd_to_vhcihcd(hcd);
+ 	dev = vhcihcd_to_dev(vhc);
+ 
+ 	trace_function(dev);
+ 
+-	memset(buf, 0, 1 + vhc->port_count / 8);
++	get_vhci_params(hcd, vhc, &port_count, &ports, &index, NULL);
++
++	retval = 1 + port_count / 8;
++	memset(buf, 0, retval);
+ 
+ 	spin_lock_irqsave(&vhc->lock, flags);
+ 	if(!test_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags))
+@@ -332,52 +452,101 @@ static int vhci_hub_status(struct usb_hc
+ 		return 0;
+ 	}
+ 
+-	for(port = 0; port < vhc->port_count; port++)
++	for(port = 0; port < port_count; port++)
+ 	{
+-		if(vhc->ports[port].port_change)
++		if(ports[port].port_change)
+ 		{
+ 			abs_bit = port + 1;
+ 			idx     = abs_bit / (sizeof *buf * 8);
+ 			rel_bit = abs_bit % (sizeof *buf * 8);
+ 			buf[idx] |= (1 << rel_bit);
+-			retval = 1;
++			changed = 1;
+ 		}
+ #ifdef DEBUG
+-		if(debug_output) dev_dbg(dev, "port %d status 0x%04x has changes at 0x%04x\n", (int)(port + 1), (int)vhc->ports[port].port_status, (int)vhc->ports[port].port_change);
++		if(debug_output) dev_dbg(dev, "USB%d.0: port %d status 0x%04x has changes at 0x%04x\n", (hcd->speed == HCD_USB3)? 3 : 2, (int)(port + 1), (int)ports[port].port_status, (int)ports[port].port_change);
+ #endif
+ 	}
+ 
+-	if(vhc->rh_state == USB_VHCI_RH_SUSPENDED)
++	if((vhc->rh_state[index] == USB_VHCI_RH_SUSPENDED) && changed)
+ 		usb_hcd_resume_root_hub(hcd);
+ 
+ 	spin_unlock_irqrestore(&vhc->lock, flags);
+-	return retval;
++	return changed ? retval : 0;
+ }
+ 
++/* usb 3.0 root hub device descriptor */
++static struct {
++        struct usb_bos_descriptor bos;
++        struct usb_ss_cap_descriptor ss_cap;
++} __packed usb3_bos_desc = {
++
++        .bos = {
++                .bLength                = USB_DT_BOS_SIZE,
++                .bDescriptorType        = USB_DT_BOS,
++                .wTotalLength           = cpu_to_le16(sizeof(usb3_bos_desc)),
++                .bNumDeviceCaps         = 1,
++        },
++        .ss_cap = {
++                .bLength                = USB_DT_USB_SS_CAP_SIZE,
++                .bDescriptorType        = USB_DT_DEVICE_CAPABILITY,
++                .bDevCapabilityType     = USB_SS_CAP_TYPE,
++                .wSpeedSupported        = cpu_to_le16(USB_5GBPS_OPERATION),
++                .bFunctionalitySupport  = ilog2(USB_5GBPS_OPERATION),
++        },
++};
++
+ // caller has vhc->lock
+ // called in vhci_hub_control only
++static inline void ss_hub_descriptor(const struct usb_vhci_hcd *vhc, char *buf, u16 len)
++{
++	struct usb_hub_descriptor desc;
++	int portArrLen = vhc->usb3_port_count / 8 + 1; // length of one port bit-array in bytes
++	u16 l = USB_DT_SS_HUB_SIZE + 2 * portArrLen; // length of our hub descriptor
++	memset(&desc, 0, USB_DT_SS_HUB_SIZE);
++
++	if(likely(len > USB_DT_SS_HUB_SIZE))
++	{
++		if(unlikely(len < l)) l = len;
++		if(likely(l > USB_DT_SS_HUB_SIZE))
++		{
++		    memset(buf + USB_DT_SS_HUB_SIZE, 0, l - USB_DT_SS_HUB_SIZE);
++		    if(likely(l > USB_DT_SS_HUB_SIZE + portArrLen))
++			memset(buf + USB_DT_SS_HUB_SIZE + portArrLen, 0xff, l - (USB_DT_SS_HUB_SIZE + portArrLen));
++		}
++	}
++	else l = len;
++
++	desc.bDescLength = l;
++	desc.bDescriptorType = 0x2a;
++	desc.bNbrPorts = vhc->usb3_port_count;
++	desc.wHubCharacteristics = __constant_cpu_to_le16(0x0009); // Per port power and overcurrent
++	desc.u.ss.bHubHdrDecLat = 0x04; /* Worst case: 0.4 micro sec*/
++	desc.u.ss.DeviceRemovable = 0xffff;
++	memcpy(buf, &desc, l);
++}
++
+ static inline void hub_descriptor(const struct usb_vhci_hcd *vhc, char *buf, u16 len)
+ {
+ 	struct usb_hub_descriptor desc;
+-	int portArrLen = vhc->port_count / 8 + 1; // length of one port bit-array in bytes
++	int portArrLen = vhc->usb2_port_count / 8 + 1; // length of one port bit-array in bytes
+ 	u16 l = USB_DT_HUB_NONVAR_SIZE + 2 * portArrLen; // length of our hub descriptor
+ 	memset(&desc, 0, USB_DT_HUB_NONVAR_SIZE);
+ 
+ 	if(likely(len > USB_DT_HUB_NONVAR_SIZE))
+ 	{
+-		if(unlikely(len < l)) l = len;
+-		if(likely(l > USB_DT_HUB_NONVAR_SIZE))
+-		{
+-			memset(buf + USB_DT_HUB_NONVAR_SIZE, 0, l - USB_DT_HUB_NONVAR_SIZE);
+-			if(likely(l > USB_DT_HUB_NONVAR_SIZE + portArrLen))
+-				memset(buf + USB_DT_HUB_NONVAR_SIZE + portArrLen, 0xff, l - (USB_DT_HUB_NONVAR_SIZE + portArrLen));
+-		}
++	if(unlikely(len < l)) l = len;
++	if(likely(l > USB_DT_HUB_NONVAR_SIZE))
++	{
++	    memset(buf + USB_DT_HUB_NONVAR_SIZE, 0, l - USB_DT_HUB_NONVAR_SIZE);
++	    if(likely(l > USB_DT_HUB_NONVAR_SIZE + portArrLen))
++		memset(buf + USB_DT_HUB_NONVAR_SIZE + portArrLen, 0xff, l - (USB_DT_HUB_NONVAR_SIZE + portArrLen));
++	}
+ 	}
+ 	else l = len;
+ 
+ 	desc.bDescLength = l;
+ 	desc.bDescriptorType = 0x29;
+-	desc.bNbrPorts = vhc->port_count;
++	desc.bNbrPorts = vhc->usb2_port_count;
+ 	desc.wHubCharacteristics = __constant_cpu_to_le16(0x0009); // Per port power and overcurrent
+ 	memcpy(buf, &desc, l);
+ }
+@@ -396,6 +565,10 @@ static int vhci_hub_control(struct usb_h
+ 	u16 *ps, *pc;
+ 	u8 *pf;
+ 	u8 port, has_changes = 0;
++	struct usb_vhci_port *ports;
++	u8 port_offset = 0;
++	u8 port_count = 0;
++	u32 pstat = hcd->speed >= HCD_USB3 ? USB_SS_PORT_STAT_POWER : USB_PORT_STAT_POWER;
+ 
+ 	vhc = usbhcd_to_vhcihcd(hcd);
+ 	dev = vhcihcd_to_dev(vhc);
+@@ -405,6 +578,8 @@ static int vhci_hub_control(struct usb_h
+ 	if(unlikely(!test_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags)))
+ 		return -ETIMEDOUT;
+ 
++	get_vhci_params(hcd, vhc, &port_count, &ports, NULL, &port_offset);
++
+ 	spin_lock_irqsave(&vhc->lock, flags);
+ 
+ 	switch(typeReq)
+@@ -421,14 +596,19 @@ static int vhci_hub_control(struct usb_h
+ #ifdef DEBUG
+ 		if(debug_output) dev_dbg(dev, "%s: ClearPortFeature [wValue=0x%04x, wIndex=%d]\n", __FUNCTION__, (int)wValue, (int)wIndex);
+ #endif
+-		if(unlikely(!wIndex || wIndex > vhc->port_count || wLength))
++		if(unlikely(!wIndex || wIndex > port_count || wLength))
+ 			goto err;
+-		ps = &vhc->ports[wIndex - 1].port_status;
+-		pc = &vhc->ports[wIndex - 1].port_change;
+-		pf = &vhc->ports[wIndex - 1].port_flags;
++		ps = &ports[wIndex - 1].port_status;
++		pc = &ports[wIndex - 1].port_change;
++		pf = &ports[wIndex - 1].port_flags;
+ 		switch(wValue)
+ 		{
+ 		case USB_PORT_FEAT_SUSPEND:
++			if(hcd->speed >= HCD_USB3)
++			{
++				dev_info(dev, "ClearPortFeature: USB_PORT_FEAT_SUSPEND not support by USB3.0\n");
++				goto err;
++			}
+ 			// (see USB 2.0 spec section 11.5 and 11.24.2.7.1.3)
+ 			if(*ps & USB_PORT_STAT_SUSPEND)
+ 			{
+@@ -436,12 +616,11 @@ static int vhci_hub_control(struct usb_h
+ 				if(debug_output) dev_dbg(dev, "Port %d resuming\n", (int)wIndex);
+ #endif
+ 				*pf |= USB_VHCI_PORT_STAT_FLAG_RESUMING;
+-				vhci_port_update(vhc, wIndex);
++				vhci_port_update(vhc, wIndex + port_offset);
+ 			}
+ 			break;
+ 		case USB_PORT_FEAT_POWER:
+-			// (see USB 2.0 spec section 11.11 and 11.24.2.7.1.6)
+-			if(*ps & USB_PORT_STAT_POWER)
++			if(*ps & pstat)
+ 			{
+ #ifdef DEBUG
+ 				if(debug_output) dev_dbg(dev, "Port %d power-off\n", (int)wIndex);
+@@ -452,7 +631,7 @@ static int vhci_hub_control(struct usb_h
+ 				*pc &= USB_PORT_STAT_C_OVERCURRENT;
+ 				// clear resuming flag
+ 				*pf &= ~USB_VHCI_PORT_STAT_FLAG_RESUMING;
+-				vhci_port_update(vhc, wIndex);
++				vhci_port_update(vhc, wIndex + port_offset);
+ 			}
+ 			break;
+ 		case USB_PORT_FEAT_ENABLE:
+@@ -469,7 +648,7 @@ static int vhci_hub_control(struct usb_h
+ 				// clear resuming flag
+ 				*pf &= ~USB_VHCI_PORT_STAT_FLAG_RESUMING;
+ 				// TODO: maybe we should clear the low/high speed bits here (section 11.24.2.7.1.{7,8})
+-				vhci_port_update(vhc, wIndex);
++				vhci_port_update(vhc, wIndex + port_offset);
+ 			}
+ 			break;
+ 		case USB_PORT_FEAT_CONNECTION:
+@@ -478,16 +657,26 @@ static int vhci_hub_control(struct usb_h
+ 		case USB_PORT_FEAT_LOWSPEED:
+ 		case USB_PORT_FEAT_HIGHSPEED:
+ 		case USB_PORT_FEAT_INDICATOR:
++		//USB3.0
++		case USB_PORT_FEAT_LINK_STATE:
++		case USB_PORT_FEAT_U1_TIMEOUT:
++		case USB_PORT_FEAT_U2_TIMEOUT:
++		case USB_PORT_FEAT_BH_PORT_RESET:
++		case USB_PORT_FEAT_FORCE_LINKPM_ACCEPT:
+ 			break; // no-op
+ 		case USB_PORT_FEAT_C_CONNECTION:
+ 		case USB_PORT_FEAT_C_ENABLE:
+ 		case USB_PORT_FEAT_C_SUSPEND:
+ 		case USB_PORT_FEAT_C_OVER_CURRENT:
+ 		case USB_PORT_FEAT_C_RESET:
++		//USB3.0
++		case USB_PORT_FEAT_C_PORT_LINK_STATE:
++		case USB_PORT_FEAT_C_PORT_CONFIG_ERROR:
++		case USB_PORT_FEAT_C_BH_PORT_RESET:
+ 			if(*pc & (1 << (wValue - 16)))
+ 			{
+ 				*pc &= ~(1 << (wValue - 16));
+-				vhci_port_update(vhc, wIndex);
++				vhci_port_update(vhc, wIndex + port_offset);
+ 			}
+ 			break;
+ 		//case USB_PORT_FEAT_TEST:
+@@ -501,7 +690,29 @@ static int vhci_hub_control(struct usb_h
+ #endif
+ 		if(unlikely(wIndex))
+ 			goto err;
+-		hub_descriptor(vhc, buf, wLength);
++		if(hcd->speed >= HCD_USB3 &&
++                (wLength < USB_DT_SS_HUB_SIZE ||
++                 wValue != (USB_DT_SS_HUB << 8)))
++		{
++			dev_info(dev,
++                "Wrong hub descriptor type for "
++                "USB 3.0 roothub.\n");
++			goto err;
++		}
++		if (hcd->speed >= HCD_USB3)
++			ss_hub_descriptor(vhc, buf, wLength);
++		else
++			hub_descriptor(vhc, buf, wLength);
++		break;
++	case DeviceRequest | USB_REQ_GET_DESCRIPTOR:
++		if (hcd->speed < HCD_USB3)
++			goto err;
++
++		if ((wValue >> 8) != USB_DT_BOS)
++			goto err;
++
++		memcpy(buf, &usb3_bos_desc, sizeof(usb3_bos_desc));
++		retval = sizeof(usb3_bos_desc);
+ 		break;
+ 	case GetHubStatus:
+ #ifdef DEBUG
+@@ -515,28 +726,34 @@ static int vhci_hub_control(struct usb_h
+ #ifdef DEBUG
+ 		if(debug_output) dev_dbg(dev, "%s: GetPortStatus [wIndex=%d]\n", __FUNCTION__, (int)wIndex);
+ #endif
+-		if(unlikely(wValue || !wIndex || wIndex > vhc->port_count || wLength != 4))
++		if(unlikely(wValue || !wIndex || wIndex > port_count || wLength != 4))
+ 			goto err;
+ #ifdef DEBUG
+-		if(debug_output) dev_dbg(dev, "%s: ==> [port_status=0x%04x] [port_change=0x%04x]\n", __FUNCTION__, (int)vhc->ports[wIndex - 1].port_status, (int)vhc->ports[wIndex - 1].port_change);
++		if(debug_output) dev_dbg(dev, "%s: ==> [port_status=0x%04x] [port_change=0x%04x]\n", __FUNCTION__, (int)ports[wIndex - 1].port_status, (int)ports[wIndex - 1].port_change);
+ #endif
+-		buf[0] = (u8)vhc->ports[wIndex - 1].port_status;
+-		buf[1] = (u8)(vhc->ports[wIndex - 1].port_status >> 8);
+-		buf[2] = (u8)vhc->ports[wIndex - 1].port_change;
+-		buf[3] = (u8)(vhc->ports[wIndex - 1].port_change >> 8);
++		buf[0] = (u8)ports[wIndex - 1].port_status;
++		buf[1] = (u8)(ports[wIndex - 1].port_status >> 8);
++		buf[2] = (u8)ports[wIndex - 1].port_change;
++		buf[3] = (u8)(ports[wIndex - 1].port_change >> 8);
+ 		break;
+ 	case SetPortFeature:
+ #ifdef DEBUG
+ 		if(debug_output) dev_dbg(dev, "%s: SetPortFeature [wValue=0x%04x, wIndex=%d]\n", __FUNCTION__, (int)wValue, (int)wIndex);
+ #endif
+-		if(unlikely(!wIndex || wIndex > vhc->port_count || wLength))
++		if(unlikely(!wIndex || wIndex > port_count || wLength))
+ 			goto err;
+-		ps = &vhc->ports[wIndex - 1].port_status;
+-		pc = &vhc->ports[wIndex - 1].port_change;
+-		pf = &vhc->ports[wIndex - 1].port_flags;
++		ps = &ports[wIndex - 1].port_status;
++		pc = &ports[wIndex - 1].port_change;
++		pf = &ports[wIndex - 1].port_flags;
+ 		switch(wValue)
+ 		{
+ 		case USB_PORT_FEAT_SUSPEND:
++			if (hcd->speed >= HCD_USB3) {
++				dev_info(dev,
++						"USB_PORT_FEAT_SUSPEND req not "
++						"supported for USB 3.0 roothub\n");
++				goto err;
++			}
+ 			// USB 2.0 spec section 11.24.2.7.1.3:
+ 			//  "This bit can be set only if the port’s PORT_ENABLE bit is set and the hub receives
+ 			//  a SetPortFeature(PORT_SUSPEND) request."
+@@ -548,20 +765,28 @@ static int vhci_hub_control(struct usb_h
+ 				if(debug_output) dev_dbg(dev, "Port %d suspended\n", (int)wIndex);
+ #endif
+ 				*ps |= USB_PORT_STAT_SUSPEND;
+-				vhci_port_update(vhc, wIndex);
++				vhci_port_update(vhc, wIndex + port_offset);
+ 			}
+ 			break;
+ 		case USB_PORT_FEAT_POWER:
+ 			// (see USB 2.0 spec section 11.11 and 11.24.2.7.1.6)
+-			if(!(*ps & USB_PORT_STAT_POWER))
++			if(!(*ps & pstat))
+ 			{
+ #ifdef DEBUG
+ 				if(debug_output) dev_dbg(dev, "Port %d power-on\n", (int)wIndex);
+ #endif
+-				*ps |= USB_PORT_STAT_POWER;
+-				vhci_port_update(vhc, wIndex);
++				*ps |= pstat;
++				vhci_port_update(vhc, wIndex + port_offset);
+ 			}
+ 			break;
++		case USB_PORT_FEAT_BH_PORT_RESET:
++			/* Applicable only for USB3.0 hub */
++			if (hcd->speed < HCD_USB3) {
++			dev_dbg(dev,
++				"USB_PORT_FEAT_BH_PORT_RESET req not "
++				 "supported for USB 2.0 roothub\n");
++			goto err;
++			}
+ 		case USB_PORT_FEAT_RESET:
+ 			// (see USB 2.0 spec section 11.24.2.7.1.5)
+ 			// initiate reset only if there is a device plugged into the port and if there isn't already a reset pending
+@@ -571,24 +796,55 @@ static int vhci_hub_control(struct usb_h
+ 				if(debug_output) dev_dbg(dev, "Port %d resetting\n", (int)wIndex);
+ #endif
+ 
+-				// keep the state of these bits and clear all others
+-				*ps &= USB_PORT_STAT_POWER
+-				     | USB_PORT_STAT_CONNECTION
+-				     | USB_PORT_STAT_LOW_SPEED
+-				     | USB_PORT_STAT_HIGH_SPEED
+-				     | USB_PORT_STAT_OVERCURRENT;
+-
+-				*ps |= USB_PORT_STAT_RESET; // reset initiated
++				if(hcd->speed >= HCD_USB3)
++				{
++					*ps = USB_SS_PORT_STAT_POWER |
++						USB_PORT_STAT_CONNECTION |
++						USB_PORT_STAT_RESET;
++				}
++				else
++				{
++					// keep the state of these bits and clear all others
++					*ps &= USB_PORT_STAT_POWER
++						| USB_PORT_STAT_CONNECTION
++						| USB_PORT_STAT_LOW_SPEED
++						| USB_PORT_STAT_HIGH_SPEED
++						| USB_PORT_STAT_OVERCURRENT;
+ 
++					*ps |= USB_PORT_STAT_RESET; // reset initiated
++				}
+ 				// clear resuming flag
+ 				*pf &= ~USB_VHCI_PORT_STAT_FLAG_RESUMING;
+ 
+-				vhci_port_update(vhc, wIndex);
++				vhci_port_update(vhc, wIndex + port_offset);
+ 			}
+ #ifdef DEBUG
+ 			else if(debug_output) dev_dbg(dev, "Port %d reset not possible because of port_state=%04x\n", (int)wIndex, (int)*ps);
+ #endif
+ 			break;
++		case USB_PORT_FEAT_LINK_STATE:
++			if(hcd->speed < HCD_USB3)
++			{
++				dev_dbg(dev,
++				         "USB_PORT_FEAT_LINK_STATE req not "
++				         "supported for USB 2.0 roothub\n");
++				goto err;
++			}
++			/*
++			 * Since this is dummy we don't have an actual link so
++			 * there is nothing to do for the SET_LINK_STATE cmd
++			 */
++			break;
++		case USB_PORT_FEAT_U1_TIMEOUT:
++		case USB_PORT_FEAT_U2_TIMEOUT:
++			if(hcd->speed < HCD_USB3)
++			{
++				dev_dbg(dev,
++				         "USB_PORT_FEAT_U1/2_TIMEOUT req not "
++				         "supported for USB 2.0 roothub\n");
++				goto err;
++			}
++			break;
+ 		case USB_PORT_FEAT_CONNECTION:
+ 		case USB_PORT_FEAT_OVER_CURRENT:
+ 		case USB_PORT_FEAT_LOWSPEED:
+@@ -600,10 +856,14 @@ static int vhci_hub_control(struct usb_h
+ 		case USB_PORT_FEAT_C_SUSPEND:
+ 		case USB_PORT_FEAT_C_OVER_CURRENT:
+ 		case USB_PORT_FEAT_C_RESET:
++		//USB3.0
++		case USB_PORT_FEAT_C_PORT_LINK_STATE:
++		case USB_PORT_FEAT_C_PORT_CONFIG_ERROR:
++		case USB_PORT_FEAT_C_BH_PORT_RESET:
+ 			if(!(*pc & (1 << (wValue - 16))))
+ 			{
+ 				*pc |= 1 << (wValue - 16);
+-				vhci_port_update(vhc, wIndex);
++				vhci_port_update(vhc, wIndex + port_offset);
+ 			}
+ 			break;
+ 		//case USB_PORT_FEAT_ENABLE: // port can't be enabled without reseting (USB 2.0 spec section 11.24.2.7.1.2)
+@@ -624,8 +884,8 @@ err:
+ 		retval = -EPIPE;
+ 	}
+ 
+-	for(port = 0; port < vhc->port_count; port++)
+-		if(vhc->ports[port].port_change)
++	for(port = 0; port < port_count; port++)
++		if(ports[port].port_change)
+ 			has_changes = 1;
+ 
+ 	spin_unlock_irqrestore(&vhc->lock, flags);
+@@ -641,30 +901,36 @@ static int vhci_bus_suspend(struct usb_h
+ 	struct device *dev;
+ 	unsigned long flags;
+ 	u8 port;
++	struct usb_vhci_port *ports;
++	u8 port_count;
++	u8 port_offset;
++	u8 index;
+ 
+ 	vhc = usbhcd_to_vhcihcd(hcd);
+ 	dev = vhcihcd_to_dev(vhc);
+ 
+ 	trace_function(dev);
+ 
++	get_vhci_params(hcd, vhc, &port_count, &ports, &index, &port_offset);
++
+ 	spin_lock_irqsave(&vhc->lock, flags);
+ 
+ 	// suspend ports
+-	for(port = 0; port < vhc->port_count; port++)
++	for(port = 0; port < port_count; port++)
+ 	{
+-		if((vhc->ports[port].port_status & USB_PORT_STAT_ENABLE) &&
+-			!(vhc->ports[port].port_status & USB_PORT_STAT_SUSPEND))
++		if((ports[port].port_status & USB_PORT_STAT_ENABLE) &&
++			!(ports[port].port_status & USB_PORT_STAT_SUSPEND))
+ 		{
+ 			dev_dbg(dev, "Port %d suspended\n", (int)port + 1);
+-			vhc->ports[port].port_status |= USB_PORT_STAT_SUSPEND;
+-			vhc->ports[port].port_flags &= ~USB_VHCI_PORT_STAT_FLAG_RESUMING;
+-			vhci_port_update(vhc, port + 1);
++			ports[port].port_status |= USB_PORT_STAT_SUSPEND;
++			ports[port].port_flags &= ~USB_VHCI_PORT_STAT_FLAG_RESUMING;
++			vhci_port_update(vhc, port + 1 + port_offset);
+ 		}
+ 	}
+ 
+ 	// TODO: somehow we have to suppress the resuming of ports while the bus is suspended
+ 
+-	vhc->rh_state = USB_VHCI_RH_SUSPENDED;
++	vhc->rh_state[index] = USB_VHCI_RH_SUSPENDED;
+ 	hcd->state = HC_STATE_SUSPENDED;
+ 
+ 	spin_unlock_irqrestore(&vhc->lock, flags);
+@@ -678,6 +944,7 @@ static int vhci_bus_resume(struct usb_hc
+ 	struct device *dev;
+ 	int rc = 0;
+ 	unsigned long flags;
++	int index = (hcd->speed >= HCD_USB3)? 1 : 0;
+ 
+ 	vhc = usbhcd_to_vhcihcd(hcd);
+ 	dev = vhcihcd_to_dev(vhc);
+@@ -692,7 +959,7 @@ static int vhci_bus_resume(struct usb_hc
+ 	}
+ 	else
+ 	{
+-		vhc->rh_state = USB_VHCI_RH_RUNNING;
++		vhc->rh_state[index] = USB_VHCI_RH_RUNNING;
+ 		//set_link_state(vhc);
+ 		hcd->state = HC_STATE_RUNNING;
+ 	}
+@@ -748,6 +1015,7 @@ static ssize_t show_urbs(struct device *
+ 	size_t size = 0;
+ 	unsigned long flags;
+ 	struct list_head *list;
++	int i;
+ 
+ 	pdev = to_platform_device(dev);
+ 	vhc = pdev_to_vhcihcd(pdev);
+@@ -776,15 +1044,56 @@ static ssize_t show_urbs(struct device *
+ 		temp = PAGE_SIZE - size;
+ 		if(unlikely(temp <= 0)) break;
+ 
+-		temp = show_urb(buf, temp, urbp->urb);
+-		buf += temp;
+-		size += temp;
++		for (i = 0; i < urbp->num_urbs; i++) {
++			temp = show_urb(buf, temp, urbp->urbs[i]);
++			buf += temp;
++			size += temp;
++		}
+ 	}
+ 	spin_unlock_irqrestore(&vhc->lock, flags);
+ 
+ 	return size;
+ }
+ 
++static int vhci_setup(struct usb_hcd *hcd)
++{
++	struct usb_vhci_hcd *vhc;
++	vhc = usbhcd_to_vhcihcd(hcd);
++
++	hcd->irq = HCD_IRQ;
++	vhci_printk(KERN_INFO, "hcd will use irq %d\n", hcd->irq);
++
++	if(usb_hcd_is_primary_hcd(hcd))
++	{
++		vhc->hs_hcd = hcd;
++		/*
++		 * Mark the first roothub as being USB 2.0.
++		 * The USB 3.0 roothub will be registered later by
++		 * vhci_hcd_probe()
++		 */
++		hcd->speed = HCD_USB2;
++		hcd->self.root_hub->speed = USB_SPEED_HIGH;
++	}
++	else
++	{
++		vhc->ss_hcd = hcd;
++		hcd->speed = HCD_USB3;
++		hcd->self.root_hub->speed = USB_SPEED_SUPER;
++	}
++
++	return 0;
++}
++
++static int vhci_start_ss(struct usb_hcd *hcd)
++{
++	struct usb_vhci_hcd *vhc = usbhcd_to_vhcihcd(hcd);
++	vhc->rh_state[1] = USB_VHCI_RH_RUNNING;
++	hcd->power_budget = 0; // No limits
++	hcd->state = HC_STATE_RUNNING;
++	hcd->uses_new_polling = 1;
++	return 0;
++}
++
+ static int vhci_start(struct usb_hcd *hcd)
+ {
+ 	struct usb_vhci_hcd *vhc;
+@@ -800,6 +1109,12 @@ static int vhci_start(struct usb_hcd *hc
+ 	vhc = usbhcd_to_vhcihcd(hcd);
+ 	vdev = vhcihcd_to_vhcidev(vhc);
+ 
++	if(!usb_hcd_is_primary_hcd(hcd))
++	{
++		vhci_start_ss(hcd);
++		return 0;
++	}
++
+ 	ports = kzalloc(vdev->port_count * sizeof(struct usb_vhci_port), GFP_KERNEL);
+ 	if(unlikely(ports == NULL)) return -ENOMEM;
+ 
+@@ -807,17 +1122,28 @@ static int vhci_start(struct usb_hcd *hc
+ 	//init_timer(&vhc->timer);
+ 	//vhc->timer.function = vhci_timer;
+ 	//vhc->timer.data = (unsigned long)vhc;
++	vhc->disabled = false;
+ 	vhc->ports = ports;
+-	vhc->port_count = vdev->port_count;
++	if(is_support_usb3)
++	{
++		vhc->usb3_port_count = vdev->port_count / 2;
++		vhc->usb2_port_count = vdev->port_count - vhc->usb3_port_count;
++	}
++	else
++	{
++		vhc->usb2_port_count = vdev->port_count;
++		vhc->usb3_port_count = 0;
++	}
++
+ 	vhc->port_update = 0;
+ 	atomic_set(&vhc->frame_num, 0);
+ 	INIT_LIST_HEAD(&vhc->urbp_list_inbox);
+ 	INIT_LIST_HEAD(&vhc->urbp_list_fetched);
+ 	INIT_LIST_HEAD(&vhc->urbp_list_cancel);
+ 	INIT_LIST_HEAD(&vhc->urbp_list_canceling);
+-	vhc->rh_state = USB_VHCI_RH_RUNNING;
++	vhc->rh_state[0] = USB_VHCI_RH_RUNNING;
+ 
+-	hcd->power_budget = 500; // NOTE: practically we have unlimited power because this is a virtual device with... err... virtual power!
++	hcd->power_budget = 0; // NOTE: practically we have unlimited power because this is a virtual device with... err... virtual power!
+ 	hcd->state = HC_STATE_RUNNING;
+ 	hcd->uses_new_polling = 1;
+ #ifndef NO_HAS_TT_FLAG
+@@ -847,7 +1173,8 @@ rem_file_inbox:
+ kfree_port_arr:
+ 	kfree(ports);
+ 	vhc->ports = NULL;
+-	vhc->port_count = 0;
++	vhc->usb2_port_count = 0;
++	vhc->usb3_port_count = 0;
+ 	return retval;
+ }
+ 
+@@ -860,6 +1187,10 @@ static void vhci_stop(struct usb_hcd *hc
+ 
+ 	trace_function(dev);
+ 
++	if(!usb_hcd_is_primary_hcd(hcd))
++		return;
++
++	hcd->shared_hcd = NULL;
+ 	vhc = usbhcd_to_vhcihcd(hcd);
+ 
+ 	device_remove_file(dev, &dev_attr_urbs_canceling);
+@@ -871,10 +1202,12 @@ static void vhci_stop(struct usb_hcd *hc
+ 	{
+ 		kfree(vhc->ports);
+ 		vhc->ports = NULL;
+-		vhc->port_count = 0;
++		vhc->usb2_port_count = 0;
++		vhc->usb3_port_count = 0;
+ 	}
+ 
+-	vhc->rh_state = USB_VHCI_RH_RESET;
++	vhc->rh_state[0] = USB_VHCI_RH_RESET;
++	vhc->rh_state[1] = USB_VHCI_RH_RESET;
+ 	dev_info(dev, "stopped\n");
+ }
+ 
+@@ -886,13 +1219,14 @@ static int vhci_get_frame(struct usb_hcd
+ 	return atomic_read(&vhc->frame_num);
+ }
+ 
+-static const struct hc_driver vhci_hcd = {
++static struct hc_driver vhci_hcd = {
+ 	.description      = driver_name,
+ 	.product_desc     = "VHCI Host Controller",
+ 	.hcd_priv_size    = sizeof(struct usb_vhci_hcd),
+ 
+-	.flags            = HCD_USB2,
++	.flags            = HCD_USB3 | HCD_SHARED,
+ 
++	.reset            = vhci_setup,
+ 	.start            = vhci_start,
+ 	.stop             = vhci_stop,
+ 
+@@ -909,7 +1243,9 @@ static const struct hc_driver vhci_hcd =
+ 
+ static int vhci_hcd_probe(struct platform_device *pdev)
+ {
+-	struct usb_hcd *hcd;
++	struct usb_hcd *hs_hcd;
++	struct usb_hcd *ss_hcd;
++
+ 	struct usb_vhci_device *vdev;
+ 	int retval;
+ 
+@@ -921,30 +1257,58 @@ static int vhci_hcd_probe(struct platfor
+ 	dev_info(&pdev->dev, DRIVER_DESC " -- Version " DRIVER_VERSION "\n");
+ 	dev_info(&pdev->dev, "--> Backend: %s\n", vdev->ifc->ifc_desc);
+ 
+-	hcd = usb_create_hcd(&vhci_hcd, &pdev->dev, vhci_dev_name(&pdev->dev));
+-	if(unlikely(!hcd)) return -ENOMEM;
+-	vdev->vhc = usbhcd_to_vhcihcd(hcd);
++	if (!is_support_usb3)
++		vhci_hcd.flags = HCD_USB2;
++
++	hs_hcd = usb_create_hcd(&vhci_hcd, &pdev->dev, vhci_dev_name(&pdev->dev));
++	if(unlikely(!hs_hcd)) return -ENOMEM;
++	vdev->vhc = usbhcd_to_vhcihcd(hs_hcd);
++
++	retval = usb_add_hcd(hs_hcd, 0, 0); // calls vhci_setup-->vhci_start
++	if(unlikely(retval)) goto put_usb2_hcd;
++
++	if(is_support_usb3)
++	{
++		ss_hcd = usb_create_shared_hcd(&vhci_hcd, &pdev->dev, vhci_dev_name(&pdev->dev), hs_hcd);
++		if(unlikely(!ss_hcd))
++		{
++			retval = -ENOMEM;
++			goto dealloc_usb2_hcd;
++		}
+ 
+-	retval = usb_add_hcd(hcd, 0, 0); // calls vhci_start
+-	if(unlikely(retval)) usb_put_hcd(hcd);
++		retval = usb_add_hcd(ss_hcd, 0, 0);
++		if (unlikely(retval)) goto put_usb3_hcd;
++	}
++	else
++	{
++		vhci_printk(KERN_INFO, "VHCI cannot support USB3.0.\n");
++	}
+ 
++	return 0;
++put_usb3_hcd:
++	usb_put_hcd(ss_hcd);
++dealloc_usb2_hcd:
++	usb_remove_hcd(hs_hcd);
++put_usb2_hcd:
++	usb_put_hcd(hs_hcd);
++	vdev->vhc->hs_hcd = vdev->vhc->ss_hcd = NULL;
+ 	return retval;
+ }
+ 
+ static int vhci_hcd_remove(struct platform_device *pdev)
+ {
+ 	unsigned long flags;
+-	struct usb_hcd *hcd;
+ 	struct usb_vhci_hcd *vhc;
+ 	struct usb_vhci_urb_priv *urbp;
+ 	struct usb_vhci_device *vdev;
+ 
+ 	vdev = pdev_to_vhcidev(pdev);
+ 	vhc = vhcidev_to_vhcihcd(vdev);
+-	hcd = vhcidev_to_usbhcd(vdev);
+ 
+ 	trace_function(vhcihcd_to_dev(vhc));
+ 
++        vhc->disabled = true;
++
+ 	spin_lock_irqsave(&vhc->lock, flags);
+ 	while(!list_empty(&vhc->urbp_list_inbox))
+ 	{
+@@ -972,8 +1336,14 @@ static int vhci_hcd_remove(struct platfo
+ 	}
+ 	spin_unlock_irqrestore(&vhc->lock, flags);
+ 
+-	usb_remove_hcd(hcd); // calls vhci_stop
+-	usb_put_hcd(hcd);
++	if(is_support_usb3)
++	{
++		usb_remove_hcd(vhc->ss_hcd); // calls vhci_stop
++		usb_put_hcd(vhc->ss_hcd);
++	}
++
++	usb_remove_hcd(vhc->hs_hcd); // calls vhci_stop
++	usb_put_hcd(vhc->hs_hcd);
+ 	vdev->vhc = NULL;
+ 
+ 	if(vdev->ifc->destroy)
+@@ -987,38 +1357,52 @@ static int vhci_hcd_remove(struct platfo
+ 
+ static int vhci_hcd_suspend(struct platform_device *pdev, pm_message_t state)
+ {
+-	struct usb_hcd *hcd;
+ 	struct usb_vhci_hcd *vhc;
+ 	int rc = 0;
+ 
+ 	vhc = pdev_to_vhcihcd(pdev);
+-	hcd = vhcihcd_to_usbhcd(vhc);
+ 
+ 	trace_function(vhcihcd_to_dev(vhc));
+ 
+-	if(unlikely(vhc->rh_state == USB_VHCI_RH_RUNNING))
++	if(is_support_usb3)
++	{
++		if(unlikely(vhc->rh_state[1] == USB_VHCI_RH_RUNNING))
++		{
++			dev_warn(&pdev->dev, "Root hub isn't suspended! You have to suspend the root hub before you suspend the host controller device.\n");
++			rc = -EBUSY;
++		}
++		else
++			clear_bit(HCD_FLAG_HW_ACCESSIBLE, &vhc->ss_hcd->flags);
++	}
++
++
++	if(unlikely(vhc->rh_state[0] == USB_VHCI_RH_RUNNING))
+ 	{
+ 		dev_warn(&pdev->dev, "Root hub isn't suspended! You have to suspend the root hub before you suspend the host controller device.\n");
+ 		rc = -EBUSY;
+ 	}
+ 	else
+-		clear_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
++		clear_bit(HCD_FLAG_HW_ACCESSIBLE, &vhc->hs_hcd->flags);
+ 
+ 	return rc;
+ }
+ 
+ static int vhci_hcd_resume(struct platform_device *pdev)
+ {
+-	struct usb_hcd *hcd;
+ 	struct usb_vhci_hcd *vhc;
+ 
+ 	vhc = pdev_to_vhcihcd(pdev);
+-	hcd = vhcihcd_to_usbhcd(vhc);
+ 
+ 	trace_function(vhcihcd_to_dev(vhc));
+ 
+-	set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
+-	usb_hcd_poll_rh_status(hcd);
++	set_bit(HCD_FLAG_HW_ACCESSIBLE, &vhc->hs_hcd->flags);
++	usb_hcd_poll_rh_status(vhc->hs_hcd);
++
++	if(is_support_usb3)
++	{
++		set_bit(HCD_FLAG_HW_ACCESSIBLE, &vhc->ss_hcd->flags);
++		usb_hcd_poll_rh_status(vhc->ss_hcd);
++	}
+ 	return 0;
+ }
+ 
+@@ -1052,8 +1436,23 @@ int usb_vhci_hcd_register(const struct u
+ 	struct platform_device *pdev;
+ 	struct usb_vhci_device vdev, *vdev_ptr;
+ 
+-	if(unlikely(port_count > 31))
++	if(unlikely(is_support_usb3 && port_count > 62))
++	{
++		vhci_printk(KERN_INFO, "the maximum number of ports is 62 when support USB 3.0\n");
++		return -EINVAL;
++	}
++
++	if(unlikely(!is_support_usb3 && port_count > 31))
++	{
++		vhci_printk(KERN_INFO, "the maximum number of ports is 31 when not support USB 3.0\n");
+ 		return -EINVAL;
++	}
++
++	if(unlikely(is_support_usb3 && port_count < 2))
++	{
++		vhci_printk(KERN_INFO, "please register vhci with port count > 1 if you want to support usb3.0\n");
++		return -EINVAL;
++	}
+ 
+ 	// search for free device-id
+ 	mutex_lock(&dev_enum_lock);
+@@ -1174,10 +1573,13 @@ int usb_vhci_apply_port_stat(struct usb_
+ 	struct device *dev;
+ 	unsigned long flags;
+ 	u16 overcurrent;
++	bool is_usb3;
++	struct usb_hcd *hcd;
++	u32 pstat;
+ 
+ 	dev = vhcihcd_to_dev(vhc);
+ 
+-	if(unlikely(!index || index > vhc->port_count))
++	if(unlikely(!index || index > (vhc->usb2_port_count + vhc->usb3_port_count)))
+ 		return -EINVAL;
+ 
+ 	if(unlikely(change != USB_PORT_STAT_C_CONNECTION &&
+@@ -1189,12 +1591,23 @@ int usb_vhci_apply_port_stat(struct usb_
+ 		return -EINVAL;
+ 
+ 	spin_lock_irqsave(&vhc->lock, flags);
+-	if(unlikely(!(vhc->ports[index - 1].port_status & USB_PORT_STAT_POWER)))
++
++	if(index > vhc->usb2_port_count)
++	{
++		is_usb3 = true;
++		pstat = USB_SS_PORT_STAT_POWER;
++	}
++	else
++	{
++		is_usb3 = false;
++		pstat = USB_PORT_STAT_POWER;
++	}
++
++	if(unlikely(!(vhc->ports[index - 1].port_status & pstat)))
+ 	{
+ 		spin_unlock_irqrestore(&vhc->lock, flags);
+ 		return -EPROTO;
+ 	}
+-
+ #ifdef DEBUG
+ 	if(debug_output) dev_dbg(dev, "performing PORT_STAT [port=%d ~status=0x%04x ~change=0x%04x]\n", (int)index, (int)status, (int)change);
+ #endif
+@@ -1204,13 +1617,23 @@ int usb_vhci_apply_port_stat(struct usb_
+ 	case USB_PORT_STAT_C_CONNECTION:
+ 		overcurrent = vhc->ports[index - 1].port_status & USB_PORT_STAT_OVERCURRENT;
+ 		vhc->ports[index - 1].port_change |= USB_PORT_STAT_C_CONNECTION;
+-		if(status & USB_PORT_STAT_CONNECTION)
+-			vhc->ports[index - 1].port_status = USB_PORT_STAT_POWER | USB_PORT_STAT_CONNECTION |
+-				((status & USB_PORT_STAT_LOW_SPEED) ? USB_PORT_STAT_LOW_SPEED :
+-				((status & USB_PORT_STAT_HIGH_SPEED) ? USB_PORT_STAT_HIGH_SPEED : 0)) |
+-				overcurrent;
++		if(status & USB_PORT_STAT_CONNECTION) {
++			if(is_usb3)
++				vhc->ports[index - 1].port_status = USB_SS_PORT_STAT_POWER;
++			else
++				vhc->ports[index - 1].port_status = USB_PORT_STAT_POWER |
++					((status & USB_PORT_STAT_LOW_SPEED) ? USB_PORT_STAT_LOW_SPEED :
++					((status & USB_PORT_STAT_HIGH_SPEED) ? USB_PORT_STAT_HIGH_SPEED : 0));
++
++			vhc->ports[index - 1].port_status |= USB_PORT_STAT_CONNECTION |	overcurrent;
++		}
+ 		else
+-			vhc->ports[index - 1].port_status = USB_PORT_STAT_POWER | overcurrent;
++		{
++			if(is_usb3)
++				vhc->ports[index - 1].port_status = USB_SS_PORT_STAT_POWER | overcurrent;
++			else
++				vhc->ports[index - 1].port_status = USB_PORT_STAT_POWER | overcurrent;
++		}
+ 		vhc->ports[index - 1].port_flags &= ~USB_VHCI_PORT_STAT_FLAG_RESUMING;
+ 		break;
+ 
+@@ -1274,14 +1697,15 @@ int usb_vhci_apply_port_stat(struct usb_
+ 
+ 	vhci_port_update(vhc, index);
+ 	spin_unlock_irqrestore(&vhc->lock, flags);
++	hcd = is_usb3 ? vhc->ss_hcd : vhc->hs_hcd;
++	usb_hcd_poll_rh_status(hcd);
+ 
+-	usb_hcd_poll_rh_status(vhcihcd_to_usbhcd(vhc));
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(usb_vhci_apply_port_stat);
+ 
+ #ifdef DEBUG
+-static ssize_t show_debug_output(struct device_driver *drv, char *buf)
++static ssize_t debug_output_show(struct device_driver *drv, char *buf)
+ {
+ 	if(buf != NULL)
+ 	{
+@@ -1296,7 +1720,7 @@ static ssize_t show_debug_output(struct
+ 	return 1;
+ }
+ 
+-static ssize_t store_debug_output(struct device_driver *drv, const char *buf, size_t count)
++static ssize_t debug_output_store(struct device_driver *drv, const char *buf, size_t count)
+ {
+ 	if(count != 1 || buf == NULL) return -EINVAL;
+ 	switch(*buf)
+@@ -1309,7 +1733,11 @@ static ssize_t store_debug_output(struct
+ 	return -EINVAL;
+ }
+ 
+-static DRIVER_ATTR(debug_output, S_IRUSR | S_IWUSR, show_debug_output, store_debug_output);
++#ifdef DRIVER_ATTR_RW
++static DRIVER_ATTR_RW(debug_output);
++#else
++static DRIVER_ATTR(debug_output, S_IRUSR | S_IWUSR, debug_output_show, debug_output_store);
++#endif
+ #endif
+ 
+ static int __init init(void)
+diff -uprN vhci-hcd-1.15/usb-vhci-hcd.h vhci-hcd-1.15.patch/usb-vhci-hcd.h
+--- vhci-hcd-1.15/usb-vhci-hcd.h	2013-06-21 08:02:38.000000000 +0800
++++ vhci-hcd-1.15.patch/usb-vhci-hcd.h	2024-05-07 11:10:42.631267951 +0800
+@@ -94,20 +94,25 @@ struct usb_vhci_device
+ 
+ struct usb_vhci_urb_priv
+ {
+-	struct urb *urb;
+ 	struct list_head urbp_list;
+ 	atomic_t status;
++	int num_urbs;
++	struct urb *urbs[0];
+ };
+ 
+ struct usb_vhci_hcd
+ {
++	struct usb_hcd *hs_hcd;
++	struct usb_hcd *ss_hcd;
++
+ 	struct usb_vhci_port *ports;
+-	u32 port_update;
++	u64 port_update;
+ 
+ 	spinlock_t lock;
++        bool disabled;
+ 
+ 	atomic_t frame_num;
+-	enum usb_vhci_rh_state rh_state;
++	enum usb_vhci_rh_state rh_state[2];
+ 
+ 	// TODO: implement timer for incrementing frame_num every millisecond
+ 	//struct timer_list timer;
+@@ -126,7 +131,8 @@ struct usb_vhci_hcd
+ 	// user space already knows about the cancelation state are in this list
+ 	struct list_head urbp_list_canceling;
+ 
+-	u8 port_count;
++	u8 usb2_port_count;
++	u8 usb3_port_count;
+ };
+ 
+ static inline struct usb_vhci_device *pdev_to_vhcidev(struct platform_device *pdev)
+@@ -166,7 +172,14 @@ static inline struct usb_hcd *vhcidev_to
+ 
+ static inline struct usb_vhci_hcd *usbhcd_to_vhcihcd(struct usb_hcd *hcd)
+ {
+-	return (struct usb_vhci_hcd *)&hcd->hcd_priv;
++	struct usb_hcd *primary_hcd;
++
++	if (usb_hcd_is_primary_hcd(hcd))
++	        primary_hcd = hcd;
++	else
++	        primary_hcd = hcd->primary_hcd;
++
++	return (struct usb_vhci_hcd *) (primary_hcd->hcd_priv);
+ }
+ 
+ static inline struct device *usbhcd_to_dev(struct usb_hcd *hcd)
+diff -uprN vhci-hcd-1.15/usb-vhci-iocifc.c vhci-hcd-1.15.patch/usb-vhci-iocifc.c
+--- vhci-hcd-1.15/usb-vhci-iocifc.c	2013-06-21 08:02:38.000000000 +0800
++++ vhci-hcd-1.15.patch/usb-vhci-iocifc.c	2024-05-07 11:21:52.437118715 +0800
+@@ -34,6 +34,8 @@
+ #include <linux/platform_device.h>
+ #include <linux/usb.h>
+ #include <linux/fs.h>
++#include <linux/uaccess.h>
++#include <linux/version.h>
+ 
+ #include "usb-vhci-hcd.h"
+ 
+@@ -71,6 +73,20 @@
+ #	define trace_function(dev) do {} while(0)
+ #endif
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 0, 0)
++#	if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 18, 0)
++#		define vhci_access_ok(x, y, z) 					\
++		({								\
++		 	WARN_ON_IN_IRQ();					\
++			likely(!__range_not_ok(y, z, user_addr_max()));		\
++ 		})
++#	else
++#		define vhci_access_ok(x, y, z) access_ok(x, y, z)
++#	endif
++#else
++#	define vhci_access_ok(x, y, z) access_ok(y, z)
++#endif
++
+ static const char driver_name[] = DRIVER_NAME;
+ static const char driver_desc[] = DRIVER_DESC;
+ #ifdef DEBUG
+@@ -80,6 +96,7 @@ static unsigned int debug_output = 0;
+ MODULE_DESCRIPTION(DRIVER_DESC " driver");
+ MODULE_AUTHOR("Michael Singer <michael@a-singer.de>");
+ MODULE_LICENSE("GPL");
++MODULE_VERSION("1.15.0");
+ 
+ struct vhci_ifc_priv
+ {
+@@ -216,7 +233,7 @@ static int ioc_register(struct file *fil
+ 	if(copy_to_user(arg->bus_id, dname, i))
+ 	{
+ 		vhci_printk(KERN_WARNING, "Failed to copy bus_id to userspace.\n");
+-		__put_user('\0', arg->bus_id);
++		__put_user('\0', (char*)arg->bus_id);
+ 	}
+ 	// make sure the last character is null
+ 	__put_user('\0', arg->bus_id + i);
+@@ -301,7 +318,7 @@ static inline u16 conv_urb_flags(unsigne
+ #ifdef DEBUG
+ #include "usb-vhci-dump-urb.c"
+ #else
+-static inline void dump_urb(struct urb *urb) {/* do nothing */}
++static inline void dump_urbs(struct urb **urbs, int num_urbs) {/* do nothing */}
+ #endif
+ 
+ // called in device_ioctl only
+@@ -310,6 +327,7 @@ static int ioc_fetch_work(struct usb_vhc
+ #ifdef DEBUG
+ 	struct device *dev = vhcihcd_to_dev(vhc);
+ #endif
++	struct usb_device *udev;
+ 	struct usb_vhci_urb_priv *urbp;
+ 	struct vhci_ifc_priv *ifcp;
+ 	struct usb_vhci_port port_stat;
+@@ -318,6 +336,7 @@ static int ioc_fetch_work(struct usb_vhc
+ 	unsigned long flags;
+ 	long wret;
+ 	u8 _port, port;
++	int i;
+ 
+ #ifdef DEBUG
+ 	// Floods the logs
+@@ -354,9 +373,9 @@ static int ioc_fetch_work(struct usb_vhc
+ 	{
+ 		urbp = list_entry(vhc->urbp_list_cancel.next, struct usb_vhci_urb_priv, urbp_list);
+ #ifdef DEBUG
+-		if(debug_output) dev_dbg(dev, "cmd=USB_VHCI_HCD_IOCFETCHWORK [work=CANCEL_URB handle=0x%016llx]\n", (u64)(unsigned long)urbp->urb);
++		if(debug_output) dev_dbg(dev, "cmd=USB_VHCI_HCD_IOCFETCHWORK [work=CANCEL_URB handle=0x%016llx]\n", (u64)(unsigned long)urbp->urbs);
+ #endif
+-		handle = (u64)(unsigned long)urbp->urb;
++		handle = (u64)(unsigned long)urbp->urbs;
+ 		list_move_tail(&urbp->urbp_list, &vhc->urbp_list_canceling);
+ 		spin_unlock_irqrestore(&vhc->lock, flags);
+ 		__put_user(USB_VHCI_WORK_TYPE_CANCEL_URB, &arg->type);
+@@ -366,16 +385,17 @@ static int ioc_fetch_work(struct usb_vhc
+ 
+ 	if(vhc->port_update)
+ 	{
+-		if(ifcp->port_sched_offset >= vhc->port_count)
++		u8 total_ports = vhc->usb2_port_count + vhc->usb3_port_count;
++		if(ifcp->port_sched_offset >= total_ports)
+ 			ifcp->port_sched_offset = 0;
+-		for(_port = 0; _port < vhc->port_count; _port++)
++		for(_port = 0; _port < total_ports; _port++)
+ 		{
+ 			// The port which will be checked first, is rotated by port_sched_offset, so that every port
+ 			// has its chance to be reported to user space, even if the hcd is under heavy load.
+-			port = (_port + ifcp->port_sched_offset) % vhc->port_count;
+-			if(vhc->port_update & (1 << (port + 1)))
++			port = (_port + ifcp->port_sched_offset) % total_ports;
++			if(vhc->port_update & ((u64)1 << (port + 1)))
+ 			{
+-				vhc->port_update &= ~(1 << (port + 1));
++				vhc->port_update &= ~((u64)1 << (port + 1));
+ 				ifcp->port_sched_offset = port + 1;
+ 				port_stat = vhc->ports[port];
+ 				spin_unlock_irqrestore(&vhc->lock, flags);
+@@ -396,32 +416,37 @@ repeat:
+ 	if(!list_empty(&vhc->urbp_list_inbox))
+ 	{
+ 		urbp = list_entry(vhc->urbp_list_inbox.next, struct usb_vhci_urb_priv, urbp_list);
+-		handle = (u64)(unsigned long)urbp->urb;
++		udev = urbp->urbs[0]->dev;
++		handle = (u64)(unsigned long)urbp->urbs;
+ 		memset(&urb, 0, sizeof urb);
+-		urb.address = usb_pipedevice(urbp->urb->pipe);
+-		urb.endpoint = usb_pipeendpoint(urbp->urb->pipe) | (usb_pipein(urbp->urb->pipe) ? 0x80 : 0x00);
+-		urb.type = conv_urb_type(usb_pipetype(urbp->urb->pipe));
+-		urb.flags = conv_urb_flags(urbp->urb->transfer_flags);
+-		if(usb_pipecontrol(urbp->urb->pipe))
++		urb.address = (udev->speed >= USB_SPEED_SUPER ? 0x80 : 0x00) | usb_pipedevice(urbp->urbs[0]->pipe);
++		urb.endpoint = usb_pipeendpoint(urbp->urbs[0]->pipe) | (usb_pipein(urbp->urbs[0]->pipe) ? 0x80 : 0x00);
++		urb.type = conv_urb_type(usb_pipetype(urbp->urbs[0]->pipe));
++		urb.flags = conv_urb_flags(urbp->urbs[0]->transfer_flags);
++#ifdef DEBUG
++		if(debug_output) dev_dbg(dev, "urb.address 0x%0x, urb.endpoint 0x%0x, urb.type 0x%0x, urb.flags 0x%0x\n",
++									urb.address, urb.endpoint, urb.type, urb.flags);
++#endif
++		if(usb_pipecontrol(urbp->urbs[0]->pipe))
+ 		{
+ 			const struct usb_ctrlrequest *cmd;
+ 			u16 wValue, wIndex, wLength;
+-			if(unlikely(!urbp->urb->setup_packet))
++			if(unlikely(!urbp->urbs[0]->setup_packet))
+ 				goto invalid_urb;
+-			cmd = (struct usb_ctrlrequest *)urbp->urb->setup_packet;
++			cmd = (struct usb_ctrlrequest *)urbp->urbs[0]->setup_packet;
+ 			wValue = le16_to_cpu(cmd->wValue);
+ 			wIndex = le16_to_cpu(cmd->wIndex);
+ 			wLength = le16_to_cpu(cmd->wLength);
+-			if(unlikely(wLength > urbp->urb->transfer_buffer_length))
++			if(unlikely(wLength > urbp->urbs[0]->transfer_buffer_length))
+ 				goto invalid_urb;
+ 			if(cmd->bRequestType & 0x80)
+ 			{
+-				if(unlikely(!wLength || !urbp->urb->transfer_buffer))
++				if(unlikely(!wLength || !urbp->urbs[0]->transfer_buffer))
+ 					goto invalid_urb;
+ 			}
+ 			else
+ 			{
+-				if(unlikely(wLength && !urbp->urb->transfer_buffer))
++				if(unlikely(wLength && !urbp->urbs[0]->transfer_buffer))
+ 					goto invalid_urb;
+ 			}
+ 			urb.buffer_length = wLength;
+@@ -431,27 +456,50 @@ repeat:
+ 			urb.setup_packet.wIndex = wIndex;
+ 			urb.setup_packet.wLength = wLength;
+ 		}
++		else if(usb_pipebulk(urbp->urbs[0]->pipe))
++		{
++			urb.buffer_length = 0;
++			for(i = 0; i < urbp->num_urbs; i++)
++			{
++				if(usb_pipein(urbp->urbs[i]->pipe))
++				{
++					if(unlikely(!urbp->urbs[i]->transfer_buffer_length || !urbp->urbs[i]->transfer_buffer))
++						goto invalid_urb;
++				}
++				else
++				{
++					if(unlikely(urbp->urbs[i]->transfer_buffer_length && !urbp->urbs[i]->transfer_buffer))
++						goto invalid_urb;
++				}
++				urb.buffer_length += urbp->urbs[i]->transfer_buffer_length;
++			}
++		}
+ 		else
+ 		{
+-			if(usb_pipein(urbp->urb->pipe))
++			if(usb_pipein(urbp->urbs[0]->pipe))
+ 			{
+-				if(unlikely(!urbp->urb->transfer_buffer_length || !urbp->urb->transfer_buffer))
++				if(unlikely(!urbp->urbs[0]->transfer_buffer_length || !urbp->urbs[0]->transfer_buffer))
+ 					goto invalid_urb;
+ 			}
+ 			else
+ 			{
+-				if(unlikely(urbp->urb->transfer_buffer_length && !urbp->urb->transfer_buffer))
++				if(unlikely(urbp->urbs[0]->transfer_buffer_length && !urbp->urbs[0]->transfer_buffer))
+ 					goto invalid_urb;
+ 			}
+-			urb.buffer_length = urbp->urb->transfer_buffer_length;
++			urb.buffer_length = urbp->urbs[0]->transfer_buffer_length;
+ 		}
+-		urb.interval = urbp->urb->interval;
+-		urb.packet_count = urbp->urb->number_of_packets;
++
++		urb.interval = urbp->urbs[0]->interval;
++		urb.packet_count = urbp->urbs[0]->number_of_packets;
+ 
+ #ifdef DEBUG
+-		if(debug_output) dev_dbg(dev, "cmd=USB_VHCI_HCD_IOCFETCHWORK [work=PROCESS_URB handle=0x%016llx]\n", handle);
++		if(debug_output)
++		{
++			dev_dbg(dev, "cmd=USB_VHCI_HCD_IOCFETCHWORK [work=PROCESS_URB handle=0x%016llx]\n", handle);
++			vhci_printk(KERN_INFO, "%s: buffer_length %d, interval %d, packet_count %d\n", __FUNCTION__, urb.buffer_length, urb.interval, urb.packet_count);
++		}
+ #endif
+-		dump_urb(urbp->urb);
++		dump_urbs(urbp->urbs, urbp->num_urbs);
+ 		list_move_tail(&urbp->urbp_list, &vhc->urbp_list_fetched);
+ 		spin_unlock_irqrestore(&vhc->lock, flags);
+ 
+@@ -480,7 +528,7 @@ static inline struct usb_vhci_urb_priv *
+ {
+ 	struct usb_vhci_urb_priv *entry;
+ 	list_for_each_entry(entry, &vhc->urbp_list_fetched, urbp_list)
+-		if(entry->urb == handle)
++		if(entry->urbs == handle)
+ 			return entry;
+ 	return NULL;
+ }
+@@ -490,7 +538,7 @@ static inline struct usb_vhci_urb_priv *
+ {
+ 	struct usb_vhci_urb_priv *entry;
+ 	list_for_each_entry(entry, &vhc->urbp_list_cancel, urbp_list)
+-		if(entry->urb == handle)
++		if(entry->urbs == handle)
+ 			return entry;
+ 	return NULL;
+ }
+@@ -500,7 +548,7 @@ static inline struct usb_vhci_urb_priv *
+ {
+ 	struct usb_vhci_urb_priv *entry;
+ 	list_for_each_entry(entry, &vhc->urbp_list_canceling, urbp_list)
+-		if(entry->urb == handle)
++		if(entry->urbs == handle)
+ 			return entry;
+ 	return NULL;
+ }
+@@ -530,7 +578,8 @@ static int ioc_giveback_common(struct us
+ #ifdef DEBUG
+ 	struct device *dev = vhcihcd_to_dev(vhc);
+ #endif
+-
++	int total_tb_length = 0;
++	u8 *buf_tmp;
+ 	// TODO: do we really need to disable interrupts for accessing the urb lists?
+ 	spin_lock_irqsave(&vhc->lock, flags);
+ 
+@@ -564,12 +613,19 @@ static int ioc_giveback_common(struct us
+ 	// the list entry, because it calls list_del(), too!
+ 	INIT_LIST_HEAD(&urbp->urbp_list);
+ 
+-	is_in = is_urb_dir_in(urbp->urb);
+-	is_iso = usb_pipeisoc(urbp->urb->pipe);
++	is_in = is_urb_dir_in(urbp->urbs[0]);
++	is_iso = usb_pipeisoc(urbp->urbs[0]->pipe);
+ 
++	for(i = 0; i < urbp->num_urbs; i++)
++	{
++		total_tb_length += urbp->urbs[i]->transfer_buffer_length;
++	}
++#ifdef DEBUG
++	if(debug_output) dev_dbg(dev, "%s-%d: total_tb_length = %d, act = %d\n", __FUNCTION__, __LINE__, total_tb_length, act);
++#endif
+ 	if(likely(is_iso))
+ 	{
+-		if(unlikely(is_in && act != urbp->urb->transfer_buffer_length))
++		if(unlikely(is_in && act != total_tb_length))
+ 		{
+ #ifdef DEBUG
+ 			if(debug_output) dev_dbg(dev, "GIVEBACK(ISO): invalid: buffer_actual != buffer_length\n");
+@@ -577,7 +633,7 @@ static int ioc_giveback_common(struct us
+ 			retval = -ENOBUFS;
+ 			goto done_with_errors;
+ 		}
+-		if(unlikely(iso_count != urbp->urb->number_of_packets))
++		if(unlikely(iso_count != urbp->urbs[0]->number_of_packets))
+ 		{
+ #ifdef DEBUG
+ 			if(debug_output) dev_dbg(dev, "GIVEBACK(ISO): invalid: number_of_packets missmatch\n");
+@@ -595,14 +651,14 @@ static int ioc_giveback_common(struct us
+ 		}
+ 		if(likely(iso_count))
+ 		{
+-			if(!access_ok(VERIFY_READ, (void *)iso, iso_count * sizeof(struct usb_vhci_ioc_iso_packet_giveback)))
++			if(!vhci_access_ok(VERIFY_READ, (void *)iso, iso_count * sizeof(struct usb_vhci_ioc_iso_packet_giveback)))
+ 			{
+ 				retval = -EFAULT;
+ 				goto done_with_errors;
+ 			}
+ 		}
+ 	}
+-	else if(unlikely(act > urbp->urb->transfer_buffer_length))
++	else if(unlikely(act > total_tb_length))
+ 	{
+ #ifdef DEBUG
+ 		if(debug_output) dev_dbg(dev, "GIVEBACK: invalid: buffer_actual > buffer_length\n");
+@@ -620,13 +676,22 @@ static int ioc_giveback_common(struct us
+ 			retval = -EINVAL;
+ 			goto done_with_errors;
+ 		}
+-		if(unlikely(copy_from_user(urbp->urb->transfer_buffer, buf, act)))
++
++		buf_tmp = (u8 *)buf;
++		for(i = 0; i < urbp->num_urbs; i++)
+ 		{
++			int actual_copy_len = (act < urbp->urbs[i]->transfer_buffer_length)? act : urbp->urbs[i]->transfer_buffer_length;
++			if(unlikely(copy_from_user(urbp->urbs[i]->transfer_buffer, buf_tmp, actual_copy_len)))
++			{
+ #ifdef DEBUG
+-			if(debug_output) dev_dbg(dev, "GIVEBACK: copy_from_user(buf) failed\n");
++				if(debug_output) dev_dbg(dev, "GIVEBACK: copy_from_user(buf) failed\n");
+ #endif
+-			retval = -EFAULT;
+-			goto done_with_errors;
++				retval = -EFAULT;
++				goto done_with_errors;
++			}
++			urbp->urbs[i]->actual_length = actual_copy_len;
++			urbp->urbs[i]->error_count = err_count;
++			buf_tmp += actual_copy_len;
+ 		}
+ 	}
+ 	else if(unlikely(buf))
+@@ -638,17 +703,25 @@ static int ioc_giveback_common(struct us
+ 		retval = -EINVAL;
+ 		goto done_with_errors;
+ 	}
++	else
++	{
++		for(i = 0; i < urbp->num_urbs; ++i)
++		{
++			urbp->urbs[i]->actual_length = urbp->urbs[i]->transfer_buffer_length;
++			urbp->urbs[i]->error_count = err_count;
++		}
++	}
+ 	if(likely(is_iso && iso_count))
+ 	{
+ 		for(i = 0; i < iso_count; i++)
+ 		{
+-			__get_user(urbp->urb->iso_frame_desc[i].status, &iso[i].status);
+-			__get_user(urbp->urb->iso_frame_desc[i].actual_length, &iso[i].packet_actual);
++			__get_user(urbp->urbs[0]->iso_frame_desc[i].status, &iso[i].status);
++			__get_user(urbp->urbs[0]->iso_frame_desc[i].actual_length, &iso[i].packet_actual);
+ 		}
+ 	}
+-	urbp->urb->actual_length = act;
+-	urbp->urb->error_count = err_count;
+-
++#ifdef DEBUG
++	vhci_dbg("%s: actual_length %d, error_count %d, iso_count %d, status %d\n", __FUNCTION__, act, err_count, iso_count, status);
++#endif
+ 	// now we are done with this urb and it can return to its creator
+ 	usb_vhci_maybe_set_status(urbp, status);
+ 	spin_lock_irqsave(&vhc->lock, flags);
+@@ -714,16 +787,20 @@ static int ioc_fetch_data_common(struct
+ 	int tb_len, is_in, is_iso, i, ret = -ENOMEM;
+ 	void *user_buf_tmp = NULL;
+ 	struct usb_vhci_ioc_iso_packet_data *iso_tmp = NULL;
++	int iso_tmp_len = iso_count * sizeof *iso_tmp;
++	u8 *buf_tmp = NULL;
++	tb_len = 0;
+ 
+ 	if(likely(user_len))
+ 	{
+-		user_buf_tmp = kmalloc(user_len, GFP_KERNEL);
++		user_buf_tmp = (void *)__get_free_pages(GFP_KERNEL, get_order(user_len));
+ 		if(unlikely(!user_buf_tmp))
+ 			goto end;
+ 	}
+ 	if(likely(iso_count))
+ 	{
+-		iso_tmp = kmalloc(iso_count * sizeof *iso_tmp, GFP_KERNEL);
++		iso_tmp = (struct usb_vhci_ioc_iso_packet_data *)
++					__get_free_pages(GFP_KERNEL, get_order(iso_tmp_len));
+ 		if(unlikely(!iso_tmp))
+ 			goto end;
+ 	}
+@@ -746,19 +823,26 @@ static int ioc_fetch_data_common(struct
+ 		goto end_unlock;
+ 	}
+ 
+-	tb_len = urbp->urb->transfer_buffer_length;
+-	if(unlikely(usb_pipecontrol(urbp->urb->pipe)))
++	for(i = 0; i < urbp->num_urbs; ++i)
+ 	{
+-		const struct usb_ctrlrequest *cmd = (struct usb_ctrlrequest *)urbp->urb->setup_packet;
++		tb_len += urbp->urbs[i]->transfer_buffer_length;
++	}
++#ifdef DEBUG
++	if(debug_output) dev_dbg(vhcihcd_to_dev(vhc), "%s: tb_len %d, iso_count %d\n", __FUNCTION__, tb_len, iso_count);
++#endif
++
++	if(unlikely(usb_pipecontrol(urbp->urbs[0]->pipe)))
++	{
++		const struct usb_ctrlrequest *cmd = (struct usb_ctrlrequest *)urbp->urbs[0]->setup_packet;
+ 		tb_len = le16_to_cpu(cmd->wLength);
+ 	}
+ 
+-	is_in = is_urb_dir_in(urbp->urb);
+-	is_iso = usb_pipeisoc(urbp->urb->pipe);
++	is_in = is_urb_dir_in(urbp->urbs[0]);
++	is_iso = usb_pipeisoc(urbp->urbs[0]->pipe);
+ 
+ 	if(likely(is_iso))
+ 	{
+-		if(unlikely(iso_count != urbp->urb->number_of_packets))
++		if(unlikely(iso_count != urbp->urbs[0]->number_of_packets))
+ 		{
+ 			ret = -EINVAL;
+ 			goto end_unlock;
+@@ -772,12 +856,12 @@ static int ioc_fetch_data_common(struct
+ 			}
+ 			for(i = 0; i < iso_count; i++)
+ 			{
+-				iso_tmp[i].offset = urbp->urb->iso_frame_desc[i].offset;
+-				iso_tmp[i].packet_length = urbp->urb->iso_frame_desc[i].length;
++				iso_tmp[i].offset = urbp->urbs[0]->iso_frame_desc[i].offset;
++				iso_tmp[i].packet_length = urbp->urbs[0]->iso_frame_desc[i].length;
+ 			}
+ 		}
+ 	}
+-	else if(unlikely(is_in || !tb_len || !urbp->urb->transfer_buffer))
++	else if(unlikely(is_in || !tb_len || !urbp->urbs[0]->transfer_buffer))
+ 	{
+ 		ret = -ENODATA;
+ 		goto end_unlock;
+@@ -790,7 +874,12 @@ static int ioc_fetch_data_common(struct
+ 			ret = -EINVAL;
+ 			goto end_unlock;
+ 		}
+-		memcpy(user_buf_tmp, urbp->urb->transfer_buffer, tb_len);
++		buf_tmp = (u8 *)user_buf_tmp;
++		for(i = 0; i < urbp->num_urbs; ++i)
++		{
++			memcpy(buf_tmp, urbp->urbs[i]->transfer_buffer, urbp->urbs[i]->transfer_buffer_length);
++			buf_tmp += urbp->urbs[i]->transfer_buffer_length;
++		}
+ 	}
+ 
+ 	// we have copied all data into our private buffers, so we can release the spinlock
+@@ -820,8 +909,8 @@ static int ioc_fetch_data_common(struct
+ end_unlock:
+ 	spin_unlock_irqrestore(&vhc->lock, flags);
+ end:
+-	kfree(user_buf_tmp);
+-	kfree(iso_tmp);
++	free_pages((unsigned long)user_buf_tmp, get_order(user_len));
++	free_pages((unsigned long)iso_tmp, get_order(iso_tmp_len));
+ 	return ret;
+ }
+ 
+@@ -855,6 +944,10 @@ static int ioc_fetch_data(struct usb_vhc
+ 	__get_user(user_buf, &arg->buffer);
+ 	__get_user(iso, &arg->iso_packets);
+ 	handle = (const void *)(unsigned long)handle64;
++#ifdef DEBUG
++	if(debug_output) dev_dbg(vhcihcd_to_dev(vhc), "%s: user_len %d, iso_count %d, user_buf %p, iso %p\n",
++								__FUNCTION__, user_len, iso_count, user_buf, iso);
++#endif
+ 	if(unlikely(!handle))
+ 		return -EINVAL;
+ 	return ioc_fetch_data_common(vhc, handle, user_buf, user_len, iso, iso_count);
+@@ -933,9 +1026,9 @@ static long device_do_ioctl(struct file
+ 	if(unlikely(_IOC_TYPE(cmd) != USB_VHCI_HCD_IOC_MAGIC)) return -ENOTTY;
+ 	if(unlikely(_IOC_NR(cmd) > USB_VHCI_HCD_IOC_MAXNR)) return -ENOTTY;
+ 
+-	if(unlikely((_IOC_DIR(cmd) & _IOC_READ) && !access_ok(VERIFY_WRITE, arg, _IOC_SIZE(cmd))))
++	if(unlikely((_IOC_DIR(cmd) & _IOC_READ) && !vhci_access_ok(VERIFY_WRITE, arg, _IOC_SIZE(cmd))))
+ 		return -EFAULT;
+-	if(unlikely((_IOC_DIR(cmd) & _IOC_WRITE) && !access_ok(VERIFY_READ, arg, _IOC_SIZE(cmd))))
++	if(unlikely((_IOC_DIR(cmd) & _IOC_WRITE) && !vhci_access_ok(VERIFY_READ, arg, _IOC_SIZE(cmd))))
+ 		return -EFAULT;
+ 
+ 	if(unlikely(cmd == USB_VHCI_HCD_IOCREGISTER))
+@@ -1024,7 +1117,7 @@ static struct file_operations fops = {
+ };
+ 
+ #ifdef DEBUG
+-static ssize_t show_debug_output(struct device_driver *drv, char *buf)
++static ssize_t debug_output_show(struct device_driver *drv, char *buf)
+ {
+ 	if(buf != NULL)
+ 	{
+@@ -1039,7 +1132,7 @@ static ssize_t show_debug_output(struct
+ 	return 1;
+ }
+ 
+-static ssize_t store_debug_output(struct device_driver *drv, const char *buf, size_t count)
++static ssize_t debug_output_store(struct device_driver *drv, const char *buf, size_t count)
+ {
+ 	if(count != 1 || buf == NULL) return -EINVAL;
+ 	switch(*buf)
+@@ -1052,7 +1145,11 @@ static ssize_t store_debug_output(struct
+ 	return -EINVAL;
+ }
+ 
+-static DRIVER_ATTR(debug_output, S_IRUSR | S_IWUSR, show_debug_output, store_debug_output);
++#ifdef DRIVER_ATTR_RW
++static DRIVER_ATTR_RW(debug_output);
++#else
++static DRIVER_ATTR(debug_output, S_IRUSR | S_IWUSR, debug_output_show, debug_output_store);
++#endif
+ #endif
+ 
+ static struct platform_driver vhci_iocifc_driver = {
+@@ -1069,7 +1166,9 @@ static void vhci_iocifc_device_release(s
+ static int vhci_iocifc_major;
+ 
+ static struct class vhci_iocifc_class = {
++#ifndef NO_CLASS_OWNER
+ 	.owner = THIS_MODULE,
++#endif
+ 	.name = driver_name
+ };
+ 
+
+
+--- vhci-hcd-1.15-old/usb-vhci-hcd.c	2025-03-19 11:59:09.392968891 +0530
++++ vhci-hcd-1.15-new/usb-vhci-hcd.c	2025-03-19 12:03:48.152972565 +0530
+@@ -36,6 +36,7 @@
+ #include <linux/usb.h>
+ #include <linux/fs.h>
+ #include <linux/device.h>
++#include <linux/version.h>
+ 
+ #include <asm/atomic.h>
+ #include <asm/bitops.h>
+@@ -1295,7 +1296,11 @@ put_usb2_hcd:
+ 	return retval;
+ }
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0)
++static void vhci_hcd_remove(struct platform_device *pdev)
++#else
+ static int vhci_hcd_remove(struct platform_device *pdev)
++#endif
+ {
+ 	unsigned long flags;
+ 	struct usb_vhci_hcd *vhc;
+@@ -1351,8 +1356,11 @@ static int vhci_hcd_remove(struct platfo
+ 		vhci_dbg("call ifc->destroy\n");
+ 		vdev->ifc->destroy(vhcidev_to_ifc(vdev));
+ 	}
+-
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0)
++	return;
++#else
+ 	return 0;
++#endif
+ }
+ 
+ static int vhci_hcd_suspend(struct platform_device *pdev, pm_message_t state)
+@@ -1408,7 +1416,11 @@ static int vhci_hcd_resume(struct platfo
+ 
+ static struct platform_driver vhci_hcd_driver = {
+ 	.probe      = vhci_hcd_probe,
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0) && LINUX_VERSION_CODE < KERNEL_VERSION(6,11,0)
++	.remove_new = vhci_hcd_remove,
++#else
+ 	.remove     = vhci_hcd_remove,
++#endif
+ 	.suspend    = vhci_hcd_suspend,
+ 	.resume     = vhci_hcd_resume,
+ 	.driver     = {
+diff -uprN vhci-hcd-1.15.orig/test/Makefile vhci-hcd-1.15/test/Makefile
+--- vhci-hcd-1.15.orig/test/Makefile	2013-06-21 05:32:38.000000000 +0530
++++ vhci-hcd-1.15/test/Makefile	2026-03-16 15:14:50.454737242 +0530
+@@ -2,6 +2,7 @@ TARGET = test
+ OBJS = test.o
+ 
+ obj-m      := $(TARGET).o
++ccflags-y += $(EXTRA_CFLAGS)
+ 
+ default:
+ 	make -C $(KDIR) SUBDIRS=$(PWD) PWD=$(PWD) BUILD_PREFIX=$(BUILD_PREFIX) KDIR=$(KDIR) KVERSION=$(KVERSION) EXTRA_CFLAGS='$(EXTRA_CFLAGS)' modules
