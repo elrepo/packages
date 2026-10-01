@@ -1,0 +1,39 @@
+From e27cd86c924112ab1fb5e792a7ea43a37ab2903f Mon Sep 17 00:00:00 2001
+From: Jacob Freeman <jacob@saronic.com>
+Date: Thu, 13 Aug 2026 11:37:30 -0500
+Subject: [PATCH] Add AV1 pixel format
+
+---
+ v4l2loopback_formats.h | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/v4l2loopback_formats.h b/v4l2loopback_formats.h
+index ac2f1cb..6790e76 100644
+--- a/v4l2loopback_formats.h
++++ b/v4l2loopback_formats.h
+@@ -4,6 +4,9 @@ static const struct v4l2l_format formats[] = {
+ #endif
+ #ifndef V4L2_PIX_FMT_HEVC
+ #define V4L2_PIX_FMT_HEVC v4l2_fourcc('H', 'E', 'V', 'C')
++#endif
++#ifndef V4L2_PIX_FMT_AV1
++#define V4L2_PIX_FMT_AV1 v4l2_fourcc('A', 'V', '0', '1')
+ #endif
+ 
+ 	/* here come the packed formats */
+@@ -450,4 +453,12 @@ static const struct v4l2l_format formats[] = {
+ 		.flags = FORMAT_FLAGS_COMPRESSED,
+ 	},
+ #endif /* V4L2_PIX_FMT_HEVC */
++#ifdef V4L2_PIX_FMT_AV1
++	{
++		.name = "AV1",
++		.fourcc = V4L2_PIX_FMT_AV1,
++		.depth = 32,
++		.flags = FORMAT_FLAGS_COMPRESSED,
++	},
++#endif /* V4L2_PIX_FMT_AV1 */
+ };
+-- 
+2.52.0
+
