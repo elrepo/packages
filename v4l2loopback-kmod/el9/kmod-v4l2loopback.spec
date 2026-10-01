@@ -61,6 +61,7 @@ BuildRequires:		rpm-build
 BuildRequires:		gcc
 BuildRequires:		make
 BuildRequires:		help2man
+BuildRequires:		systemd-rpm-macros
 
 Provides:			kernel-modules >= %{kmod_kernel_version}.%{_arch}
 Provides:			kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
