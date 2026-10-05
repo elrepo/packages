@@ -1,7 +1,7 @@
 %define real_name drbd-utils
 
 Name:    drbd90-utils
-Version: 9.34.0
+Version: 9.35.0
 Release: 1%{?dist}
 Group:   System Environment/Kernel
 License: GPLv2+
@@ -128,7 +128,8 @@ fi
 %doc %{_mandir}/man7/drbd@.service.7.gz
 %doc %{_mandir}/man7/drbd@.target.7.gz
 %doc %{_mandir}/man7/drbd-configured.target.7.gz
-%doc %{_mandir}/man7/drbd-graceful-shutdown.service.7.gz
+%doc %{_mandir}/man7/drbd-graceful-disconnect.service.7.gz
+%doc %{_mandir}/man7/drbd-graceful-down.service.7.gz
 
 %config %{_prefix}/lib/udev/rules.d/65-drbd.rules
 %config(noreplace) %{_sysconfdir}/drbd.conf
@@ -146,6 +147,7 @@ fi
 /usr/lib/drbd/scripts/drbd-service-shim.sh
 /usr/lib/drbd/scripts/drbd-wait-promotable.sh
 /usr/lib/drbd/tnf-drbd-fence.py
+/usr/lib/drbd/drbd-fence-peer.sh
 /usr/lib/systemd/system-preset/50-drbd.preset
 /usr/lib/systemd/system/drbd-configured.target
 /usr/lib/systemd/system/drbd-demote-or-escalate@.service
@@ -156,7 +158,8 @@ fi
 /usr/lib/systemd/system/drbd-wait-promotable@.service
 /usr/lib/systemd/system/drbd@.service
 /usr/lib/systemd/system/drbd@.target
-/usr/lib/systemd/system/drbd-graceful-shutdown.service
+/usr/lib/systemd/system/drbd-graceful-disconnect.service
+/usr/lib/systemd/system/drbd-graceful-down.service
 %{_sbindir}/drbdadm
 %{_sbindir}/drbdmeta
 %{_sbindir}/drbdsetup
@@ -194,6 +197,9 @@ fi
 %config %{_initrddir}/drbd
 
 %changelog
+* Fri Oct 02 2026 Akemi Yagi <toracat@elrepo.org> - 9.35.0-1
+- Updated to 9.35.0
+
 * Wed Apr 08 2026 Akemi Yagi <toracat@elrepo.org> - 9.34.0-1
 - Updated to 9.34.0
 
