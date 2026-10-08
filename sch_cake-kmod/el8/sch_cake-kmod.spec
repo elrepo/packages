@@ -2,13 +2,13 @@
 %define kmod_name	sch_cake
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.168.1.el8_10}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.171.1.el8_10}
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
 Version:        0.0
-Release:        5.1%{?dist}
+Release:        5.2%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
@@ -183,6 +183,9 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Oct 08 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-5.2
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.171.1.el8_10
+
 * Thu Sep 24 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-5.1
 - Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.168.1.el8_10
 
