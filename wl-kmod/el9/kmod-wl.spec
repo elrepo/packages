@@ -2,13 +2,13 @@
 %define kmod_name	wl
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.5.3.el9_8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.58.1.el9_8}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	6.30.223.271
-Release:	1%{?dist}
+Release:	1.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	Redistributable, no modification permitted
@@ -339,6 +339,9 @@ exit 0
 %{_presetdir}/*.preset
 
 %changelog
+* Fri Oct 16 2026 Tuan Hoang <tqhoang@elrepo.org> - 6.30.223.271-1.1
+- Rebuilt against RHEL 9.8 GA kernel 5.14.0-687.58.1.el9_8
+
 * Mon Sep 07 2026 Tuan Hoang <tqhoang@elrepo.org> - 6.30.223.271-1
 - Initial build for RHEL 9.8
 - Built against RHEL 9.8 GA kernel 5.14.0-687.5.3.el9_8

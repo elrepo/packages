@@ -2,13 +2,13 @@
 %define kmod_name	rtw88_usb
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.5.3.el9_8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.58.1.el9_8}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	13%{?dist}
+Release:	13.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -223,6 +223,9 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri Oct 16 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-13.1
+- Rebuilt against RHEL 9.8 GA kernel 5.14.0-687.58.1.el9_8
+
 * Tue May 26 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-13
 - Remove rtw88_8822bu driver since the latest is in the GA kernel
  
