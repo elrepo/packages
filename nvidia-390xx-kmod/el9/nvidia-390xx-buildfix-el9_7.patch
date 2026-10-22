@@ -1,0 +1,68 @@
+diff -Naurp kmod-nvidia-390xx-390.157.el9_6/nvidiapkg/kernel/nvidia/os-mlock.c kmod-nvidia-390xx-390.157.el9_7/nvidiapkg/kernel/nvidia/os-mlock.c
+--- kmod-nvidia-390xx-390.157.el9_6/nvidiapkg/kernel/nvidia/os-mlock.c	2022-10-12 05:30:26.000000000 -0400
++++ kmod-nvidia-390xx-390.157.el9_7/nvidiapkg/kernel/nvidia/os-mlock.c	2026-10-20 11:39:04.803517992 -0400
+@@ -14,6 +14,13 @@
+ #include "os-interface.h"
+ #include "nv-linux.h"
+ 
++static inline int nv_follow_flavors(struct vm_area_struct *vma,
++                                    unsigned long address,
++                                    unsigned long *pfn)
++{
++    return -1;
++}
++
+ static inline int nv_follow_pfn(struct vm_area_struct *vma,
+                                 unsigned long address,
+                                 unsigned long *pfn)
+@@ -21,7 +28,11 @@ static inline int nv_follow_pfn(struct v
+ #if defined(NV_UNSAFE_FOLLOW_PFN_PRESENT)
+     return unsafe_follow_pfn(vma, address, pfn);
+ #else
++#if defined(NV_FOLLOW_PFN_PRESENT)
+     return follow_pfn(vma, address, pfn);
++#else
++    return nv_follow_flavors(vma, address, pfn);
++#endif
+ #endif
+ }
+ 
+diff -Naurp kmod-nvidia-390xx-390.157.el9_6/nvidiapkg/kernel/nvidia-drm/nvidia-drm-connector.c kmod-nvidia-390xx-390.157.el9_7/nvidiapkg/kernel/nvidia-drm/nvidia-drm-connector.c
+--- kmod-nvidia-390xx-390.157.el9_6/nvidiapkg/kernel/nvidia-drm/nvidia-drm-connector.c	2026-10-20 11:05:27.624951640 -0400
++++ kmod-nvidia-390xx-390.157.el9_7/nvidiapkg/kernel/nvidia-drm/nvidia-drm-connector.c	2026-10-20 11:49:05.292054457 -0400
+@@ -297,8 +297,13 @@ static int nv_drm_connector_get_modes(st
+     return count;
+ }
+ 
++#if (RHEL_MAJOR == 9 && RHEL_MINOR >= 7)
++static int nv_drm_connector_mode_valid(struct drm_connector    *connector,
++                                       const struct drm_display_mode *mode)
++#else
+ static int nv_drm_connector_mode_valid(struct drm_connector    *connector,
+                                        struct drm_display_mode *mode)
++#endif
+ {
+     struct drm_device *dev = connector->dev;
+     struct nv_drm_device *nv_dev = to_nv_device(dev);
+diff -Naurp kmod-nvidia-390xx-390.157.el9_6/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c kmod-nvidia-390xx-390.157.el9_7/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c
+--- kmod-nvidia-390xx-390.157.el9_6/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c	2026-10-20 11:05:27.632952007 -0400
++++ kmod-nvidia-390xx-390.157.el9_7/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c	2026-10-20 11:45:24.561934693 -0400
+@@ -61,6 +61,7 @@
+ #endif
+ 
+ #include <linux/pci.h>
++#include <linux/version.h>
+ 
+ /*
+  * Commit fcd70cd36b9b ("drm: Split out drm_probe_helper.h")
+@@ -749,7 +750,10 @@ static struct drm_driver nv_drm_driver =
+     .name                   = "nvidia-drm",
+ 
+     .desc                   = "NVIDIA DRM driver",
++
++#if (RHEL_MAJOR == 9 && RHEL_MINOR < 7)
+     .date                   = "20160202",
++#endif
+ 
+ #if defined(NV_DRM_DRIVER_HAS_DEVICE_LIST)
+     .device_list            = LIST_HEAD_INIT(nv_drm_driver.device_list),

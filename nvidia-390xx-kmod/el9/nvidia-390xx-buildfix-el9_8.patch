@@ -1,0 +1,99 @@
+diff -Naurp kmod-nvidia-390xx-390.157.el9_7/nvidiapkg/kernel/conftest.sh kmod-nvidia-390xx-390.157.el9_8/nvidiapkg/kernel/conftest.sh
+--- kmod-nvidia-390xx-390.157.el9_7/nvidiapkg/kernel/conftest.sh	2026-10-20 11:05:27.628951824 -0400
++++ kmod-nvidia-390xx-390.157.el9_8/nvidiapkg/kernel/conftest.sh	2026-10-20 12:21:19.440600513 -0400
+@@ -3745,6 +3745,25 @@ compile_test() {
+             compile_check_conftest "$CODE" "NV_KMEM_CACHE_CREATE_USERCOPY_PRESENT" "" "functions"
+         ;;
+ 
++        drm_fb_create_takes_format_info)
++            #
++            # Determine if a `struct drm_format_info *` is passed into
++            # the .fb_create callback. If so, it will have 4 arguments.
++            # This parameter was added in commit 81112eaac559 ("drm:
++            # Pass the format info to .fb_create") in linux-next
++            # (2025-07-16)
++            CODE="
++            #include <drm/drm_mode_config.h>
++            #include <drm/drm_framebuffer.h>
++
++            static const struct drm_mode_config_funcs funcs;
++            void conftest_drm_fb_create_takes_format_info(void) {
++                funcs.fb_create(NULL, NULL, NULL, NULL);
++            }"
++
++            compile_check_conftest "$CODE" "NV_DRM_FB_CREATE_TAKES_FORMAT_INFO" "" "types"
++        ;;
++
+         drm_connector_funcs_have_mode_in_name)
+             #
+             # Determine if _mode_ is present in connector function names.
+diff -Naurp kmod-nvidia-390xx-390.157.el9_7/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c kmod-nvidia-390xx-390.157.el9_8/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c
+--- kmod-nvidia-390xx-390.157.el9_7/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c	2026-10-20 11:45:24.561934693 -0400
++++ kmod-nvidia-390xx-390.157.el9_8/nvidiapkg/kernel/nvidia-drm/nvidia-drm-drv.c	2026-10-20 12:26:02.926589886 -0400
+@@ -136,6 +136,9 @@ static void nv_drm_output_poll_changed(s
+ static struct drm_framebuffer *nv_drm_framebuffer_create(
+     struct drm_device *dev,
+     struct drm_file *file,
++#if defined(NV_DRM_FB_CREATE_TAKES_FORMAT_INFO)
++    const struct drm_format_info *info,
++#endif
+     #if defined(NV_DRM_HELPER_MODE_FILL_FB_STRUCT_HAS_CONST_MODE_CMD_ARG)
+     const struct drm_mode_fb_cmd2 *cmd
+     #else
+@@ -151,6 +154,9 @@ static struct drm_framebuffer *nv_drm_fr
+     fb = nv_drm_internal_framebuffer_create(
+             dev,
+             file,
++#if defined(NV_DRM_FB_CREATE_TAKES_FORMAT_INFO)
++            info,
++#endif
+             &local_cmd);
+ 
+     #if !defined(NV_DRM_HELPER_MODE_FILL_FB_STRUCT_HAS_CONST_MODE_CMD_ARG)
+diff -Naurp kmod-nvidia-390xx-390.157.el9_7/nvidiapkg/kernel/nvidia-drm/nvidia-drm-fb.c kmod-nvidia-390xx-390.157.el9_8/nvidiapkg/kernel/nvidia-drm/nvidia-drm-fb.c
+--- kmod-nvidia-390xx-390.157.el9_7/nvidiapkg/kernel/nvidia-drm/nvidia-drm-fb.c	2026-10-20 11:07:34.265764578 -0400
++++ kmod-nvidia-390xx-390.157.el9_8/nvidiapkg/kernel/nvidia-drm/nvidia-drm-fb.c	2026-10-20 12:24:56.126528480 -0400
+@@ -157,6 +157,9 @@ static int nv_drm_framebuffer_init(
+ struct drm_framebuffer *nv_drm_internal_framebuffer_create(
+     struct drm_device *dev,
+     struct drm_file *file,
++#if defined(NV_DRM_FB_CREATE_TAKES_FORMAT_INFO)
++    const struct drm_format_info *info,
++#endif
+     struct drm_mode_fb_cmd2 *cmd)
+ {
+     struct nv_drm_framebuffer *nv_fb;
+@@ -183,6 +186,9 @@ struct drm_framebuffer *nv_drm_internal_
+         dev,
+         #endif
+         &nv_fb->base,
++#if defined(NV_DRM_FB_CREATE_TAKES_FORMAT_INFO)
++        info,
++#endif
+         cmd);
+ 
+     /*
+diff -Naurp kmod-nvidia-390xx-390.157.el9_7/nvidiapkg/kernel/nvidia-drm/nvidia-drm-fb.h kmod-nvidia-390xx-390.157.el9_8/nvidiapkg/kernel/nvidia-drm/nvidia-drm-fb.h
+--- kmod-nvidia-390xx-390.157.el9_7/nvidiapkg/kernel/nvidia-drm/nvidia-drm-fb.h	2022-10-12 05:30:31.000000000 -0400
++++ kmod-nvidia-390xx-390.157.el9_8/nvidiapkg/kernel/nvidia-drm/nvidia-drm-fb.h	2026-10-20 12:23:30.003581536 -0400
+@@ -58,6 +58,9 @@ static inline struct nv_drm_framebuffer
+ struct drm_framebuffer *nv_drm_internal_framebuffer_create(
+     struct drm_device *dev,
+     struct drm_file *file,
++#if defined(NV_DRM_FB_CREATE_TAKES_FORMAT_INFO)
++    const struct drm_format_info *info,
++#endif
+     struct drm_mode_fb_cmd2 *cmd);
+ 
+ #endif /* NV_DRM_ATOMIC_MODESET_AVAILABLE */
+diff -Naurp kmod-nvidia-390xx-390.157.el9_7/nvidiapkg/kernel/nvidia-drm/nvidia-drm.Kbuild kmod-nvidia-390xx-390.157.el9_8/nvidiapkg/kernel/nvidia-drm/nvidia-drm.Kbuild
+--- kmod-nvidia-390xx-390.157.el9_7/nvidiapkg/kernel/nvidia-drm/nvidia-drm.Kbuild	2026-10-20 11:07:34.269764762 -0400
++++ kmod-nvidia-390xx-390.157.el9_8/nvidiapkg/kernel/nvidia-drm/nvidia-drm.Kbuild	2026-10-20 12:22:49.841740943 -0400
+@@ -60,6 +60,7 @@ NV_CONFTEST_FUNCTION_COMPILE_TESTS += dr
+ NV_CONFTEST_FUNCTION_COMPILE_TESTS += drm_atomic_state_ref_counting
+ NV_CONFTEST_FUNCTION_COMPILE_TESTS += drm_driver_has_gem_prime_res_obj
+ NV_CONFTEST_FUNCTION_COMPILE_TESTS += drm_atomic_helper_connector_dpms
++NV_CONFTEST_FUNCTION_COMPILE_TESTS += drm_fb_create_takes_format_info
+ NV_CONFTEST_FUNCTION_COMPILE_TESTS += drm_connector_funcs_have_mode_in_name
+ NV_CONFTEST_FUNCTION_COMPILE_TESTS += vmf_insert_pfn
+ NV_CONFTEST_FUNCTION_COMPILE_TESTS += drm_framebuffer_get

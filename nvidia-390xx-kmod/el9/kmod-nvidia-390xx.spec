@@ -1,29 +1,32 @@
 # Define the kmod package name here.
-%define kmod_name	nvidia-390xx
+%define kmod_basename	nvidia
+%define kmod_name	%{kmod_basename}-390xx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-570.12.1.el9_6}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.12.1.el9_8}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	390.157
-Release:	1%{?dist}
+Release:	1.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
-License:	GPLv2
-URL:		http://www.nvidia.com/
+License:	Redistributable, no modification permitted
+URL:		https://www.nvidia.com/
 
 # Sources
 Source0:	https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 Source1:	blacklist-nouveau.conf
 Source2:	dracut-nvidia.conf
+Source3:	modprobe-nvidia.conf
 
 # Source code patches
-Patch0:		nvidia-390xx-buildfix-el9_4.patch
-Patch1:		nvidia-390xx-buildfix-el9_5.patch
-Patch2:		nvidia-390xx-buildfix-el9_6.patch
-Patch10:	nvidia-390xx-force-drm-modeset.patch
+Patch0: 	nvidia-390xx-buildfix-el9_4.patch
+Patch1: 	nvidia-390xx-buildfix-el9_5.patch
+Patch2: 	nvidia-390xx-buildfix-el9_6.patch
+Patch3: 	nvidia-390xx-buildfix-el9_7.patch
+Patch4: 	nvidia-390xx-buildfix-el9_8.patch
 
 %if %{?_with_src:0}%{!?_with_src:1}
 NoSource: 0
@@ -50,7 +53,7 @@ NoSource: 0
 %global _use_internal_dependency_generator 0
 %global kernel_source() %{_usrsrc}/kernels/%{kmod_kernel_version}.%{_arch}
 
-BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
+BuildRoot:		%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 ExclusiveArch:		x86_64
 
@@ -63,12 +66,12 @@ BuildRequires:		rpm-build
 BuildRequires:		gcc
 BuildRequires:		make
 
-Provides:			kernel-modules >= %{kmod_kernel_version}.%{_arch}
-Provides:			kmod-%{kmod_name} = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:		kernel-modules >= %{kmod_kernel_version}.%{_arch}
+Provides:		kmod-%{kmod_basename} = %{?epoch:%{epoch}:}%{version}-%{release}
 
-Requires:			kernel >= %{kmod_kernel_version}
-Requires:			kernel-core-uname-r >= %{kmod_kernel_version}
-Requires:			nvidia-x11-drv-390xx = %{?epoch:%{epoch}:}%{version}
+Requires:		kernel >= %{kmod_kernel_version}
+Requires:		kernel-core-uname-r >= %{kmod_kernel_version}
+Requires:		nvidia-x11-drv-390xx = %{?epoch:%{epoch}:}%{version}
 
 Requires(post):		%{_sbindir}/depmod
 Requires(postun):	%{_sbindir}/depmod
@@ -82,15 +85,16 @@ of the same variant of the Linux kernel and not on any one specific build.
 
 %prep
 %setup -q -c -T
-echo "override nvidia * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
-echo "override nvidia-drm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
-echo "override nvidia-modeset * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
-echo "override nvidia-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+echo "override %{kmod_basename} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
+echo "override %{kmod_basename}-drm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+echo "override %{kmod_basename}-modeset * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
+echo "override %{kmod_basename}-uvm * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 sh %{SOURCE0} --extract-only --target nvidiapkg
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-%patch10 -p1
+%patch3 -p1
+%patch4 -p1
 %{__cp} -a nvidiapkg _kmod_build_
 
 %build
@@ -112,17 +116,19 @@ sort -u greylist | uniq > greylist.txt
 %install
 %{__install} -d %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 pushd _kmod_build_/kernel
-%{__install} nvidia.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-%{__install} nvidia-drm.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-%{__install} nvidia-modeset.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
-%{__install} nvidia-uvm.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+%{__install} %{kmod_basename}.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+%{__install} %{kmod_basename}-drm.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+%{__install} %{kmod_basename}-modeset.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
+%{__install} %{kmod_basename}-uvm.ko %{buildroot}/lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name}/
 popd
 %{__install} -d %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -m 0644 kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 %{__install} -d %{buildroot}%{_prefix}/lib/modprobe.d/
-%{__install} -m 0644 %{SOURCE1} %{buildroot}%{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
+%{__install} -m 0644 %{SOURCE1} %{buildroot}%{_prefix}/lib/modprobe.d/
 %{__install} -d %{buildroot}%{_sysconfdir}/dracut.conf.d/
-%{__install} -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/dracut.conf.d/dracut-nvidia.conf
+%{__install} -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/dracut.conf.d/
+%{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d/
+%{__install} -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/modprobe.d/
 %{__install} -d %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 %{__install} -m 0644 greylist.txt %{buildroot}%{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
@@ -144,6 +150,16 @@ find %{buildroot} -name \*.ko -type f | xargs --no-run-if-empty %{__strip} --str
 %{__rm} -rf %{buildroot}
 
 %post
+# One user requires X11 with IndirectGLX (IGLX)
+# With modeset=1, the X11 session crashes and goes back to GDM
+# Need to check if IndirectGLX is configured and set modeset accordingly
+HAS_INDIRECT_GLX=`grep IndirectGLX %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.d/*.conf 2>/dev/null`
+if [ -n "${HAS_INDIRECT_GLX}" ]; then
+	sed -i 's/^options nvidia_drm modeset=1/options nvidia_drm modeset=0/g' %{_sysconfdir}/modprobe.d/modprobe-nvidia.conf
+else
+	sed -i 's/^options nvidia_drm modeset=0/options nvidia_drm modeset=1/g' %{_sysconfdir}/modprobe.d/modprobe-nvidia.conf
+fi
+
 modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
@@ -157,7 +173,7 @@ exit 0
 # calling initramfs regeneration separately
 if [ -f "%{kver_state_file}" ]; then
 #        kver_base="%{kmod_kernel_version}"
-#        kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
+#        kvers=$(ls -d "/lib/modules/${kver_base%%%%-*}"*)
 #
 #        for k_dir in $kvers; do
 #                k="${k_dir#/lib/modules/}"
@@ -226,13 +242,19 @@ exit 0
 
 %files
 %defattr(644,root,root,755)
+%license nvidiapkg/LICENSE
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config /etc/depmod.d/kmod-%{kmod_name}.conf
-%config /etc/dracut.conf.d/dracut-nvidia.conf
-%config /usr/lib/modprobe.d/blacklist-nouveau.conf
-%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
+%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
+%config %{_sysconfdir}/dracut.conf.d/dracut-nvidia.conf
+%config(noreplace) %{_sysconfdir}/modprobe.d/modprobe-nvidia.conf
+%config %{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
+%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
-* Tue May 27 2025 Tuan Hoang <tqhoang@elrepo.org> - 390.157-1
-- Initial build for EL 9.6
+* Tue Oct 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 390.157-1.1
+- Rebuilt against RHEL 9.8 errata kernel-5.14.0-687.12.1.el9_8
+
+* Tue Oct 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 390.157-1
+- Initial build for EL 9.8
+- Built against RHEL 9.8 GA kernel-5.14.0-687.5.3.el9_8
 
