@@ -13,7 +13,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	595.104.02
+Version:	595.112.07
 Release:	1.1%{?dist}
 Summary:	NVIDIA OpenGL kernel driver module
 Group:		System Environment/Kernel
@@ -168,9 +168,17 @@ done
 # Need to check if IndirectGLX is configured and set modeset accordingly
 HAS_INDIRECT_GLX=`grep IndirectGLX %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.d/*.conf 2>/dev/null`
 if [ -n "${HAS_INDIRECT_GLX}" ]; then
-	sed -i 's/^options nvidia_drm modeset=1/#options nvidia_drm modeset=1/g' %{_sysconfdir}/modprobe.d/modprobe-nvidia.conf
+	# Explicitly disable modeset for 595+ drivers since the default value is true
+	sed -i 's/^options nvidia_drm modeset=1/options nvidia_drm modeset=0/g' %{_sysconfdir}/modprobe.d/modprobe-nvidia.conf
+
+	# Fixes commented out modeset for previous 580 drivers
+	sed -i 's/^#options nvidia_drm modeset=1/options nvidia_drm modeset=0/g' %{_sysconfdir}/modprobe.d/modprobe-nvidia.conf
 else
-	sed -i 's/#options nvidia_drm modeset=1/options nvidia_drm modeset=1/g' %{_sysconfdir}/modprobe.d/modprobe-nvidia.conf
+	# Explicitly enables modeset for 595+ drivers
+	sed -i 's/^options nvidia_drm modeset=0/options nvidia_drm modeset=1/g' %{_sysconfdir}/modprobe.d/modprobe-nvidia.conf
+
+	# Fixes commented out modeset for previous 580 drivers
+	sed -i 's/^#options nvidia_drm modeset=1/options nvidia_drm modeset=1/g' %{_sysconfdir}/modprobe.d/modprobe-nvidia.conf
 fi
 
 modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_basename} | grep '\.ko$') )
@@ -266,6 +274,14 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Fri Oct 23 2026 Tuan Hoang <tqhoang@elrepo.org> - 595.112.07-1.1
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.144.1.el8_10
+
+* Fri Oct 23 2026 Tuan Hoang <tqhoang@elrepo.org> - 595.112.07-1
+- Fixed IndirectGLX modeset workaround
+- Updated to version 595.112.07
+- Built against RHEL 8.10 GA kernel-4.18.0-553.el8_10
+
 * Sun Sep 27 2026 Tuan Hoang <tqhoang@elrepo.org> - 595.104.02-1.1
 - Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.144.1.el8_10
 
