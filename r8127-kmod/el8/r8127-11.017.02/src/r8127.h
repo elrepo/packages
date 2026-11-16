@@ -220,12 +220,14 @@ static inline void fsleep(unsigned long usecs)
 	     (skb) = (next_skb), (next_skb) = (skb) ? (skb)->next : NULL)
 #endif /* LINUX_VERSION_CODE < KERNEL_VERSION(5,4,92) */
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4,14,217)
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4,19,0) && \
+     !(LINUX_VERSION_CODE >= KERNEL_VERSION(4,14,217) && \
+     LINUX_VERSION_CODE < KERNEL_VERSION(4,15,0)))
 static inline void skb_mark_not_on_list(struct sk_buff *skb)
 {
         skb->next = NULL;
 }
-#endif /* LINUX_VERSION_CODE < KERNEL_VERSION(4,14,217) */
+#endif /* < 4.19.0, except 4.14.217+ */
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,2,0)
 #define netdev_xmit_more() (0)
@@ -639,7 +641,7 @@ static inline u32 rtl8127_ethtool_adv_to_mmd_eee_adv_cap2_t(u32 adv)
 #define RSS_SUFFIX ""
 #endif
 
-#define RTL8127_VERSION "11.016.00" NAPI_SUFFIX DASH_SUFFIX REALWOW_SUFFIX PTP_SUFFIX RSS_SUFFIX
+#define RTL8127_VERSION "11.017.02" NAPI_SUFFIX DASH_SUFFIX REALWOW_SUFFIX PTP_SUFFIX RSS_SUFFIX
 #define MODULENAME "r8127"
 #define PFX MODULENAME ": "
 
@@ -756,6 +758,9 @@ This is free software, and you are welcome to redistribute it under certain cond
 #define RTL8127_ESD_TIMEOUT (2 * HZ)
 #define RTL8127_DASH_TIMEOUT    (0)
 #define RTL8127_CHECK_SDS_SFP_CAP_TIMEOUT (2 * HZ)
+#ifdef ENABLE_MDIO_SUPPORT
+#define RTL8127_MDIO_LINK_TIMEOUT (0.5 * HZ)
+#endif
 
 #define rtl8127_rx_page_size(order) (PAGE_SIZE << order)
 
@@ -827,7 +832,7 @@ This is free software, and you are welcome to redistribute it under certain cond
 #endif
 
 #ifndef NETDEV_TX_LOCKED
-#define NETDEV_TX_LOCKED -1t /* driver tx lock was already taken */
+#define NETDEV_TX_LOCKED -1 /* driver tx lock was already taken */
 #endif
 
 #ifndef ADVERTISED_Pause
@@ -954,7 +959,7 @@ typedef int *napi_budget;
 #define RTL_NAPI_CONFIG(ndev, priv, function, weig) ndev->poll=function;    \
                                 ndev->weight=weig;
 #define RTL_NAPI_QUOTA(budget, ndev)            min(*budget, ndev->quota)
-#define RTL_GET_PRIV(stuct_ptr, priv_struct)        netdev_priv(stuct_ptr)
+#define RTL_GET_PRIV(struct_ptr, priv_struct)      netdev_priv(struct_ptr)
 #define RTL_GET_NETDEV(priv_ptr)
 #define RTL_RX_QUOTA(budget)          *budget
 #define RTL_NAPI_QUOTA_UPDATE(ndev, work_done, budget)  *budget -= work_done;   \
@@ -976,7 +981,7 @@ typedef int napi_budget;
 #define RTL_NAPI_CONFIG(ndev, priv, function, weight)   netif_napi_add(ndev, &priv->napi, function, weight)
 #endif //LINUX_VERSION_CODE >= KERNEL_VERSION(6,1,0)
 #define RTL_NAPI_QUOTA(budget, ndev)            min(budget, budget)
-#define RTL_GET_PRIV(stuct_ptr, priv_struct)        container_of(stuct_ptr, priv_struct, stuct_ptr)
+#define RTL_GET_PRIV(struct_ptr, priv_struct)      container_of(struct_ptr, priv_struct, struct_ptr)
 #define RTL_GET_NETDEV(priv_ptr)            struct net_device *dev = priv_ptr->dev;
 #define RTL_RX_QUOTA(budget)          budget
 #define RTL_NAPI_QUOTA_UPDATE(ndev, work_done, budget)
@@ -2246,15 +2251,6 @@ struct pci_resource {
         u32 pci_sn_h;
 };
 
-enum r8127_dash_req_flag {
-        R8127_RCV_REQ_SYS_OK = 0,
-        R8127_RCV_REQ_DASH_OK,
-        R8127_SEND_REQ_HOST_OK,
-        R8127_CMAC_RESET,
-        R8127_CMAC_DISALE_RX_FLAG_MAX,
-        R8127_DASH_REQ_FLAG_MAX
-};
-
 enum r8127_flag {
         R8127_FLAG_DOWN = 0,
         R8127_FLAG_TASK_RESET_PENDING,
@@ -2262,6 +2258,9 @@ enum r8127_flag {
         R8127_FLAG_TASK_LINKCHG_CHECK_PENDING,
         R8127_FLAG_TASK_DASH_CHECK_PENDING,
         R8127_FLAG_TASK_SDS_SFP_CAP_PENDING,
+#ifdef ENABLE_MDIO_SUPPORT
+        R8127_FLAG_TASK_MDIO_LINK_PENDING,
+#endif
         R8127_FLAG_SHUTDOWN,
         R8127_FLAG_SUSPEND,
         R8127_FLAG_MAX
@@ -2676,13 +2675,19 @@ struct rtl8127_private {
         struct work_struct esd_task;
         struct work_struct linkchg_task;
         struct work_struct dash_task;
-        struct sds_sfp_cap_task dash_task;
+        struct work_struct sds_sfp_cap_task;
+#ifdef ENABLE_MDIO_SUPPORT
+        struct work_struct mdio_link_task;
+#endif /* ENABLE_MDIO_SUPPORT */
 #else
         struct delayed_work reset_task;
         struct delayed_work esd_task;
         struct delayed_work linkchg_task;
         struct delayed_work dash_task;
         struct delayed_work sds_sfp_cap_task;
+#ifdef ENABLE_MDIO_SUPPORT
+        struct delayed_work mdio_link_task;
+#endif /* ENABLE_MDIO_SUPPORT */
 #endif
         DECLARE_BITMAP(task_flags, R8127_FLAG_MAX);
         unsigned features;
@@ -2724,6 +2729,7 @@ struct rtl8127_private {
         u8 RequirePhyMdiSwapPatch;
 
         u32 HwSerDesSfpCap;
+        bool sds_sfp_connected;
 
         u32 HwFiberModeVer;
         u32 HwFiberStat;
@@ -2784,7 +2790,8 @@ struct rtl8127_private {
         u32 SizeOfSendToFwBuffer;
         u32 SizeOfRecvFromFwBuffer;
         u8 AllowAccessDashOcp;
-        DECLARE_BITMAP(dash_req_flags, R8127_DASH_REQ_FLAG_MAX);
+
+        unsigned long dash_event_flags; /* DASH event flags (R8127_DASH_EVENT_* bits) */
 
 #ifdef ENABLE_DASH_SUPPORT
         u16 AfterRecvFromFwBufLen;
@@ -2846,13 +2853,15 @@ struct rtl8127_private {
         u32 tx_hwtstamp_skipped;
         struct work_struct ptp_tx_work;
         struct sk_buff *ptp_tx_skb;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,6,0)
+        struct kernel_hwtstamp_config hwtstamp_config;
+#else
         struct hwtstamp_config hwtstamp_config;
+#endif /* LINUX_VERSION_CODE >= KERNEL_VERSION(6,6,0) */
         unsigned long ptp_tx_start;
         struct ptp_clock_info ptp_clock_info;
         struct ptp_clock *ptp_clock;
         u8 syncE_en;
-        u8 pps_enable;
-        struct hrtimer pps_timer;
 #endif
 
         u8 HwSuppRssVer;
@@ -2870,6 +2879,25 @@ struct rtl8127_private {
         u16 MacMcuPageSize;
         u64 hw_mcu_patch_code_ver;
         u64 bin_mcu_patch_code_ver;
+        u16 hw_mcu_patch_code_bp_en;
+        u16 sw_mcu_patch_code_bp_en;
+
+        /* module parameters (per-instance copy) */
+        u8   use_dac;
+        u32  timer_count;
+        u32  speed_mode;
+        u32  duplex_mode;
+        u32  autoneg_mode;
+        u8   aspm;
+        u8   s5wol;
+        u8   s5_keep_curr_mac;
+        ulong hwoptimize;
+        u8   s0_magic_packet;
+        u8   tx_no_close_enable;
+        u8   disable_wol_support;
+        u8   enable_double_vlan;
+        u8   enable_giga_lite;
+
         u8 hw_has_mac_mcu_patch_code;
 
         u8 HwSuppTcamVer;
@@ -2878,6 +2906,13 @@ struct rtl8127_private {
         u16 TcamValidReg;
         u16 TcamMaAddrcOffset;
         u16 TcamVlanTagOffset;
+
+        u32 HwMdioVer;
+#ifdef ENABLE_MDIO_SUPPORT
+        u16 val_GPIO_OUT_EN;
+        u16 val_GPIO_OUT_VAL;
+        struct phy_device *phydev;
+#endif /* ENABLE_MDIO_SUPPORT */
 };
 
 #ifdef ENABLE_LIB_SUPPORT
@@ -2952,10 +2987,12 @@ enum mcfg {
 
 #define LSO_32K 32000
 #define LSO_64K 64000
+#define LSO_256K 256000
 
 #define NIC_MIN_PHYS_BUF_COUNT          (2)
 #define NIC_MAX_PHYS_BUF_COUNT_LSO_64K  (24)
-#define NIC_MAX_PHYS_BUF_COUNT_LSO2     (16*4)
+#define NIC_MAX_PHYS_BUF_COUNT_LSO2     (64)
+#define NIC_MAX_PHYS_BUF_COUNT_LSO2_256K (256)
 
 #define GTTCPHO_SHIFT                   18
 #define GTTCPHO_MAX                     0x70U
@@ -2977,13 +3014,13 @@ enum mcfg {
 
 //Ram Code Version
 #define NIC_RAMCODE_VERSION_CFG_METHOD_1 (0x0015)
-#define NIC_RAMCODE_VERSION_CFG_METHOD_2 (0x0051)
+#define NIC_RAMCODE_VERSION_CFG_METHOD_2 (0x0098)
 
 //hwoptimize
 #define HW_PATCH_SOC_LAN (BIT_0)
 #define HW_PATCH_SAMSUNG_LAN_DONGLE (BIT_2)
 
-static const u16 other_q_intr_mask = (RxOK1 | RxDU1);
+#define OTHER_Q_INTR_MASK (RxOK1 | RxDU1)
 
 #define HW_PHY_STATUS_INI       1
 #define HW_PHY_STATUS_EXT_INI   2
@@ -2992,9 +3029,9 @@ static const u16 other_q_intr_mask = (RxOK1 | RxDU1);
 void rtl8127_mdio_write(struct rtl8127_private *tp, u16 RegAddr, u16 value);
 void rtl8127_mdio_prot_write(struct rtl8127_private *tp, u32 RegAddr, u32 value);
 void rtl8127_mdio_prot_direct_write_phy_ocp(struct rtl8127_private *tp, u32 RegAddr, u32 value);
-u32 rtl8127_mdio_read(struct rtl8127_private *tp, u16 RegAddr);
-u32 rtl8127_mdio_prot_read(struct rtl8127_private *tp, u32 RegAddr);
-u32 rtl8127_mdio_prot_direct_read_phy_ocp(struct rtl8127_private *tp, u32 RegAddr);
+u16 rtl8127_mdio_read(struct rtl8127_private *tp, u16 RegAddr);
+u16 rtl8127_mdio_prot_read(struct rtl8127_private *tp, u32 RegAddr);
+u16 rtl8127_mdio_prot_direct_read_phy_ocp(struct rtl8127_private *tp, u32 RegAddr);
 void rtl8127_ephy_write(struct rtl8127_private *tp, int RegAddr, int value);
 void rtl8127_mac_ocp_write(struct rtl8127_private *tp, u16 reg_addr, u16 value);
 u16 rtl8127_mac_ocp_read(struct rtl8127_private *tp, u16 reg_addr);
@@ -3126,12 +3163,13 @@ void rtl8127_enable_napi(struct rtl8127_private *tp);
 void _rtl8127_wait_for_quiescence(struct net_device *dev);
 
 void rtl8127_mdio_direct_write_phy_ocp(struct rtl8127_private *tp, u16 RegAddr,u16 value);
-u32 rtl8127_mdio_direct_read_phy_ocp(struct rtl8127_private *tp, u16 RegAddr);
+u16 rtl8127_mdio_direct_read_phy_ocp(struct rtl8127_private *tp, u16 RegAddr);
 void rtl8127_clear_and_set_eth_phy_ocp_bit(struct rtl8127_private *tp, u16 addr, u16 clearmask, u16 setmask);
 void rtl8127_clear_eth_phy_ocp_bit(struct rtl8127_private *tp, u16 addr, u16 mask);
 void rtl8127_set_eth_phy_ocp_bit(struct rtl8127_private *tp,  u16 addr, u16 mask);
 
 void rtl8127_clear_mac_ocp_bit(struct rtl8127_private *tp, u16   addr, u16   mask);
+void rtl8127_set_mac_ocp_bit(struct rtl8127_private *tp, u16   addr, u16   mask);
 
 #ifndef ENABLE_LIB_SUPPORT
 static inline void rtl8127_lib_reset_prepare(struct rtl8127_private *tp) { }
@@ -3143,6 +3181,7 @@ static inline void rtl8127_lib_reset_complete(struct rtl8127_private *tp) { }
 #define HW_SUPPORT_D0_SPEED_UP(_M)        ((_M)->HwSuppD0SpeedUpVer > 0)
 #define HW_SUPPORT_MAC_MCU(_M)        ((_M)->HwSuppMacMcuVer > 0)
 #define HW_SUPPORT_TCAM(_M)        ((_M)->HwSuppTcamVer > 0)
+#define HW_SUPPORT_MDIO(_M)        ((_M)->HwMdioVer > 0)
 
 #define HW_SUPP_PHY_LINK_SPEED_GIGA(_M)        ((_M)->HwSuppMaxPhyLinkSpeed >= 1000)
 #define HW_SUPP_PHY_LINK_SPEED_2500M(_M)        ((_M)->HwSuppMaxPhyLinkSpeed >= 2500)

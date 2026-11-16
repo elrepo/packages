@@ -31,6 +31,9 @@
  *  US6,570,884, US6,115,776, and US6,327,625.
  ***********************************************************************************/
 
+#include <linux/pci.h>
+#include <linux/mii.h>
+
 #include "r8127.h"
 #include "r8127_fiber.h"
 
@@ -55,6 +58,9 @@
 #define R8127_SDS_IIC_CMD_STOP BIT_9
 #define R8127_SDS_IIC_CMD_RESTART BIT_10
 
+#define R8127_IIC_DEV_ADDR    0xA0
+#define R8127_IIC_DEV_ADDR2   0xA2
+
 enum {
         R8127_SDS_IIC_WRITE_OPERATION = 0,
         R8127_SDS_IIC_READ_OPERATION = 1,
@@ -71,16 +77,20 @@ enum {
 };
 
 static void
-rtl8127_sds_If_i2c_Init(struct rtl8127_private *tp)
+_rtl8127_sds_If_i2c_Init(struct rtl8127_private *tp, u8 dev_addr)
 {
-        const u8 dev_addr = 0xA0;
-
         rtl8127_mac_ocp_write(tp, R8127_SDS_IIC_EN, 0);
         rtl8127_mac_ocp_write(tp, R8127_SDS_IIC_CON, 0x65);
         rtl8127_mac_ocp_write(tp, R8127_SDS_IIC_TAR, dev_addr / 2);
         rtl8127_mac_ocp_write(tp, R8127_SDS_IIC_FS_SCL_HCNT, 0x7A30);
         rtl8127_mac_ocp_write(tp, R8127_SDS_IIC_FS_SCL_LCNT, 0x7A30);
         rtl8127_mac_ocp_write(tp, R8127_SDS_IIC_EN, 1);
+}
+
+static void
+rtl8127_sds_If_i2c_Init(struct rtl8127_private *tp)
+{
+        _rtl8127_sds_If_i2c_Init(tp, R8127_IIC_DEV_ADDR);
 }
 
 static void
@@ -176,7 +186,7 @@ rtl8127_sds_If_i2c_read_byte(struct rtl8127_private *tp, u8 addr)
         if (timeout < waitcount)
                 data = rtl8127_sds_If_i2c_data_cmd_read_byte(tp);
         else
-                data =  U8_MAX;
+                data = U8_MAX;
 
         return data;
 }
@@ -184,21 +194,33 @@ rtl8127_sds_If_i2c_read_byte(struct rtl8127_private *tp, u8 addr)
 bool
 rtl8127_sds_If_i2c_is_10g_sfp_cap(struct rtl8127_private *tp)
 {
+        u32 br_nom, base_br_nom, ext_br_max;
         bool b10gSfp;
-        u8 data;
 
         rtl8127_sds_If_i2c_Init(tp);
 
-        data = rtl8127_sds_If_i2c_read_byte(tp, 0x0c);
+        base_br_nom = rtl8127_sds_If_i2c_read_byte(tp, 0x0c);
+        ext_br_max = rtl8127_sds_If_i2c_read_byte(tp, 0x42);
 
         rtl8127_sds_If_i2c_disable(tp);
 
-        if (data > 0x63 && data < 0x70)
-                b10gSfp = true;
+        if (base_br_nom == U8_MAX)
+                br_nom = ext_br_max * 250;
         else
+                br_nom = base_br_nom * 100;
+
+        if (br_nom < 10000)
                 b10gSfp = false;
+        else
+                b10gSfp = true;
 
         return b10gSfp;
+}
+
+static bool
+rtl8127_sds_If_i2c_is_sff_8472_comp(struct rtl8127_private *tp)
+{
+        return tp->HwSerDesSfpCap == SPEED_10000 ? true : false;
 }
 
 // sds address
@@ -295,10 +317,13 @@ rtl8127_set_sds_phy_bit(struct rtl8127_private *tp, u16 index,
 static void
 rtl8127_sds_phy_reset_8127(struct rtl8127_private *tp)
 {
-        RTL_W8(tp, 0x2350, RTL_R8(tp, 0x2350) & ~BIT_0);
+        rtl8127_clear_mac_ocp_bit(tp, 0xC3FA, BIT_4);
         udelay(1);
 
         RTL_W16(tp, 0x233A, 0x801F);
+        udelay(5);
+        rtl8127_set_mac_ocp_bit(tp, 0xC3FA, BIT_4);
+        RTL_W8(tp, 0x2400, RTL_R8(tp, 0x2400) | BIT_3);
         RTL_W8(tp, 0x2350, RTL_R8(tp, 0x2350) | BIT_0);
         udelay(10);
 }
@@ -336,15 +361,21 @@ rtl8127_sds_sfp_connected_8127(struct rtl8127_private *tp)
 }
 
 static void
-rtl8127_set_sds_phy_caps_1g_8127(struct rtl8127_private *tp)
+rtl8127_set_sds_phy_fc_1g_8127(struct rtl8127_private *tp)
+{
+        if (tp->fcpause == rtl8127_fc_full) {
+                RTL_W16(tp, 0x233E, RTL_R16(tp, 0x233E) | (BIT_6 | BIT_5));
+                rtl8127_set_sds_phy_bit(tp, 0, 2, 4, BIT_8 | BIT_7);
+        } else {
+                RTL_W16(tp, 0x233E, RTL_R16(tp, 0x233E) & ~(BIT_6 | BIT_5));
+                rtl8127_clear_sds_phy_bit(tp, 0, 2, 4, BIT_8 | BIT_7);
+        }
+}
+
+static void
+_rtl8127_set_sds_phy_caps_1g_8127_common(struct rtl8127_private *tp)
 {
         u16 val;
-
-        if (tp->fcpause == rtl8127_fc_full)
-                rtl8127_set_sds_phy_bit(tp, 0, 2, 4, BIT_8 | BIT_7);
-        else
-                rtl8127_clear_sds_phy_bit(tp, 0, 2, 4, BIT_8 | BIT_7);
-
 
         rtl8127_set_sds_phy_bit(tp, 0, 1, 31, BIT_3);
         rtl8127_clear_and_set_sds_phy_bit(tp,
@@ -360,15 +391,25 @@ rtl8127_set_sds_phy_caps_1g_8127(struct rtl8127_private *tp)
         val &= ~(BIT_13 | BIT_12 | BIT_1 | BIT_0);
         val |= BIT_1;
         RTL_W16(tp, 0x233E, val);
+}
 
-        rtl8127_mdio_direct_write_phy_ocp(tp, 0xC40A, 0x0);
-        rtl8127_mdio_direct_write_phy_ocp(tp, 0xC466, 0x0);
-        rtl8127_mdio_direct_write_phy_ocp(tp, 0xC808, 0x0);
-        rtl8127_mdio_direct_write_phy_ocp(tp, 0xC80A, 0x0);
-        rtl8127_clear_and_set_eth_phy_ocp_bit(tp,
-                                              0xC804,
-                                              0x000F,
-                                              0x000C);
+static void
+rtl8127_set_sds_phy_caps_1g_8127(struct rtl8127_private *tp)
+{
+        rtl8127_set_sds_phy_fc_1g_8127(tp);
+
+        _rtl8127_set_sds_phy_caps_1g_8127_common(tp);
+
+        if (tp->pci_dev->revision == 0x08) {
+                rtl8127_mdio_direct_write_phy_ocp(tp, 0xC40A, 0x0);
+                rtl8127_mdio_direct_write_phy_ocp(tp, 0xC466, 0x0);
+                rtl8127_mdio_direct_write_phy_ocp(tp, 0xC808, 0x0);
+                rtl8127_mdio_direct_write_phy_ocp(tp, 0xC80A, 0x0);
+                rtl8127_clear_and_set_eth_phy_ocp_bit(tp,
+                                                      0xC804,
+                                                      0x000F,
+                                                      0x000C);
+        }
 
         tp->HwSerDesSfpCap = SPEED_1000;
 }
@@ -388,15 +429,21 @@ rtl8127_sds_phy_exit_1g_8127(struct rtl8127_private *tp)
 }
 
 static void
-rtl8127_set_sds_phy_caps_10g_8127(struct rtl8127_private *tp)
+rtl8127_set_sds_phy_fc_10g_8127(struct rtl8127_private *tp)
+{
+        if (tp->fcpause == rtl8127_fc_full) {
+                RTL_W16(tp, 0x233E, RTL_R16(tp, 0x233E) | (BIT_6 | BIT_5));
+                rtl8127_set_sds_phy_bit(tp, 0, 31, 11, BIT_3 | BIT_2);
+        } else {
+                RTL_W16(tp, 0x233E, RTL_R16(tp, 0x233E) & ~(BIT_6 | BIT_5));
+                rtl8127_clear_sds_phy_bit(tp, 0, 31, 11, BIT_3 | BIT_2);
+        }
+}
+
+static void
+_rtl8127_set_sds_phy_caps_10g_8127_common(struct rtl8127_private *tp)
 {
         u16 val;
-
-        if (tp->fcpause == rtl8127_fc_full)
-                rtl8127_set_sds_phy_bit(tp, 0, 31, 11, BIT_3 | BIT_2);
-        else
-                rtl8127_clear_sds_phy_bit(tp, 0, 31, 11, BIT_3 | BIT_2);
-
 
         RTL_W16(tp, 0x233A, 0x801A);
 
@@ -404,15 +451,25 @@ rtl8127_set_sds_phy_caps_10g_8127(struct rtl8127_private *tp)
         val &= ~(BIT_13 | BIT_12 | BIT_1 | BIT_0);
         val |= BIT_12;
         RTL_W16(tp, 0x233E, val);
+}
 
-        rtl8127_mdio_direct_write_phy_ocp(tp, 0xC40A, 0x0);
-        rtl8127_mdio_direct_write_phy_ocp(tp, 0xC466, 0x3);
-        rtl8127_mdio_direct_write_phy_ocp(tp, 0xC808, 0x0);
-        rtl8127_mdio_direct_write_phy_ocp(tp, 0xC80A, 0x0);
-        rtl8127_clear_and_set_eth_phy_ocp_bit(tp,
-                                              0xC804,
-                                              0x000F,
-                                              0x000C);
+static void
+rtl8127_set_sds_phy_caps_10g_8127(struct rtl8127_private *tp)
+{
+        rtl8127_set_sds_phy_fc_10g_8127(tp);
+
+        _rtl8127_set_sds_phy_caps_10g_8127_common(tp);
+
+        if (tp->pci_dev->revision == 0x08) {
+                rtl8127_mdio_direct_write_phy_ocp(tp, 0xC40A, 0x0);
+                rtl8127_mdio_direct_write_phy_ocp(tp, 0xC466, 0x3);
+                rtl8127_mdio_direct_write_phy_ocp(tp, 0xC808, 0x0);
+                rtl8127_mdio_direct_write_phy_ocp(tp, 0xC80A, 0x0);
+                rtl8127_clear_and_set_eth_phy_ocp_bit(tp,
+                                                      0xC804,
+                                                      0x000F,
+                                                      0x000C);
+        }
 
         tp->HwSerDesSfpCap = SPEED_10000;
 }
@@ -441,12 +498,15 @@ rtl8127_set_sds_phy_caps_8127(struct rtl8127_private *tp)
 
         if (tp->autoneg == AUTONEG_ENABLE) {
                 if (rtl8127_sds_If_i2c_is_10g_sfp_cap(tp))
-                        cap = 10000;
+                        cap = SPEED_10000;
                 else
-                        cap = 1000;
+                        cap = SPEED_1000;
         } else {
                 cap = tp->speed;
         }
+
+        /* respect a requested speed lower than the module cap */
+        cap = min(cap, tp->speed);
 
         rtl8127_sds_phy_enable_mod_abs_pin_8127(tp, true);
 
@@ -468,6 +528,26 @@ rtl8127_set_sds_phy_caps(struct rtl8127_private *tp)
 static void
 rtl8127_hw_sds_phy_config(struct rtl8127_private *tp)
 {
+        if (tp->mcfg == CFG_METHOD_2 && tp->pci_dev->revision == 0x09)
+                rtl8127_set_eth_phy_ocp_bit(tp, 0xA400, BMCR_ANENABLE);
+
+
+        rtl8127_clear_and_set_eth_phy_ocp_bit(tp,
+                                              0xBF8A,
+                                              0xFC00,
+                                              0x2000);
+        rtl8127_set_eth_phy_ocp_bit(tp, 0xBF88, BIT_2);
+
+
+        if (tp->mcfg == CFG_METHOD_2 && tp->pci_dev->revision == 0x09) {
+                rtl8127_clear_eth_phy_ocp_bit(tp, 0xBF06, (BIT_1 | BIT_0));
+
+                RTL_W16(tp, 0x94, RTL_R16(tp, 0x94) | (BIT_1 | BIT_2));
+
+        } else
+                rtl8127_set_eth_phy_ocp_bit(tp, 0xBF06, (BIT_1 | BIT_0));
+
+
         rtl8127_set_sds_phy_caps(tp);
 }
 
@@ -481,6 +561,8 @@ rtl8127_hw_fiber_phy_config(struct rtl8127_private *tp)
         default:
                 break;
         }
+
+        tp->sds_sfp_connected = false;
 }
 
 bool
@@ -489,7 +571,7 @@ rtl8127_check_fiber_mode_support(struct rtl8127_private *tp)
         switch(tp->mcfg) {
         case CFG_METHOD_2: {
                 u8 tmp = (u8)rtl8127_mac_ocp_read(tp, 0xD006);
-                if (tmp == 0x07)
+                if (tmp == 0x07 || tmp == 0x08)
                         tp->HwFiberModeVer = FIBER_MODE_RTL8127ATF;
         }
         break;
@@ -497,5 +579,122 @@ rtl8127_check_fiber_mode_support(struct rtl8127_private *tp)
                 break;
         }
 
-        return (HW_FIBER_MODE_ENABLED(tp)) ? true : false;
+        return HW_FIBER_MODE_ENABLED(tp);
+}
+
+static int
+rtl8127_read_sfp_module_eeprom(struct rtl8127_private *tp,
+                               u8 dev_addr, u16 addr, u16 byte_cnt, u8 *o_buf)
+{
+        u8 *user_data = o_buf;
+        int rc = 0;
+
+        if ((dev_addr != R8127_IIC_DEV_ADDR) &&
+            (dev_addr != R8127_IIC_DEV_ADDR2)) {
+                netif_err(tp, drv, tp->dev, "invalid dev_addr 0x%x\n",
+                          dev_addr);
+                return -EINVAL;
+        }
+
+        _rtl8127_sds_If_i2c_Init(tp, dev_addr);
+
+        while (byte_cnt > 0) {
+                *user_data = rtl8127_sds_If_i2c_read_byte(tp, addr);
+                user_data++;
+                addr++;
+                byte_cnt--;
+        }
+
+        rtl8127_sds_If_i2c_disable(tp);
+
+        return rc;
+}
+
+int rtl8127_get_module_info(struct net_device *netdev,
+                            struct ethtool_modinfo *modinfo)
+{
+        struct rtl8127_private *tp = netdev_priv(netdev);
+
+        if (!HW_FIBER_MODE_ENABLED(tp) || !rtl8127_sds_sfp_connected_8127(tp))
+                return -EIO;
+
+        if (rtl8127_sds_If_i2c_is_sff_8472_comp(tp)) {
+                modinfo->type = ETH_MODULE_SFF_8472;
+                modinfo->eeprom_len = ETH_MODULE_SFF_8472_LEN;
+        } else {
+                modinfo->type = ETH_MODULE_SFF_8079;
+                modinfo->eeprom_len = ETH_MODULE_SFF_8079_LEN;
+        }
+
+        return 0;
+}
+
+int rtl8127_get_module_eeprom(struct net_device *netdev,
+                              struct ethtool_eeprom *ee,
+                              u8 *data)
+{
+        struct rtl8127_private *tp = netdev_priv(netdev);
+        unsigned int start_addr, xfer_size = 0;
+        u8 *user_data = data;
+        unsigned long flags;
+        int ret = -EIO;
+
+        if (!ee || !ee->len || !data)
+                return -EINVAL;
+
+        start_addr = ee->offset;
+
+        if (!HW_FIBER_MODE_ENABLED(tp) || !rtl8127_sds_sfp_connected_8127(tp))
+                return -EIO;
+
+        /* Read A0 section */
+        if (start_addr < ETH_MODULE_SFF_8079_LEN) {
+                /* Limit transfer size to the A0 section boundary */
+                if (start_addr + ee->len > ETH_MODULE_SFF_8079_LEN)
+                        xfer_size = ETH_MODULE_SFF_8079_LEN - start_addr;
+                else
+                        xfer_size = ee->len;
+
+                r8127_spin_lock(&tp->phy_lock, flags);
+                ret = rtl8127_read_sfp_module_eeprom(tp, R8127_IIC_DEV_ADDR,
+                                                     start_addr, xfer_size,
+                                                     user_data);
+                r8127_spin_unlock(&tp->phy_lock, flags);
+
+                if (ret) {
+                        netif_err(tp, drv, tp->dev,
+                                  "Failed to read from SFP+ module EEPROM\n");
+                        ret = -EINVAL;
+                        goto exit;
+                }
+
+                user_data += xfer_size;
+                start_addr += xfer_size;
+        }
+
+        /* Read A2 section */
+        if ((start_addr >= ETH_MODULE_SFF_8079_LEN) &&
+            (start_addr < ETH_MODULE_SFF_8472_LEN)) {
+                xfer_size = ee->len - xfer_size;
+                /* Limit transfer size to the A2 section boundary */
+                if (start_addr + xfer_size > ETH_MODULE_SFF_8472_LEN)
+                        xfer_size = ETH_MODULE_SFF_8472_LEN - start_addr;
+                start_addr -= ETH_MODULE_SFF_8079_LEN;
+
+                r8127_spin_lock(&tp->phy_lock, flags);
+                ret = rtl8127_read_sfp_module_eeprom(tp, R8127_IIC_DEV_ADDR2,
+                                                     start_addr, xfer_size,
+                                                     user_data);
+                r8127_spin_unlock(&tp->phy_lock, flags);
+
+                if (ret) {
+                        netif_err(tp, drv, tp->dev,
+                                  "Failed reading A2 section\n");
+                        ret = -EINVAL;
+                        goto exit;
+                }
+        }
+
+exit:
+        return ret;
 }

@@ -37,7 +37,7 @@
 
 #include <linux/if.h>
 
-#define SIOCDEVPRIVATE_RTLDASH   SIOCDEVPRIVATE+2
+#define SIOCDEVPRIVATE_RTLDASH   (SIOCDEVPRIVATE+2)
 
 enum rtl_dash_cmd {
         RTL_DASH_ARP_NS_OFFLOAD = 0,
@@ -62,7 +62,7 @@ enum rtl_dash_cmd {
         RTL_FW_GET_WAKEUP_PATTERN,
         RTL_FW_DEL_WAKEUP_PATTERN,
 
-        RTLT_DASH_COMMAND_INVALID,
+        RTL_DASH_COMMAND_INVALID,
 };
 
 struct rtl_dash_ioctl_struct {
@@ -70,8 +70,8 @@ struct rtl_dash_ioctl_struct {
         __u32	offset;
         __u32	len;
         union {
-                __u32	data;
                 void *data_buffer;
+                __u32	data;
         };
 };
 
@@ -86,7 +86,7 @@ OSOOBHdr, *POSOOBHdr;
 
 typedef struct _RX_DASH_BUFFER_TYPE_2 {
         OSOOBHdr oobhdr;
-        u8 RxDataBuffer[0];
+        u8 RxDataBuffer[];
 }
 RX_DASH_BUFFER_TYPE_2, *PRX_DASH_BUFFER_TYPE_2;
 
@@ -166,6 +166,11 @@ RX_DASH_BUFFER_TYPE_2, *PRX_DASH_BUFFER_TYPE_2;
 #define IPC2_RX_ROK_BIT         BIT_0
 #define IPC2_RX_ACK_BIT         BIT_8
 
+// Abstract DASH event flag bit indices (dash_event_flags),
+// independent of hardware interrupt bit layout.
+#define R8127_DASH_EVENT_ROK    0
+#define R8127_DASH_EVENT_ACK    1
+
 /* IPC2 write/read MMIO register */
 #define RTL_DASH_IPC2_W8(tp, reg, val8)   RTL_W8(tp, reg, val8)
 #define RTL_DASH_IPC2_W16(tp, reg, val16) RTL_W16(tp, reg, val16)
@@ -178,7 +183,7 @@ RX_DASH_BUFFER_TYPE_2, *PRX_DASH_BUFFER_TYPE_2;
 #define DASH_OOB_HDR_TYPE_REQ 0x91
 #define DASH_OOB_HDR_TYPE_ACK 0x92
 
-struct  rtl8127_private;
+struct rtl8127_private;
 
 int rtl8127_dash_ioctl(struct net_device *dev, struct ifreq *ifr);
 bool rtl8127_check_dash_interrupt(struct rtl8127_private *tp);

@@ -33,6 +33,17 @@
  ***********************************************************************************/
 
 #include <linux/version.h>
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,12,0)
+#include <linux/unaligned.h>
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
+#include <asm/unaligned.h>
+#else
+static inline u32 get_unaligned_le32(const u8 *p)
+{
+        return (u32)p[0] | ((u32)p[1] << 8) |
+               ((u32)p[2] << 16) | ((u32)p[3] << 24);
+}
+#endif
 #include "r8127.h"
 
 enum rtl8127_rss_register_content {
@@ -62,7 +73,7 @@ static int rtl8127_get_rss_hash_opts(struct rtl8127_private *tp,
                 cmd->data |= RXH_L4_B_0_1 | RXH_L4_B_2_3;
                 fallthrough;
         case UDP_V4_FLOW:
-                if (tp->rss_flags & RTL_8125_RSS_FLAG_HASH_UDP_IPV4)
+                if (tp->rss_flags & RTL_8127_RSS_FLAG_HASH_UDP_IPV4)
                         cmd->data |= RXH_L4_B_0_1 | RXH_L4_B_2_3;
                 fallthrough;
         case IPV4_FLOW:
@@ -72,7 +83,7 @@ static int rtl8127_get_rss_hash_opts(struct rtl8127_private *tp,
                 cmd->data |= RXH_L4_B_0_1 | RXH_L4_B_2_3;
                 fallthrough;
         case UDP_V6_FLOW:
-                if (tp->rss_flags & RTL_8125_RSS_FLAG_HASH_UDP_IPV6)
+                if (tp->rss_flags & RTL_8127_RSS_FLAG_HASH_UDP_IPV6)
                         cmd->data |= RXH_L4_B_0_1 | RXH_L4_B_2_3;
                 fallthrough;
         case IPV6_FLOW:
@@ -116,8 +127,8 @@ u32 rtl8127_rss_indir_tbl_entries(struct rtl8127_private *tp)
 
 #define RSS_MASK_BITS_OFFSET (8)
 #define RSS_CPU_NUM_OFFSET (16)
-#define RTL8127_UDP_RSS_FLAGS (RTL_8125_RSS_FLAG_HASH_UDP_IPV4 | \
-		       RTL_8125_RSS_FLAG_HASH_UDP_IPV6)
+#define RTL8127_UDP_RSS_FLAGS (RTL_8127_RSS_FLAG_HASH_UDP_IPV4 | \
+		       RTL_8127_RSS_FLAG_HASH_UDP_IPV6)
 static int _rtl8127_set_rss_hash_opt(struct rtl8127_private *tp)
 {
         u32 rss_flags = tp->rss_flags;
@@ -136,10 +147,10 @@ static int _rtl8127_set_rss_hash_opt(struct rtl8127_private *tp)
                     | RSS_CTRL_TCP_IPV6_SUPP
                     | RSS_CTRL_TCP_IPV6_EXT_SUPP;
 
-        if (rss_flags & RTL_8125_RSS_FLAG_HASH_UDP_IPV4)
+        if (rss_flags & RTL_8127_RSS_FLAG_HASH_UDP_IPV4)
                 rss_ctrl |= RSS_CTRL_UDP_IPV4_SUPP;
 
-        if (rss_flags & RTL_8125_RSS_FLAG_HASH_UDP_IPV6)
+        if (rss_flags & RTL_8127_RSS_FLAG_HASH_UDP_IPV6)
                 rss_ctrl |= RSS_CTRL_UDP_IPV6_SUPP |
                             RSS_CTRL_UDP_IPV6_EXT_SUPP;
 
@@ -180,10 +191,10 @@ static int rtl8127_set_rss_hash_opt(struct rtl8127_private *tp,
                         return -EINVAL;
                 switch (nfc->data & (RXH_L4_B_0_1 | RXH_L4_B_2_3)) {
                 case 0:
-                        rss_flags &= ~RTL_8125_RSS_FLAG_HASH_UDP_IPV4;
+                        rss_flags &= ~RTL_8127_RSS_FLAG_HASH_UDP_IPV4;
                         break;
                 case (RXH_L4_B_0_1 | RXH_L4_B_2_3):
-                        rss_flags |= RTL_8125_RSS_FLAG_HASH_UDP_IPV4;
+                        rss_flags |= RTL_8127_RSS_FLAG_HASH_UDP_IPV4;
                         break;
                 default:
                         return -EINVAL;
@@ -195,10 +206,10 @@ static int rtl8127_set_rss_hash_opt(struct rtl8127_private *tp,
                         return -EINVAL;
                 switch (nfc->data & (RXH_L4_B_0_1 | RXH_L4_B_2_3)) {
                 case 0:
-                        rss_flags &= ~RTL_8125_RSS_FLAG_HASH_UDP_IPV6;
+                        rss_flags &= ~RTL_8127_RSS_FLAG_HASH_UDP_IPV6;
                         break;
                 case (RXH_L4_B_0_1 | RXH_L4_B_2_3):
-                        rss_flags |= RTL_8125_RSS_FLAG_HASH_UDP_IPV6;
+                        rss_flags |= RTL_8127_RSS_FLAG_HASH_UDP_IPV6;
                         break;
                 default:
                         return -EINVAL;
@@ -220,7 +231,6 @@ static int rtl8127_set_rss_hash_opt(struct rtl8127_private *tp,
                         return -EINVAL;
                 }
                 return 0;
-                break;
         default:
                 return -EINVAL;
         }
@@ -249,10 +259,10 @@ static int rtl8127_set_rss_hash_opt(struct rtl8127_private *tp,
                               RSS_CTRL_UDP_IPV6_SUPP |
                               RSS_CTRL_UDP_IPV6_EXT_SUPP);
 
-                if (rss_flags & RTL_8125_RSS_FLAG_HASH_UDP_IPV4)
+                if (rss_flags & RTL_8127_RSS_FLAG_HASH_UDP_IPV4)
                         rss_ctrl |= RSS_CTRL_UDP_IPV4_SUPP;
 
-                if (rss_flags & RTL_8125_RSS_FLAG_HASH_UDP_IPV6)
+                if (rss_flags & RTL_8127_RSS_FLAG_HASH_UDP_IPV6)
                         rss_ctrl |= RSS_CTRL_UDP_IPV6_SUPP |
                                     RSS_CTRL_UDP_IPV6_EXT_SUPP;
 
@@ -328,30 +338,22 @@ static void rtl8127_store_reta(struct rtl8127_private *tp)
 {
         u16 indir_tbl_reg = rtl8127_rss_indir_tbl_reg(tp);
         u32 i, reta_entries = rtl8127_rss_indir_tbl_entries(tp);
-        u32 reta = 0;
         u8 *indir_tbl = tp->rss_indir_tbl;
 
-        /* Write redirection table to HW */
-        for (i = 0; i < reta_entries; i++) {
-                reta |= indir_tbl[i] << (i & 0x3) * 8;
-                if ((i & 3) == 3) {
-                        RTL_W32(tp, indir_tbl_reg, reta);
-
-                        indir_tbl_reg += 4;
-                        reta = 0;
-                }
-        }
+        for (i = 0; i < reta_entries; i += 4)
+                RTL_W32(tp, indir_tbl_reg + i,
+                        get_unaligned_le32(&indir_tbl[i]));
 }
 
 static void rtl8127_store_rss_key(struct rtl8127_private *tp)
 {
         const u16 rss_key_reg = rtl8127_rss_key_reg(tp);
         u32 i, rss_key_size = _rtl8127_get_rxfh_key_size(tp);
-        u32 *rss_key = (u32*)tp->rss_key;
 
-        /* Write redirection table to HW */
-        for (i = 0; i < rss_key_size; i+=4)
-                RTL_W32(tp, rss_key_reg + i, *rss_key++);
+        /* Write RSS key to HW */
+        for (i = 0; i < rss_key_size; i += 4)
+                RTL_W32(tp, rss_key_reg + i,
+                        get_unaligned_le32(tp->rss_key + i));
 }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6,8,0)

@@ -94,7 +94,7 @@ enum PTP_INSR_TYPE {
         EVENT_CAP_INTR   = (1 << 0),
         TRIG_GEN_INTR    = (1 << 1),
         RX_TS_INTR       = (1 << 2),
-        TX_TX_INTR       = (1 << 3),
+        TX_TS_INTR       = (1 << 3),
 };
 
 enum PTP_TRX_TS_STA_REG {
@@ -198,7 +198,17 @@ void rtl8127_ptp_init(struct rtl8127_private *tp);
 void rtl8127_ptp_suspend(struct rtl8127_private *tp);
 void rtl8127_ptp_stop(struct rtl8127_private *tp);
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,6,0)
 int rtl8127_ptp_ioctl(struct net_device *netdev, struct ifreq *ifr, int cmd);
+#endif /* LINUX_VERSION_CODE < KERNEL_VERSION(6,6,0) */
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,6,0)
+int rtl8127_hwtstamp_get(struct net_device *netdev,
+                         struct kernel_hwtstamp_config *config);
+int rtl8127_hwtstamp_set(struct net_device *netdev,
+                         struct kernel_hwtstamp_config *config,
+                         struct netlink_ext_ack *extack);
+#endif /* LINUX_VERSION_CODE >= KERNEL_VERSION(6,6,0) */
 
 void rtl8127_rx_ptp_timestamp(struct rtl8127_private *tp, struct sk_buff *skb);
 

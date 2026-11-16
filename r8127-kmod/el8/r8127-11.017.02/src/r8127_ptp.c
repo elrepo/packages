@@ -147,7 +147,7 @@ static int _rtl8127_phc_adjtime(struct rtl8127_private *tp, s64 delta)
         sec = d.tv_sec;
 
         nsec &= 0x3fffffff;
-        sec &= 0x0000ffffffffffff;
+        sec &= 0x0000ffffffffffffULL;
 
         r8127_spin_lock(&tp->phy_lock, flags);
 
@@ -202,7 +202,7 @@ static int _rtl8127_phc_adjfreq(struct ptp_clock_info *ptp, s32 ppb)
         u32 rate_value;
 
         if (ppb < 0) {
-                rate_value = ((u64)-ppb << 32) / 1000000000;
+                rate_value = ((u64)(-(s64)ppb) << 32) / 1000000000;
                 rate_value = ~rate_value + 1;
         } else
                 rate_value = ((u64)ppb << 32) / 1000000000;
@@ -293,45 +293,38 @@ static int rtl8127_phc_settime(struct ptp_clock_info *ptp,
         return ret;
 }
 
-#define R8127_PPS_TIMER_INTERVAL 1000000000
-
 static void _rtl8127_phc_enable(struct ptp_clock_info *ptp,
                                 struct ptp_clock_request *rq, int on)
 {
         struct rtl8127_private *tp = container_of(ptp, struct rtl8127_private, ptp_clock_info);
+        u16 tai_cfg = BIT_14 | BIT_7 | BIT_1 | BIT_0;
         unsigned long flags;
-        u16 phy_ocp_data;
 
         if (on) {
-                tp->pps_enable = 1;
-                rtl8127_clear_mac_ocp_bit(tp, 0xDC00, BIT_6);
-                rtl8127_clear_mac_ocp_bit(tp, 0xDC20, BIT_1);
+                /* PHY ptp tai init (pad enable) */
+                rtl8127_set_mac_ocp_bit(tp, 0xDC60, BIT_6);
 
                 r8127_spin_lock(&tp->phy_lock, flags);
 
-                /* Set periodic pulse 1pps */
-                /* E432[8:0] = 0x017d */
-                phy_ocp_data = rtl8127_mdio_direct_read_phy_ocp(tp, 0xE432);
-                phy_ocp_data &= 0xFE00;
-                phy_ocp_data |= 0x017d;
-                rtl8127_mdio_direct_write_phy_ocp(tp, 0xE432, phy_ocp_data);
+                /* Set periodic pulse 1pps (high pulse 500ms) */
+                /* E432[8:0] = 0x0 */
+                rtl8127_clear_eth_phy_ocp_bit(tp, 0xE432, 0x01FF);
 
-                rtl8127_mdio_direct_write_phy_ocp(tp, 0xE434, 0x7840);
+                rtl8127_mdio_direct_write_phy_ocp(tp, 0xE434, 0x0);
 
                 /* E436[8:0] = 0xbe */
-                phy_ocp_data = rtl8127_mdio_direct_read_phy_ocp(tp, 0xE436);
-                phy_ocp_data &= 0xFE00;
-                phy_ocp_data |= 0xbe;
-                rtl8127_mdio_direct_write_phy_ocp(tp, 0xE436, phy_ocp_data);
+                rtl8127_clear_and_set_eth_phy_ocp_bit(tp,
+                                                      0xE436,
+                                                      0x01FF,
+                                                      0x00BE);
 
                 rtl8127_mdio_direct_write_phy_ocp(tp, 0xE438, 0xbc20);
 
-                r8127_spin_unlock(&tp->phy_lock, flags);
+                /* Periodic Tai start */
+                rtl8127_mdio_direct_write_phy_ocp(tp, PTP_TAI_CFG, tai_cfg);
 
-                /* start hrtimer */
-                hrtimer_start(&tp->pps_timer, ktime_set(0, R8127_PPS_TIMER_INTERVAL), HRTIMER_MODE_REL);
-        } else
-                tp->pps_enable = 0;
+                r8127_spin_unlock(&tp->phy_lock, flags);
+        }
 }
 
 static int rtl8127_phc_enable(struct ptp_clock_info *ptp,
@@ -560,7 +553,7 @@ static void rtl8127_ptp_tx_hwtstamp(struct rtl8127_private *tp)
         struct skb_shared_hwtstamps shhwtstamps = { 0 };
         struct timespec64 ts64;
 
-        rtl8127_mdio_direct_write_phy_ocp(tp, PTP_INSR, TX_TX_INTR);
+        rtl8127_mdio_direct_write_phy_ocp(tp, PTP_INSR, TX_TS_INTR);
 
         rtl8127_ptp_egresstime(tp, &ts64);
 
@@ -602,13 +595,13 @@ static void rtl8127_ptp_tx_work(struct work_struct *work)
                  * interrupt
                  */
                 r8127_spin_lock(&tp->phy_lock, flags);
-                rtl8127_mdio_direct_write_phy_ocp(tp, PTP_INSR, TX_TX_INTR);
+                rtl8127_mdio_direct_write_phy_ocp(tp, PTP_INSR, TX_TS_INTR);
                 r8127_spin_unlock(&tp->phy_lock, flags);
                 return;
         }
 
         r8127_spin_lock(&tp->phy_lock, flags);
-        if (rtl8127_mdio_direct_read_phy_ocp(tp, PTP_INSR) & TX_TX_INTR) {
+        if (rtl8127_mdio_direct_read_phy_ocp(tp, PTP_INSR) & TX_TS_INTR) {
                 tx_intr = true;
                 rtl8127_ptp_tx_hwtstamp(tp);
         } else {
@@ -695,43 +688,6 @@ static long rtl8127_ptp_create_clock(struct rtl8127_private *tp)
         return 0;
 }
 
-static enum hrtimer_restart
-rtl8127_hrtimer_for_pps(struct hrtimer *timer) {
-        struct rtl8127_private *tp = container_of(timer, struct rtl8127_private, pps_timer);
-        u16 tai_cfg = BIT_8 | BIT_3 | BIT_1 | BIT_0;
-        s64 pps_sec;
-
-        if (tp->pps_enable)
-        {
-                unsigned long flags;
-
-                r8127_spin_lock(&tp->phy_lock, flags);
-
-                //Direct Read
-                rtl8127_set_clkadj_mode(tp, DIRECT_READ);
-
-                pps_sec = rtl8127_mdio_direct_read_phy_ocp(tp, PTP_CFG_S_HI_8126);
-                pps_sec <<= 16;
-                pps_sec |= rtl8127_mdio_direct_read_phy_ocp(tp, PTP_CFG_S_MI_8126);
-                pps_sec <<= 16;
-                pps_sec |= rtl8127_mdio_direct_read_phy_ocp(tp, PTP_CFG_S_LO_8126);
-                pps_sec++;
-
-                //E42A[15:0]
-                rtl8127_mdio_direct_write_phy_ocp(tp, PTP_TAI_TS_S_LO, pps_sec & 0xffff);
-                //E42C[31:16]
-                rtl8127_mdio_direct_write_phy_ocp(tp, PTP_TAI_TS_S_HI, (pps_sec & 0xffff0000) >> 16);
-                //Periodic Tai start
-                rtl8127_mdio_direct_write_phy_ocp(tp, PTP_TAI_CFG, tai_cfg);
-
-                r8127_spin_unlock(&tp->phy_lock, flags);
-
-                hrtimer_forward_now(&tp->pps_timer, ktime_set(0, R8127_PPS_TIMER_INTERVAL)); //rekick
-                return HRTIMER_RESTART;
-        } else
-                return HRTIMER_NORESTART;
-}
-
 void rtl8127_ptp_reset(struct rtl8127_private *tp)
 {
         if (!tp->ptp_clock)
@@ -750,16 +706,6 @@ void rtl8127_ptp_init(struct rtl8127_private *tp)
 
         /* we have a clock so we can initialize work now */
         INIT_WORK(&tp->ptp_tx_work, rtl8127_ptp_tx_work);
-
-        /* init a hrtimer for pps */
-        tp->pps_enable = 0;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6,13,0)
-        hrtimer_init(&tp->pps_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-        tp->pps_timer.function = rtl8127_hrtimer_for_pps;
-#else
-        hrtimer_setup(&tp->pps_timer, rtl8127_hrtimer_for_pps, CLOCK_MONOTONIC,
-                      HRTIMER_MODE_REL);
-#endif /* LINUX_VERSION_CODE < KERNEL_VERSION(6,13,0) */
 
         tp->hwtstamp_config.rx_filter = HWTSTAMP_FILTER_NONE;
         tp->hwtstamp_config.tx_type = HWTSTAMP_TX_OFF;
@@ -781,8 +727,6 @@ void rtl8127_ptp_suspend(struct rtl8127_private *tp)
 
         /* ensure that we cancel any pending PTP Tx work item in progress */
         cancel_work_sync(&tp->ptp_tx_work);
-
-        hrtimer_cancel(&tp->pps_timer);
 }
 
 void rtl8127_ptp_stop(struct rtl8127_private *tp)
@@ -803,6 +747,81 @@ void rtl8127_ptp_stop(struct rtl8127_private *tp)
         }
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,6,0)
+int rtl8127_hwtstamp_get(struct net_device *netdev,
+                         struct kernel_hwtstamp_config *config)
+{
+        struct rtl8127_private *tp = netdev_priv(netdev);
+
+        //netif_info(tp, drv, tp->dev, "ptp get ts\n");
+
+        if (!tp->EnablePtp)
+                return -EOPNOTSUPP;
+
+        *config = tp->hwtstamp_config;
+
+        return 0;
+}
+
+int rtl8127_hwtstamp_set(struct net_device *netdev,
+                         struct kernel_hwtstamp_config *config,
+                         struct netlink_ext_ack *extack)
+{
+        struct rtl8127_private *tp = netdev_priv(netdev);
+        bool hwtstamp = 0;
+
+        //netif_info(tp, drv, tp->dev, "ptp set ts\n");
+
+        if (!tp->EnablePtp)
+                return -EOPNOTSUPP;
+
+        if (config->flags)
+                return -EINVAL;
+
+        switch (config->tx_type) {
+        case HWTSTAMP_TX_ON:
+                hwtstamp = 1;
+                break;
+        case HWTSTAMP_TX_OFF:
+                break;
+        case HWTSTAMP_TX_ONESTEP_SYNC:
+        default:
+                return -ERANGE;
+        }
+
+        switch (config->rx_filter) {
+        case HWTSTAMP_FILTER_PTP_V2_EVENT:
+        case HWTSTAMP_FILTER_PTP_V2_L2_EVENT:
+        case HWTSTAMP_FILTER_PTP_V2_L4_EVENT:
+        case HWTSTAMP_FILTER_PTP_V2_SYNC:
+        case HWTSTAMP_FILTER_PTP_V2_L2_SYNC:
+        case HWTSTAMP_FILTER_PTP_V2_L4_SYNC:
+        case HWTSTAMP_FILTER_PTP_V2_DELAY_REQ:
+        case HWTSTAMP_FILTER_PTP_V2_L2_DELAY_REQ:
+        case HWTSTAMP_FILTER_PTP_V2_L4_DELAY_REQ:
+                config->rx_filter = HWTSTAMP_FILTER_PTP_V2_EVENT;
+                hwtstamp = 1;
+                tp->flags |= RTL_FLAG_RX_HWTSTAMP_ENABLED;
+                break;
+        case HWTSTAMP_FILTER_NONE:
+                tp->flags &= ~RTL_FLAG_RX_HWTSTAMP_ENABLED;
+                break;
+        default:
+                tp->flags &= ~RTL_FLAG_RX_HWTSTAMP_ENABLED;
+                return -ERANGE;
+        }
+
+        if (tp->hwtstamp_config.tx_type != config->tx_type ||
+            tp->hwtstamp_config.rx_filter != config->rx_filter) {
+                tp->hwtstamp_config = *config;
+
+                rtl8127_hwtstamp_enable(tp, hwtstamp);
+        }
+
+        return 0;
+}
+
+#else
 static int rtl8127_set_tstamp(struct net_device *netdev, struct ifreq *ifr)
 {
         struct rtl8127_private *tp = netdev_priv(netdev);
@@ -893,11 +912,14 @@ int rtl8127_ptp_ioctl(struct net_device *netdev, struct ifreq *ifr, int cmd)
 
         return ret;
 }
+#endif /* LINUX_VERSION_CODE >= KERNEL_VERSION(6,6,0) */
 
 static void rtl8127_rx_ptp_pktstamp(struct rtl8127_private *tp, struct sk_buff *skb, u8 type)
 {
         struct timespec64 ts64;
         unsigned long flags;
+
+        memset(&ts64, 0, sizeof(ts64));
 
         r8127_spin_lock(&tp->phy_lock, flags);
 

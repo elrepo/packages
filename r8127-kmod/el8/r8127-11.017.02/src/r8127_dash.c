@@ -135,26 +135,31 @@ exit:
 
 static void RecvFromDashFwComplete(struct rtl8127_private *tp)
 {
+        RX_DASH_BUFFER_TYPE_2 rxDashBufferType2;
+        bool rok_present = false;
+        u32 dataLen;
+
         if (!tp->DASH)
                 return;
 
         if (!HW_DASH_SUPPORT_IPC2(tp))
                 return;
 
-        if (tp->DashReqRegValue == DASH_OOB_HDR_TYPE_REQ) { //rok
-                RX_DASH_BUFFER_TYPE_2 rxDashBufferType2 = {0};
-                u32 dataLen;
+        if (test_and_clear_bit(R8127_DASH_EVENT_ROK, &tp->dash_event_flags)) {
+                rok_present = true;
 
                 if (!tp->OobReq)
-                        goto exit;
+                        goto check_ack;
+
+                memset(&rxDashBufferType2, 0, sizeof(rxDashBufferType2));
 
                 /* copy header for check data length */
                 if (!rtl8127_copy_from_ipc2(tp,
                                             (u8*)&rxDashBufferType2,
                                             sizeof(rxDashBufferType2)))
-                        goto exit;
+                        goto check_ack;
 
-                dataLen = (u16)rxDashBufferType2.oobhdr.len;
+                dataLen = le32_to_cpu(rxDashBufferType2.oobhdr.len);
 
                 tp->AfterRecvFromFwBufLen = dataLen + sizeof(OSOOBHdr);
                 if (tp->AfterRecvFromFwBufLen > tp->SizeOfRecvFromFwBuffer) {
@@ -170,11 +175,18 @@ static void RecvFromDashFwComplete(struct rtl8127_private *tp)
                 r8127_write_ipc2_tx_ack(tp);
 
                 tp->OobReqComplete = TRUE;
+                tp->DashReqRegValue = DASH_OOB_HDR_TYPE_REQ;
 
                 tp->RecvFromDashFwCnt++;
-        } else if (tp->DashReqRegValue == DASH_OOB_HDR_TYPE_ACK) { //rx ack
+        }
+
+check_ack:
+        if (test_and_clear_bit(R8127_DASH_EVENT_ACK, &tp->dash_event_flags)) {
                 if (!tp->OobAck)
                         goto exit;
+
+                if (!rok_present)
+                        tp->DashReqRegValue = DASH_OOB_HDR_TYPE_ACK;
 
                 tp->OobAckComplete = TRUE;
 
@@ -287,7 +299,7 @@ static u32 rtl8127_get_ipc2_isr(struct rtl8127_private *tp)
 
         isr = RTL_DASH_IPC2_R32(tp, IPC2_RX_STATUS_REG);
 
-        if (isr == ULONG_MAX)
+        if (isr == (u32)~0)
                 isr = 0;
 
 exit:
@@ -312,7 +324,7 @@ void rtl8127_set_ipc2_soc_imr_bit(struct rtl8127_private *tp, u32 mask)
         if (FALSE == HW_DASH_SUPPORT_IPC2(tp))
                 return;
 
-        RTL_W32(tp, RISC_IMR_8127AP, RTL_R16(tp, RISC_IMR_8127AP) | mask);
+        RTL_W32(tp, RISC_IMR_8127AP, RTL_R32(tp, RISC_IMR_8127AP) | mask);
 }
 
 void rtl8127_clear_ipc2_soc_imr_bit(struct rtl8127_private *tp, u32 mask)
@@ -320,7 +332,7 @@ void rtl8127_clear_ipc2_soc_imr_bit(struct rtl8127_private *tp, u32 mask)
         if (FALSE == HW_DASH_SUPPORT_IPC2(tp))
                 return;
 
-        RTL_W32(tp, RISC_IMR_8127AP, RTL_R16(tp, RISC_IMR_8127AP) & ~mask);
+        RTL_W32(tp, RISC_IMR_8127AP, RTL_R32(tp, RISC_IMR_8127AP) & ~mask);
 }
 
 bool rtl8127_check_dash_interrupt(struct rtl8127_private *tp)
@@ -328,7 +340,7 @@ bool rtl8127_check_dash_interrupt(struct rtl8127_private *tp)
         bool rc = false;
         u32 isr;
 
-        if(!tp->DASH)
+        if (!tp->DASH)
                 goto exit;
 
         if (FALSE == HW_DASH_SUPPORT_IPC2(tp))
@@ -336,15 +348,14 @@ bool rtl8127_check_dash_interrupt(struct rtl8127_private *tp)
 
         isr = rtl8127_get_ipc2_isr(tp);
 
-        if (isr & (IPC2_RX_ROK_BIT | IPC2_RX_ACK_BIT)) {
-                set_bit(R8127_RCV_REQ_DASH_OK, tp->dash_req_flags);
-                if (isr & IPC2_RX_ROK_BIT)
-                        tp->DashReqRegValue = DASH_OOB_HDR_TYPE_REQ;
-                else
-                        tp->DashReqRegValue = DASH_OOB_HDR_TYPE_ACK;
-        }
+        if (isr & IPC2_RX_ROK_BIT)
+                set_bit(R8127_DASH_EVENT_ROK, &tp->dash_event_flags);
+        if (isr & IPC2_RX_ACK_BIT)
+                set_bit(R8127_DASH_EVENT_ACK, &tp->dash_event_flags);
 
         rtl8127_set_ipc2_isr(tp, isr);
+
+        rc = true;
 
 exit:
         return rc;
@@ -354,11 +365,10 @@ void rtl8127_handle_dash_interrupt(struct net_device *dev)
 {
         struct rtl8127_private *tp = netdev_priv(dev);
 
-        if(!tp->DASH)
+        if (!tp->DASH)
                 return;
 
-        if (test_and_clear_bit(R8127_RCV_REQ_DASH_OK, tp->dash_req_flags))
-                RecvFromDashFwComplete(tp);
+        RecvFromDashFwComplete(tp);
 }
 
 static int DashIoctlGetRcvFromFwData(struct net_device *dev, struct rtl_dash_ioctl_struct *prtl_dash_usrdata)
@@ -385,7 +395,7 @@ static int DashIoctlGetRcvFromFwData(struct net_device *dev, struct rtl_dash_ioc
         InformationBufferLength = prtl_dash_usrdata->len;
         InformationBuffer = prtl_dash_usrdata->data_buffer;
 
-        ulInfoLen = tp->AfterRecvFromFwBufLen + 2 + 2;
+        ulInfoLen = tp->AfterRecvFromFwBufLen + sizeof(u16) * 2;
         if (InformationBufferLength < ulInfoLen) {
                 ret = -EFAULT;
                 goto exit;
@@ -402,7 +412,7 @@ static int DashIoctlGetRcvFromFwData(struct net_device *dev, struct rtl_dash_ioc
         pByte = (u8*)pWord;
         memcpy(pByte, pInfo, tp->AfterRecvFromFwBufLen);
         pWord = (u16*)(pByte + tp->AfterRecvFromFwBufLen);
-        *pWord= tp->DashReqRegValue;
+        *pWord = tp->DashReqRegValue;
         tp->AfterRecvFromFwBufLen = 0;
         if (copy_to_user(InformationBuffer, tmpBuf, ulInfoLen)) {
                 kfree(tmpBuf);
@@ -487,6 +497,11 @@ static int DashIoctlCheckSendBufferToFw(struct net_device *dev, struct rtl_dash_
                 goto exit;
 
         InformationBufferLength = prtl_dash_usrdata->len;
+        if (InformationBufferLength > SEND_TO_FW_BUF_SIZE) {
+                ret = -EINVAL;
+                goto exit;
+        }
+
         if (!(InformationBuffer = kmalloc(InformationBufferLength, GFP_KERNEL))) {
                 ret = -ENOMEM;
                 goto exit;
@@ -544,7 +559,7 @@ int rtl8127_dash_ioctl(struct net_device *dev, struct ifreq *ifr)
                 break;
         case RTL_DASH_CHECK_SEND_BUFFER_TO_DASH_FW_COMPLETE:
                 ret = DashIoctlCheckSendBufferToFwComplete(dev,
-                                &rtl_dash_usrdata);
+                        &rtl_dash_usrdata);
                 break;
         case RTL_DASH_GET_RCV_FROM_FW_BUFFER_DATA:
                 ret = DashIoctlGetRcvFromFwData(dev, &rtl_dash_usrdata);

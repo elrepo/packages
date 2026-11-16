@@ -32,70 +32,37 @@
  *  US6,570,884, US6,115,776, and US6,327,625.
  ***********************************************************************************/
 
-#ifndef _LINUX_RTLTOOL_H
-#define _LINUX_RTLTOOL_H
+#ifndef _LINUX_R8127_FIRMWARE_H
+#define _LINUX_R8127_FIRMWARE_H
 
-#define SIOCRTLTOOL		SIOCDEVPRIVATE+1
+#include <linux/device.h>
+#include <linux/firmware.h>
 
-enum rtl_cmd {
-        RTLTOOL_READ_MAC=0,
-        RTLTOOL_WRITE_MAC,
-        RTLTOOL_READ_PHY,
-        RTLTOOL_WRITE_PHY,
-        RTLTOOL_READ_EPHY,
-        RTLTOOL_WRITE_EPHY,
-        RTLTOOL_READ_ERI,
-        RTLTOOL_WRITE_ERI,
-        RTLTOOL_READ_PCI,
-        RTLTOOL_WRITE_PCI,
-        RTLTOOL_READ_EEPROM,
-        RTLTOOL_WRITE_EEPROM,
+struct rtl8127_private;
+typedef void (*rtl8127_fw_write_t)(struct rtl8127_private *tp, u16 reg, u16 val);
+typedef u32 (*rtl8127_fw_read_t)(struct rtl8127_private *tp, u16 reg);
 
-        RTL_READ_OOB_MAC,
-        RTL_WRITE_OOB_MAC,
+#define RTL8127_VER_SIZE		32
 
-        RTL_ENABLE_PCI_DIAG,
-        RTL_DISABLE_PCI_DIAG,
+struct rtl8127_fw {
+        rtl8127_fw_write_t phy_write;
+        rtl8127_fw_read_t phy_read;
+        rtl8127_fw_write_t mac_mcu_write;
+        rtl8127_fw_read_t mac_mcu_read;
+        const struct firmware *fw;
+        const char *fw_name;
+        struct device *dev;
 
-        RTL_READ_MAC_OCP,
-        RTL_WRITE_MAC_OCP,
+        char version[RTL8127_VER_SIZE];
 
-        RTL_DIRECT_READ_PHY_OCP,
-        RTL_DIRECT_WRITE_PHY_OCP,
-
-        RTL_READ_FIBER_PHY,
-        RTL_WRITE_FIBER_PHY,
-
-        RTL_READ_SDS_PHY,
-        RTL_WRITE_SDS_PHY,
-
-        RTLTOOL_INVALID
+        struct rtl8127_fw_phy_action {
+                __le32 *code;
+                size_t size;
+        } phy_action;
 };
 
-struct rtltool_cmd {
-        __u32	cmd;
-        __u32	offset;
-        __u32	len;
-        __u32	data;
-};
+int rtl8127_fw_request_firmware(struct rtl8127_fw *rtl_fw);
+void rtl8127_fw_release_firmware(struct rtl8127_fw *rtl_fw);
+void rtl8127_fw_write_firmware(struct rtl8127_private *tp, struct rtl8127_fw *rtl_fw);
 
-struct rtltool_sds_cmd {
-        __u32	cmd;
-        __u16	index;
-        __u16	page;
-        __u16	addr;
-        __u16	len;
-        __u32	data;
-};
-
-enum mode_access {
-        MODE_NONE=0,
-        MODE_READ,
-        MODE_WRITE
-};
-
-#ifdef __KERNEL__
-int rtl8127_tool_ioctl(struct rtl8127_private *tp, struct ifreq *ifr);
-#endif
-
-#endif /* _LINUX_RTLTOOL_H */
+#endif /* _LINUX_R8127_FIRMWARE_H */

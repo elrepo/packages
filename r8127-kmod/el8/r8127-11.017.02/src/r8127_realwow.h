@@ -35,7 +35,7 @@
 #ifndef _LINUX_R8127_REALWOW_H
 #define _LINUX_R8127_REALWOW_H
 
-#define SIOCDEVPRIVATE_RTLREALWOW   SIOCDEVPRIVATE+3
+#define SIOCDEVPRIVATE_RTLREALWOW   (SIOCDEVPRIVATE+3)
 
 #define MAX_RealWoW_KCP_SIZE (100)
 #define MAX_RealWoW_Payload (64)
@@ -43,7 +43,7 @@
 #define KA_TX_PACKET_SIZE (100)
 #define KA_WAKEUP_PATTERN_SIZE (120)
 
-//HwSuppKeepAliveOffloadVer
+/* HwSuppKeepAliveOffloadVer */
 #define HW_SUPPORT_KCP_OFFLOAD(_M)        ((_M)->HwSuppKCPOffloadVer > 0)
 
 enum rtl_realwow_cmd {
@@ -56,7 +56,7 @@ enum rtl_realwow_cmd {
         RTL_REALWOW_SET_KCP_WPINFO,
         RTL_REALWOW_SET_KCPDHCP_TIMEOUT,
 
-        RTLT_REALWOW_COMMAND_INVALID
+        RTL_REALWOW_COMMAND_INVALID
 };
 
 struct rtl_realwow_ioctl_struct {
@@ -64,8 +64,8 @@ struct rtl_realwow_ioctl_struct {
         __u32	offset;
         __u32	len;
         union {
-                __u32	data;
                 void *data_buffer;
+                __u32	data;
         };
 };
 
@@ -101,12 +101,12 @@ typedef struct _KCPContent {
 
 typedef struct _RealWoWAckPktInfo {
         u16 ackLostCnt;
-        u16 patterntSize;
+        u16 patternSize;
         u8 pattern[MAX_RealWoW_Payload];
 } RealWoWAckPktInfo,*PRealWoWAckPktInfo;
 
 typedef struct _RealWoWWPInfo {
-        u16 patterntSize;
+        u16 patternSize;
         u8 pattern[MAX_RealWoW_Payload];
 } RealWoWWPInfo,*PRealWoWWPInfo;
 

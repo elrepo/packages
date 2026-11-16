@@ -32,37 +32,32 @@
  *  US6,570,884, US6,115,776, and US6,327,625.
  ***********************************************************************************/
 
-#ifndef _LINUX_R8127_FIRMWARE_H
-#define _LINUX_R8127_FIRMWARE_H
+#ifndef _LINUX_R8127_FIBER_H
+#define _LINUX_R8127_FIBER_H
 
-#include <linux/device.h>
-#include <linux/firmware.h>
-
-struct rtl8127_private;
-typedef void (*rtl8127_fw_write_t)(struct rtl8127_private *tp, u16 reg, u16 val);
-typedef u32 (*rtl8127_fw_read_t)(struct rtl8127_private *tp, u16 reg);
-
-#define RTL8127_VER_SIZE		32
-
-struct rtl8127_fw {
-        rtl8127_fw_write_t phy_write;
-        rtl8127_fw_read_t phy_read;
-        rtl8127_fw_write_t mac_mcu_write;
-        rtl8127_fw_read_t mac_mcu_read;
-        const struct firmware *fw;
-        const char *fw_name;
-        struct device *dev;
-
-        char version[RTL8127_VER_SIZE];
-
-        struct rtl8127_fw_phy_action {
-                __le32 *code;
-                size_t size;
-        } phy_action;
+enum {
+        FIBER_MODE_NIC_ONLY = 0,
+        FIBER_MODE_RTL8127ATF,
+        FIBER_MODE_MAX
 };
 
-int rtl8127_fw_request_firmware(struct rtl8127_fw *rtl_fw);
-void rtl8127_fw_release_firmware(struct rtl8127_fw *rtl_fw);
-void rtl8127_fw_write_firmware(struct rtl8127_private *tp, struct rtl8127_fw *rtl_fw);
+#define HW_FIBER_MODE_ENABLED(_M)        ((_M)->HwFiberModeVer > 0)
 
-#endif /* _LINUX_R8127_FIRMWARE_H */
+struct rtl8127_private;
+
+u16 rtl8127_sds_phy_read_8127(struct rtl8127_private *tp, u16 index, u16 page,
+                              u16 reg);
+void rtl8127_sds_phy_write_8127(struct rtl8127_private *tp, u16 index, u16 page,
+                                u16 reg, u16 val);
+void rtl8127_hw_fiber_phy_config(struct rtl8127_private *tp);
+bool rtl8127_check_fiber_mode_support(struct rtl8127_private *tp);
+bool rtl8127_sds_If_i2c_is_10g_sfp_cap(struct rtl8127_private *tp);
+bool rtl8127_sds_sfp_connected_8127(struct rtl8127_private *tp);
+void _rtl8127_set_sds_phy_caps_8127(struct rtl8127_private *tp, u32 cap);
+int rtl8127_get_module_info(struct net_device *netdev,
+                            struct ethtool_modinfo *modinfo);
+int rtl8127_get_module_eeprom(struct net_device *netdev,
+                              struct ethtool_eeprom *ee,
+                              u8 *data);
+
+#endif /* _LINUX_R8127_FIBER_H */

@@ -50,6 +50,7 @@ int rtl8127_tool_ioctl(struct rtl8127_private *tp, struct ifreq *ifr)
         struct rtltool_sds_cmd *sds_cmd;
         struct rtltool_cmd my_cmd;
         unsigned long flags;
+        u32 cfg_size;
         int ret;
 
         if (copy_from_user(&my_cmd, ifr->ifr_data, sizeof(my_cmd)))
@@ -118,6 +119,11 @@ int rtl8127_tool_ioctl(struct rtl8127_private *tp, struct ifreq *ifr)
                 break;
 
         case RTLTOOL_READ_EPHY:
+                if (my_cmd.offset > 0xffff) {
+                        ret = -EINVAL;
+                        break;
+                }
+
                 my_cmd.data = rtl8127_ephy_read(tp, my_cmd.offset);
                 if (copy_to_user(ifr->ifr_data, &my_cmd, sizeof(my_cmd))) {
                         ret = -EFAULT;
@@ -127,10 +133,20 @@ int rtl8127_tool_ioctl(struct rtl8127_private *tp, struct ifreq *ifr)
                 break;
 
         case RTLTOOL_WRITE_EPHY:
+                if (my_cmd.offset > 0xffff || my_cmd.data > 0xffff) {
+                        ret = -EINVAL;
+                        break;
+                }
+
                 rtl8127_ephy_write(tp, my_cmd.offset, my_cmd.data);
                 break;
 
         case RTLTOOL_READ_ERI:
+                if (my_cmd.offset > 0xffff) {
+                        ret = -EINVAL;
+                        break;
+                }
+
                 my_cmd.data = 0;
                 if (my_cmd.len==1 || my_cmd.len==2 || my_cmd.len==4) {
                         my_cmd.data = rtl8127_eri_read(tp, my_cmd.offset, my_cmd.len, ERIAR_ExGMAC);
@@ -147,6 +163,11 @@ int rtl8127_tool_ioctl(struct rtl8127_private *tp, struct ifreq *ifr)
                 break;
 
         case RTLTOOL_WRITE_ERI:
+                if (my_cmd.offset > 0xffff) {
+                        ret = -EINVAL;
+                        break;
+                }
+
                 if (my_cmd.len==1 || my_cmd.len==2 || my_cmd.len==4) {
                         rtl8127_eri_write(tp, my_cmd.offset, my_cmd.len, my_cmd.data, ERIAR_ExGMAC);
                 } else {
@@ -156,6 +177,14 @@ int rtl8127_tool_ioctl(struct rtl8127_private *tp, struct ifreq *ifr)
                 break;
 
         case RTLTOOL_READ_PCI:
+                cfg_size = min_t(u32, tp->pci_dev->cfg_size,
+                                 PCI_CFG_SPACE_EXP_SIZE);
+                if (my_cmd.offset >= cfg_size ||
+                    my_cmd.len > cfg_size - my_cmd.offset) {
+                        ret = -EINVAL;
+                        break;
+                }
+
                 my_cmd.data = 0;
                 if (my_cmd.len==1)
                         pci_read_config_byte(tp->pci_dev, my_cmd.offset,
@@ -178,6 +207,14 @@ int rtl8127_tool_ioctl(struct rtl8127_private *tp, struct ifreq *ifr)
                 break;
 
         case RTLTOOL_WRITE_PCI:
+                cfg_size = min_t(u32, tp->pci_dev->cfg_size,
+                                 PCI_CFG_SPACE_EXP_SIZE);
+                if (my_cmd.offset >= cfg_size ||
+                    my_cmd.len > cfg_size - my_cmd.offset) {
+                        ret = -EINVAL;
+                        break;
+                }
+
                 if (my_cmd.len==1)
                         pci_write_config_byte(tp->pci_dev, my_cmd.offset,
                                               my_cmd.data);

@@ -32,27 +32,70 @@
  *  US6,570,884, US6,115,776, and US6,327,625.
  ***********************************************************************************/
 
-#ifndef _LINUX_R8127_FIBER_H
-#define _LINUX_R8127_FIBER_H
+#ifndef _LINUX_RTLTOOL_H
+#define _LINUX_RTLTOOL_H
 
-enum {
-        FIBER_MODE_NIC_ONLY = 0,
-        FIBER_MODE_RTL8127ATF,
-        FIBER_MODE_MAX
+#define SIOCRTLTOOL        (SIOCDEVPRIVATE+1)
+
+enum rtl_cmd {
+        RTLTOOL_READ_MAC=0,
+        RTLTOOL_WRITE_MAC,
+        RTLTOOL_READ_PHY,
+        RTLTOOL_WRITE_PHY,
+        RTLTOOL_READ_EPHY,
+        RTLTOOL_WRITE_EPHY,
+        RTLTOOL_READ_ERI,
+        RTLTOOL_WRITE_ERI,
+        RTLTOOL_READ_PCI,
+        RTLTOOL_WRITE_PCI,
+        RTLTOOL_READ_EEPROM,
+        RTLTOOL_WRITE_EEPROM,
+
+        RTL_READ_OOB_MAC,
+        RTL_WRITE_OOB_MAC,
+
+        RTL_ENABLE_PCI_DIAG,
+        RTL_DISABLE_PCI_DIAG,
+
+        RTL_READ_MAC_OCP,
+        RTL_WRITE_MAC_OCP,
+
+        RTL_DIRECT_READ_PHY_OCP,
+        RTL_DIRECT_WRITE_PHY_OCP,
+
+        RTL_READ_FIBER_PHY,
+        RTL_WRITE_FIBER_PHY,
+
+        RTL_READ_SDS_PHY,
+        RTL_WRITE_SDS_PHY,
+
+        RTLTOOL_INVALID
 };
 
-#define HW_FIBER_MODE_ENABLED(_M)        ((_M)->HwFiberModeVer > 0)
+struct rtltool_cmd {
+        __u32    cmd;
+        __u32    offset;
+        __u32    len;
+        __u32    data;
+};
 
-struct rtl8127_private;
+struct rtltool_sds_cmd {
+        __u32    cmd;
+        __u16    index;
+        __u16    page;
+        __u16    addr;
+        __u16    len;
+        __u32    data;
+};
 
-u16 rtl8127_sds_phy_read_8127(struct rtl8127_private *tp, u16 index, u16 page,
-                              u16 reg);
-void rtl8127_sds_phy_write_8127(struct rtl8127_private *tp, u16 index, u16 page,
-                                u16 reg, u16 val);
-void rtl8127_hw_fiber_phy_config(struct rtl8127_private *tp);
-bool rtl8127_check_fiber_mode_support(struct rtl8127_private *tp);
-bool rtl8127_sds_If_i2c_is_10g_sfp_cap(struct rtl8127_private *tp);
-bool rtl8127_sds_sfp_connected_8127(struct rtl8127_private *tp);
-void _rtl8127_set_sds_phy_caps_8127(struct rtl8127_private *tp, u32 cap);
+enum mode_access {
+        MODE_NONE=0,
+        MODE_READ,
+        MODE_WRITE
+};
 
-#endif /* _LINUX_R8127_FIBER_H */
+#ifdef __KERNEL__
+int rtl8127_tool_ioctl(struct rtl8127_private *tp, struct ifreq *ifr);
+#endif
+
+#endif /* _LINUX_RTLTOOL_H */

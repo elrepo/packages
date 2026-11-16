@@ -101,7 +101,7 @@ static bool rtl8127_fw_format_ok(struct rtl8127_fw *rtl_fw)
                 pa->code = (__le32 *)(fw->data + start);
                 pa->size = size;
         } else {
-                if (fw->size % FW_OPCODE_SIZE)
+                if (fw->size < FW_OPCODE_SIZE || fw->size % FW_OPCODE_SIZE)
                         return false;
 
                 strscpy(rtl_fw->version, rtl_fw->fw_name, RTL8127_VER_SIZE);

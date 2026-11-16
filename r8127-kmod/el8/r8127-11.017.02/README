@@ -126,6 +126,11 @@
 			# ethtool -s eth0 autoneg on advertise 0x000f (100M full)
 			# ethtool -s eth0 autoneg on advertise 0x0003 (10M full)
 
+			For RTL8127atf fiber mode, use the following commands to select
+			1G only or 10G only:
+			# ethtool -s eth0 autoneg on advertise 0x0020 (1G only)
+			# ethtool -s eth0 autoneg on advertise 0x1000 (10G only)
+
 <Jumbo Frame>
 	Transmitting Jumbo Frames, whose packet size is bigger than 1500 bytes, please change mtu by the following command.
 

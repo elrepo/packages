@@ -42,8 +42,8 @@
 #define RTL8127_MAX_INDIRECTION_TABLE_ENTRIES 128
 
 enum rtl8127_rss_flag {
-        RTL_8125_RSS_FLAG_HASH_UDP_IPV4  = (1 << 0),
-        RTL_8125_RSS_FLAG_HASH_UDP_IPV6  = (1 << 1),
+        RTL_8127_RSS_FLAG_HASH_UDP_IPV4  = (1 << 0),
+        RTL_8127_RSS_FLAG_HASH_UDP_IPV6  = (1 << 1),
 };
 
 struct rtl8127_private;

@@ -1,6 +1,6 @@
-diff -Naurp r8127-11.016.00.orig/src/r8127.h r8127-11.016.00.el8/src/r8127.h
---- r8127-11.016.00.orig/src/r8127.h	2026-01-28 09:56:18.000000000 -0500
-+++ r8127-11.016.00.el8/src/r8127.h	2026-05-11 22:17:22.896528538 -0400
+diff -Naurp r8127-11.017.02.orig/src/r8127.h r8127-11.017.02.el8/src/r8127.h
+--- r8127-11.017.02.orig/src/r8127.h	2026-11-04 01:03:25.000000000 -0500
++++ r8127-11.017.02.el8/src/r8127.h	2026-11-16 13:40:18.634502181 -0500
 @@ -123,7 +123,7 @@ static inline bool skb_transport_header_
  }
  #endif /* LINUX_VERSION_CODE < KERNEL_VERSION(3,9,0) */
@@ -28,7 +28,16 @@ diff -Naurp r8127-11.016.00.orig/src/r8127.h r8127-11.016.00.el8/src/r8127.h
  static inline void fsleep(unsigned long usecs)
  {
          if (usecs <= 10)
-@@ -244,7 +244,7 @@ static inline void skb_mark_not_on_list(
+@@ -222,7 +222,7 @@ static inline void fsleep(unsigned long
+ 
+ #if (LINUX_VERSION_CODE < KERNEL_VERSION(4,19,0) && \
+      !(LINUX_VERSION_CODE >= KERNEL_VERSION(4,14,217) && \
+-     LINUX_VERSION_CODE < KERNEL_VERSION(4,15,0)))
++     LINUX_VERSION_CODE < KERNEL_VERSION(4,15,0))) && RHEL_MAJOR != 8
+ static inline void skb_mark_not_on_list(struct sk_buff *skb)
+ {
+         skb->next = NULL;
+@@ -246,7 +246,7 @@ static inline void skb_mark_not_on_list(
  typedef int netdev_tx_t;
  #endif
  
@@ -37,7 +46,7 @@ diff -Naurp r8127-11.016.00.orig/src/r8127.h r8127-11.016.00.el8/src/r8127.h
  #if LINUX_VERSION_CODE < KERNEL_VERSION(4,1,9)
  static inline bool page_is_pfmemalloc(struct page *page)
  {
-@@ -970,7 +970,7 @@ typedef int *napi_budget;
+@@ -975,7 +975,7 @@ typedef int *napi_budget;
  typedef struct napi_struct *napi_ptr;
  typedef int napi_budget;
  
@@ -46,9 +55,31 @@ diff -Naurp r8127-11.016.00.orig/src/r8127.h r8127-11.016.00.el8/src/r8127.h
  #define RTL_NAPI_CONFIG(ndev, priv, function, weight)   netif_napi_add_weight(ndev, &priv->napi, function, weight)
  #else
  #define RTL_NAPI_CONFIG(ndev, priv, function, weight)   netif_napi_add(ndev, &priv->napi, function, weight)
-diff -Naurp r8127-11.016.00.orig/src/r8127_n.c r8127-11.016.00.el8/src/r8127_n.c
---- r8127-11.016.00.orig/src/r8127_n.c	2026-01-28 09:54:49.000000000 -0500
-+++ r8127-11.016.00.el8/src/r8127_n.c	2026-05-11 22:17:22.899528468 -0400
+@@ -3029,9 +3029,9 @@ enum mcfg {
+ void rtl8127_mdio_write(struct rtl8127_private *tp, u16 RegAddr, u16 value);
+ void rtl8127_mdio_prot_write(struct rtl8127_private *tp, u32 RegAddr, u32 value);
+ void rtl8127_mdio_prot_direct_write_phy_ocp(struct rtl8127_private *tp, u32 RegAddr, u32 value);
+-u16 rtl8127_mdio_read(struct rtl8127_private *tp, u16 RegAddr);
+-u16 rtl8127_mdio_prot_read(struct rtl8127_private *tp, u32 RegAddr);
+-u16 rtl8127_mdio_prot_direct_read_phy_ocp(struct rtl8127_private *tp, u32 RegAddr);
++u32 rtl8127_mdio_read(struct rtl8127_private *tp, u16 RegAddr);
++u32 rtl8127_mdio_prot_read(struct rtl8127_private *tp, u32 RegAddr);
++u32 rtl8127_mdio_prot_direct_read_phy_ocp(struct rtl8127_private *tp, u32 RegAddr);
+ void rtl8127_ephy_write(struct rtl8127_private *tp, int RegAddr, int value);
+ void rtl8127_mac_ocp_write(struct rtl8127_private *tp, u16 reg_addr, u16 value);
+ u16 rtl8127_mac_ocp_read(struct rtl8127_private *tp, u16 reg_addr);
+@@ -3163,7 +3163,7 @@ void rtl8127_enable_napi(struct rtl8127_
+ void _rtl8127_wait_for_quiescence(struct net_device *dev);
+ 
+ void rtl8127_mdio_direct_write_phy_ocp(struct rtl8127_private *tp, u16 RegAddr,u16 value);
+-u16 rtl8127_mdio_direct_read_phy_ocp(struct rtl8127_private *tp, u16 RegAddr);
++u32 rtl8127_mdio_direct_read_phy_ocp(struct rtl8127_private *tp, u16 RegAddr);
+ void rtl8127_clear_and_set_eth_phy_ocp_bit(struct rtl8127_private *tp, u16 addr, u16 clearmask, u16 setmask);
+ void rtl8127_clear_eth_phy_ocp_bit(struct rtl8127_private *tp, u16 addr, u16 mask);
+ void rtl8127_set_eth_phy_ocp_bit(struct rtl8127_private *tp,  u16 addr, u16 mask);
+diff -Naurp r8127-11.017.02.orig/src/r8127_n.c r8127-11.017.02.el8/src/r8127_n.c
+--- r8127-11.017.02.orig/src/r8127_n.c	2026-11-04 01:03:25.000000000 -0500
++++ r8127-11.017.02.el8/src/r8127_n.c	2026-11-16 13:43:18.726266165 -0500
 @@ -58,7 +58,7 @@
  #include <linux/completion.h>
  
@@ -58,7 +89,7 @@ diff -Naurp r8127-11.016.00.orig/src/r8127_n.c r8127-11.016.00.el8/src/r8127_n.c
  #include <linux/pci-aspm.h>
  #endif
  #endif
-@@ -294,7 +294,7 @@ static irqreturn_t rtl8127_interrupt_msi
+@@ -305,7 +305,7 @@ static irqreturn_t rtl8127_interrupt_msi
  static irqreturn_t rtl8127_interrupt_msix(int irq, void *dev_instance);
  #endif
  static void rtl8127_set_rx_mode(struct net_device *dev);
@@ -67,7 +98,66 @@ diff -Naurp r8127-11.016.00.orig/src/r8127_n.c r8127-11.016.00.el8/src/r8127_n.c
  static void rtl8127_tx_timeout(struct net_device *dev, unsigned int txqueue);
  #else
  static void rtl8127_tx_timeout(struct net_device *dev);
-@@ -6529,7 +6529,7 @@ rtl8127_set_ring_size(struct rtl8127_pri
+@@ -3264,7 +3264,7 @@ void rtl8127_mdio_prot_direct_write_phy_
+         mdio_real_direct_write_phy_ocp(tp, RegAddr, value);
+ }
+ 
+-static u16 mdio_real_direct_read_phy_ocp(struct rtl8127_private *tp,
++static u32 mdio_real_direct_read_phy_ocp(struct rtl8127_private *tp,
+                 u16 RegAddr)
+ {
+         u32 data32;
+@@ -3288,7 +3288,7 @@ static u16 mdio_real_direct_read_phy_ocp
+         return (u16)value;
+ }
+ 
+-u16 rtl8127_mdio_direct_read_phy_ocp(struct rtl8127_private *tp,
++u32 rtl8127_mdio_direct_read_phy_ocp(struct rtl8127_private *tp,
+                                      u16 RegAddr)
+ {
+         if (tp->rtk_enable_diag)
+@@ -3310,7 +3310,7 @@ static u32 rtl8127_mdio_read_phy_ocp(str
+ }
+ */
+ 
+-static u16 rtl8127_mdio_real_read_phy_ocp(struct rtl8127_private *tp,
++static u32 rtl8127_mdio_real_read_phy_ocp(struct rtl8127_private *tp,
+                 u16 PageNum,
+                 u32 RegAddr)
+ {
+@@ -3321,13 +3321,13 @@ static u16 rtl8127_mdio_real_read_phy_oc
+         return mdio_real_direct_read_phy_ocp(tp, ocp_addr);
+ }
+ 
+-static u16 mdio_real_read(struct rtl8127_private *tp,
++static u32 mdio_real_read(struct rtl8127_private *tp,
+                           u16 RegAddr)
+ {
+         return rtl8127_mdio_real_read_phy_ocp(tp, tp->cur_page, RegAddr);
+ }
+ 
+-u16 rtl8127_mdio_read(struct rtl8127_private *tp,
++u32 rtl8127_mdio_read(struct rtl8127_private *tp,
+                       u16 RegAddr)
+ {
+         if (tp->rtk_enable_diag)
+@@ -3336,13 +3336,13 @@ u16 rtl8127_mdio_read(struct rtl8127_pri
+         return mdio_real_read(tp, RegAddr);
+ }
+ 
+-u16 rtl8127_mdio_prot_read(struct rtl8127_private *tp,
++u32 rtl8127_mdio_prot_read(struct rtl8127_private *tp,
+                            u32 RegAddr)
+ {
+         return mdio_real_read(tp, RegAddr);
+ }
+ 
+-u16 rtl8127_mdio_prot_direct_read_phy_ocp(struct rtl8127_private *tp,
++u32 rtl8127_mdio_prot_direct_read_phy_ocp(struct rtl8127_private *tp,
+                 u32 RegAddr)
+ {
+         return mdio_real_direct_read_phy_ocp(tp, RegAddr);
+@@ -6765,7 +6765,7 @@ rtl8127_set_ring_size(struct rtl8127_pri
  }
  
  #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
@@ -76,7 +166,7 @@ diff -Naurp r8127-11.016.00.orig/src/r8127_n.c r8127-11.016.00.el8/src/r8127_n.c
  static void rtl8127_get_ringparam(struct net_device *dev,
                                    struct ethtool_ringparam *ring,
                                    struct kernel_ethtool_ringparam *kernel_ring,
-@@ -6547,7 +6547,7 @@ static void rtl8127_get_ringparam(struct
+@@ -6783,7 +6783,7 @@ static void rtl8127_get_ringparam(struct
          ring->tx_pending = tp->tx_ring[0].num_tx_desc;
  }
  
@@ -85,27 +175,27 @@ diff -Naurp r8127-11.016.00.orig/src/r8127_n.c r8127-11.016.00.el8/src/r8127_n.c
  static int rtl8127_set_ringparam(struct net_device *dev,
                                   struct ethtool_ringparam *ring,
                                   struct kernel_ethtool_ringparam *kernel_ring,
-@@ -15291,7 +15291,7 @@ rtl8127_init_one(struct pci_dev *pdev,
+@@ -15919,7 +15919,7 @@ rtl8127_init_one(struct pci_dev *pdev,
                  dev->hw_features |= NETIF_F_IPV6_CSUM | NETIF_F_TSO6;
                  dev->features |= NETIF_F_IPV6_CSUM;
                  dev->features |= NETIF_F_TSO6;
 -#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,19,0)
 +#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,19,0) || RHEL_MAJOR == 8
-                 netif_set_tso_max_size(dev, LSO_64K);
-                 netif_set_tso_max_segs(dev, NIC_MAX_PHYS_BUF_COUNT_LSO2);
+                 netif_set_tso_max_size(dev, LSO_256K);
+                 netif_set_tso_max_segs(dev, NIC_MAX_PHYS_BUF_COUNT_LSO2_256K);
  #else //LINUX_VERSION_CODE >= KERNEL_VERSION(5,19,0)
-@@ -17100,7 +17100,7 @@ out_unlock:
-         rtnl_unlock();
+@@ -17939,7 +17939,7 @@ out_unlock:
  }
+ #endif /* ENABLE_MDIO_SUPPORT */
  
 -#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,6,0)
 +#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,6,0) || RHEL_MAJOR == 8
  static void
  rtl8127_tx_timeout(struct net_device *dev, unsigned int txqueue)
  #else
-diff -Naurp r8127-11.016.00.orig/src/r8127_ptp.h r8127-11.016.00.el8/src/r8127_ptp.h
---- r8127-11.016.00.orig/src/r8127_ptp.h	2026-01-28 09:54:49.000000000 -0500
-+++ r8127-11.016.00.el8/src/r8127_ptp.h	2026-05-11 22:17:22.900528445 -0400
+diff -Naurp r8127-11.017.02.orig/src/r8127_ptp.h r8127-11.017.02.el8/src/r8127_ptp.h
+--- r8127-11.017.02.orig/src/r8127_ptp.h	2026-11-04 01:03:25.000000000 -0500
++++ r8127-11.017.02.el8/src/r8127_ptp.h	2026-11-16 13:35:16.344653403 -0500
 @@ -115,7 +115,7 @@ enum PTP_TRX_TS_STA_REG {
  #define PTP_CTL_TYPE_2 (0x0FF)
  #define PTP_CTL_TYPE_3 (0x03F)
