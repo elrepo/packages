@@ -2,13 +2,13 @@
 %define kmod_name	via-velocity
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.5.3.el9_8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-741.20.1.el9_9}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	1.15
-Release:	12%{?dist}
+Release:	13%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,8 +19,7 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0:		elrepo-%{kmod_name}-extend-coalesce-setting.el9_1.patch
-Patch1:		elrepo-%{kmod_name}-netif_napi_add.el9_2.patch
+Patch0: 	elrepo-%{kmod_name}-netif_napi_add.el9_2.patch
 
 %define __spec_install_post \
 		/usr/lib/rpm/check-buildroot \
@@ -78,10 +77,10 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 
 # Apply patch(es)
 %patch0 -p1
-%patch1 -p1
 
 %build
-%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
+%{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD \
+	CONFIG_VIA_VELOCITY=m
 
 whitelist="/lib/modules/kabi-current/kabi_stablelist_%{_target_cpu}"
 for modules in $( find . -name "*.ko" -type f -printf "%{findpat}\n" | sed 's|\.ko$||' | sort -u ) ; do
@@ -192,6 +191,10 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Nov 12 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.15-13
+- Source code from RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
+- Built against RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
+
 * Fri May 22 2026 Akemi Yagi <toracat@elrepo.org> - 1.15-12
 - Rebuilt against RHEL 9.8 GA kernel
 

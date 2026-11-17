@@ -1,6 +1,6 @@
-diff -Naurp kmod-wl-6.30.223.271.ubuntu.orig/amd64/src/include/linuxver.h kmod-wl-6.30.223.271.ubuntu.el9/amd64/src/include/linuxver.h
---- kmod-wl-6.30.223.271.ubuntu.orig/amd64/src/include/linuxver.h	2026-09-03 23:04:20.568273259 -0400
-+++ kmod-wl-6.30.223.271.ubuntu.el9/amd64/src/include/linuxver.h	2026-09-03 23:12:55.020952799 -0400
+diff -Naurp kmod-wl-6.30.223.271.orig/amd64/src/include/linuxver.h kmod-wl-6.30.223.271.el9_8/amd64/src/include/linuxver.h
+--- kmod-wl-6.30.223.271.orig/amd64/src/include/linuxver.h	2026-11-13 14:22:16.407054217 -0500
++++ kmod-wl-6.30.223.271.el9_8/amd64/src/include/linuxver.h	2026-11-13 14:23:06.494353345 -0500
 @@ -148,7 +148,7 @@ typedef irqreturn_t(*FN_ISR) (int irq, v
  #endif
  
@@ -10,9 +10,9 @@ diff -Naurp kmod-wl-6.30.223.271.ubuntu.orig/amd64/src/include/linuxver.h kmod-w
  #include "lib80211.h"
  #else
  #include <net/lib80211.h>
-diff -Naurp kmod-wl-6.30.223.271.ubuntu.orig/amd64/src/wl/sys/wl_cfg80211_hybrid.c kmod-wl-6.30.223.271.ubuntu.el9/amd64/src/wl/sys/wl_cfg80211_hybrid.c
---- kmod-wl-6.30.223.271.ubuntu.orig/amd64/src/wl/sys/wl_cfg80211_hybrid.c	2026-09-03 23:04:20.585274042 -0400
-+++ kmod-wl-6.30.223.271.ubuntu.el9/amd64/src/wl/sys/wl_cfg80211_hybrid.c	2026-09-04 02:03:21.044070753 -0400
+diff -Naurp kmod-wl-6.30.223.271.orig/amd64/src/wl/sys/wl_cfg80211_hybrid.c kmod-wl-6.30.223.271.el9_8/amd64/src/wl/sys/wl_cfg80211_hybrid.c
+--- kmod-wl-6.30.223.271.orig/amd64/src/wl/sys/wl_cfg80211_hybrid.c	2026-11-13 14:22:16.429055227 -0500
++++ kmod-wl-6.30.223.271.el9_8/amd64/src/wl/sys/wl_cfg80211_hybrid.c	2026-11-13 14:23:06.495353391 -0500
 @@ -67,7 +67,7 @@ wl_cfg80211_scan(struct wiphy *wiphy,
  static s32 wl_cfg80211_scan(struct wiphy *wiphy, struct net_device *ndev,
             struct cfg80211_scan_request *request);
@@ -121,7 +121,7 @@ diff -Naurp kmod-wl-6.30.223.271.ubuntu.orig/amd64/src/wl/sys/wl_cfg80211_hybrid
  static s32
  wl_cfg80211_get_key(struct wiphy *wiphy, struct net_device *dev,
                      int link_id, u8 key_idx, bool pairwise, const u8 *mac_addr,
-@@ -2496,7 +2496,7 @@ wl_bss_roaming_done(struct wl_cfg80211_p
+@@ -2503,7 +2503,7 @@ wl_bss_roaming_done(struct wl_cfg80211_p
  	struct wl_cfg80211_connect_info *conn_info = wl_to_conn(wl);
  #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12, 0)
  	struct cfg80211_roam_info roam_info = {
@@ -130,9 +130,9 @@ diff -Naurp kmod-wl-6.30.223.271.ubuntu.orig/amd64/src/wl/sys/wl_cfg80211_hybrid
  		.bssid = wl->profile->bssid,
  #else
  		.links[0].bssid = wl->profile->bssid,
-diff -Naurp kmod-wl-6.30.223.271.ubuntu.orig/amd64/src/wl/sys/wl_linux.c kmod-wl-6.30.223.271.ubuntu.el9/amd64/src/wl/sys/wl_linux.c
---- kmod-wl-6.30.223.271.ubuntu.orig/amd64/src/wl/sys/wl_linux.c	2026-09-03 23:04:20.587274134 -0400
-+++ kmod-wl-6.30.223.271.ubuntu.el9/amd64/src/wl/sys/wl_linux.c	2026-09-04 02:37:57.765943764 -0400
+diff -Naurp kmod-wl-6.30.223.271.orig/amd64/src/wl/sys/wl_linux.c kmod-wl-6.30.223.271.el9_8/amd64/src/wl/sys/wl_linux.c
+--- kmod-wl-6.30.223.271.orig/amd64/src/wl/sys/wl_linux.c	2026-11-13 14:22:16.427055135 -0500
++++ kmod-wl-6.30.223.271.el9_8/amd64/src/wl/sys/wl_linux.c	2026-11-13 14:23:06.496353437 -0500
 @@ -1514,7 +1514,7 @@ wl_down(wl_info_t *wl)
  		int i = 0;
  		for (i = 0; (atomic_read(&wl->callbacks) > callbacks) && i < 10000; i++) {

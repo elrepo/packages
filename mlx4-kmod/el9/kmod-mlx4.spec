@@ -2,13 +2,13 @@
 %define kmod_name	mlx4
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.5.3.el9_8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-741.20.1.el9_9}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	4.0
-Release:	14%{?dist}
+Release:	15%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -206,6 +206,10 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Nov 12 2026 Tuan Hoang <tqhoang@elrepo.org> - 4.0-15
+- Source code unchanged in RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
+- Built against RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
+
 * Sun Jun 14 2026 Tuan Hoang <tqhoang@elrepo.org> - 4.0-14
 - Built against RHEL 9.8 GA kernel-5.14.0-687.5.3.el9_8
 - Source code updated from RHEL 9.8 errata kernel-5.14.0-687.15.1.el9_8

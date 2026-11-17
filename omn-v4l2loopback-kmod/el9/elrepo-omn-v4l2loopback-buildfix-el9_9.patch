@@ -1,0 +1,29 @@
+diff -Naurp v4l2loopback-0.12.5.orig/v4l2loopback.c v4l2loopback-0.12.5/v4l2loopback.c
+--- v4l2loopback-0.12.5.orig/v4l2loopback.c	2026-11-12 17:58:39.657241726 -0500
++++ v4l2loopback-0.12.5/v4l2loopback.c	2026-11-12 18:09:35.248994804 -0500
+@@ -2013,7 +2013,6 @@ static int v4l2_loopback_open(struct fil
+ 		return -ENOMEM;
+ 
+ 	v4l2_fh_init(&opener->fh, video_devdata(file));
+-	file->private_data = &opener->fh;
+ 	atomic_inc(&dev->open_count);
+ 
+ 	opener->timeout_image_io = dev->timeout_image_io;
+@@ -2028,7 +2027,7 @@ static int v4l2_loopback_open(struct fil
+ 		}
+ 	}
+ 
+-	v4l2_fh_add(&opener->fh);
++	v4l2_fh_add(&opener->fh, file);
+ 	dprintk("opened dev:%p with image:%p\n", dev, dev ? dev->image : NULL);
+ 	MARK();
+ 	return 0;
+@@ -2054,7 +2053,7 @@ static int v4l2_loopback_close(struct fi
+ 	}
+ 	try_free_buffers(dev);
+ 
+-	v4l2_fh_del(&opener->fh);
++	v4l2_fh_del(&opener->fh, file);
+ 	v4l2_fh_exit(&opener->fh);
+ 
+ 	kfree(opener);

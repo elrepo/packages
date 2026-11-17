@@ -2,13 +2,13 @@
 %define kmod_name	v4l2loopback
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.5.3.el9_8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-741.20.1.el9_9}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	0.15.4
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -22,6 +22,8 @@ Source5:	GPL-v2.0.txt
 
 # Source code patches.
 Patch0: 	0001-Add-AV1-pixel-format.patch
+Patch1: 	0002-udev-notification-if-the-device-becomes-ready-for-ca.patch
+Patch100: 	elrepo-v4l2loopback-buildfix-el9_9.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -104,6 +106,8 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 
 # Apply patch(es)
 %patch0 -p1
+%patch1 -p1
+%patch100 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
@@ -232,6 +236,11 @@ exit 0
 %{_modulesloaddir}/v4l2loopback.conf
 
 %changelog
+* Thu Nov 12 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.15.4-2
+- Add upstream udev notification patch
+- Add buildfix patch
+- Built against RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
+
 * Wed Sep 30 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.15.4-1
 - Update to version 0.15.4
 - Add upstream AV1 pixel format patch

@@ -1,7 +1,7 @@
 From e27cd86c924112ab1fb5e792a7ea43a37ab2903f Mon Sep 17 00:00:00 2001
 From: Jacob Freeman <jacob@saronic.com>
 Date: Thu, 13 Aug 2026 11:37:30 -0500
-Subject: [PATCH] Add AV1 pixel format
+Subject: [PATCH 1/2] Add AV1 pixel format
 
 ---
  v4l2loopback_formats.h | 11 +++++++++++

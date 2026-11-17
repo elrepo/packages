@@ -3,13 +3,13 @@
 %define kmod_name	omn-%{kmod_basename}
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.5.3.el9_8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-741.20.1.el9_9}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	0.12.5
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -25,6 +25,8 @@ Source5:	GPL-v2.0.txt
 Patch0: 	v4l2loopback.patch
 # Upstream patch to fix CVE-2022-2652
 Patch1: 	v4l2loopback-e4cd225557486c420f6a34411f98c575effd43dd.patch
+# Patch for RHEL 9.9
+Patch2: 	elrepo-omn-v4l2loopback-buildfix-el9_9.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -102,6 +104,7 @@ echo "override %{kmod_basename} * weak-updates/%{kmod_basename}" > kmod-%{kmod_n
 # Apply patch(es)
 %patch0 -p1
 %patch1 -p1 -F3
+%patch2 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD
@@ -224,6 +227,9 @@ exit 0
 %attr(0644,root,root) %{_mandir}/man1/v4l2loopback-ctl.1*
 
 %changelog
+* Thu Nov 12 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.12.5-2
+- Built against RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
+
 * Tue Sep 22 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.12.5-1
 - Initial build for Omnissa Horizon 8 version 2603 with Agent for Linux 8.18.0
 - Added patch for CVE-2022-2652

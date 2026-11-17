@@ -3,13 +3,13 @@
 %define extid 22_06_10
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.5.3.el9_8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-741.20.1.el9_9}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	1.5.8
-Release:	6%{?dist}
+Release:	7%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	HighPoint
@@ -206,6 +206,9 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Nov 12 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.5.8-7
+- Built against RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
+
 * Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.5.8-6
 - Built against RHEL 9.8 GA kernel-5.14.0-687.5.3.el9_8
 - Add timer_container_of patch for RHEL 9.8

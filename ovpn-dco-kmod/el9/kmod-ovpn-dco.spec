@@ -3,12 +3,12 @@
 %define kmod_ver	v2
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.5.3.el9_8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-741.20.1.el9_9}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
-Version:	0.2.20260519
+Version:	0.2.20261112
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -20,7 +20,6 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0: 	0001-ovpn-fix-6.16-compat-hack-on-RHEL-9.8.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -81,7 +80,6 @@ of the same variant of the Linux kernel and not on any one specific build.
 echo "override %{kmod_name}-%{kmod_ver} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 # Apply patch(es)
-%patch0 -p1
 
 %build
 %{__make} KERNEL_SRC=%{kernel_source} %{?_smp_mflags} V=1
@@ -197,6 +195,10 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Nov 12 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.2.20261112-1
+- Source code updated to 0.2.20261112
+- Built against RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
+
 * Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.2.20260519-1
 - Source code updated to 0.2.20260519
 - Add upstream patch for RHEL 9.8 compatibility

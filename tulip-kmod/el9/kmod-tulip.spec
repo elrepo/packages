@@ -2,13 +2,13 @@
 %define kmod_name	tulip
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.5.3.el9_8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-741.20.1.el9_9}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	8%{?dist}
+Release:	9%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -188,6 +188,10 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Nov 12 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-9
+- Source code unchanged in RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
+- Built against RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
+
 * Sat May 23 2026 Akemi Yagi <toracat@elrepo.org> - 0.0-8
 - Source code updated from RHEL 9.8 GA kernel
 - Built against RHEL 9.8 GA kernel-5.14.0-687.5.3.el9_8

@@ -1,0 +1,12 @@
+diff -Naurp v4l2loopback-0.15.4.orig/v4l2loopback.c v4l2loopback-0.15.4/v4l2loopback.c
+--- v4l2loopback-0.15.4.orig/v4l2loopback.c	2026-06-24 09:50:52.000000000 -0400
++++ v4l2loopback-0.15.4/v4l2loopback.c	2026-11-13 13:50:32.923792691 -0500
+@@ -62,7 +62,7 @@
+ #define file_to_opener(ptr) \
+ 	container_of(file_to_v4l2_fh(ptr), struct v4l2_loopback_opener, fh)
+ 
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 18, 0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 18, 0) && (RHEL_MAJOR == 9 && RHEL_MINOR < 9)
+ #define v4l2l_f_to_opener(_file, _fh) fh_to_opener(_fh)
+ #define v4l2_fh_add(fh, filp) v4l2_fh_add(fh)
+ #define v4l2_fh_del(fh, filp) v4l2_fh_del(fh)

@@ -2,13 +2,13 @@
 %define kmod_name	media
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.5.3.el9_8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-741.20.1.el9_9}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	8%{?dist}
+Release:	9%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -17,6 +17,9 @@ URL:		http://www.kernel.org/
 # Sources.
 Source0:	drivers-%{kmod_name}.tar.gz
 Source5:	GPL-v2.0.txt
+
+# Source code patches.
+Patch0: 	elrepo-media-buildfix-el9_9.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -106,6 +109,9 @@ for MAKEFILE in */*/*/Makefile
 do
 	sed -i -e 's|-I.*$(srctree)\/drivers\/media|-I $(src)/../../..|' $MAKEFILE
 done
+
+# Apply patch(es).
+%patch0 -p1
 
 %build
 # The EXTRA_CFLAGS is required for any drivers that use ifdef or IS_REACHABLE macros
@@ -259,6 +265,10 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Nov 12 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-9
+- Source code from RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
+- Built against RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
+
 * Wed Sep 09 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-8
 - Change recommends xc3028-firmware to dvb-firmware
 - Add saa7164 and associated modules

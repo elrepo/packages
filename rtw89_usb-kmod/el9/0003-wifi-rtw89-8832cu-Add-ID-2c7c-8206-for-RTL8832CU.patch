@@ -1,0 +1,30 @@
+From 89058548dd146ee9a56aeb0727d306a7f9720473 Mon Sep 17 00:00:00 2001
+From: Johnson Tsai <wenjie.tsai@realtek.com>
+Date: Mon, 20 Apr 2026 11:40:46 +0800
+Subject: [PATCH] wifi: rtw89: 8832cu: Add ID 2c7c:8206 for RTL8832CU
+
+This ID is used by RTL8832CU-based Quectel USB dongle devices.
+
+Signed-off-by: Johnson Tsai <wenjie.tsai@realtek.com>
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Link: https://patch.msgid.link/20260420034051.17666-12-pkshih@realtek.com
+---
+ drivers/net/wireless/realtek/rtw89/rtw8852cu.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/net/wireless/realtek/rtw89/rtw8852cu.c b/drivers/net/wireless/realtek/rtw89/rtw8852cu.c
+index 092d2812a4d5..790fd1dec66d 100644
+--- a/drivers/net/wireless/realtek/rtw89/rtw8852cu.c
++++ b/drivers/net/wireless/realtek/rtw89/rtw8852cu.c
+@@ -53,6 +53,8 @@ static const struct usb_device_id rtw_8852cu_id_table[] = {
+ 	  .driver_info = (kernel_ulong_t)&rtw89_8852cu_info },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(0x28de, 0x2432, 0xff, 0xff, 0xff),
+ 	  .driver_info = (kernel_ulong_t)&rtw89_8852cu_info },
++	{ USB_DEVICE_AND_INTERFACE_INFO(0x2c7c, 0x8206, 0xff, 0xff, 0xff),
++	  .driver_info = (kernel_ulong_t)&rtw89_8852cu_info },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(0x35b2, 0x0502, 0xff, 0xff, 0xff),
+ 	  .driver_info = (kernel_ulong_t)&rtw89_8852cu_info },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(0x35bc, 0x0101, 0xff, 0xff, 0xff),
+-- 
+2.52.0
+

@@ -2,13 +2,13 @@
 %define kmod_name	usbip
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.5.3.el9_8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-741.20.1.el9_9}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	13%{?dist}
+Release:	14%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -198,10 +198,17 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Nov 12 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-14
+- Source code from RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
+- usbip: Reduce CONNRESET message noise in dmesg from stub (Desnes Nunes) [RHEL-147798]
+- tools: usb: usbip: remove dead-link from README (Desnes Nunes) [RHEL-147798]
+- usbip: Use min to simplify stub_send_ret_submit (Desnes Nunes) [RHEL-147793]
+- usbip: Fix locking bug in RT-enabled kernels (Desnes Nunes) [RHEL-147793]
+- Built against RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
+
 * Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-13
 - Source code updated from RHEL 9.8 errata kernel-5.14.0-687.10.1.el9_8
-- usbip: validate number_of_packets in usbip_pack_ret_submit() (CKI Backport Bot) [RHEL-171430] {CVE-2026-31
-607}
+- usbip: validate number_of_packets in usbip_pack_ret_submit() (CKI Backport Bot) [RHEL-171430] {CVE-2026-31607}
 - Built against RHEL 9.8 GA kernel-5.14.0-687.5.3.el9_8
 
 * Fri Jan 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-12

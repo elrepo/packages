@@ -3,13 +3,13 @@
 %define kmod_name	omn-%{kmod_basename}
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.5.3.el9_8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-741.20.1.el9_9}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	1.15
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -202,6 +202,9 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Nov 12 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.15-2
+- Built against RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
+
 * Tue Sep 22 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.15-1
 - Initial build for Omnissa Horizon 8 version 2603 with Agent for Linux 8.18.0
 - Built against RHEL 9.8 GA kernel-5.14.0-687.5.3.el9_8

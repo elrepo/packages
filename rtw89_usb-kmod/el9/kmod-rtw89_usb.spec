@@ -2,13 +2,13 @@
 %define kmod_name	rtw89_usb
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.58.1.el9_8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-741.20.1.el9_9}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	1.1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,33 +19,13 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-
+#
 # rtw89 upstream patches
-Patch0: 	0001-wifi-rtw89-usb-use-common-error-path-for-skbs-in-rtw.patch
-Patch1: 	0002-wifi-rtw89-usb-fix-leak-in-rtw89_usb_write_port.patch
-# Patch2: 	0003-wifi-rtw89-debug-Fix-memory-leak-in-__print_txpwr_ma.patch
-Patch3: 	0004-wifi-rtw89-8922a-set-random-mac-if-efuse-contains-ze.patch
-# Patch4: 	0005-wifi-rtw89-ser-enable-error-IMR-after-recovering-fro.patch
-# Patch5: 	0006-wifi-rtw89-setting-TBTT-AGG-number-when-mac-port-ini.patch
-# Patch6: 	0007-wifi-rtw89-mcc-reset-probe-counter-when-receiving-be.patch
-# Patch7: 	0008-wifi-rtw89-regd-6-GHz-power-type-marks-default-when-.patch
-# Patch8: 	0009-wifi-rtw89-fix-potential-zero-beacon-interval-in-bea.patch
-Patch9: 	0010-wifi-rtw89-Add-support-for-MSI-AX1800-Nano-GUAX18N.patch
-# Patch10: 	0011-wifi-rtw89-pci-validate-sequence-number-of-TX-releas.patch
-# Patch11: 	0012-wifi-rtw89-mac-correct-page-number-for-CSI-response.patch
-# Patch12: 	0013-wifi-rtw89-wow-add-reason-codes-for-disassociation-i.patch
-# Patch13: 	0014-wifi-rtw89-disable-EHT-protocol-by-chip-capabilities.patch
-# Patch14: 	0015-wifi-rtw89-fix-unable-to-receive-probe-responses-und.patch
-Patch15: 	0016-wifi-rtw89-8922a-add-digital-compensation-for-2GHz.patch
-# Patch16: 	0017-wifi-rtw89-pci-validate-release-report-content-befor.patch
-# Patch17: 	0018-wifi-rtw89-pci-restore-LDO-setting-after-device-resu.patch
-# Patch18: 	0019-wifi-rtw89-phy-fix-uninitialized-variable-access-in-.patch
-# Patch19: 	0020-wifi-rtw89-fix-wrong-pci_get_drvdata-type-in-AER-han.patch
-# Patch20: 	0021-wifi-rtw89-Correct-data-type-for-scan-index-to-avoid.patch
-# Patch21: 	0022-wifi-rtw89-add-bounds-check-on-firmware-mac_id-in-li.patch
-
-# rtw89 elrepo patches
-Patch100: 	elrepo-wifi-rtw89-usb-Support-switching-to-USB-3-mode.patch
+# - Patches from linux-6.18.y (2026-06-01)
+#
+Patch0: 	0001-wifi-rtw89-usb-Support-switching-to-USB-3-mode.patch
+Patch1: 	0002-wifi-rtw89-8851bu-add-Mercusys-MA60XNB-2c4e-0128.patch
+Patch2: 	0003-wifi-rtw89-8832cu-Add-ID-2c7c-8206-for-RTL8832CU.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -107,7 +87,7 @@ cat /dev/null > kmod-%{kmod_name}.conf
 
 # List of rtw89 modules
 # Keep in sync with make command args below
-%define rtw89_modules "rtw89_usb rtw89_8851b rtw89_8851be rtw89_8851bu rtw89_8852bt rtw89_8852bte rtw89_8852bu rtw89_8922a rtw89_8922ae"
+%define rtw89_modules "rtw89_usb rtw89_8851b rtw89_8851be rtw89_8851bu rtw89_8852au rtw89_8852bt rtw89_8852bte rtw89_8852bu rtw89_8852cu rtw89_8922a rtw89_8922ae"
 
 cat /dev/null > kmod-%{kmod_name}.conf
 for modules in `echo -n %{rtw89_modules}`
@@ -118,27 +98,7 @@ done
 # Apply patch(es)
 %patch0 -p6
 %patch1 -p6
-# patch2 -p6
-%patch3 -p6
-# patch4 -p6
-# patch5 -p6
-# patch6 -p6
-# patch7 -p6
-# patch8 -p6
-%patch9 -p6
-# patch10 -p6
-# patch11 -p6
-# patch12 -p6
-# patch13 -p6
-# patch14 -p6
-%patch15 -p6
-# patch16 -p6
-# patch17 -p6
-# patch18 -p6
-# patch19 -p6
-# patch20 -p6
-# patch21 -p6
-%patch100 -p2
+%patch2 -p6
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD \
@@ -146,9 +106,11 @@ done
 	CONFIG_RTW89_8851B=m \
 	CONFIG_RTW89_8851BE=m \
 	CONFIG_RTW89_8851BU=m \
+	CONFIG_RTW89_8852AU=m \
 	CONFIG_RTW89_8852BT=m \
 	CONFIG_RTW89_8852BTE=m \
 	CONFIG_RTW89_8852BU=m \
+	CONFIG_RTW89_8852CU=m \
 	CONFIG_RTW89_8922A=m \
 	CONFIG_RTW89_8922AE=m \
 
@@ -266,6 +228,12 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Thu Nov 12 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-2
+- Source code from RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
+- Built against RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
+- Add RTW89_8852AU and RTW89_8852CU
+- Rebase upstream patches from linux master (linux-7.2.y)
+
 * Fri Oct 16 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-1.1
 - Rebuilt against RHEL 9.8 GA kernel 5.14.0-687.58.1.el9_8
 
