@@ -172,7 +172,8 @@ MODULE_PARM_DESC(port_type_array, "Array of port types: HW_DEFAULT (0) is defaul
 static atomic_t pf_loading = ATOMIC_INIT(0);
 
 static int mlx4_devlink_ierr_reset_get(struct devlink *devlink, u32 id,
-				       struct devlink_param_gset_ctx *ctx)
+				       struct devlink_param_gset_ctx *ctx,
+				       struct netlink_ext_ack *extack)
 {
 	ctx->val.vbool = !!mlx4_internal_err_reset;
 	return 0;
@@ -187,7 +188,8 @@ static int mlx4_devlink_ierr_reset_set(struct devlink *devlink, u32 id,
 }
 
 static int mlx4_devlink_crdump_snapshot_get(struct devlink *devlink, u32 id,
-					    struct devlink_param_gset_ctx *ctx)
+					    struct devlink_param_gset_ctx *ctx,
+					    struct netlink_ext_ack *extack)
 {
 	struct mlx4_priv *priv = devlink_priv(devlink);
 	struct mlx4_dev *dev = &priv->dev;
@@ -209,10 +211,10 @@ static int mlx4_devlink_crdump_snapshot_set(struct devlink *devlink, u32 id,
 
 static int
 mlx4_devlink_max_macs_validate(struct devlink *devlink, u32 id,
-			       union devlink_param_value val,
+			       union devlink_param_value *val,
 			       struct netlink_ext_ack *extack)
 {
-	u32 value = val.vu32;
+	u32 value = val->vu32;
 
 	if (value < 1 || value > 128)
 		return -ERANGE;
@@ -262,27 +264,27 @@ static void mlx4_devlink_set_params_init_values(struct devlink *devlink)
 	value.vbool = !!mlx4_internal_err_reset;
 	devl_param_driverinit_value_set(devlink,
 					DEVLINK_PARAM_GENERIC_ID_INT_ERR_RESET,
-					value);
+					&value);
 
 	value.vu32 = 1UL << log_num_mac;
 	devl_param_driverinit_value_set(devlink,
 					DEVLINK_PARAM_GENERIC_ID_MAX_MACS,
-					value);
+					&value);
 
 	value.vbool = enable_64b_cqe_eqe;
 	devl_param_driverinit_value_set(devlink,
 					MLX4_DEVLINK_PARAM_ID_ENABLE_64B_CQE_EQE,
-					value);
+					&value);
 
 	value.vbool = enable_4k_uar;
 	devl_param_driverinit_value_set(devlink,
 					MLX4_DEVLINK_PARAM_ID_ENABLE_4K_UAR,
-					value);
+					&value);
 
 	value.vbool = false;
 	devl_param_driverinit_value_set(devlink,
 					DEVLINK_PARAM_GENERIC_ID_REGION_SNAPSHOT,
-					value);
+					&value);
 }
 
 static inline void mlx4_set_num_reserved_uars(struct mlx4_dev *dev,
@@ -4372,7 +4374,6 @@ static pci_ers_result_t mlx4_pci_slot_reset(struct pci_dev *pdev)
 
 	pci_set_master(pdev);
 	pci_restore_state(pdev);
-	pci_save_state(pdev);
 	return PCI_ERS_RESULT_RECOVERED;
 }
 

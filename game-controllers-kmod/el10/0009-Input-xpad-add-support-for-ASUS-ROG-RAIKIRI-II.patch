@@ -1,7 +1,7 @@
 From c897cf120696b94f56ed0f3197ba9a77071a59ec Mon Sep 17 00:00:00 2001
 From: Dmitriy Zharov <contact@zharov.dev>
 Date: Thu, 30 Apr 2026 22:35:22 +0400
-Subject: [PATCH 09/10] Input: xpad - add support for ASUS ROG RAIKIRI II
+Subject: [PATCH 09/17] Input: xpad - add support for ASUS ROG RAIKIRI II
 
 Add the VID/PIDs for the ASUS ROG RAIKIRI II controller to xpad_device
 and the VID to xpad_table. The controller has a physical PC/XBOX toggle

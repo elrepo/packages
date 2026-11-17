@@ -1,7 +1,7 @@
 From e82948ba83cce2de40d7efb6fa48f2a8c4d41275 Mon Sep 17 00:00:00 2001
 From: Dan Carpenter <dan.carpenter@linaro.org>
 Date: Tue, 30 Sep 2025 15:25:01 +0300
-Subject: [PATCH 5/5] net/mlx4: prevent potential use after free in
+Subject: [PATCH 5/8] net/mlx4: prevent potential use after free in
  mlx4_en_do_uc_filter()
 
 [ Upstream commit 4f0d91ba72811fd5dd577bcdccd7fed649aae62c ]

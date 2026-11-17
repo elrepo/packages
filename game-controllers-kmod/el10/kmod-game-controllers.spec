@@ -2,13 +2,13 @@
 %define kmod_name	game-controllers
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-211.7.3.el10_2}
+%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-264.14.1.el10_3}
 
 %{!?dist: %define dist .el10}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -23,56 +23,53 @@ Source5:	GPL-v2.0.txt
 # Source code patches.
 #
 # led-class-multicolor upstream patches
-# - Patches are from linux master (7.1-rc6)
+# - Patches from linux master (2026-03-10)
 #
 Patch10: 	0001-leds-multicolor-Fix-intensity-setting-while-SW-blink.patch
 Patch11: 	0002-leds-multicolor-Change-intensity_value-to-unsigned-i.patch
 
 #
 # hid-nintendo upstream patches
-# - Patches are from linux master (7.1-rc6)
+# - Patches from linux master (2026-10-16)
 #
-Patch20: 	0001-HID-nintendo-Rate-limit-IMU-compensation-message.patch
-Patch21: 	0002-HID-nintendo-Reduce-JC_SUBCMD_RATE_MAX_ATTEMPTS.patch
+Patch20: 	0001-HID-nintendo-add-support-for-HORI-Wireless-Switch-Pa.patch
+Patch21: 	0002-HID-nintendo-Use-pM-format-specifier-for-MAC-address.patch
+Patch22: 	0003-HID-nintendo-Fix-imu_timestamp_us-double-increment-p.patch
+Patch23: 	0004-HID-nintendo-stop-device-IO-before-hid_hw_stop-on-pr.patch
+Patch24: 	0005-HID-nintendo-fix-out-of-bounds-read-in-joycon_ctlr_r.patch
+Patch25: 	0006-HID-nintendo-fix-rumble-starved-by-the-input-report-.patch
+Patch26: 	0007-HID-nintendo-register-input-device-after-capabilitie.patch
+Patch27: 	0008-HID-nintendo-add-support-for-PDP-Afterglow-controlle.patch
+Patch28: 	0009-HID-nintendo-Add-preliminary-Switch-2-controller-dri.patch
+Patch29: 	0010-HID-nintendo-Add-rumble-support-for-Switch-2-control.patch
+Patch30: 	0011-HID-nintendo-Add-unified-report-format-support.patch
+Patch31: 	0012-HID-nintendo-Patch-NYXI-Hyperion-3-descriptor.patch
 
 #
 # hid-playstation upstream patches
-# - Patch30 is from linux-6.12.y (apply reversed)
-# - Patch31+ are from linux master (7.1-rc6)
+# - No patches from linux master (2026-06-16)
 #
-Patch30: 	0000-HID-playstation-Fix-memory-leak-in-dualshock4_get_ca.patch
-Patch31: 	0001-HID-playstation-Make-use-of-bitfield-macros.patch
-Patch32: 	0002-HID-playstation-Add-spaces-around-arithmetic-operato.patch
-Patch33: 	0003-HID-playstation-Simplify-locking-with-guard-and-scop.patch
-Patch34: 	0004-HID-playstation-Replace-uint-32-16-8-_t-with-u-32-16.patch
-Patch35: 	0005-HID-playstation-Correct-spelling-in-comment-sections.patch
-Patch36: 	0006-HID-playstation-Fix-all-alignment-and-line-length-is.patch
-Patch37: 	0007-HID-playstation-Document-spinlock_t-usage.patch
-Patch38: 	0008-HID-playstation-Prefer-kzalloc-sizeof-buf.patch
-Patch39: 	0009-HID-playstation-Redefine-DualSense-input-report-stat.patch
-Patch40: 	0010-HID-playstation-Support-DualSense-audio-jack-hotplug.patch
-Patch41: 	0011-HID-playstation-Support-DualSense-audio-jack-event-r.patch
-Patch42: 	0012-HID-playstation-Update-SP-preamp-gain-comment-line.patch
-Patch43: 	0013-HID-playstation-Silence-sparse-warnings-for-locking-.patch
-Patch44: 	0014-HID-playstation-Switch-to-scoped_guard-in-dualsense-.patch
-Patch45: 	0015-HID-playstation-Fix-memory-leak-in-dualshock4_get_ca.patch
-Patch46: 	0016-HID-playstation-Center-initial-joystick-axes-to-prev.patch
-Patch47: 	0017-HID-playstation-Add-missing-check-for-input_ff_creat.patch
-Patch48: 	0020-HID-playstation-validate-num_touch_reports-in-DualSh.patch
-Patch49: 	0021-HID-playstation-Clamp-num_touch_reports.patch
 
 #
 # xpad upstream patches
-# - Patches are from linux master (7.1-rc6)
+# - Patches from linux master (2026-10-14)
 #
-Patch50: 	0001-Input-xpad-add-support-for-CRKD-Guitars.patch
-Patch51: 	0004-Input-xpad-remove-stale-TODO-and-changelog-header.patch
-Patch52: 	0005-Input-xpad-add-RedOctane-Games-vendor-id.patch
-Patch53: 	0006-Input-xpad-add-support-for-Razer-Wolverine-V3-Pro.patch
-Patch54: 	0007-Input-xpad-add-support-for-BETOP-BTP-KP50B-C-control.patch
-Patch55: 	0008-Input-xpad-fix-out-of-bounds-access-for-Share-button.patch
-Patch56: 	0009-Input-xpad-add-support-for-ASUS-ROG-RAIKIRI-II.patch
-Patch57: 	0010-Input-xpad-add-Nova-2-Lite-from-GameSir.patch
+Patch60: 	0001-Input-xpad-add-support-for-CRKD-Guitars.patch
+Patch61: 	0004-Input-xpad-remove-stale-TODO-and-changelog-header.patch
+Patch62: 	0005-Input-xpad-add-RedOctane-Games-vendor-id.patch
+Patch63: 	0006-Input-xpad-add-support-for-Razer-Wolverine-V3-Pro.patch
+Patch64: 	0007-Input-xpad-add-support-for-BETOP-BTP-KP50B-C-control.patch
+Patch65: 	0008-Input-xpad-fix-out-of-bounds-access-for-Share-button.patch
+Patch66: 	0009-Input-xpad-add-support-for-ASUS-ROG-RAIKIRI-II.patch
+Patch67: 	0010-Input-xpad-add-Nova-2-Lite-from-GameSir.patch
+Patch68: 	0011-Input-xpad-add-support-for-ZENAIM-LEVERLESS.patch
+Patch69: 	0012-Input-xpad-fix-PDP-Marvel-Xbox-360-controller.patch
+Patch70: 	0013-Input-xpad-add-support-for-Azeron-devices.patch
+Patch71: 	0014-Input-xpad-add-support-for-Victrix-Pro-BFG-Controlle.patch
+Patch72: 	0015-Input-xpad-add-support-for-Corsair-Novablade-Pro.patch
+Patch73: 	0016-Input-xpad-add-support-for-8BitDo-Pro-2-Wired-Contro.patch
+Patch74: 	0017-Input-xpad-add-GameSir-Nova-Lite-support.patch
+
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -129,7 +126,7 @@ of the same variant of the Linux kernel and not on any one specific build.
 
 # List of HID modules and dependencies
 # Keep in sync with make command args below
-%define GAME_CONTROLLER_MODULES "led-class-multicolor hid-nintendo hid-playstation xpad"
+%define GAME_CONTROLLER_MODULES "led-class-multicolor hid-nintendo hid-nintendo-switch2-usb hid-playstation xpad"
 
 cat /dev/null > kmod-%{kmod_name}.conf
 for modules in `echo -n %{GAME_CONTROLLER_MODULES}`
@@ -149,36 +146,33 @@ popd
 pushd drivers-hid
 %patch -P20 -p3
 %patch -P21 -p3
-%patch -P30 -p3 -R
+%patch -P22 -p3
+%patch -P23 -p3
+%patch -P24 -p3
+%patch -P25 -p3
+%patch -P26 -p3
+%patch -P27 -p3
+%patch -P28 -p3 -F1
+%patch -P29 -p3
+%patch -P30 -p3
 %patch -P31 -p3
-%patch -P32 -p3
-%patch -P33 -p3
-%patch -P34 -p3
-%patch -P35 -p3
-%patch -P36 -p3
-%patch -P37 -p3
-%patch -P38 -p3
-%patch -P39 -p3
-%patch -P40 -p3
-%patch -P41 -p3
-%patch -P42 -p3
-%patch -P43 -p3
-%patch -P44 -p3
-%patch -P45 -p3
-%patch -P46 -p3
-%patch -P47 -p3
-%patch -P48 -p3
-%patch -P49 -p3
 popd
 pushd drivers-input-joystick
-%patch -P50 -p4
-%patch -P51 -p4
-%patch -P52 -p4
-%patch -P53 -p4
-%patch -P54 -p4
-%patch -P55 -p4
-%patch -P56 -p4
-%patch -P57 -p4
+%patch -P60 -p4
+%patch -P61 -p4
+%patch -P62 -p4
+%patch -P63 -p4
+%patch -P64 -p4
+%patch -P65 -p4
+%patch -P66 -p4
+%patch -P67 -p4
+%patch -P68 -p4
+%patch -P69 -p4
+%patch -P70 -p4
+%patch -P71 -p4
+%patch -P72 -p4
+%patch -P73 -p4
+%patch -P74 -p4
 popd
 
 %build
@@ -193,10 +187,12 @@ pushd drivers-hid
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD \
 	CONFIG_HID_NINTENDO=m \
 	CONFIG_NINTENDO_FF=y \
+	CONFIG_NINTENDO_SWITCH2_USB=m \
 	CONFIG_HID_PLAYSTATION=m \
 	CONFIG_PLAYSTATION_FF=y \
         EXTRA_CFLAGS+='-DCONFIG_HID_NINTENDO' \
         EXTRA_CFLAGS+='-DCONFIG_NINTENDO_FF' \
+        EXTRA_CFLAGS+='-DCONFIG_NINTENDO_SWITCH2_USB' \
         EXTRA_CFLAGS+='-DCONFIG_HID_PLAYSTATION' \
         EXTRA_CFLAGS+='-DCONFIG_PLAYSTATION_FF' \
 	KBUILD_EXTRA_SYMBOLS+="${KBES}/Module.symvers"
@@ -323,6 +319,11 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 10 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-2
+- Add preliminary Switch 2 controller driver (hid-nintendo-switch2-usb)
+- Source code from RHEL 10.3 GA kernel-6.12.0-264.14.1.el10_3
+- Built against RHEL 10.3 GA kernel-6.12.0-264.14.1.el10_3
+
 * Tue Jun 02 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-1
 - Initial build for game controllers (hid-nintendo, hid-playstation, xpad)
 - Source code from RHEL 10.2 GA kernel-6.12.0-211.7.3.el10_2

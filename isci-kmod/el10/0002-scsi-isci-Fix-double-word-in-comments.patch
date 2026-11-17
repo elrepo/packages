@@ -1,7 +1,7 @@
 From 120430bff6126870b571c378e6828c7c0b5cba51 Mon Sep 17 00:00:00 2001
 From: Charles Han <hanchunchao@inspur.com>
 Date: Fri, 24 Jan 2025 16:13:30 +0800
-Subject: [PATCH 2/7] scsi: isci: Fix double word in comments
+Subject: [PATCH 2/9] scsi: isci: Fix double word in comments
 
 Remove the repeated word "for" in comments.
 

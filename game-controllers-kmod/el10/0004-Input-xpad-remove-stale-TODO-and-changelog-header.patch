@@ -1,7 +1,7 @@
 From 802b4c158cf57d615dae50000be4c6063a7db7ba Mon Sep 17 00:00:00 2001
 From: Elliot Tester <elliotctester@gmail.com>
 Date: Wed, 25 Mar 2026 23:16:17 +0100
-Subject: [PATCH 04/10] Input: xpad - remove stale TODO and changelog header
+Subject: [PATCH 04/17] Input: xpad - remove stale TODO and changelog header
 
 All items in the TODO block have since been addressed: axis tuning,
 analog button handling, rumble support, and dance pad USB IDs are all

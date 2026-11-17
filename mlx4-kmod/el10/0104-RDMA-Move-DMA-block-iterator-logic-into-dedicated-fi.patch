@@ -1,0 +1,36 @@
+From b26b5ef985e8589d9f10821db146db027793a66b Mon Sep 17 00:00:00 2001
+From: Leon Romanovsky <leonro@nvidia.com>
+Date: Mon, 15 Jun 2026 18:52:14 -0400
+Subject: [PATCH 4/7] RDMA: Move DMA block iterator logic into dedicated files
+
+[ Upstream commit 6094ea64c69520ed1e770e7c79c43412de202bfa ]
+
+The DMA iterator logic was mixed into verbs and umem-specific code,
+forcing all users to include rdma/ib_umem.h. Move the block iterator
+logic into iter.c and rdma/iter.h so that rdma/ib_umem.h and
+rdma/ib_verbs.h can be separated in a follow-up patch.
+
+Link: https://patch.msgid.link/20260213-refactor-umem-v1-1-f3be85847922@nvidia.com
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Stable-dep-of: 15fe76e23615 ("RDMA/umem: Fix truncation for block sizes >= 4G")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/infiniband/hw/mlx4/mr.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/infiniband/hw/mlx4/mr.c b/drivers/infiniband/hw/mlx4/mr.c
+index 04c370fbdba0..e331c04967df 100644
+--- a/drivers/infiniband/hw/mlx4/mr.c
++++ b/drivers/infiniband/hw/mlx4/mr.c
+@@ -33,6 +33,7 @@
+ 
+ #include <linux/slab.h>
+ #include <rdma/ib_user_verbs.h>
++#include <rdma/iter.h>
+ 
+ #include "mlx4_ib.h"
+ 
+-- 
+2.52.0
+

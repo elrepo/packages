@@ -1,7 +1,7 @@
 From b5227947e68e7515ba449b870338909ed32ac8d2 Mon Sep 17 00:00:00 2001
 From: Michael Tretter <m.tretter@pengutronix.de>
 Date: Fri, 6 Feb 2026 15:21:23 +0100
-Subject: [PATCH 2/2] leds: multicolor: Change intensity_value to unsigned int
+Subject: [PATCH 2/3] leds: multicolor: Change intensity_value to unsigned int
 
 Using min to compare the intensity_value with led_dev->max_brightness
 causes a signedness error:

@@ -1,0 +1,41 @@
+From 7cde5613006c1a1192efe3da3572d35a2fa5fbfe Mon Sep 17 00:00:00 2001
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Date: Wed, 3 Jun 2026 12:34:03 +0200
+Subject: [PATCH 02/12] HID: nintendo: Use %pM format specifier for MAC
+ addresses
+
+Convert to %pM instead of using custom code.
+
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Benjamin Tissoires <bentiss@kernel.org>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Link: https://patch.msgid.link/20260603104351.152085-3-andriy.shevchenko@linux.intel.com
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+---
+ drivers/hid/hid-nintendo.c | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
+index 29008c2cc530..05c50f2530ef 100644
+--- a/drivers/hid/hid-nintendo.c
++++ b/drivers/hid/hid-nintendo.c
+@@ -2431,14 +2431,8 @@ static int joycon_read_info(struct joycon_ctlr *ctlr)
+ 	for (i = 4, j = 0; j < 6; i++, j++)
+ 		ctlr->mac_addr[j] = report->subcmd_reply.data[i];
+ 
+-	ctlr->mac_addr_str = devm_kasprintf(&ctlr->hdev->dev, GFP_KERNEL,
+-					    "%02X:%02X:%02X:%02X:%02X:%02X",
+-					    ctlr->mac_addr[0],
+-					    ctlr->mac_addr[1],
+-					    ctlr->mac_addr[2],
+-					    ctlr->mac_addr[3],
+-					    ctlr->mac_addr[4],
+-					    ctlr->mac_addr[5]);
++	ctlr->mac_addr_str = devm_kasprintf(&ctlr->hdev->dev, GFP_KERNEL, "%pMU",
++					    ctlr->mac_addr);
+ 	if (!ctlr->mac_addr_str)
+ 		return -ENOMEM;
+ 	hid_info(ctlr->hdev, "controller MAC = %s\n", ctlr->mac_addr_str);
+-- 
+2.52.0
+

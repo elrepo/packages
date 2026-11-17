@@ -1,0 +1,63 @@
+From 4fca0f8381b2c005932142d53a17da3a00609226 Mon Sep 17 00:00:00 2001
+From: Stanislav Fomichev <stfomichev@gmail.com>
+Date: Mon, 16 Jun 2025 09:21:14 -0700
+Subject: [PATCH 7/8] udp_tunnel: remove rtnl_lock dependency
+
+[ Upstream commit 1ead7501094c6a61461c0c98dde9ec5660fa1e24 ]
+
+Drivers that are using ops lock and don't depend on RTNL lock
+still need to manage it because udp_tunnel's RTNL dependency.
+Introduce new udp_tunnel_nic_lock and use it instead of
+rtnl_lock. Drop non-UDP_TUNNEL_NIC_INFO_MAY_SLEEP mode from
+udp_tunnel infra (udp_tunnel_nic_device_sync_work needs to
+grab udp_tunnel_nic_lock mutex and might sleep).
+
+Cover more places in v4:
+
+- netlink
+  - udp_tunnel_notify_add_rx_port (ndo_open)
+    - triggers udp_tunnel_nic_device_sync_work
+  - udp_tunnel_notify_del_rx_port (ndo_stop)
+    - triggers udp_tunnel_nic_device_sync_work
+  - udp_tunnel_get_rx_info (__netdev_update_features)
+    - triggers NETDEV_UDP_TUNNEL_PUSH_INFO
+  - udp_tunnel_drop_rx_info (__netdev_update_features)
+    - triggers NETDEV_UDP_TUNNEL_DROP_INFO
+  - udp_tunnel_nic_reset_ntf (ndo_open)
+
+- notifiers
+  - udp_tunnel_nic_netdevice_event, depending on the event:
+    - triggers NETDEV_UDP_TUNNEL_PUSH_INFO
+    - triggers NETDEV_UDP_TUNNEL_DROP_INFO
+
+- ethnl_tunnel_info_reply_size
+- udp_tunnel_nic_set_port_priv (two intel drivers)
+
+Cc: Michael Chan <michael.chan@broadcom.com>
+Suggested-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Stanislav Fomichev <stfomichev@gmail.com>
+Link: https://patch.msgid.link/20250616162117.287806-4-stfomichev@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Stable-dep-of: ecf69d4b4337 ("net: udp_tunnel: prevent double queueing in udp_tunnel_nic_device_sync")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/net/ethernet/mellanox/mlx4/en_netdev.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
+index 3160a1a2d2ab..308b4458e0d4 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
++++ b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
+@@ -2670,8 +2670,7 @@ static int mlx4_udp_tunnel_sync(struct net_device *dev, unsigned int table)
+ 
+ static const struct udp_tunnel_nic_info mlx4_udp_tunnels = {
+ 	.sync_table	= mlx4_udp_tunnel_sync,
+-	.flags		= UDP_TUNNEL_NIC_INFO_MAY_SLEEP |
+-			  UDP_TUNNEL_NIC_INFO_IPV4_ONLY,
++	.flags		= UDP_TUNNEL_NIC_INFO_IPV4_ONLY,
+ 	.tables		= {
+ 		{ .n_entries = 1, .tunnel_types = UDP_TUNNEL_TYPE_VXLAN, },
+ 	},
+-- 
+2.52.0
+

@@ -1,7 +1,7 @@
 From 4d19bf267430a0d0cc2e4c5af180f0bb9c0eb0be Mon Sep 17 00:00:00 2001
 From: Jason Xing <kernelxing@tencent.com>
 Date: Sat, 10 May 2025 17:34:42 +0800
-Subject: [PATCH 4/5] net: mlx4: add SOF_TIMESTAMPING_TX_SOFTWARE flag when
+Subject: [PATCH 4/8] net: mlx4: add SOF_TIMESTAMPING_TX_SOFTWARE flag when
  getting ts info
 
 [ Upstream commit b86bcfee30576b752302c55693fff97242b35dfd ]

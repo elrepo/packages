@@ -1,7 +1,7 @@
 From 5d10344ab65271eab7607a2cef0ddbfc4720d133 Mon Sep 17 00:00:00 2001
 From: "Dr. David Alan Gilbert" <linux@treblig.org>
 Date: Mon, 23 Dec 2024 18:02:18 +0000
-Subject: [PATCH 1/7] scsi: isci: Remove unused
+Subject: [PATCH 1/9] scsi: isci: Remove unused
  isci_remote_device_reset_complete()
 
 isci_remote_device_reset_complete() last use was removed in 2012 by commit

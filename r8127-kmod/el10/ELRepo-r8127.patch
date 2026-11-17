@@ -1,12 +1,87 @@
-diff -Naurp r8127-11.016.00.orig/src/r8127_ptp.c r8127-11.016.00.el10_2/src/r8127_ptp.c
---- r8127-11.016.00.orig/src/r8127_ptp.c	2026-01-28 09:54:49.000000000 -0500
-+++ r8127-11.016.00.el10_2/src/r8127_ptp.c	2026-05-22 10:53:21.231177358 -0400
-@@ -753,7 +753,7 @@ void rtl8127_ptp_init(struct rtl8127_pri
+diff -Naurp r8127-11.017.02.orig/src/r8127.h r8127-11.017.02/src/r8127.h
+--- r8127-11.017.02.orig/src/r8127.h	2026-11-04 01:03:25.000000000 -0500
++++ r8127-11.017.02/src/r8127.h	2026-11-12 08:49:06.452810712 -0500
+@@ -3029,9 +3029,9 @@ enum mcfg {
+ void rtl8127_mdio_write(struct rtl8127_private *tp, u16 RegAddr, u16 value);
+ void rtl8127_mdio_prot_write(struct rtl8127_private *tp, u32 RegAddr, u32 value);
+ void rtl8127_mdio_prot_direct_write_phy_ocp(struct rtl8127_private *tp, u32 RegAddr, u32 value);
+-u16 rtl8127_mdio_read(struct rtl8127_private *tp, u16 RegAddr);
+-u16 rtl8127_mdio_prot_read(struct rtl8127_private *tp, u32 RegAddr);
+-u16 rtl8127_mdio_prot_direct_read_phy_ocp(struct rtl8127_private *tp, u32 RegAddr);
++u32 rtl8127_mdio_read(struct rtl8127_private *tp, u16 RegAddr);
++u32 rtl8127_mdio_prot_read(struct rtl8127_private *tp, u32 RegAddr);
++u32 rtl8127_mdio_prot_direct_read_phy_ocp(struct rtl8127_private *tp, u32 RegAddr);
+ void rtl8127_ephy_write(struct rtl8127_private *tp, int RegAddr, int value);
+ void rtl8127_mac_ocp_write(struct rtl8127_private *tp, u16 reg_addr, u16 value);
+ u16 rtl8127_mac_ocp_read(struct rtl8127_private *tp, u16 reg_addr);
+@@ -3163,7 +3163,7 @@ void rtl8127_enable_napi(struct rtl8127_
+ void _rtl8127_wait_for_quiescence(struct net_device *dev);
  
-         /* init a hrtimer for pps */
-         tp->pps_enable = 0;
--#if LINUX_VERSION_CODE < KERNEL_VERSION(6,13,0)
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,13,0) && !(RHEL_MAJOR == 10 && RHEL_MINOR >= 2)
-         hrtimer_init(&tp->pps_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-         tp->pps_timer.function = rtl8127_hrtimer_for_pps;
- #else
+ void rtl8127_mdio_direct_write_phy_ocp(struct rtl8127_private *tp, u16 RegAddr,u16 value);
+-u16 rtl8127_mdio_direct_read_phy_ocp(struct rtl8127_private *tp, u16 RegAddr);
++u32 rtl8127_mdio_direct_read_phy_ocp(struct rtl8127_private *tp, u16 RegAddr);
+ void rtl8127_clear_and_set_eth_phy_ocp_bit(struct rtl8127_private *tp, u16 addr, u16 clearmask, u16 setmask);
+ void rtl8127_clear_eth_phy_ocp_bit(struct rtl8127_private *tp, u16 addr, u16 mask);
+ void rtl8127_set_eth_phy_ocp_bit(struct rtl8127_private *tp,  u16 addr, u16 mask);
+diff -Naurp r8127-11.017.02.orig/src/r8127_n.c r8127-11.017.02/src/r8127_n.c
+--- r8127-11.017.02.orig/src/r8127_n.c	2026-11-04 01:03:25.000000000 -0500
++++ r8127-11.017.02/src/r8127_n.c	2026-11-12 08:50:15.909400594 -0500
+@@ -3264,7 +3264,7 @@ void rtl8127_mdio_prot_direct_write_phy_
+         mdio_real_direct_write_phy_ocp(tp, RegAddr, value);
+ }
+ 
+-static u16 mdio_real_direct_read_phy_ocp(struct rtl8127_private *tp,
++static u32 mdio_real_direct_read_phy_ocp(struct rtl8127_private *tp,
+                 u16 RegAddr)
+ {
+         u32 data32;
+@@ -3288,7 +3288,7 @@ static u16 mdio_real_direct_read_phy_ocp
+         return (u16)value;
+ }
+ 
+-u16 rtl8127_mdio_direct_read_phy_ocp(struct rtl8127_private *tp,
++u32 rtl8127_mdio_direct_read_phy_ocp(struct rtl8127_private *tp,
+                                      u16 RegAddr)
+ {
+         if (tp->rtk_enable_diag)
+@@ -3310,7 +3310,7 @@ static u32 rtl8127_mdio_read_phy_ocp(str
+ }
+ */
+ 
+-static u16 rtl8127_mdio_real_read_phy_ocp(struct rtl8127_private *tp,
++static u32 rtl8127_mdio_real_read_phy_ocp(struct rtl8127_private *tp,
+                 u16 PageNum,
+                 u32 RegAddr)
+ {
+@@ -3321,13 +3321,13 @@ static u16 rtl8127_mdio_real_read_phy_oc
+         return mdio_real_direct_read_phy_ocp(tp, ocp_addr);
+ }
+ 
+-static u16 mdio_real_read(struct rtl8127_private *tp,
++static u32 mdio_real_read(struct rtl8127_private *tp,
+                           u16 RegAddr)
+ {
+         return rtl8127_mdio_real_read_phy_ocp(tp, tp->cur_page, RegAddr);
+ }
+ 
+-u16 rtl8127_mdio_read(struct rtl8127_private *tp,
++u32 rtl8127_mdio_read(struct rtl8127_private *tp,
+                       u16 RegAddr)
+ {
+         if (tp->rtk_enable_diag)
+@@ -3336,13 +3336,13 @@ u16 rtl8127_mdio_read(struct rtl8127_pri
+         return mdio_real_read(tp, RegAddr);
+ }
+ 
+-u16 rtl8127_mdio_prot_read(struct rtl8127_private *tp,
++u32 rtl8127_mdio_prot_read(struct rtl8127_private *tp,
+                            u32 RegAddr)
+ {
+         return mdio_real_read(tp, RegAddr);
+ }
+ 
+-u16 rtl8127_mdio_prot_direct_read_phy_ocp(struct rtl8127_private *tp,
++u32 rtl8127_mdio_prot_direct_read_phy_ocp(struct rtl8127_private *tp,
+                 u32 RegAddr)
+ {
+         return mdio_real_direct_read_phy_ocp(tp, RegAddr);

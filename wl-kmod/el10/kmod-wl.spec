@@ -2,13 +2,13 @@
 %define kmod_name	wl
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-211.7.3.el10_2}
+%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-264.14.1.el10_3}
 
 %{!?dist: %define dist .el10}
 
 Name:		kmod-%{kmod_name}
 Version:	6.30.223.271
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	Redistributable, no modification permitted
@@ -75,9 +75,10 @@ Patch43: 	44-wl-Do-not-flush-system-wide-queue.patch
 Patch44: 	45-broadcom-wl-fix-linux-6.5.patch
 Patch45: 	46-linux71.patch
 Patch46: 	47-linux72.patch
-Patch100: 	elrepo-wl-buildfix-el10_2.patch
-Patch101: 	elrepo-wl-wpa_supplicant-2.11.patch
-Patch102: 	elrepo-wl-readme-devices.patch
+Patch100: 	elrepo-wl-wpa_supplicant-2.11.patch
+Patch101: 	elrepo-wl-readme-devices.patch
+Patch102: 	elrepo-wl-buildfix-el10_2.patch
+Patch103: 	elrepo-wl-buildfix-el10_3.patch
 
 # For systemd_ scriptlets
 BuildRequires:	systemd-rpm-macros
@@ -202,6 +203,7 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 %patch -P100 -p1
 %patch -P101 -p1
 %patch -P102 -p1
+%patch -P103 -p1
 
 %build
 cd amd64
@@ -335,6 +337,10 @@ exit 0
 %{_presetdir}/*.preset
 
 %changelog
+* Tue Nov 10 2026 Tuan Hoang <tqhoang@elrepo.org> - 6.30.223.271-2
+- Add elrepo-wl-buildfix-el10_3.patch
+- Built against RHEL 10.3 GA kernel-6.12.0-264.14.1.el10_3
+
 * Mon Sep 07 2026 Tuan Hoang <tqhoang@elrepo.org> - 6.30.223.271-1
 - Initial build for RHEL 10.2
 - Built against RHEL 10.2 GA kernel 6.12.0-211.7.3.el10_2

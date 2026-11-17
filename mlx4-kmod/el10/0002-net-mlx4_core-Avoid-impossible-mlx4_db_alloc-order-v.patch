@@ -1,7 +1,7 @@
 From 50c5bbb45c7dfea22c566c75ca62e306848f18ba Mon Sep 17 00:00:00 2001
 From: Kees Cook <kees@kernel.org>
 Date: Mon, 10 Feb 2025 09:45:05 -0800
-Subject: [PATCH 2/5] net/mlx4_core: Avoid impossible mlx4_db_alloc() order
+Subject: [PATCH 2/8] net/mlx4_core: Avoid impossible mlx4_db_alloc() order
  value
 
 [ Upstream commit 4a6f18f28627e121bd1f74b5fcc9f945d6dbeb1e ]

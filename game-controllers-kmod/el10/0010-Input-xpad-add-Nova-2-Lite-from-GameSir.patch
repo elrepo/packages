@@ -1,7 +1,7 @@
 From 1f6ac0f8441c48c4cc250141e1da8486c13512ba Mon Sep 17 00:00:00 2001
 From: Qbeliw Tanaka <q.tanaka@gmx.com>
 Date: Thu, 30 Apr 2026 21:44:12 -0700
-Subject: [PATCH 10/10] Input: xpad - add "Nova 2 Lite" from GameSir
+Subject: [PATCH 10/17] Input: xpad - add "Nova 2 Lite" from GameSir
 
 Add support for the gamepad "Nova 2 Lite" from GameSir, compatible with
 the Xbox 360 gamepad.

@@ -1,0 +1,55 @@
+From 77c7155e2707ba5b1d56f3dc1acead48cf17f98d Mon Sep 17 00:00:00 2001
+From: Vicki Pfau <vi@endrift.com>
+Date: Mon, 5 Oct 2026 23:16:10 -0700
+Subject: [PATCH 12/12] HID: nintendo: Patch NYXI Hyperion 3 descriptor
+
+The HID report descriptor for the third-party NYXI Hyperion 3's right
+Joy-Con erroneously reports it as using the report ID for the left Joy-Con.
+Since it does actually send the report ID for the right Joy-Con, the HID
+subsystem rejects it as unknown. Here we patch it to properly report as the
+right Joy-Con report ID to ensure the HID subsystem passes it through
+properly.
+
+Signed-off-by: Vicki Pfau <vi@endrift.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.com>
+---
+ drivers/hid/hid-nintendo.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
+index dfbb54d04038..4d40f67f3e64 100644
+--- a/drivers/hid/hid-nintendo.c
++++ b/drivers/hid/hid-nintendo.c
+@@ -4503,6 +4503,21 @@ static int nintendo_hid_event(struct hid_device *hdev,
+ 		return joycon_event(hdev, report, raw_data, size);
+ }
+ 
++static const __u8 *nintendo_hid_report_fixup(struct hid_device *hdev,
++			    __u8 *rdesc, unsigned int *rsize)
++{
++	if (hdev->vendor == USB_VENDOR_ID_NINTENDO &&
++		hdev->product == USB_DEVICE_ID_NINTENDO_NS2_JOYCONR &&
++		*rsize == 100 && rdesc[24] == NS2_REPORT_JCL)
++		/*
++		 * The NYXI Hyperion 3 right Joy-Con accidentally reports as the
++		 * left one. Since the HID subsystem rejects report IDs that
++		 * aren't listed in the descriptor, we need to patch it.
++		 */
++		rdesc[24] = NS2_REPORT_JCR;
++	return rdesc;
++}
++
+ static int nintendo_hid_probe(struct hid_device *hdev,
+ 			    const struct hid_device_id *id)
+ {
+@@ -4531,6 +4546,7 @@ static int nintendo_hid_suspend(struct hid_device *hdev, pm_message_t message)
+ static struct hid_driver nintendo_hid_driver = {
+ 	.name		= "nintendo",
+ 	.id_table	= nintendo_hid_devices,
++	.report_fixup	= nintendo_hid_report_fixup,
+ 	.probe		= nintendo_hid_probe,
+ 	.remove		= nintendo_hid_remove,
+ 	.raw_event	= nintendo_hid_event,
+-- 
+2.52.0
+

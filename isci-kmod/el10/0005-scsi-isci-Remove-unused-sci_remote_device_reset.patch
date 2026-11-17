@@ -1,7 +1,7 @@
 From 7c56921936a49c817addfabf0a3c66b39ab0bd35 Mon Sep 17 00:00:00 2001
 From: "Dr. David Alan Gilbert" <linux@treblig.org>
 Date: Sun, 4 May 2025 00:06:01 +0100
-Subject: [PATCH 5/7] scsi: isci: Remove unused sci_remote_device_reset()
+Subject: [PATCH 5/9] scsi: isci: Remove unused sci_remote_device_reset()
 
 sci_remote_device_reset() last use was removed in 2012 by commit
 14aaa9f0a318 ("isci: Redesign device suspension, abort, cleanup.")

@@ -1,7 +1,7 @@
 From 84e7a17d1813394b48b0641fce8217fc0bba1960 Mon Sep 17 00:00:00 2001
 From: Sanjay Govind <sanjay.govind9@gmail.com>
 Date: Fri, 3 Apr 2026 22:35:50 -0700
-Subject: [PATCH 05/10] Input: xpad - add RedOctane Games vendor id
+Subject: [PATCH 05/17] Input: xpad - add RedOctane Games vendor id
 
 Add vendor ID for RedOctane Games to xpad driver.
 

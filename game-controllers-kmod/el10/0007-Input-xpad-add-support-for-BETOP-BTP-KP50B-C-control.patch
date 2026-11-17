@@ -1,7 +1,7 @@
 From 0d9363a764d9d601a05591f9695cea8b429e9be3 Mon Sep 17 00:00:00 2001
 From: Shengyu Qu <wiagn233@outlook.com>
 Date: Fri, 3 Apr 2026 22:07:28 -0700
-Subject: [PATCH 07/10] Input: xpad - add support for BETOP BTP-KP50B/C
+Subject: [PATCH 07/17] Input: xpad - add support for BETOP BTP-KP50B/C
  controller's wireless mode
 
 BETOP's BTP-KP50B and BTP-KP50C controller's wireless dongles are both

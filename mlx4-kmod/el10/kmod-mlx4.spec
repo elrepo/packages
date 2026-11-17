@@ -2,13 +2,13 @@
 %define kmod_name	mlx4
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-211.7.3.el10_2}
+%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-264.14.1.el10_3}
 
 %{!?dist: %define dist .el10}
 
 Name:		kmod-%{kmod_name}
 Version:	4.0
-Release:	5%{?dist}
+Release:	6%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,14 +19,30 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches.
+#
+# mlx4 ethernet upstream patches
+# - Patches from linux-6.12.y (2026-10-21)
+#
 Patch0: 	0001-eth-mlx4-don-t-try-to-complete-XDP-frames-in-netpoll.patch
 Patch1: 	0002-net-mlx4_core-Avoid-impossible-mlx4_db_alloc-order-v.patch
 Patch2: 	0003-net-mlx4_en-Prevent-potential-integer-overflow-calcu.patch
 Patch3: 	0004-net-mlx4-add-SOF_TIMESTAMPING_TX_SOFTWARE-flag-when-.patch
 Patch4: 	0005-net-mlx4-prevent-potential-use-after-free-in-mlx4_en.patch
-Patch5: 	0006-RDMA-mlx4-Fix-mis-use-of-RCU-in-mlx4_srq_event.patch
-Patch100:	0101-RDMA-mlx4-Avoid-false-error-about-access-to-uninitia.patch
-Patch101:	0102-RDMA-mlx4-Fix-resource-leak-on-error-in-mlx4_ib_crea.patch
+Patch5: 	0006-net-mlx4-avoid-GCC-10-__bad_copy_from-false-positive.patch
+Patch6: 	0007-udp_tunnel-remove-rtnl_lock-dependency.patch
+Patch7: 	0008-RDMA-mlx4-Fix-mis-use-of-RCU-in-mlx4_srq_event.patch
+
+#
+# mlx4 infiniband upstream patches
+# - Patches from linux-6.12.y (2026-10-03)
+#
+Patch100: 	0101-RDMA-mlx4-Avoid-false-error-about-access-to-uninitia.patch
+Patch101: 	0102-RDMA-mlx4-Fix-resource-leak-on-error-in-mlx4_ib_crea.patch
+Patch102: 	0103-RDMA-During-rereg_mr-ensure-that-REREG_ACCESS-is-com.patch
+Patch103: 	0104-RDMA-Move-DMA-block-iterator-logic-into-dedicated-fi.patch
+Patch104: 	0105-IB-mlx4-Fix-refcount-leak-in-add_port-error-path.patch
+Patch105: 	0106-IB-mlx4-Fill-in-the-access_flags-if-IB_MR_REREG_ACCE.patch
+Patch106: 	0107-IB-mlx4-Fix-use-after-free-on-pkey-sysfs-registratio.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -90,10 +106,17 @@ echo "override %{kmod_name}_ib * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}
 %patch -P2 -p6
 %patch -P3 -p6
 %patch -P4 -p6
-%patch -P5 -p1
+%patch -P5 -p6
+# patch -P6 -p6
+%patch -P7 -p6
 pushd infiniband
 %patch -P100 -p5
 %patch -P101 -p5
+# patch -P102 -p5
+# patch -P103 -p5
+%patch -P104 -p5
+%patch -P105 -p5
+%patch -P106 -p5
 popd
 
 %build
@@ -226,6 +249,10 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 10 2026 Tuan Hoang <tqhoang@elrepo.org> - 4.0-6
+- Source code from RHEL 10.3 GA kernel-6.12.0-264.14.1.el10_3
+- Built against RHEL 10.3 GA kernel-6.12.0-264.14.1.el10_3
+
 * Wed Jun 17 2026 Tuan Hoang <tqhoang@elrepo.org> - 4.0-5
 - Add patch to preemptively fix CVE-2026-46181
 

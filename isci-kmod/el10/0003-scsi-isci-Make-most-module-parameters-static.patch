@@ -1,7 +1,7 @@
 From 11c79df94b9808a735ce13c02b788191b0498330 Mon Sep 17 00:00:00 2001
 From: "Dr. David Alan Gilbert" <linux@treblig.org>
 Date: Sun, 9 Mar 2025 14:50:44 +0000
-Subject: [PATCH 3/7] scsi: isci: Make most module parameters static
+Subject: [PATCH 3/9] scsi: isci: Make most module parameters static
 
 Most of the module parameters are only used locally in the same C file; so
 static them.

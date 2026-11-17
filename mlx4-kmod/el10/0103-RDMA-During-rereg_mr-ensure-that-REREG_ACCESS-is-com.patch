@@ -1,0 +1,47 @@
+From eba5df21eda0fe7418efbea2f799f8ea1b8ca94c Mon Sep 17 00:00:00 2001
+From: Jason Gunthorpe <jgg@nvidia.com>
+Date: Mon, 15 Jun 2026 17:29:10 -0400
+Subject: [PATCH 3/7] RDMA: During rereg_mr ensure that REREG_ACCESS is
+ compatible
+
+[ Upstream commit badad6fad60def1b9805559dd81dbab3d97b82aa ]
+
+If IB_MR_REREG_ACCESS changes from RO to RW then the umem has to be
+re-evaluated to ensure it is properly pinned as RW. Since the umem is
+hidden inside each driver's mr struct add a ib_umem_check_rereg() function
+that each driver has to call before processing IB_MR_REREG_ACCESS.
+
+mlx4 has to retain its duplicate ib_access_writable check because it
+implements IB_MR_REREG_ACCESS | IB_MR_REREG_TRANS by changing both items
+in place sequentially while the MR is live, so it will continue to not
+support this combination.
+
+Cc: stable@vger.kernel.org
+Fixes: b40656aa7d55 ("RDMA/umem: remove FOLL_FORCE usage")
+Link: https://patch.msgid.link/r/0-v1-06fb1a2d6cf5+107-rereg_access_jgg@nvidia.com
+Reported-by: Philip Tsukerman <philiptsukerman@gmail.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/infiniband/hw/mlx4/mr.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/infiniband/hw/mlx4/mr.c b/drivers/infiniband/hw/mlx4/mr.c
+index a40bf58bcdd3..04c370fbdba0 100644
+--- a/drivers/infiniband/hw/mlx4/mr.c
++++ b/drivers/infiniband/hw/mlx4/mr.c
+@@ -466,6 +466,10 @@ struct ib_mr *mlx4_ib_rereg_user_mr(struct ib_mr *mr, int flags, u64 start,
+ 	struct mlx4_mpt_entry **pmpt_entry = &mpt_entry;
+ 	int err;
+ 
++	err = ib_umem_check_rereg(mmr->umem, flags, mr_access_flags);
++	if (err)
++		return ERR_PTR(err);
++
+ 	/* Since we synchronize this call and mlx4_ib_dereg_mr via uverbs,
+ 	 * we assume that the calls can't run concurrently. Otherwise, a
+ 	 * race exists.
+-- 
+2.52.0
+

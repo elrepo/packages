@@ -1,7 +1,7 @@
 From 095fe646f8e39abe345948a50a4605cf5f0e2300 Mon Sep 17 00:00:00 2001
 From: Dan Carpenter <dan.carpenter@linaro.org>
 Date: Wed, 28 May 2025 11:11:09 +0300
-Subject: [PATCH 3/5] net/mlx4_en: Prevent potential integer overflow
+Subject: [PATCH 3/8] net/mlx4_en: Prevent potential integer overflow
  calculating Hz
 
 [ Upstream commit 54d34165b4f786d7fea8412a18fb4a54c1eab623 ]

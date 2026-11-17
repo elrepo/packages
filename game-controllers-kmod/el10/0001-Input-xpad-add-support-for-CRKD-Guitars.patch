@@ -1,7 +1,7 @@
 From 806ec7b797adc1cc9b11535307638a55ddfb873c Mon Sep 17 00:00:00 2001
 From: Sanjay Govind <sanjay.govind9@gmail.com>
 Date: Sat, 29 Nov 2025 20:37:11 +1300
-Subject: [PATCH 01/10] Input: xpad - add support for CRKD Guitars
+Subject: [PATCH 01/17] Input: xpad - add support for CRKD Guitars
 
 Add support for various CRKD Guitar Controllers.
 

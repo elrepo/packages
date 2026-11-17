@@ -1,7 +1,7 @@
 From e2b0ae529db4766584e77647cefe3ec15c3d842e Mon Sep 17 00:00:00 2001
 From: Zoltan Illes <zoliviragh@gmail.com>
 Date: Fri, 3 Apr 2026 22:03:42 -0700
-Subject: [PATCH 06/10] Input: xpad - add support for Razer Wolverine V3 Pro
+Subject: [PATCH 06/17] Input: xpad - add support for Razer Wolverine V3 Pro
 
 Add device IDs for the Razer Wolverine V3 Pro controller in both
 wired (0x0a57) and wireless 2.4 GHz dongle (0x0a59) modes.

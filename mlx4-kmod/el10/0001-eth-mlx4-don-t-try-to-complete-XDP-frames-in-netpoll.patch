@@ -1,7 +1,7 @@
 From 161cc125043a24cf14b86e61e57221a820e8fb5e Mon Sep 17 00:00:00 2001
 From: Jakub Kicinski <kuba@kernel.org>
 Date: Wed, 12 Feb 2025 17:06:33 -0800
-Subject: [PATCH 1/5] eth: mlx4: don't try to complete XDP frames in netpoll
+Subject: [PATCH 1/8] eth: mlx4: don't try to complete XDP frames in netpoll
 
 [ Upstream commit 8fdeafd66edaf420ea0063a1f13442fe3470fe70 ]
 

@@ -1,7 +1,7 @@
 From df6851bda8c26427f2ef9bbf182ec9da2a1df03d Mon Sep 17 00:00:00 2001
 From: Leon Romanovsky <leonro@nvidia.com>
 Date: Tue, 3 Dec 2024 15:44:25 +0200
-Subject: [PATCH 1/2] RDMA/mlx4: Avoid false error about access to
+Subject: [PATCH 1/7] RDMA/mlx4: Avoid false error about access to
  uninitialized gids array
 
 [ Upstream commit 1f53d88cbb0dcc7df235bf6611ae632b254fccd8 ]

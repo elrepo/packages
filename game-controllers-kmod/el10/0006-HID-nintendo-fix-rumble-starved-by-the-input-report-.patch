@@ -1,0 +1,120 @@
+From 781f8e020a78b807bcc50d3fe7beaada4d43475d Mon Sep 17 00:00:00 2001
+From: Alexandre Derumier <aderumier@gmail.com>
+Date: Sat, 1 Aug 2026 11:00:59 +0200
+Subject: [PATCH 06/12] HID: nintendo: fix rumble starved by the input report
+ cadence gate
+
+Rumble on third-party controllers speaking the Switch protocol is weak
+and intermittent over bluetooth, and absent on some units.
+
+Since commit d750d1480362 ("HID: nintendo: fix rumble rate limiter"),
+joycon_enforce_subcmd_rate() requires JC_SUBCMD_VALID_DELTA_REQ (3)
+consecutive input reports spaced 8-17ms apart before releasing a
+subcommand. That window is the official Pro Controller's bluetooth
+cadence, and controllers that do not report on it cannot pass the gate,
+so their rumble is starved.
+
+Measured over bluetooth on one host, reading the controller directly,
+fraction of reports at which the requirement is met:
+
+  official Pro Controller     95%
+  Datafrog clone              46-52%
+  8BitDo Pro 2                2.5-4%
+
+The Pro 2 delivers reports in pairs, so 11-19% of its deltas are 0ms and
+reset the counter. Affected controllers report Nintendo's USB IDs, and
+the MAC is no better: the Datafrog clone reports an OUI registered to
+Nintendo, so identifying them by vendor would misclassify it.
+
+Instead, notice when the requirement cannot be met: after
+JC_SUBCMD_RATE_MAX_FAILURES exhaustions of the limiter, fall back to the
+pre-d750d1480362 throttle, which keeps the 25ms spacing and the
+transmit-after-receive synchronisation from commit e93363f716a2 ("HID:
+nintendo: ratelimit subcommands and rumble") and drops only the cadence
+requirement. Exhaustions are counted cumulatively, as an affected
+controller meets the requirement occasionally and a consecutive count
+would never be reached.
+
+Signed-off-by: Alexandre Derumier <aderumier@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.com>
+---
+ drivers/hid/hid-nintendo.c | 39 +++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 38 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
+index acf0adac6b84..32eed94a7c8b 100644
+--- a/drivers/hid/hid-nintendo.c
++++ b/drivers/hid/hid-nintendo.c
+@@ -609,6 +609,8 @@ struct joycon_ctlr {
+ 	unsigned int last_input_report_msecs;
+ 	unsigned int last_subcmd_sent_msecs;
+ 	unsigned int consecutive_valid_report_deltas;
++	unsigned int subcmd_rate_exhaustions;
++	bool subcmd_rate_relaxed;
+ 
+ 	/* factory calibration data */
+ 	struct joycon_stick_cal left_stick_cal_x;
+@@ -841,10 +843,11 @@ static void joycon_wait_for_input_report(struct joycon_ctlr *ctlr)
+ #define JC_SUBCMD_TX_OFFSET_MS		4
+ #define JC_SUBCMD_VALID_DELTA_REQ	3
+ #define JC_SUBCMD_RATE_MAX_ATTEMPTS	25
++#define JC_SUBCMD_RATE_MAX_FAILURES	4
+ #define JC_SUBCMD_RATE_LIMITER_USB_MS	20
+ #define JC_SUBCMD_RATE_LIMITER_BT_MS	60
+ #define JC_SUBCMD_RATE_LIMITER_MS(ctlr)	((ctlr)->hdev->bus == BUS_USB ? JC_SUBCMD_RATE_LIMITER_USB_MS : JC_SUBCMD_RATE_LIMITER_BT_MS)
+-static void joycon_enforce_subcmd_rate(struct joycon_ctlr *ctlr)
++static void joycon_enforce_subcmd_rate_strict(struct joycon_ctlr *ctlr)
+ {
+ 	unsigned int current_ms;
+ 	unsigned long subcmd_delta;
+@@ -872,6 +875,14 @@ static void joycon_enforce_subcmd_rate(struct joycon_ctlr *ctlr)
+ 
+ 	if (attempts >= JC_SUBCMD_RATE_MAX_ATTEMPTS) {
+ 		hid_warn(ctlr->hdev, "%s: exceeded max attempts", __func__);
++
++		if (++ctlr->subcmd_rate_exhaustions == JC_SUBCMD_RATE_MAX_FAILURES) {
++			ctlr->subcmd_rate_relaxed = true;
++			hid_info(ctlr->hdev,
++				 "input report cadence does not fit the %d-%dms window; using the legacy subcommand throttle\n",
++				 JC_INPUT_REPORT_MIN_DELTA,
++				 JC_INPUT_REPORT_MAX_DELTA);
++		}
+ 		return;
+ 	}
+ 
+@@ -886,6 +897,32 @@ static void joycon_enforce_subcmd_rate(struct joycon_ctlr *ctlr)
+ 	msleep(JC_SUBCMD_TX_OFFSET_MS);
+ }
+ 
++/* The rate limiter as it was before commit d750d1480362, without the report
++ * cadence requirement.
++ */
++static void joycon_enforce_subcmd_rate_legacy(struct joycon_ctlr *ctlr)
++{
++	static const unsigned int max_subcmd_rate_ms = 25;
++	unsigned int current_ms = jiffies_to_msecs(jiffies);
++	unsigned int delta_ms = current_ms - ctlr->last_subcmd_sent_msecs;
++
++	while (delta_ms < max_subcmd_rate_ms &&
++	       ctlr->ctlr_state == JOYCON_CTLR_STATE_READ) {
++		joycon_wait_for_input_report(ctlr);
++		current_ms = jiffies_to_msecs(jiffies);
++		delta_ms = current_ms - ctlr->last_subcmd_sent_msecs;
++	}
++	ctlr->last_subcmd_sent_msecs = current_ms;
++}
++
++static void joycon_enforce_subcmd_rate(struct joycon_ctlr *ctlr)
++{
++	if (ctlr->subcmd_rate_relaxed)
++		joycon_enforce_subcmd_rate_legacy(ctlr);
++	else
++		joycon_enforce_subcmd_rate_strict(ctlr);
++}
++
+ static int joycon_hid_send_sync(struct joycon_ctlr *ctlr, u8 *data, size_t len,
+ 				u32 timeout)
+ {
+-- 
+2.52.0
+

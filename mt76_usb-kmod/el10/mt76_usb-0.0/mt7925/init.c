@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: ISC
+// SPDX-License-Identifier: BSD-3-Clause-Clear
 /* Copyright (C) 2023 MediaTek Inc. */
 
 #include <linux/etherdevice.h>
@@ -90,6 +90,8 @@ int mt7925_mac_init(struct mt792x_dev *dev)
 		mt792x_mac_init_band(dev, i);
 
 	mt7925_mac_init_basic_rates(dev);
+
+	memzero_explicit(&dev->mt76.alpha2, sizeof(dev->mt76.alpha2));
 
 	return 0;
 }
@@ -274,7 +276,7 @@ int mt7925_register_device(struct mt792x_dev *dev)
 	dev->mphy.hw->wiphy->available_antennas_rx = dev->mphy.chainmask;
 	dev->mphy.hw->wiphy->available_antennas_tx = dev->mphy.chainmask;
 
-	queue_work(system_wq, &dev->init_work);
+	queue_work(system_percpu_wq, &dev->init_work);
 
 	return 0;
 }
