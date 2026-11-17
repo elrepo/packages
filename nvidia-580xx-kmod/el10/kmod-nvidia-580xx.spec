@@ -4,13 +4,13 @@
 %define kmod_name	%{kmod_basename}%{kmod_legacy}
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-211.7.3.el10_2}
+%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-264.14.1.el10_3}
 
 %{!?dist: %define dist .el10}
 
 Name:		kmod-%{kmod_name}
 Version:	580.196.07
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	MIT and Redistributable, no modification permitted
@@ -240,6 +240,9 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Tue Nov 10 2026 Tuan Hoang <tqhoang@elrepo.org> - 580.196.07-2
+- Built against RHEL 10.3 GA kernel-6.12.0-264.14.1.el10_3
+
 * Wed Oct 28 2026 Tuan Hoang <tqhoang@elrepo.org> - 580.196.07-1
 - Updated to version 580.196.07
 - Built against RHEL 10.2 GA kernel-6.12.0-211.7.3.el10_2

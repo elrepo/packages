@@ -38,7 +38,7 @@
 
 Name:		nvidia-x11-drv%{kmod_legacy}
 Version:	580.196.07
-Release:	1%{?dist}
+Release:	2%{?dist}
 Group:		User Interface/X Hardware Support
 License:	MIT and Redistributable, no modification permitted
 Summary:	NVIDIA OpenGL X11 display driver files
@@ -657,6 +657,9 @@ fi ||:
 %endif
 
 %changelog
+* Tue Nov 10 2026 Tuan Hoang <tqhoang@elrepo.org> - 580.196.07-2
+- Bump to release 2 to sync with kmod-nvidia
+
 * Wed Oct 28 2026 Tuan Hoang <tqhoang@elrepo.org> - 580.196.07-1
 - Updated to version 580.196.07
 
