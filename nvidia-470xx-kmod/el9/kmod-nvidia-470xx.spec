@@ -3,13 +3,13 @@
 %define kmod_name	%{kmod_basename}-470xx
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.12.1.el9_8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-741.20.1.el9_9}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	470.256.02
-Release:	9.1%{?dist}
+Release:	10%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -25,6 +25,7 @@ Source3:	modprobe-nvidia.conf
 Patch0: 	nvidia-470xx-buildfix-el9_6.patch
 Patch1: 	nvidia-470xx-buildfix-el9_7.patch
 Patch2: 	nvidia-470xx-buildfix-el9_8.patch
+Patch3: 	nvidia-470xx-buildfix-el9_9.patch
 
 %if %{?_with_src:0}%{!?_with_src:1}
 NoSource: 0
@@ -92,6 +93,7 @@ sh %{SOURCE0} --extract-only --target nvidiapkg
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 %{__cp} -a nvidiapkg _kmod_build_
 
 %build
@@ -256,6 +258,9 @@ exit 0
 /lib/firmware/nvidia/%{version}/*.bin
 
 %changelog
+* Thu Nov 12 2026 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-10
+- Rebuilt against RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
+
 * Wed Jun 10 2026 Tuan Hoang <tqhoang@elrepo.org> - 470.256.02-9.1
 - Rebuilt against RHEL 9.8 errata kernel 5.14.0-687.12.1.el9_8
 
