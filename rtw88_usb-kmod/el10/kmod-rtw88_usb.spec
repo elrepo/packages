@@ -2,13 +2,13 @@
 %define kmod_name	rtw88_usb
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-264.14.1.el10_3}
+%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-264.17.1.el10_3}
 
 %{!?dist: %define dist .el10}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -221,8 +221,14 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri Nov 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-3
+- Source code updated from RHEL 10.3 errata kernel-6.12.0-264.17.1.el10_3
+- wifi: rtw88: fix OOB read from firmware RX descriptor exceeding DMA buffer (Jose Ignacio Tornos Martinez) [RHEL-291553] {CVE-2026-74410}
+- wifi: rtw88: fix wrong pci_get_drvdata type in AER handlers (Jose Ignacio Tornos Martinez) [RHEL-291553] {CVE-2026-74412}
+- Built against RHEL 10.3 errata kernel-6.12.0-264.17.1.el10_3
+
 * Tue Nov 10 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-2
-- Source code from RHEL 10.3 GA kernel-6.12.0-264.14.1.el10_3
+- Source code updated from RHEL 10.3 GA kernel-6.12.0-264.14.1.el10_3
 - Built against RHEL 10.3 GA kernel-6.12.0-264.14.1.el10_3
 
 * Thu Jun 04 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-1
