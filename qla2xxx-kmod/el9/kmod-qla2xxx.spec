@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	10.02.10.100
-Release:	5%{?dist}
+Release:	6%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -192,6 +192,11 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri Nov 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.10.100-6
+- Source code from RHEL 9.9 GA kernel-5.14.0-741.24.1.el9_9
+- scsi: qla2xxx: Unlink NVMe unsol ctx before freeing on LS reject error (CKI Backport Bot) [RHEL-298329] {CVE-2026-97528}
+- Built against RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
+
 * Thu Nov 12 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.10.100-5
 - Source code unchanged in RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
 - Built against RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9

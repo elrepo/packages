@@ -440,6 +440,7 @@ out:
 	a.nport_handle = uctx->nport_handle;
 	a.xchg_address = uctx->exchange_address;
 	qla_nvme_ls_reject_iocb(vha, ha->base_qpair, &a, true);
+	list_del(&uctx->elem);
 	kfree(uctx);
 	return rval;
 }
