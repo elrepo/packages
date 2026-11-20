@@ -2,13 +2,13 @@
 %define kmod_name	wl
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-264.14.1.el10_3}
+%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-264.17.1.el10_3}
 
 %{!?dist: %define dist .el10}
 
 Name:		kmod-%{kmod_name}
 Version:	6.30.223.271
-Release:	2%{?dist}
+Release:	2.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	Redistributable, no modification permitted
@@ -337,6 +337,9 @@ exit 0
 %{_presetdir}/*.preset
 
 %changelog
+* Fri Nov 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 6.30.223.271-2.1
+- Rebuilt against RHEL 10.3 errata kernel-6.12.0-264.17.1.el10_3
+
 * Tue Nov 10 2026 Tuan Hoang <tqhoang@elrepo.org> - 6.30.223.271-2
 - Add elrepo-wl-buildfix-el10_3.patch
 - Built against RHEL 10.3 GA kernel-6.12.0-264.14.1.el10_3
