@@ -193,7 +193,7 @@ exit 0
 
 %changelog
 * Fri Nov 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.10.100-6
-- Source code from RHEL 9.9 GA kernel-5.14.0-741.24.1.el9_9
+- Source code updated from RHEL 9.9 errata kernel-5.14.0-741.24.1.el9_9
 - scsi: qla2xxx: Unlink NVMe unsol ctx before freeing on LS reject error (CKI Backport Bot) [RHEL-298329] {CVE-2026-97528}
 - Built against RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
 

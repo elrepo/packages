@@ -190,17 +190,17 @@ exit 0
 
 %changelog
 * Fri Nov 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.09.100-8
-- Source code updated from RHEL kernel-4.18.0-553.187.1.el8_10.x86_64
+- Source code updated from RHEL 8.10 errata kernel-4.18.0-553.187.1.el8_10.x86_64
 - scsi: qla2xxx: Unlink NVMe unsol ctx before freeing on LS reject error (CKI Backport Bot) [RHEL-298315] {CVE-2026-97528}
 - Built against RHEL 8.10 GA kernel-4.18.0-553.el8_10.x86_64
 
 * Thu Sep 24 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.09.100-7
-- Source code updated from RHEL kernel-4.18.0-553.168.1.el8_10.x86_64
+- Source code updated from RHEL 8.10 errata kernel-4.18.0-553.168.1.el8_10.x86_64
 - scsi: qla2xxx: Bound rsp_info_len to avoid OOB sense-data read (CKI Backport Bot) [RHEL-262571] {CVE-2026-89846}
 - Built against RHEL 8.10 GA kernel-4.18.0-553.el8_10.x86_64
 
 * Wed Sep 16 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.09.100-6
-- Source code updated from RHEL kernel-4.18.0-553.163.1.el8_10.x86_64
+- Source code updated from RHEL 8.10 errata kernel-4.18.0-553.163.1.el8_10.x86_64
 - scsi: qla2xxx: Clear cmds after chip reset (CKI Backport Bot) [RHEL-230822] {CVE-2025-68745}
 - Built against RHEL 8.10 GA kernel-4.18.0-553.el8_10.x86_64
 
@@ -208,18 +208,18 @@ exit 0
 - Add patch to preemptively fix CVE-2026-43414
 
 * Tue Apr 21 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.09.100-4
-- Source code updated from RHEL kernel-4.18.0-553.120.1.el8_10.x86_64
+- Source code updated from RHEL 8.10 errata kernel-4.18.0-553.120.1.el8_10.x86_64
 - scsi: qla2xxx: Fix improper freeing of purex item (CKI Backport Bot) [RHEL-159219] {CVE-2025-68741}
 
 * Wed Apr 15 2026 Tuan Hoang <tqhoang@elrepo.org> - 10.02.09.100-3
-- Source code updated from RHEL kernel-4.18.0-553.117.1.el8_10.x86_64
+- Source code updated from RHEL 8.10 errata kernel-4.18.0-553.117.1.el8_10.x86_64
 - scsi: qla2xxx: Fix bsg_done() causing double free (Ewan D. Milne) [RHEL-153405] {CVE-2025-71238}
 - Fix hard-coded arch in post section
 - Fix problems in posttrans section
 - Fix macro usage in files section
 
 * Wed Aug 28 2024 Tuan Hoang <tqhoang@elrepo.org> - 10.02.09.100-2
-- Source code updated from RHEL kernel-4.18.0-553.16.1.el8_10.x86_64
+- Source code updated from RHEL 8.10 errata kernel-4.18.0-553.16.1.el8_10.x86_64
 - scsi: qla2xxx: Fix double free of fcport (Ewan D. Milne) [RHEL-39549] {CVE-2024-26929}
 - scsi: qla2xxx: Fix double free of the ha->vp_map pointer (Ewan D. Milne) [RHEL-39549] {CVE-2024-26930}
 - scsi: qla2xxx: Fix command flush on cable pull (Ewan D. Milne) [RHEL-39549] {CVE-2024-26931}
