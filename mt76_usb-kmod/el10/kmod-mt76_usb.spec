@@ -2,13 +2,13 @@
 %define kmod_name	mt76_usb
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-264.14.1.el10_3}
+%{!?kmod_kernel_version: %define kmod_kernel_version 6.12.0-264.17.1.el10_3}
 
 %{!?dist: %define dist .el10}
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	5%{?dist}
+Release:	6%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -194,8 +194,14 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Fri Nov 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-6
+- Source code updated from RHEL 10.3 errata kernel-6.12.0-264.17.1.el10_3
+- wifi: mt76: use kfree_rcu for offchannel link in mt76_put_vif_phy_link (Jose Ignacio Tornos Martinez) [RHEL-291553] {CVE-2026-74325}
+- wifi: mt76: add wcid publish check in mt76_sta_add (Jose Ignacio Tornos Martinez) [RHEL-291553] {CVE-2026-63832}
+- Built against RHEL 10.3 errata kernel-6.12.0-264.17.1.el10_3
+
 * Tue Nov 10 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-5
-- Source code from RHEL 10.3 GA kernel-6.12.0-264.14.1.el10_3
+- Source code updated from RHEL 10.3 GA kernel-6.12.0-264.14.1.el10_3
 - Built against RHEL 10.3 GA kernel-6.12.0-264.14.1.el10_3
 
 * Wed May 20 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-4
