@@ -3,13 +3,13 @@
 %define real_name 		drbd
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-687.5.3.el9_8}
+%{!?kmod_kernel_version: %define kmod_kernel_version 5.14.0-741.20.1.el9_9}
 
 %{!?dist: %define dist .el9}
 
 Name:		kmod-%{kmod_name}
 Version:	9.3.4
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -200,6 +200,9 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Wed Nov 11 2026 Akemi Yagi <toracat@elrepo.org> -9.3.4-2.el9_9
+- Rebuilt against the RHEL 9.9 GA kernel 5.14.0-741.20.1.el9_9
+
 * Wed Sep 16 2026 Akemi Yagi <toracat@elrepo.org> -9.3.4-1.el9_8
 - Version updated to 9.3.4
 
