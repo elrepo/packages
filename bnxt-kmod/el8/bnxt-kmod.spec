@@ -2,12 +2,12 @@
 %define bnxt_en_name		bnxt_en
 %define bnxt_en_version		1.10.3
 %define bnxt_re_name		bnxt_re
-%define bnxt_re_version		238.1.165.0
+%define bnxt_re_version		239.1.170.0
 
 %define kmod_name		bnxt
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.75.1.el8_10}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.189.1.el8_10}
 
 %{!?dist: %define dist .el8}
 
@@ -201,6 +201,13 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 24 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.10.3_239.1.170.0-1.1
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.189.1.el8_10
+
+* Tue Nov 24 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.10.3_239.1.170.0-1
+- Update to version 1.10.3-239.1.170.0
+- Built against RHEL 8.10 GA kernel 4.18.0-553.el8_10
+
 * Mon Aug 10 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.10.3_238.1.165.0-1.1
 - Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.75.1.el8_10
 
