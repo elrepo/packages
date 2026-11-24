@@ -566,6 +566,11 @@ elif [ -f $srcdir/include/linux/net_tstamp.h ]; then
 	fi
 fi
 
+if [ -f $srcdir/include/linux/net_tstamp.h ] &&
+   grep -q "struct kernel_hwtstamp_config" $srcdir/include/linux/net_tstamp.h ; then
+	echo "#define BCM_HAS_KERNEL_HWSTAMP_CFG"
+fi
+
 if [ -f $srcdir/include/linux/ptp_clock_kernel.h ]; then
 	TGT_H=$srcdir/include/linux/ptp_clock_kernel.h
 	num_args=`awk '/ptp_clock_register\(struct/,/\)/ {printf $0; exit}' $TGT_H | awk -F ',' '{print NF}'`

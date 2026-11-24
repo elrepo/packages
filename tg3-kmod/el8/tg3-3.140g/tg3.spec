@@ -1,5 +1,5 @@
 %define brcmname tg3
-%define brcmvers 3.140b
+%define brcmvers 3.140g
 %define brcmfmly NetXtreme
 %define brcmwork %{brcmname}-%{brcmvers}
 
@@ -86,6 +86,28 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -f %{brcmfilelist}
 %doc LICENSE README.TXT ChangeLog
+
+%changelog
+*Mon August 24 2026 Shravya KN <shravya.k-n@broadcom.com> 3.140g
+- Recognized Dell 18G LOM and Channel 2904/2905 as Citadel boards to fix GPIO1/FLASH_GIVE staying asserted
+
+%changelog
+*Wed August 05 2026 Shravya KN <shravya.k-n@broadcom.com> 3.140f
+- Add support for newer kernel hardware timestamp configuration interface, with fallback to legacy interface on older kernels
+
+%changelog
+*Mon July 20 2026 Shravya KN <shravya.k-n@broadcom.com> 3.140e
+- Added an underflow guard to tg3_fw_data_len
+- Replaced an unbounded strcat with a bounded strncat into tp->fw_ver
+- Ensured VPD board_part_number is always NULL-terminated
+
+%changelog
+*Mon July 13 2026 Vishvambar Panth S <vishvambar.panth-s@broadcom.com> 3.140d
+- Added Channel E14A Citadel detection to fix incorrect GPIO1 handling and WoL reporting.
+
+%changelog
+*Mon July 02 2026 shantiprasad Shettar <shantiprasad.shettar@broadcom.com> 3.140c
+- Added Channel 2906 Citadel detection to fix incorrect GPIO1 handling and WoL reporting.
 
 %changelog
 *Mon June 15 2026 shantiprasad Shettar <shantiprasad.shettar@broadcom.com> 3.140b

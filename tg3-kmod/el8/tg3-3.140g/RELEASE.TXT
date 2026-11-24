@@ -1,7 +1,7 @@
                               Release Notes
                         Broadcom tg3 Linux Driver
-                              Version 3.140b
-                                06/15/2026
+                              Version 3.140g
+                                08/24/2026
 
                               Broadcom Inc.
                          5300 California Avenue,
@@ -10,6 +10,40 @@
 			Copyright (C) 2010-2025 Broadcom
 			   All Rights Reserved
 
+
+v3.140g (August 24, 2026)
+   fixes and Enhancements
+   ---------------------
+	1) Problem: (DCSG-233287) GPIO1/FLASH_GIVE stayed asserted on Dell 18G LOM and Channel 2904/2905 boards not recognized as Citadel
+	   Cause  : Added the missing subsystem IDs to tg3_is_citadel() and its EEPROM write-protect handling
+
+v3.140f (August 05, 2026)
+   fixes and Enhancements
+   ---------------------
+	1) Problem: (DCSG-220877) tg3 only supported hardware timestamp configuration through the legacy ioctl interface
+	   Cause  : Add support for the newer kernel hardware timestamp configuration interface
+
+v3.140e (July 20, 2026)
+   fixes and Enhancements
+   ---------------------
+	1) Problem: (DCSG-210852) fw_hdr->len underflow in tg3_fw_data_len could trigger a runaway MMIO loop
+	   Cause  : Added a guard to return 0 when fw_hdr->len is smaller than the header size
+	2) Problem: (DCSG-210852) Unbounded strcat could write out of bounds into tp->fw_ver
+	   Cause  : Replaced the unbounded strcat with the bounded strncat pattern used elsewhere in the function
+	3) Problem: (DCSG-210852) VPD board_part_number may not be NULL-terminated
+	   Cause  : Reserved space for a NULL terminator and terminated the string explicitly
+
+v3.140d (July 13, 2026)
+   fixes and Enhancements
+   ---------------------
+	1) Problem: (DCSG-203123) Citadel4 does not support WoL, but ethtool shows Supports Wake-on: g
+	   Cause  : Missing Citadel detection for Channel E14A caused incorrect GPIO1 handling and WoL reporting
+
+v3.140c (July 02, 2026)
+   fixes and Enhancements
+   ---------------------
+	1) Problem: (DCSG-180604) Citadel4 does not support WoL, but ethtool shows Supports Wake-on: g
+	   Cause  : Missing Citadel detection for Channel 2906 caused incorrect GPIO1 handling and WoL reporting
 
 v3.140b (June 15, 2026)
    fixes and Enhancements

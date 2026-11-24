@@ -156,11 +156,11 @@ static inline void _tg3_flag_clear(enum TG3_FLAGS flag, unsigned long *bits)
 #define DRV_MODULE_NAME		"tg3"
 #define TG3_MAJ_NUM			3
 #define TG3_MIN_NUM			140
-#define TG3_REVISION		"b"
+#define TG3_REVISION		"g"
 #define DRV_MODULE_VERSION	\
 	__stringify(TG3_MAJ_NUM) "." __stringify(TG3_MIN_NUM)\
 	TG3_REVISION
-#define DRV_MODULE_RELDATE	"June 15, 2026"
+#define DRV_MODULE_RELDATE	"August 24, 2026"
 #define RESET_KIND_SHUTDOWN	0
 #define RESET_KIND_INIT		1
 #define RESET_KIND_SUSPEND	2
@@ -3994,6 +3994,9 @@ static int tg3_halt_cpu(struct tg3 *tp, u32 cpu_base)
 
 static int tg3_fw_data_len(const struct tg3_firmware_hdr *fw_hdr)
 {
+	if (fw_hdr->len < TG3_FW_HDR_LEN)
+		return 0;
+
 	return (fw_hdr->len - TG3_FW_HDR_LEN) / sizeof(u32);
 }
 
@@ -15481,25 +15484,21 @@ static void tg3_self_test(struct net_device *dev, struct ethtool_test *etest,
 }
 
 #ifdef BCM_HAS_IEEE1588_SUPPORT
-static int tg3_hwtstamp_set(struct net_device *dev, struct ifreq *ifr)
+#ifdef BCM_HAS_KERNEL_HWSTAMP_CFG
+static int tg3_hwtstamp_set(struct net_device *dev,
+			    struct kernel_hwtstamp_config *stmpconf,
+			    struct netlink_ext_ack *extack)
 {
 	struct tg3 *tp = netdev_priv(dev);
-	struct hwtstamp_config stmpconf;
 
 	if (!tg3_flag(tp, PTP_CAPABLE))
 		return -EOPNOTSUPP;
 
-	if (copy_from_user(&stmpconf, ifr->ifr_data, sizeof(stmpconf)))
-		return -EFAULT;
-
-	if (stmpconf.flags)
-		return -EINVAL;
-
-	if (stmpconf.tx_type != HWTSTAMP_TX_ON &&
-	    stmpconf.tx_type != HWTSTAMP_TX_OFF)
+	if (stmpconf->tx_type != HWTSTAMP_TX_ON &&
+	    stmpconf->tx_type != HWTSTAMP_TX_OFF)
 		return -ERANGE;
 
-	switch (stmpconf.rx_filter) {
+	switch (stmpconf->rx_filter) {
 	case HWTSTAMP_FILTER_NONE:
 		tp->rxptpctl = 0;
 		break;
@@ -15559,75 +15558,74 @@ static int tg3_hwtstamp_set(struct net_device *dev, struct ifreq *ifr)
 		tw32(TG3_RX_PTP_CTL,
 		     tp->rxptpctl | TG3_RX_PTP_CTL_HWTS_INTERLOCK);
 
-	if (stmpconf.tx_type == HWTSTAMP_TX_ON)
+	if (stmpconf->tx_type == HWTSTAMP_TX_ON)
 		tg3_flag_set(tp, TX_TSTAMP_EN);
 	else
 		tg3_flag_clear(tp, TX_TSTAMP_EN);
 
-	return copy_to_user(ifr->ifr_data, &stmpconf, sizeof(stmpconf)) ?
-		-EFAULT : 0;
+	return 0;
 }
 
-static int tg3_hwtstamp_get(struct net_device *dev, struct ifreq *ifr)
+static int tg3_hwtstamp_get(struct net_device *dev,
+			    struct kernel_hwtstamp_config *stmpconf)
 {
 	struct tg3 *tp = netdev_priv(dev);
-	struct hwtstamp_config stmpconf;
 
 	if (!tg3_flag(tp, PTP_CAPABLE))
 		return -EOPNOTSUPP;
 
-	stmpconf.flags = 0;
-	stmpconf.tx_type = (tg3_flag(tp, TX_TSTAMP_EN) ?
-			    HWTSTAMP_TX_ON : HWTSTAMP_TX_OFF);
+	stmpconf->flags = 0;
+	stmpconf->tx_type = tg3_flag(tp, TX_TSTAMP_EN) ?
+			    HWTSTAMP_TX_ON : HWTSTAMP_TX_OFF;
 
 	switch (tp->rxptpctl) {
 	case 0:
-		stmpconf.rx_filter = HWTSTAMP_FILTER_NONE;
+		stmpconf->rx_filter = HWTSTAMP_FILTER_NONE;
 		break;
 	case TG3_RX_PTP_CTL_RX_PTP_V1_EN | TG3_RX_PTP_CTL_ALL_V1_EVENTS:
-		stmpconf.rx_filter = HWTSTAMP_FILTER_PTP_V1_L4_EVENT;
+		stmpconf->rx_filter = HWTSTAMP_FILTER_PTP_V1_L4_EVENT;
 		break;
 	case TG3_RX_PTP_CTL_RX_PTP_V1_EN | TG3_RX_PTP_CTL_SYNC_EVNT:
-		stmpconf.rx_filter = HWTSTAMP_FILTER_PTP_V1_L4_SYNC;
+		stmpconf->rx_filter = HWTSTAMP_FILTER_PTP_V1_L4_SYNC;
 		break;
 	case TG3_RX_PTP_CTL_RX_PTP_V1_EN | TG3_RX_PTP_CTL_DELAY_REQ:
-		stmpconf.rx_filter = HWTSTAMP_FILTER_PTP_V1_L4_DELAY_REQ;
+		stmpconf->rx_filter = HWTSTAMP_FILTER_PTP_V1_L4_DELAY_REQ;
 		break;
 	case TG3_RX_PTP_CTL_RX_PTP_V2_EN | TG3_RX_PTP_CTL_ALL_V2_EVENTS:
-		stmpconf.rx_filter = HWTSTAMP_FILTER_PTP_V2_EVENT;
+		stmpconf->rx_filter = HWTSTAMP_FILTER_PTP_V2_EVENT;
 		break;
 	case TG3_RX_PTP_CTL_RX_PTP_V2_L2_EN | TG3_RX_PTP_CTL_ALL_V2_EVENTS:
-		stmpconf.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_EVENT;
+		stmpconf->rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_EVENT;
 		break;
 	case TG3_RX_PTP_CTL_RX_PTP_V2_L4_EN | TG3_RX_PTP_CTL_ALL_V2_EVENTS:
-		stmpconf.rx_filter = HWTSTAMP_FILTER_PTP_V2_L4_EVENT;
+		stmpconf->rx_filter = HWTSTAMP_FILTER_PTP_V2_L4_EVENT;
 		break;
 	case TG3_RX_PTP_CTL_RX_PTP_V2_EN | TG3_RX_PTP_CTL_SYNC_EVNT:
-		stmpconf.rx_filter = HWTSTAMP_FILTER_PTP_V2_SYNC;
+		stmpconf->rx_filter = HWTSTAMP_FILTER_PTP_V2_SYNC;
 		break;
 	case TG3_RX_PTP_CTL_RX_PTP_V2_L2_EN | TG3_RX_PTP_CTL_SYNC_EVNT:
-		stmpconf.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_SYNC;
+		stmpconf->rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_SYNC;
 		break;
 	case TG3_RX_PTP_CTL_RX_PTP_V2_L4_EN | TG3_RX_PTP_CTL_SYNC_EVNT:
-		stmpconf.rx_filter = HWTSTAMP_FILTER_PTP_V2_L4_SYNC;
+		stmpconf->rx_filter = HWTSTAMP_FILTER_PTP_V2_L4_SYNC;
 		break;
 	case TG3_RX_PTP_CTL_RX_PTP_V2_EN | TG3_RX_PTP_CTL_DELAY_REQ:
-		stmpconf.rx_filter = HWTSTAMP_FILTER_PTP_V2_DELAY_REQ;
+		stmpconf->rx_filter = HWTSTAMP_FILTER_PTP_V2_DELAY_REQ;
 		break;
 	case TG3_RX_PTP_CTL_RX_PTP_V2_L2_EN | TG3_RX_PTP_CTL_DELAY_REQ:
-		stmpconf.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_DELAY_REQ;
+		stmpconf->rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_DELAY_REQ;
 		break;
 	case TG3_RX_PTP_CTL_RX_PTP_V2_L4_EN | TG3_RX_PTP_CTL_DELAY_REQ:
-		stmpconf.rx_filter = HWTSTAMP_FILTER_PTP_V2_L4_DELAY_REQ;
+		stmpconf->rx_filter = HWTSTAMP_FILTER_PTP_V2_L4_DELAY_REQ;
 		break;
 	default:
 		WARN_ON_ONCE(1);
 		return -ERANGE;
 	}
 
-	return copy_to_user(ifr->ifr_data, &stmpconf, sizeof(stmpconf)) ?
-		-EFAULT : 0;
+	return 0;
 }
+#endif /* BCM_HAS_KERNEL_HWSTAMP_CFG */
 #endif /* BCM_HAS_IEEE1588_SUPPORT */
 
 /*
@@ -15859,13 +15857,13 @@ static int tg3_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		return tg3_vmware_ioctl_cim(dev, ifr);
 #endif  /* TG3_VMWARE_BMAPILNX */
 
-#ifdef BCM_HAS_IEEE1588_SUPPORT
+#if defined(BCM_HAS_IEEE1588_SUPPORT) && !defined(BCM_HAS_KERNEL_HWSTAMP_CFG)
 	case SIOCSHWTSTAMP:
 		return tg3_hwtstamp_set(dev, ifr);
 
 	case SIOCGHWTSTAMP:
 		return tg3_hwtstamp_get(dev, ifr);
-#endif /* BCM_HAS_IEEE1588_SUPPORT */
+#endif /* BCM_HAS_IEEE1588_SUPPORT && !BCM_HAS_KERNEL_HWSTAMP_CFG */
 
 #ifndef BCM_HAS_NDO_SIOC_PRIV
 	case SIOCNICE:
@@ -16316,6 +16314,10 @@ static const struct net_device_ops tg3_netdev_ops = {
 #endif
 #ifdef CONFIG_NET_POLL_CONTROLLER
 	.ndo_poll_controller	= tg3_poll_controller,
+#endif
+#if defined(BCM_HAS_IEEE1588_SUPPORT) && defined(BCM_HAS_KERNEL_HWSTAMP_CFG)
+	.ndo_hwtstamp_get	= tg3_hwtstamp_get,
+	.ndo_hwtstamp_set	= tg3_hwtstamp_set,
 #endif
 };
 #endif /* BCM_HAS_NET_DEVICE_OPS */
@@ -17157,18 +17159,33 @@ static struct subsys_tbl_ent * __devinit tg3_lookup_by_subsys(struct tg3 *tp)
 
 static bool tg3_is_citadel(struct tg3 *tp)
 {
-	if (tp->pdev->subsystem_vendor != PCI_VENDOR_ID_BROADCOM)
-		return false;
-
-	switch (tp->pdev->subsystem_device) {
-		case TG3PCI_SUBDEVICE_ID_CITADEL_BEVERLYWOOD:
-		case TG3PCI_SUBDEVICE_ID_CITADEL_BEL_AIR:
-		case TG3PCI_SUBDEVICE_ID_CHANNEL_2908:
-		case TG3PCI_SUBDEVICE_ID_CHANNEL_2909:
-			return true;
-		default:
-			return false;
+	if (tp->pdev->subsystem_vendor == PCI_VENDOR_ID_BROADCOM) {
+		switch (tp->pdev->subsystem_device) {
+			case TG3PCI_SUBDEVICE_ID_CITADEL_BEVERLYWOOD:
+			case TG3PCI_SUBDEVICE_ID_CITADEL_BEL_AIR:
+			case TG3PCI_SUBDEVICE_ID_CHANNEL_2908:
+			case TG3PCI_SUBDEVICE_ID_CHANNEL_2909:
+			case TG3PCI_SUBDEVICE_ID_CHANNEL_2906:
+			case TG3PCI_SUBDEVICE_ID_CHANNEL_E14A:
+			case TG3PCI_SUBDEVICE_ID_CHANNEL_2904:
+			case TG3PCI_SUBDEVICE_ID_CHANNEL_2905:
+				return true;
+			default:
+				return false;
+		}
 	}
+
+	if (tp->pdev->subsystem_vendor == PCI_VENDOR_ID_DELL) {
+		switch (tp->pdev->subsystem_device) {
+			case TG3PCI_SUBDEVICE_ID_DELL_5720_L21T00:
+			case TG3PCI_SUBDEVICE_ID_DELL_5720_XE9880L:
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	return false;
 }
 
 static void __devinit tg3_get_eeprom_hw_cfg(struct tg3 *tp)
@@ -17318,6 +17335,7 @@ static void __devinit tg3_get_eeprom_hw_cfg(struct tg3 *tp)
 					tg3_flag_clear(tp, EEPROM_WRITE_PROT);
 				break;
 			case PCI_VENDOR_ID_BROADCOM:
+			case PCI_VENDOR_ID_DELL:
 				/* No EEPROM write protection for CITADEL devices.*/
 				if (tg3_is_citadel(tp))
 					tg3_flag_clear(tp, EEPROM_WRITE_PROT);
@@ -17718,11 +17736,12 @@ partno:
 	len = pci_vpd_info_field_size(&vpd_data[i]);
 
 	i += PCI_VPD_INFO_FLD_HDR_SIZE;
-	if (len > TG3_BPN_SIZE ||
+	if (len >= TG3_BPN_SIZE ||
 	    (len + i) > vpdlen)
 		goto out_not_found;
 
 	memcpy(tp->board_part_number, &vpd_data[i], len);
+	tp->board_part_number[len] = 0;
 
 out_not_found:
 	kfree(vpd_data);
@@ -18050,7 +18069,7 @@ static void __devinit tg3_read_fw_ver(struct tg3 *tp)
 		vpd_vers = true;
 
 	if (tg3_flag(tp, NO_NVRAM)) {
-		strcat(tp->fw_ver, "sb");
+		strncat(tp->fw_ver, "sb", TG3_VER_SIZE - strlen(tp->fw_ver) - 1);
 		tg3_read_otp_ver(tp);
 		return;
 	}

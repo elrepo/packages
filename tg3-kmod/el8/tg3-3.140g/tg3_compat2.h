@@ -545,3 +545,154 @@ void *memmove(void *dest, const void *src, size_t count)
 	return dest;
 }
 #endif
+
+#if defined(BCM_HAS_IEEE1588_SUPPORT) && !defined(BCM_HAS_KERNEL_HWSTAMP_CFG)
+static int tg3_hwtstamp_set(struct net_device *dev, struct ifreq *ifr)
+{
+	struct tg3 *tp = netdev_priv(dev);
+	struct hwtstamp_config stmpconf;
+
+	if (!tg3_flag(tp, PTP_CAPABLE))
+		return -EOPNOTSUPP;
+
+	if (copy_from_user(&stmpconf, ifr->ifr_data, sizeof(stmpconf)))
+		return -EFAULT;
+
+	if (stmpconf.flags)
+		return -EINVAL;
+
+	if (stmpconf.tx_type != HWTSTAMP_TX_ON &&
+	    stmpconf.tx_type != HWTSTAMP_TX_OFF)
+		return -ERANGE;
+
+	switch (stmpconf.rx_filter) {
+	case HWTSTAMP_FILTER_NONE:
+		tp->rxptpctl = 0;
+		break;
+	case HWTSTAMP_FILTER_PTP_V1_L4_EVENT:
+		tp->rxptpctl = TG3_RX_PTP_CTL_RX_PTP_V1_EN |
+			       TG3_RX_PTP_CTL_ALL_V1_EVENTS;
+		break;
+	case HWTSTAMP_FILTER_PTP_V1_L4_SYNC:
+		tp->rxptpctl = TG3_RX_PTP_CTL_RX_PTP_V1_EN |
+			       TG3_RX_PTP_CTL_SYNC_EVNT;
+		break;
+	case HWTSTAMP_FILTER_PTP_V1_L4_DELAY_REQ:
+		tp->rxptpctl = TG3_RX_PTP_CTL_RX_PTP_V1_EN |
+			       TG3_RX_PTP_CTL_DELAY_REQ;
+		break;
+	case HWTSTAMP_FILTER_PTP_V2_EVENT:
+		tp->rxptpctl = TG3_RX_PTP_CTL_RX_PTP_V2_EN |
+			       TG3_RX_PTP_CTL_ALL_V2_EVENTS;
+		break;
+	case HWTSTAMP_FILTER_PTP_V2_L2_EVENT:
+		tp->rxptpctl = TG3_RX_PTP_CTL_RX_PTP_V2_L2_EN |
+			       TG3_RX_PTP_CTL_ALL_V2_EVENTS;
+		break;
+	case HWTSTAMP_FILTER_PTP_V2_L4_EVENT:
+		tp->rxptpctl = TG3_RX_PTP_CTL_RX_PTP_V2_L4_EN |
+			       TG3_RX_PTP_CTL_ALL_V2_EVENTS;
+		break;
+	case HWTSTAMP_FILTER_PTP_V2_SYNC:
+		tp->rxptpctl = TG3_RX_PTP_CTL_RX_PTP_V2_EN |
+			       TG3_RX_PTP_CTL_SYNC_EVNT;
+		break;
+	case HWTSTAMP_FILTER_PTP_V2_L2_SYNC:
+		tp->rxptpctl = TG3_RX_PTP_CTL_RX_PTP_V2_L2_EN |
+			       TG3_RX_PTP_CTL_SYNC_EVNT;
+		break;
+	case HWTSTAMP_FILTER_PTP_V2_L4_SYNC:
+		tp->rxptpctl = TG3_RX_PTP_CTL_RX_PTP_V2_L4_EN |
+			       TG3_RX_PTP_CTL_SYNC_EVNT;
+		break;
+	case HWTSTAMP_FILTER_PTP_V2_DELAY_REQ:
+		tp->rxptpctl = TG3_RX_PTP_CTL_RX_PTP_V2_EN |
+			       TG3_RX_PTP_CTL_DELAY_REQ;
+		break;
+	case HWTSTAMP_FILTER_PTP_V2_L2_DELAY_REQ:
+		tp->rxptpctl = TG3_RX_PTP_CTL_RX_PTP_V2_L2_EN |
+			       TG3_RX_PTP_CTL_DELAY_REQ;
+		break;
+	case HWTSTAMP_FILTER_PTP_V2_L4_DELAY_REQ:
+		tp->rxptpctl = TG3_RX_PTP_CTL_RX_PTP_V2_L4_EN |
+			       TG3_RX_PTP_CTL_DELAY_REQ;
+		break;
+	default:
+		return -ERANGE;
+	}
+
+	if (netif_running(dev) && tp->rxptpctl)
+		/* tw32() is not yet defined at this point in tg3.c */
+		tp->write32(tp, TG3_RX_PTP_CTL,
+			    tp->rxptpctl | TG3_RX_PTP_CTL_HWTS_INTERLOCK);
+
+	if (stmpconf.tx_type == HWTSTAMP_TX_ON)
+		tg3_flag_set(tp, TX_TSTAMP_EN);
+	else
+		tg3_flag_clear(tp, TX_TSTAMP_EN);
+
+	return copy_to_user(ifr->ifr_data, &stmpconf, sizeof(stmpconf)) ?
+		-EFAULT : 0;
+}
+
+static int tg3_hwtstamp_get(struct net_device *dev, struct ifreq *ifr)
+{
+	struct tg3 *tp = netdev_priv(dev);
+	struct hwtstamp_config stmpconf;
+
+	if (!tg3_flag(tp, PTP_CAPABLE))
+		return -EOPNOTSUPP;
+
+	stmpconf.flags = 0;
+	stmpconf.tx_type = (tg3_flag(tp, TX_TSTAMP_EN) ?
+			    HWTSTAMP_TX_ON : HWTSTAMP_TX_OFF);
+
+	switch (tp->rxptpctl) {
+	case 0:
+		stmpconf.rx_filter = HWTSTAMP_FILTER_NONE;
+		break;
+	case TG3_RX_PTP_CTL_RX_PTP_V1_EN | TG3_RX_PTP_CTL_ALL_V1_EVENTS:
+		stmpconf.rx_filter = HWTSTAMP_FILTER_PTP_V1_L4_EVENT;
+		break;
+	case TG3_RX_PTP_CTL_RX_PTP_V1_EN | TG3_RX_PTP_CTL_SYNC_EVNT:
+		stmpconf.rx_filter = HWTSTAMP_FILTER_PTP_V1_L4_SYNC;
+		break;
+	case TG3_RX_PTP_CTL_RX_PTP_V1_EN | TG3_RX_PTP_CTL_DELAY_REQ:
+		stmpconf.rx_filter = HWTSTAMP_FILTER_PTP_V1_L4_DELAY_REQ;
+		break;
+	case TG3_RX_PTP_CTL_RX_PTP_V2_EN | TG3_RX_PTP_CTL_ALL_V2_EVENTS:
+		stmpconf.rx_filter = HWTSTAMP_FILTER_PTP_V2_EVENT;
+		break;
+	case TG3_RX_PTP_CTL_RX_PTP_V2_L2_EN | TG3_RX_PTP_CTL_ALL_V2_EVENTS:
+		stmpconf.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_EVENT;
+		break;
+	case TG3_RX_PTP_CTL_RX_PTP_V2_L4_EN | TG3_RX_PTP_CTL_ALL_V2_EVENTS:
+		stmpconf.rx_filter = HWTSTAMP_FILTER_PTP_V2_L4_EVENT;
+		break;
+	case TG3_RX_PTP_CTL_RX_PTP_V2_EN | TG3_RX_PTP_CTL_SYNC_EVNT:
+		stmpconf.rx_filter = HWTSTAMP_FILTER_PTP_V2_SYNC;
+		break;
+	case TG3_RX_PTP_CTL_RX_PTP_V2_L2_EN | TG3_RX_PTP_CTL_SYNC_EVNT:
+		stmpconf.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_SYNC;
+		break;
+	case TG3_RX_PTP_CTL_RX_PTP_V2_L4_EN | TG3_RX_PTP_CTL_SYNC_EVNT:
+		stmpconf.rx_filter = HWTSTAMP_FILTER_PTP_V2_L4_SYNC;
+		break;
+	case TG3_RX_PTP_CTL_RX_PTP_V2_EN | TG3_RX_PTP_CTL_DELAY_REQ:
+		stmpconf.rx_filter = HWTSTAMP_FILTER_PTP_V2_DELAY_REQ;
+		break;
+	case TG3_RX_PTP_CTL_RX_PTP_V2_L2_EN | TG3_RX_PTP_CTL_DELAY_REQ:
+		stmpconf.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_DELAY_REQ;
+		break;
+	case TG3_RX_PTP_CTL_RX_PTP_V2_L4_EN | TG3_RX_PTP_CTL_DELAY_REQ:
+		stmpconf.rx_filter = HWTSTAMP_FILTER_PTP_V2_L4_DELAY_REQ;
+		break;
+	default:
+		WARN_ON_ONCE(1);
+		return -ERANGE;
+	}
+
+	return copy_to_user(ifr->ifr_data, &stmpconf, sizeof(stmpconf)) ?
+		-EFAULT : 0;
+}
+#endif /* BCM_HAS_IEEE1588_SUPPORT && !BCM_HAS_KERNEL_HWSTAMP_CFG */

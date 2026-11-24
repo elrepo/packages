@@ -1,7 +1,7 @@
                            Installation Notes
                          Broadcom tg3 Linux Driver
-                              Version 3.140b
-                                06/15/2026
+                              Version 3.140g
+                                08/24/2026
 
                               Broadcom Inc.
                          5300 California Avenue
