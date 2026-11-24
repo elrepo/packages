@@ -17,11 +17,11 @@ Release:	1.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
-URL:		https://www.broadcom.com/products/ethernet-connectivity/network-adapters
+URL:		https://www.broadcom.com/products/ethernet-connectivity/network-adapters/
 
 # Sources
 # Driver source tarball from:
-# https://docs.broadcom.com/docs-and-downloads/ethernet-network-adapters/NXE/BRCM_237.1.148.0/bcm_237.1.148.0a.tar.gz
+# https://docs.broadcom.com/docs-and-downloads/ethernet-network-adapters/NXE/BRCM_239.1.170.0/bcm_239.1.170.0a.tar.gz
 Source0:	%{bundle_prefix}-%{bnxt_en_name}-%{bnxt_en_version}-%{bnxt_re_version}.tar.gz
 Source5:	GPL-v2.0.txt
 

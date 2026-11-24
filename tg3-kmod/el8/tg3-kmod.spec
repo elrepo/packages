@@ -16,21 +16,25 @@ URL:		https://www.broadcom.com/products/ethernet-connectivity/network-adapters/
 
 # Sources
 # Driver source tarball from:
-# https://docs.broadcom.com/docs-and-downloads/Broadcom-NX1-Linux_Drivers-3.139y.zip
+# https://docs.broadcom.com/docs-and-downloads/Broadcom_NX1_Linux_Drivers_3.140g.zip
 Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
 Patch0:		elrepo-tg3-makefile-mock-fix.patch
 
-%define __spec_install_post /usr/lib/rpm/check-buildroot \
-                            /usr/lib/rpm/redhat/brp-ldconfig \
-                            /usr/lib/rpm/brp-compress \
-                            /usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump \
-                            /usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
-                            /usr/lib/rpm/brp-python-bytecompile "" 1 \
-                            /usr/lib/rpm/brp-python-hardlink \
-                            PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
+# Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
+# https://bugzilla.redhat.com/show_bug.cgi?id=1967291
+
+%define __spec_install_post	/usr/lib/rpm/check-buildroot \
+				/usr/lib/rpm/redhat/brp-ldconfig \
+				/usr/lib/rpm/brp-compress \
+				/usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump \
+				/usr/lib/rpm/brp-strip-static-archive /usr/bin/strip \
+				/usr/lib/rpm/brp-python-bytecompile "" 1 \
+				/usr/lib/rpm/brp-python-hardlink \
+				PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
+
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
 %define __find_provides /usr/lib/rpm/redhat/find-provides.ksyms %{kmod_name} %{?epoch:%{epoch}:}%{version}-%{release}
