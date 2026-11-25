@@ -1,0 +1,32 @@
+https://github.com/torvalds/linux/commit/5d53e88d8370b9ab14dd830abb410d9a2671edb6
+
+From 5d53e88d8370b9ab14dd830abb410d9a2671edb6 Mon Sep 17 00:00:00 2001
+From: Al Viro <viro@zeniv.linux.org.uk>
+Date: Mon, 13 May 2024 17:50:34 -0600
+Subject: [PATCH] qibfs: fix _another_ leak
+
+[ Upstream commit bdb43af4fdb39f844ede401bdb1258f67a580a27 ]
+
+failure to allocate inode => leaked dentry...
+
+this one had been there since the initial merge; to be fair,
+if we are that far OOM, the odds of failing at that particular
+allocation are low...
+
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/infiniband/hw/qib/qib_fs.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff -Naurp ib_qib-1.11.orig/qib_fs.c ib_qib-1.11/qib_fs.c
+--- ib_qib-1.11.orig/qib_fs.c	2026-11-24 22:54:47.127762447 -0500
++++ ib_qib-1.11/qib_fs.c	2026-11-24 23:07:26.353249594 -0500
+@@ -56,6 +56,7 @@ static int qibfs_mknod(struct inode *dir
+ 	struct inode *inode = new_inode(dir->i_sb);
+ 
+ 	if (!inode) {
++		dput(dentry);
+ 		error = -EPERM;
+ 		goto bail;
+ 	}

@@ -2,22 +2,28 @@
 %define kmod_name		ib_qib
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.el8_10}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.189.1.el8_10}
 
 
 %{!?dist: %define dist .el8}
 
 Name:           kmod-%{kmod_name}
 Version:        1.11
-Release:        5%{?dist}
+Release:        6.1%{?dist}
 Summary:        %{kmod_name} kernel module(s)
 Group:          System Environment/Kernel
 License:        GPLv2
 URL:            http://www.kernel.org/
 
 # Sources.
-Source0:  %{kmod_name}-%{version}.tar.gz
-Source5:  GPL-v2.0.txt
+Source0: 	%{kmod_name}-%{version}.tar.gz
+Source5: 	GPL-v2.0.txt
+
+# Source code patches
+Patch0: 	elrepo-ib_qib_9_1.patch
+Patch1: 	ib_qib-elrepo-bug1390.patch
+Patch2: 	ib_qib-qibfs-fix-_another_-leak.patch
+Patch10: 	elrepo-ib_qib-backport-el9-to-el8.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -30,12 +36,6 @@ Source5:  GPL-v2.0.txt
 				/usr/lib/rpm/brp-python-bytecompile "" 1 \
 				/usr/lib/rpm/brp-python-hardlink \
 				PYTHON3="/usr/libexec/platform-python" /usr/lib/rpm/redhat/brp-mangle-shebangs
-
-# Source code patches
-Patch0:  elrepo-ib_qib_9_1.patch
-Patch1:  ib_qib-elrepo-bug1390.patch
-Patch2:  elrepo-ib_qib-backport-el9-to-el8.patch
-
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -72,7 +72,6 @@ This package provides the %{kmod_name} kernel module(s).
 It is built to depend upon the specific ABI provided by a range of releases
 of the same variant of the Linux kernel and not on any one specific build.
 
-
 %prep
 %setup -q -n %{kmod_name}-%{version}
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
@@ -81,6 +80,7 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch10 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD CONFIG_INFINIBAND_QIB=m
@@ -120,7 +120,7 @@ find %{buildroot} -type f -name \*.ko -exec %{__strip} --strip-debug \{\} \;
 %{__rm} -rf %{buildroot}
 
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_name} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -133,7 +133,7 @@ exit 0
 # calling initramfs regeneration separately
 if [ -f "%{kver_state_file}" ]; then
         kver_base="%{kmod_kernel_version}"
-        kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
+        kvers=$(ls -d "/lib/modules/${kver_base%%%%-*}"*)
 
         for k_dir in $kvers; do
                 k="${k_dir#/lib/modules/}"
@@ -189,10 +189,17 @@ exit 0
 %files
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config /etc/depmod.d/kmod-%{kmod_name}.conf
-%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
+%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
+%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 24 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.11-6.1
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.189.1.el8_10
+
+* Tue Nov 24 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.11-6
+- Add patch to fix _another_ leak
+- Built against RHEL 8.10 GA kernel 4.18.0-553.el8_10
+
 * Thu Jul 11 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.11-5
 - Changed Requires to Recommends ib_qib-ibverbs
 

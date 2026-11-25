@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	1.11
-Release:	19%{?dist}
+Release:	20%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -17,6 +17,13 @@ URL:		http://www.kernel.org/
 # Sources.
 Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
+
+# Source code patches
+Patch0: 	elrepo-ib_qib_9_1.patch
+Patch1: 	ib_qib-elrepo-bug1390.patch
+Patch2: 	ib_qib-elrepo-bug1494.patch
+Patch3: 	ib_qib-qibfs-fix-dentry-leak.patch
+Patch4: 	ib_qib-qibfs-fix-_another_-leak.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -30,11 +37,6 @@ Source5:	GPL-v2.0.txt
 		/usr/lib/rpm/redhat/brp-python-bytecompile "" "1" "0" \
 		/usr/lib/rpm/brp-python-hardlink \
 		/usr/lib/rpm/redhat/brp-mangle-shebangs
-
-# Source code patches
-Patch0: elrepo-ib_qib_9_1.patch
-Patch1: ib_qib-elrepo-bug1390.patch
-Patch2: ib_qib-elrepo-bug1494.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -87,6 +89,8 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
+%patch4 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD CONFIG_INFINIBAND_QIB=m
@@ -200,6 +204,10 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 24 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.11-20
+- Add patch to fix dentry leak
+- Add patch to fix _another_ leak
+
 * Thu Nov 12 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.11-19
 - Source code unchanged in RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
 - Built against RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
