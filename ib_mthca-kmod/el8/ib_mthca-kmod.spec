@@ -2,14 +2,14 @@
 %define kmod_name		ib_mthca
 
 # If kmod_kernel_version isn't defined on the rpmbuild line, define it here.
-%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.16.1.el8_10}
+%{!?kmod_kernel_version: %define kmod_kernel_version 4.18.0-553.189.1.el8_10}
 
 
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
 Version:	1.0.20080404
-Release:	2.1%{?dist}
+Release:	3.1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -20,12 +20,14 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0:		ib_mthca-use-memset_startat-for-clearing-mpt_entry.patch
-Patch1:		ib_mthca-delete-useless-module.h-include.patch
-Patch2:		ib_mthca-remove-useless-DMA-32-fallback-configuration.patch
-Patch3:		ib_mthca-silence-uninitialized-symbol-smatch-warnings.patch
-Patch4:		ib_mthca-fix-crash-when-polling-cq-for-shared-qps.patch
-Patch5:		elrepo-ib_mthca-backport-el9-to-el8.patch
+Patch0: 	ib_mthca-use-memset_startat-for-clearing-mpt_entry.patch
+Patch1: 	ib_mthca-delete-useless-module.h-include.patch
+Patch2: 	ib_mthca-remove-useless-DMA-32-fallback-configuration.patch
+Patch3: 	ib_mthca-silence-uninitialized-symbol-smatch-warnings.patch
+Patch4: 	ib_mthca-fix-crash-when-polling-cq-for-shared-qps.patch
+Patch5: 	ib_mthca-add-missed-mthca_unmap_user_db-for-mthca_cr.patch
+Patch6: 	ib_mthca-fix-off-by-one-in-mthca_map_user_db.patch
+Patch10: 	elrepo-ib_mthca-backport-el9-to-el8.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -85,6 +87,8 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
+%patch10 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} modules M=$PWD CONFIG_INFINIBAND_MTHCA=m
@@ -124,7 +128,7 @@ find %{buildroot} -type f -name \*.ko -exec %{__strip} --strip-debug \{\} \;
 %{__rm} -rf %{buildroot}
 
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_name} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -137,7 +141,7 @@ exit 0
 # calling initramfs regeneration separately
 if [ -f "%{kver_state_file}" ]; then
         kver_base="%{kmod_kernel_version}"
-        kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
+        kvers=$(ls -d "/lib/modules/${kver_base%%%%-*}"*)
 
         for k_dir in $kvers; do
                 k="${k_dir#/lib/modules/}"
@@ -193,10 +197,18 @@ exit 0
 %files
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config /etc/depmod.d/kmod-%{kmod_name}.conf
-%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
+%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
+%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 24 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.0.20080404-3.1
+- Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.189.1.el8_10
+
+* Tue Nov 24 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.0.20080404-3
+- Add patch to fix missed mthca_unmap_user_db() for mthca_create_srq()
+- Add patch to fix off-by-one in mthca_map_user_db()
+- Built against RHEL 8.10 GA kernel 4.18.0-553.el8_10
+
 * Sun Sep 15 2024 Tuan Hoang <tqhoang@elrepo.org> - 1.0.20080404-2.1
 - Rebuilt against RHEL 8.10 errata kernel 4.18.0-553.16.1.el8_10
 

@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	1.0.20080404
-Release:	7%{?dist}
+Release:	8%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,11 +19,13 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0:		ib_mthca-use-memset_startat-for-clearing-mpt_entry.patch
-Patch1:		ib_mthca-delete-useless-module.h-include.patch
-Patch2:		ib_mthca-remove-useless-DMA-32-fallback-configuration.patch
-Patch3:		ib_mthca-silence-uninitialized-symbol-smatch-warnings.patch
-Patch4:		ib_mthca-fix-crash-when-polling-cq-for-shared-qps.patch
+Patch0: 	ib_mthca-use-memset_startat-for-clearing-mpt_entry.patch
+Patch1: 	ib_mthca-delete-useless-module.h-include.patch
+Patch2: 	ib_mthca-remove-useless-DMA-32-fallback-configuration.patch
+Patch3: 	ib_mthca-silence-uninitialized-symbol-smatch-warnings.patch
+Patch4: 	ib_mthca-fix-crash-when-polling-cq-for-shared-qps.patch
+Patch5: 	ib_mthca-add-missed-mthca_unmap_user_db-for-mthca_cr.patch
+Patch6: 	ib_mthca-fix-off-by-one-in-mthca_map_user_db.patch
 
 # Fix for the SB-signing issue caused by a bug in /usr/lib/rpm/brp-strip
 # https://bugzilla.redhat.com/show_bug.cgi?id=1967291
@@ -91,6 +93,8 @@ echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.con
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
+%patch6 -p1
 
 %build
 %{__make} -C %{kernel_source} %{?_smp_mflags} V=1 modules M=$PWD CONFIG_INFINIBAND_MTHCA=m
@@ -204,6 +208,11 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 24 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.0.20080404-8
+- Add patch to fix missed mthca_unmap_user_db() for mthca_create_srq()
+- Add patch to fix off-by-one in mthca_map_user_db()
+- Built against RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
+
 * Thu Nov 12 2026 Tuan Hoang <tqhoang@elrepo.org> - 1.0.20080404-7
 - Source code unchanged in RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9
 - Built against RHEL 9.9 GA kernel-5.14.0-741.20.1.el9_9

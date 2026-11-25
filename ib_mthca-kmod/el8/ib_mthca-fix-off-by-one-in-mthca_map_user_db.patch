@@ -1,0 +1,33 @@
+https://github.com/torvalds/linux/commit/0246639e79a4132b68cb41ba28e41333d7c742d0
+
+From 0246639e79a4132b68cb41ba28e41333d7c742d0 Mon Sep 17 00:00:00 2001
+From: Serhat Kumral <serhatkumral1@gmail.com>
+Date: Fri, 23 Oct 2026 22:23:48 +0300
+Subject: [PATCH] RDMA/mthca: Fix off-by-one in mthca_map_user_db()
+
+db_tab->page[] has uarc_size / MTHCA_ICM_PAGE_SIZE elements, so valid
+doorbell indices are in the range [0, uarc_size / 8 - 1]. Allowing
+index == uarc_size / 8 results in an out-of-bounds access at
+db_tab->page[npages]. Use '>=' instead of '>' in the bounds check.
+
+Fixes: 56483ec1b702 ("[PATCH] IB uverbs: add mthca user doorbell record support")
+Signed-off-by: Serhat Kumral <serhatkumral1@gmail.com>
+Link: https://patch.msgid.link/20261023192348.11070-1-serhatkumral1@gmail.com
+Reviewed-by: Chenguang Zhao <zhaochenguang@kylinos.cn>
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
+---
+ drivers/infiniband/hw/mthca/mthca_memfree.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff -Naurp ib_mthca-1.0.20080404.orig/mthca_memfree.c ib_mthca-1.0.20080404/mthca_memfree.c
+--- ib_mthca-1.0.20080404.orig/mthca_memfree.c	2024-04-10 09:08:06.000000000 -0400
++++ ib_mthca-1.0.20080404/mthca_memfree.c	2026-11-24 17:35:33.132761062 -0500
+@@ -453,7 +453,7 @@ int mthca_map_user_db(struct mthca_dev *
+ 	if (!mthca_is_memfree(dev))
+ 		return 0;
+ 
+-	if (index < 0 || index > dev->uar_table.uarc_size / 8)
++	if (index < 0 || index >= dev->uar_table.uarc_size / 8)
+ 		return -EINVAL;
+ 
+ 	mutex_lock(&db_tab->mutex);
