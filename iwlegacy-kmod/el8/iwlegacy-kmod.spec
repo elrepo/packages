@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	14%{?dist}
+Release:	15%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,7 +19,14 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0:	elrepo-iwlegacy-revert-convert-tasklets.8.8.patch
+Patch0: 	elrepo-iwlegacy-revert-convert-tasklets.8.8.patch
+Patch1: 	0001-wifi-iwlegacy-Fix-field-spanning-write-warning-in-il.patch
+Patch2: 	0002-wifi-iwlegacy-Clear-stale-interrupts-before-resuming.patch
+Patch3: 	0003-wifi-iwlegacy-Check-rate_idx-range-after-addition.patch
+Patch4: 	0004-wifi-iwlegacy-add-missing-mutex-protection-in-il4965.patch
+Patch5: 	0005-wifi-iwlegacy-add-missing-mutex-protection-in-il3945.patch
+Patch6: 	0006-wifi-iwlegacy-fix-broadcast-stations-deallocation.patch
+Patch7: 	0007-wifi-iwlegacy-3945-free-EEPROM-data-on-remove.patch
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
                             /usr/lib/rpm/redhat/brp-ldconfig \
@@ -69,6 +76,14 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -q -n %{kmod_name}-%{version}
 %patch0 -p1
+%patch1 -p6
+%patch2 -p6
+%patch3 -p6
+%patch4 -p6
+%patch5 -p6
+%patch6 -p6
+%patch7 -p6
+
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
@@ -125,7 +140,7 @@ exit 0
 # calling initramfs regeneration separately
 if [ -f "%{kver_state_file}" ]; then
 	kver_base="%{kmod_kernel_version}"
-	kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
+	kvers=$(ls -d "/lib/modules/${kver_base%%%%-*}"*)
 
 	for k_dir in $kvers; do
 		k="${k_dir#/lib/modules/}"
@@ -185,6 +200,10 @@ exit 0
 %doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 24 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-15
+- Add upstream patches
+- Built against RHEL 8.10 GA kernel 4.18.0-553.el8_10
+
 * Wed Nov 19 2025 Tuan Hoang <tqhoang@elrepo.org> - 0.0-14
 - Add recommends for firmware packages
 

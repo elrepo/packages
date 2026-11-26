@@ -8,7 +8,7 @@
 
 Name:		kmod-%{kmod_name}
 Version:	0.0
-Release:	13%{?dist}
+Release:	14%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
 License:	GPLv2
@@ -19,7 +19,10 @@ Source0:	%{kmod_name}-%{version}.tar.gz
 Source5:	GPL-v2.0.txt
 
 # Source code patches
-Patch0:	elrepo-ath5k-revert-convert-tasklets.8.4.patch
+Patch0: 	elrepo-ath5k-revert-convert-tasklets.8.4.patch
+Patch1: 	0001-wifi-ath5k-add-PCI-ID-for-SX76X.patch
+Patch2: 	0002-wifi-ath5k-add-PCI-ID-for-Arcadyan-devices.patch
+Patch3: 	0003-wifi-ath5k-do-not-access-array-OOB.patch
 
 %define __spec_install_post /usr/lib/rpm/check-buildroot \
                             /usr/lib/rpm/redhat/brp-ldconfig \
@@ -66,6 +69,10 @@ of the same variant of the Linux kernel and not on any one specific build.
 %prep
 %setup -q -n %{kmod_name}-%{version}
 %patch0 -p1
+%patch1 -p5
+%patch2 -p5
+%patch3 -p5
+
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 echo "override ath * weak-updates/%{kmod_name}" >> kmod-%{kmod_name}.conf
 
@@ -109,7 +116,7 @@ done
 %{__rm} -rf %{buildroot}
 
 %post
-modules=( $(find /lib/modules/%{kmod_kernel_version}.x86_64/extra/%{kmod_name} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kmod_kernel_version}.%{_arch}/extra/%{kmod_name} | grep '\.ko$') )
 printf '%s\n' "${modules[@]}" | %{_sbindir}/weak-modules --add-modules --no-initramfs
 
 mkdir -p "%{kver_state_dir}"
@@ -122,7 +129,7 @@ exit 0
 # calling initramfs regeneration separately
 if [ -f "%{kver_state_file}" ]; then
 	kver_base="%{kmod_kernel_version}"
-	kvers=$(ls -d "/lib/modules/${kver_base%%.*}"*)
+	kvers=$(ls -d "/lib/modules/${kver_base%%%%-*}"*)
 
 	for k_dir in $kvers; do
 		k="${k_dir#/lib/modules/}"
@@ -178,10 +185,14 @@ exit 0
 %files
 %defattr(644,root,root,755)
 /lib/modules/%{kmod_kernel_version}.%{_arch}/
-%config /etc/depmod.d/kmod-%{kmod_name}.conf
-%doc /usr/share/doc/kmod-%{kmod_name}-%{version}/
+%config %{_sysconfdir}/depmod.d/kmod-%{kmod_name}.conf
+%doc %{_defaultdocdir}/kmod-%{kmod_name}-%{version}/
 
 %changelog
+* Tue Nov 24 2026 Tuan Hoang <tqhoang@elrepo.org> - 0.0-14
+- Add upstream patches
+- Built against RHEL 8.10 GA kernel 4.18.0-553.el8_10
+
 * Fri May 24 2024 Tuan Hoang <tqhoang@elrepo.org> - 0.0-13
 - Rebuilt against RHEL 8.10 GA kernel 4.18.0-553.el8_10
 
