@@ -9,7 +9,7 @@
 %{!?dist: %define dist .el8}
 
 Name:		kmod-%{kmod_name}
-Version:	4.2.30
+Version:	4.2.32
 Release:	1%{?dist}
 Summary:	%{kmod_name} kernel module(s)
 Group:		System Environment/Kernel
@@ -258,6 +258,10 @@ exit 0
 %doc %{_defaultdocdir}/%{kmod_name}-utils/
 
 %changelog
+* Tue Nov 24 2026 Tuan Hoang <tqhoang@elrepo.org> - 4.2.32-1
+- Updated to version 4.2.32
+- Built against RHEL 8.10 GA kernel 4.18.0-553.el8_10
+
 * Mon Sep 07 2026 Tuan Hoang <tqhoang@elrepo.org> - 4.2.30-1
 - Updated to version 4.2.30
 - Added systemd sub-package
